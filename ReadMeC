@@ -1,0 +1,6 @@
+To run the code
+
+gcc writer.c -o writer
+./writer
+gcc reader.c -o reader
+./reader
