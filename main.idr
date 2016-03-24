@@ -1,4 +1,6 @@
 import Data.Vect
+import Data.Fin
+
 
 data So : Bool -> Type where 
     Oh : So True
@@ -75,17 +77,6 @@ ExtractBounded (n ** _) = n
 -}
 
 
-{-
-Hp : Type
-Hp = {n : Bounded absoluteLowerBound absoluteUpperBound} ->
-     {m : Bounded absoluteLowerBound absoluteUpperBound} ->
-     {x : So ((ExtractBounded n) < (ExtractBounded m))} ->
-     ((n,m) ** So ((ExtractBounded n) <= (ExtractBounded m)))
--}
-
-
-
-
 
 syntax iff "(" [condition] ")" "{" [true_branch] "}" "else" "{" [false_branch] "}"
  = if condition then true_branch else false_branch
@@ -95,105 +86,6 @@ data Aliveness = Alive | DeadFresh | DeadStale
 
 
 
-{- Below I tried to make hp always <= max hp statically, but no success yet -}
-
-{-
-Eq Bounded absoluteLowerBound absoluteUpperBound where
- (==) n m = True
--}
-
-{-
-HH : Type
-HH = Bounded absoluteLowerBound absoluteUpperBound
-
-Eq HH where
- (==) n m = (==) (ExtractBounded n) (ExtractBounded m)
- 
-
-
--}
-
-
-{-show n = show (ExtractBounded n)-}
-
-
-
-
-{-
-Show (Bounded absoluteLowerBound absoluteUpperBound) where
- show (0 ** Oh) = "hello"
--}
-
-
-{-
-Show (Bounded absoluteLowerBound absoluteUpperBound) where
- show (_ ** _) = "hello"
--}
-
-
-
-{-
-
-What does it mean that type class implementation arguments have to be injective??
-
-interface Foo a where
-    bar : a -> Bool
-
-Blarg : Type
-Blarg = Bounded absoluteLowerBound absoluteUpperBound
-
-Foo Blarg where
- bar m = True
--}
-
-
-
-
-{-
-Show Aliveness where
- show Alive = "Alive"
- show DeadFresh = "DeadFresh"
- show DeadStale = "DeadStale"
--}
-
-Show Aliveness where
- show _ = "Alive"
-
-
-Eq Aliveness where
- (==) Alive Alive = True
- (==) Alive DeadFresh = False
- (==) Alive DeadStale = False
- (==) DeadFresh Alive = False
- (==) DeadFresh DeadFresh = True
- (==) DeadFresh DeadStale = False
- (==) DeadStale Alive = False
- (==) DeadStale DeadFresh = False
- (==) DeadStale DeadStale = True
-
-
-
-
-Ord Aliveness where
- compare Alive Alive = EQ
- compare Alive DeadFresh = GT
- compare Alive DeadStale = GT
- compare DeadFresh Alive = LT
- compare DeadFresh DeadFresh = EQ
- compare DeadFresh DeadStale = GT
- compare DeadStale Alive = LT
- compare DeadStale DeadFresh = LT
- compare DeadStale DeadStale = EQ
-
- (<) Alive Alive = True
- (<) Alive DeadFresh = False
- (<) Alive DeadStale = False
- (<) DeadFresh Alive = False
- (<) DeadFresh DeadFresh = True
- (<) DeadFresh DeadStale = False
- (<) DeadStale Alive = False
- (<) DeadStale DeadFresh = True
- (<) DeadStale DeadStale = True
 
 
 record Monster where
@@ -215,20 +107,9 @@ data Card = SpellCard Spell | MonsterCard Monster
 
 
 
-{- I want this to be the records from before!!!! -}
-
-
-{-
-mutant_pig : Monster
-mutant_pig = MkMonster ((20 ** Oh),(20 ** Oh),(20 ** Oh)) ((0 ** Oh),(0 ** Oh),(0 ** Oh)) ((2 ** Oh),(2 ** Oh),(2 ** Oh)) ((1 ** Oh),(1 ** Oh),(1 ** Oh)) ((3 ** Oh),(3 ** Oh),(3 ** Oh)) 
--}
-
 syntax repeat3 [val] = ((val ** Oh),(val ** Oh),(val ** Oh))
 syntax monster [attack] [defense] [speed] [range] [level] = MkMonster (repeat3 attack) (repeat3 defense) (repeat3 speed) (repeat3 range) (repeat3 level) Alive
 syntax spell [level] = MkSpell level
-
-
-{-  apparently instead of the syntax keyword, we can use type classes to do some of this. -}
 
 
 mutant_pig : Monster
@@ -237,8 +118,6 @@ mutant_pig = monster 20 0 2 1 3
 
 foo : Card
 foo = MonsterCard mutant_pig
-
-{-syntax vectrepeat [val] [times] = if times == 0 then [] else val :: (vectrepeat [val] [times - 1])-}
 
 Board : Type
 Board = Vect 9 (Maybe Monster)
@@ -297,280 +176,10 @@ nextPhase EngagementPhase = EndPhase
 nextPhase EndPhase = RevivalPhase
 nextPhase RevivalPhase = SpawnPhase
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {-
-
-IncrementPermanentAgility:function(object){return ModifyCard(object)},
-		IncrementPermanentAttack:function(object){return ModifyCard(object)},
-		IncrementPermanentDefense:function(object){return ModifyCard(object)},
-		IncrementPermanentRange:function(object){return ModifyCard(object)},
-		IncrementTemporaryAgility:function(object){return ModifyCard(object)},
-		IncrementTemporaryAttack:function(object){return ModifyCard(object)},
-		IncrementTemporaryDefense:function(object){return ModifyCard(object)},
-		IncrementTemporaryRange:function(object){return ModifyCard(object)},
-		IncrementTemporaryLevel:function(object){return ModifyCard(object)},
-		IncrementEngagement:function(object){return ModifyCard(object)},
-		IncrementThoughts:function(object){
-			if(!validateTokens(object,["player","value","ignoredUniversals"])){
-				console.error("invalid property in IncrementThoughts");
-			}
-			
-			var retVal = {};
-			if(object.player === undefined){
-				retVal.player = {"truth":true,type:"True"};
-			}
-			else{
-				retVal.player = Bool(object.player);
-			}
-			if(object.value === undefined){
-				console.error("value not defined in IncrementThoughts");
-			}
-			retVal.value = Int(object.value);
-			retVal.type = "IncrementThoughts";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
-		SendFromFieldToHand:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){
-				console.error("invalid property in SendFromFieldToHand");
-			}
-			var retVal = {};
-			if(object.player === undefined){
-				retVal.player = {"truth":true,type:"True"};
-			}
-			else{
-				retVal.player = Bool(object.player);
-			}
-			if(object.fromIndex === undefined){
-				console.error("fromIndex not defined in SendFromFieldToHand");
-			}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){
-				console.error("toIndex not defined in SendFromFieldToHand");
-			}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			retVal.type = "SendFromFieldToHand";
-			return retVal;
-		},
-		SendFromFieldToGraveyard:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){console.error("invalid property in SendFromFieldToGraveyard");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}
-			else{retVal.player = Bool(object.player);}
-			if(object.fromIndex === undefined){console.error("fromIndex not defined in SendFromFieldToGraveyard");}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){console.error("toIndex not defined in SendFromFieldToGraveyard");}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			
-			retVal.type = "SendFromFieldToGraveyard";
-			return retVal;
-		},
-		SendFromGraveyardToGraveyard:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){console.error("invalid property in SendFromGraveyardToGraveyard");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fromIndex === undefined){console.error("fromIndex not defined in SendFromGraveyardToGraveyard");}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){console.error("toIndex not defined in SendFromGraveyardToGraveyard");}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			retVal.type = "SendFromGraveyardToGraveyard";
-			return retVal;
-		},
-		SendFromGraveyardToHand:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){console.error("invalid property in SendFromGraveyardToHand");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fromIndex === undefined){console.error("fromIndex not defined in SendFromGraveyardToHand");}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){console.error("toIndex not defined in SendFromGraveyardToHand");}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			retVal.type = "SendFromGraveyardToHand";
-			return retVal;
-		},
-		SendFromHandToGraveyard:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){console.error("invalid property in SendFromHandToGraveyard");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player={"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fromIndex === undefined){console.error("fromIndex not defined in SendFromHandToGraveyard");}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){console.error("toIndex not defined in SendFromHandToGraveyard");}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			retVal.type = "SendFromHandToGraveyard";
-			return retVal;
-		},
-		SendFromHandToHand:function(object){
-			if(!validateTokens(object,["player","fromIndex","toIndex","ignoredUniversals"])){console.error("invalid property in SendFromHandToHand");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fromIndex === undefined){console.error("fromIndex not defined in SendFromHandToHand");}
-			retVal.fromIndex = Int(object.fromIndex);
-			if(object.toIndex === undefined){console.error("toIndex not defined in SendFromHandToHand");}
-			retVal.toIndex = Int(object.toIndex);
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			retVal.type = "SendFromHandToHand";
-			return retVal;
-		},
-		SwitchSetAndHand:function(object){
-			if(!validateTokens(object,["player","handIndex","ignoredUniversals"])){console.error("invalid property in SwitchSetAndHand");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.handIndex === undefined){console.error("handIndex not defined in SwitchSetAndHand");}
-			retVal.handIndex = Int(object.handIndex);
-			retVal.type = "SwitchSetAndHand";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
-		SwitchFieldAndHand:function(object){
-			if(!validateTokens(object,["player","fieldIndex","handIndex","ignoredUniversals"])){console.error("invalid property in SwitchFieldAndHand");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fieldIndex === undefined){console.error("fieldIndex not defined in SwitchFieldAndHand");}
-			retVal.fieldIndex = Int(object.fieldIndex);
-			if(object.handIndex === undefined){console.error("handIndex not defined in SwitchFieldAndHand");}
-			retVal.handIndex = Int(object.handIndex);
-			retVal.type = "SwitchFieldAndHand";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
-		SwitchFieldAndGraveyard:function(object){
-			if(!validateTokens(object,["player","fieldIndex","graveyardIndex","ignoredUniversals"])){console.error("invalid property in SwitchFieldAndGraveyard");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.fieldIndex === undefined){console.error("fieldIndex not defined in SwitchFieldAndGraveyard");}
-			retVal.fieldIndex = Int(object.fieldIndex);
-			if(object.graveyardIndex === undefined){console.error("graveyardIndex not defined in SwitchFieldAndGraveyard");}
-			retVal.graveyardIndex = Int(object.graveyardIndex);
-			retVal.type = "SwitchFieldAndGraveyard";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
-		SetKnowledge:function(object){
-			if(!validateTokens(object,["player","school","value","ignoredUniversals"])){console.error("invalid property in SetKnowledge");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player={"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.school === undefined){console.error("school not defined in SetKnowledge");}
-			retVal.school = Int(object.school);
-			if(object.value === undefined){console.error("value not defined in SetKnowledge");}
-			retVal.value = Int(object.value);
-			retVal.type = "SetKnowledge";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
 		SetHp:function(object){return ModifyCard(object)},
 		SetMaxHp:function(object){return ModifyCard(object)},
-		SetPermanentAgility:function(object){return ModifyCard(object)},
-		SetPermanentAttack:function(object){return ModifyCard(object)},
-		SetPermanentDefense:function(object){return ModifyCard(object)},
-		SetPermanentRange:function(object){return ModifyCard(object)},
-		SetPermanentLevel:function(object){return ModifyCard(object)},
-		SetTemporaryAgility:function(object){return ModifyCard(object)},
-		SetTemporaryAttack:function(object){return ModifyCard(object)},
-		SetTemporaryDefense:function(object){return ModifyCard(object)},
-		SetTemporaryRange:function(object){return ModifyCard(object)},
-		SetTemporaryLevel:function(object){return ModifyCard(object)},
-		ReviveCard:function(object){return ModifyCard(object)},
-		SetEngagement:function(object){return ModifyCard(object)},
-		SetThoughts:function(object){
-			if(!validateTokens(object,["player","value","ignoredUniversals"])){console.error("invalid property in SetThoughts");}
-			var retVal = {};
-			if(object.player === undefined){retVal.player = {"truth":true,type:"True"};}else{retVal.player = Bool(object.player);}
-			if(object.value === undefined){console.error("value not defined in IncrementThoughts");}
-			retVal.value = Int(object.value);
-			retVal.type = "SetThoughts";
-			if(object.ignoredUniversals === undefined){
-				retVal.ignoredUniversals = [];
-			}
-			else{
-				retVal.ignoredUniversals = object.ignoredUniversals;
-			}
-			return retVal;
-		},
-		TakeDamage:function(object){return ModifyCard(object)}
-	};
-	return dispatch(object,constructables);
-
-
-
-
-
-
 -}
-
-
 
 
 
@@ -579,51 +188,24 @@ data Side = Friendly | Enemy
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-{-
-
- I used to have both IF and WHILE statements in the original DSL.
- I'm removing WHILE statements because:
-
- 1) Implementing WHILE is harder
- 2) When implementing a skill that uses a WHILE statement, it is harder to make sure it terminates
- 3) In order to ensure the game can progress at the expected temporal rate, we generally have an upper bound in mind for how long a WHILE statement can run anyway, and can potentially use several IF statements (not 100% sure if this will be clean)
- 4) Not having both IF and WHILE statements means there is less pattern matching, and thus cleaner code.
-
--}
-
-
-
 {- For now ignoring the client update part of this -}
 {- I might be able to get away with doing a lot more of this with type classes -}
-
-
-
-{- I can modularize the "permanent" part separately from the "Level" or whatever. Skipping for now. -}
 
 
 
 Set : Type
 Set = (Side, Area)
 
-CardExistential : Type
-CardExistential = (Set, String)
 
+{- not implementing universal quantifiers yet -}
 
-BoardExistential : Type
-BoardExistential = (Side, String)
+data CardExistential = DeBruijnCardExistential Set
 
+{- might have to index these entire datatypes with Fin... not sure... -}
+data CardVar = BoundCardVar Card | UnBoundCardVar (Fin n) {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
+
+data BoardExistential = DeBruijnBoardExistential Side
+data BoardVar = BoundBoardVar Monster | UnBoundBoardVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
 
 
 BoardPredicate : Type
@@ -670,13 +252,25 @@ data Mutator = IncrementL | SetL
 School : Type
 School = Bounded 0 5
 
-{-still have to put RValues in these. Like how much are you setting to / increasing by -}
+
+data StatRValue = TemporaryR | PermanentR | BaseR
 
 
-data SkillEffect = {- I have to deal with the fact that these take varying amounts of arguments... -}
- Refresh Side FieldIndex Integer {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
- |IncrementHp Integer
- |IncrementMaxHp Integer
+{- I need to put the constraints on the DeBruijn indices in the types here... -}
+data LazyInt = Constant Integer
+             | AttackR StatRValue CardVar
+             | DefenseR StatRValue CardVar
+             | RangeR StatRValue CardVar
+             | SpeedR StatRValue CardVar
+             | SchoolR School
+             | ThoughtsR
+             | SoulPointsR
+             {- ignoring a few nice things like cardinality for now -}
+
+data SkillEffect =
+ Refresh Side FieldIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
+ |IncrementHp FieldIndex LazyInt {- to be revisted when hp is defined -}
+ |IncrementMaxHp FieldIndex LazyInt {- to be revisted when hp is defined -}
  |SendFromFieldToHand Side FieldIndex
  |SendFromFieldToGraveyard Side FieldIndex GraveyardIndex {-etc, but we can also abstract over FROM and TO...-}
  |SendFromGraveyardToGraveyard Side GraveyardIndex GraveyardIndex
@@ -686,37 +280,28 @@ data SkillEffect = {- I have to deal with the fact that these take varying amoun
  |SwitchSetAndHand Side HandIndex
  |SwitchFieldAndHand Side FieldIndex HandIndex
  |SwitchFieldAndGraveyard Side FieldIndex GraveyardIndex
- |SetHp Side Integer
- |SetMaxHp Side Integer
- |LevelL Mutator StatLValue Side FieldIndex Integer
- |SpeedL Mutator StatLValue Side FieldIndex Integer
- |AttackL Mutator StatLValue Side FieldIndex Integer
- |DefenseL Mutator StatLValue Side FieldIndex Integer
- |RangeL Mutator StatLValue Side FieldIndex Integer
+ |SwitchFieldAndSet Side FieldIndex
+ |SwitchHandAndSet Side HandIndex
+ |SwitchGraveyardAndSet Side GraveyardIndex
+ |SendFromHandToSet Side HandIndex{- no effect if set occupied or no monsters in hand -}
+ |SendFromHandToField Side HandIndex FieldIndex {- no effect if field occupied at determined index or no monsters in hand -} 
+ |SendFromGraveyardToField Side GraveyardIndex FieldIndex {- no effect if field occupied at determined index or no monsters in graveyard -}
+{- there might be some more cases I'm forgetting right now.. -}
+ |SetHp Side FieldIndex LazyInt {- to be revisted when hp is defined -}
+ |SetMaxHp Side FieldIndex LazyInt {- to be revisted when hp is defined -}
+ |LevelL Mutator StatLValue Side FieldIndex LazyInt
+ |SpeedL Mutator StatLValue Side FieldIndex LazyInt
+ |AttackL Mutator StatLValue Side FieldIndex LazyInt
+ |DefenseL Mutator StatLValue Side FieldIndex LazyInt
+ |RangeL Mutator StatLValue Side FieldIndex LazyInt
  |ReviveCard Side FieldIndex
- |EngagementL Side FieldIndex Integer
- |ThoughtsL Side Mutator Integer
- |KnowledgeL Mutator School Side Integer
- |TakeDamage Side FieldIndex Integer
+ |EngagementL Side FieldIndex LazyInt
+ |ThoughtsL Side Mutator LazyInt
+ |KnowledgeL Mutator School Side LazyInt
+ |TakeDamage Side FieldIndex LazyInt
 
 
-data StatRValue = TemporaryR | PermanentR | BaseR
 
-{-
-data PossiblyBound = 
--}
-
-{-
-data LazyInt =
-  AgilityR Existential Not Monster (But becomes monster after being bound or whatever)
- |AttackR Monster
- |DefenseR Monster
- |RangeR Monster
- |SpeedR Monster
- |KnowledgeR SchoolR?
- |ThoughtsR Side
-
--}
 
 {-Counter Skills should not trigger more than once per <SkillQueue is cleared completely> This way I don't have to worry about players running out of time from massively titanic runs of counterskill chains, or even nontermination-}
 
@@ -727,25 +312,7 @@ data LazyInt =
 
 
 FooBlargFoo : SkillEffect
-FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) 4
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) (Constant 4)
 
 
 
@@ -837,6 +404,77 @@ main = do {
  input <- getLine;
  putStrLn input;
 }
+
+
+
+
+
+
+data Ty = TyInt
+        | TyBool
+        | TyFun Ty Ty
+
+interpTy : Ty -> Type
+interpTy TyInt       = Int
+interpTy TyBool      = Bool
+interpTy (TyFun s t) = interpTy s -> interpTy t
+
+
+
+{-index : Fin n -> Vect n a -> a
+index FZ     (x::xs) = x
+index (FS k) (x::xs) = index k xs
+-}
+
+
+
+using (G : Vect n Ty)
+ data Env  : Vect n Ty -> Type where
+      Nil  : Env Nil
+      (::) : interpTy a -> Env G -> Env (a :: G)
+ data HasType : (i : Fin n) -> Vect n Ty -> Ty -> Type where
+  Stop : HasType FZ (t :: G) t
+  Pop  : HasType k G t -> HasType (FS k) (u :: G) t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+foo54 : Fin 4 {-0~3-}
+foo54 = 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
