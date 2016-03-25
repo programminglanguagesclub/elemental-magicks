@@ -1,8 +1,8 @@
-# elemental-magicks
+#### **elemental-magicks**
 Idris + Ur/Web development of a perfect information, fair, deterministic turn based strategy game, built with dependent types!
 
 
---Intro--<br />
+#### **Intro** <br />
 
 Elemental Magicks is the first game to be entirely skill based in the following sense:
 
@@ -16,7 +16,7 @@ and mini-max (but could be a different mini-max decision) in cases which are rea
 
 It is thus more pure as a strategy game even than chess, and much more than other games of its genre.
 
---OurGoal --<br />
+#### **OurGoal ** <br />
 
 
 Having successfully prototyped this game in Java (about 100,000 line development),
@@ -24,25 +24,25 @@ we seek to build a beautiful, concise, and robust version using the best program
 
 That means development in Ur/Web and Idris.
 
--- List of Contributors --<br />
+#### **List of Contributors ** <br />
 
 This list will continue to evolve as people help us.
 It also currently does not include the large number of artists who are helping.
 
 Please send me a message if you want to be added to our team (i.e. need write access).
 
-Game Design :
+ **Game Design** :
 
 Raleigh Foster
 
-Programming :
+**Programming** :
 
 Rob Sap
 Raleigh Foster
 
 
 
--- Our GitHub Page --<br />
+####** Our GitHub Page **<br />
 https://github.com/programminglanguagesclub <br />
 
 We're the programming languages club from the University of Oregon.
@@ -54,7 +54,7 @@ designed to give us experience in powerful languages,
 and provide examples of powerful languages in action.
 
 
--- Tasks to Work On --<br />
+####**Tasks to Work On **<br />
 https://github.com/programminglanguagesclub/elemental-magicks/issues <br />
 
 You can view the currently outstanding tasks via the above link.
@@ -70,20 +70,20 @@ Anything with the "Hard" or "Easy" label is respectively hard or easy, but don't
 Hard tasks can be quite doable, and easy tasks can be challenging, but typically have more limited scope.
 
 
--- Our Facebook Page -- <br />
+####**Our Facebook Page  **<br />
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/ <br />
 
 We also have a facebook group.
 
 
  
--- Recent Group Messages and Updates-- <br />
+####** Recent Group Messages and Updates** <br />
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity <br />
 
 
 
 
--- Our Events Page -- <br />
+####** Our Events Page ** <br />
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
 
 
