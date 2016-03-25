@@ -59,14 +59,10 @@ Hard tasks can be quite doable, and easy tasks can be challenging, but typically
 
 
 #### **Our Facebook Page** <br />
-https://www.facebook.com/groups/UOProgrammingLanguagesClub/ <br />
+https://www.facebook.com/groups/UOProgrammingLanguagesClub/ 
 
-We also have a facebook group.
-
-
- 
 #### **Recent Group Messages and Updates** <br />
-https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity <br />
+https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity
 
 
 
