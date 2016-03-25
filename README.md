@@ -8,7 +8,7 @@ Elemental Magicks is the first game to be entirely skill based in the following 
 
 Given any legal position (not just the starting position),
 any strategy S from that position which is not mini-max cannot possibly
-achieve an inferior result if a decision in S is substituted from the mini-max strategy.
+achieve an inferior result if a decision in S is substituted from the mini-max strategy to replace a non-minimax optimal decision in S.
 
 That is to say, all minimax strategies is guaranteed to be best,
 Except for some cases where a strategy which is not mini-max in positions which are not reached,
