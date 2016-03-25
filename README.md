@@ -2,47 +2,47 @@
 Idris + Ur/Web development of a perfect information, fair, deterministic turn based strategy game, built with dependent types!
 
 
---Intro--
+--Intro--<br />
 //Give a brief description
 
 
 
---OurGoal --
+--OurGoal --<br />
 //Brief Goal
 
 
 
--- List of Contributors --
+-- List of Contributors --<br />
 //List a few peoples username or first name
 
 
 
--- Our GitHub Page --
-https://github.com/programminglanguagesclub
+-- Our GitHub Page --<br />
+https://github.com/programminglanguagesclub <br />
 //Brief description
 
 
 
--- Tasks to Work On --
-https://github.com/programminglanguagesclub/elemental-magicks/issues
+-- Tasks to Work On --<br />
+https://github.com/programminglanguagesclub/elemental-magicks/issues <br />
 //Brief description , something about details for each task or in each issue you click on, and something about how to do it, upload ect are in there
 
 
 
--- Our Facebook Page --
-https://www.facebook.com/groups/UOProgrammingLanguagesClub/
+-- Our Facebook Page -- <br />
+https://www.facebook.com/groups/UOProgrammingLanguagesClub/ <br />
 //Brief description
 
 
  
--- Recent Group Messages and Updates--
-https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity
+-- Recent Group Messages and Updates-- <br />
+https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity <br />
 //Brief description
 
 
 
--- Our Events Page --
-https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/
-//Brief description
+-- Our Events Page -- <br />
+https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
+//Brief description 
 
 
