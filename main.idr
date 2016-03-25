@@ -202,7 +202,19 @@ Set = (Side, Area)
 data CardExistential = DeBruijnCardExistential Set
 
 {- might have to index these entire datatypes with Fin... not sure... -}
-data CardVar = BoundCardVar Card | UnBoundCardVar (Fin n) {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
+
+
+
+{-not sure if I want Fin n or Nat here...-}
+
+data CardVar : Nat -> Type where
+ BoundCardVar : Card -> CardVar 0
+ UnBoundCardVar : (Fin n) -> (CardVar n)
+
+
+
+
+{- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
 data BoardExistential = DeBruijnBoardExistential Side
 data BoardVar = BoundBoardVar Monster | UnBoundBoardVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
@@ -257,7 +269,12 @@ data StatRValue = TemporaryR | PermanentR | BaseR
 
 
 {- I need to put the constraints on the DeBruijn indices in the types here... -}
-data LazyInt = Constant Integer
+data LazyInt : Nat -> Type where
+ {-Constant : Integer -> LazyInt 0 -} {-ignoring constant for now. It's neither bound to a card nor awaiting binding, so it's an edge case for this design-}
+ AttackR : {n : Nat} -> StatRValue -> LazyInt n
+
+
+{-
              | AttackR StatRValue CardVar
              | DefenseR StatRValue CardVar
              | RangeR StatRValue CardVar
@@ -267,7 +284,13 @@ data LazyInt = Constant Integer
              | SoulPointsR
              {- ignoring a few nice things like cardinality for now -}
 
-data SkillEffect =
+-}
+
+
+data SkillEffect : Nat -> Type where
+ AttackL : {n : Nat} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt  n) -> SkillEffect n
+
+{-
  Refresh Side FieldIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
  |IncrementHp FieldIndex LazyInt {- to be revisted when hp is defined -}
  |IncrementMaxHp FieldIndex LazyInt {- to be revisted when hp is defined -}
@@ -300,7 +323,7 @@ data SkillEffect =
  |KnowledgeL Mutator School Side LazyInt
  |TakeDamage Side FieldIndex LazyInt
 
-
+-}
 
 
 {-Counter Skills should not trigger more than once per <SkillQueue is cleared completely> This way I don't have to worry about players running out of time from massively titanic runs of counterskill chains, or even nontermination-}
@@ -310,45 +333,63 @@ data SkillEffect =
 {- in order to allow for universals and existentials, I should not require FieldIndex here to be predetermined.... -}
 
 
-
+{-
 FooBlargFoo : SkillEffect
 FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) (Constant 4)
+-}
 
 
 
+BoardCondition : Nat -> Type
+BoardCondition n = (Vect n BoardExistential, BoardPredicate)
 
-BoardCondition : Type
-BoardCondition = (List BoardExistential, BoardPredicate)
+CardCondition : Nat -> Type
+CardCondition n = (Vect n CardExistential, CardPredicate)
 
-CardCondition : Type
-CardCondition = (List CardExistential, CardPredicate)
-
-data Condition = BoardCondition_ BoardCondition | CardCondition_ CardCondition
+data Condition = BoardCondition_ (BoardCondition n) | CardCondition_ (CardCondition n)
 
 mutual
- NonautomaticSkillComponent : Type
- NonautomaticSkillComponent = (Condition,AutomaticSkillComponent)
+ NonautomaticSkillComponent : Nat -> Type
+ NonautomaticSkillComponent n = (Condition, AutomaticSkillComponent n, AutomaticSkillComponent n, AutomaticSkillComponent n) {- in particular n could be different for this last one-}
+{- this is if(condition){do if true}{do if false}{do after if statement}-}
+{- not n in all cases here. Again, just trying to get to typecheck for now. -}
+{- Also there need to be two natural indices: one for selection of cards, and the other for selection of squares! -}
+{- Oh, then there's everything regarding the set location. That's a bit tricky because you shouldn't be able to affect its stats, so it's like a Card, but it can be empty, which is like a Square...-}
 
- AutomaticSkillComponent : Type
- AutomaticSkillComponent = (List SkillEffect, Maybe NonautomaticSkillComponent)
 
-SkillTailExample : List NonautomaticSkillComponent
+{-
+I have two mutually incompatible ways that "next" is being implemented.
+One is I have it built directly into NonautomaticSkillComponent (instead of just having StatementTrue and StatementFalse).
+The other is that in AutomaticSkillComponent I have a List of NonautomaticSkillComponents (instead of just Maybe NonautomaticSkillComponent)
+-}
+
+ AutomaticSkillComponent : Nat -> Type
+ AutomaticSkillComponent n = (List (SkillEffect n), Maybe (NonautomaticSkillComponent n))
+
+SkillTailExample : List (NonautomaticSkillComponent 4)
 SkillTailExample = []
 
-Skill : Type
-Skill = (AutomaticSkillComponent, List NonautomaticSkillComponent)
 
-AutomaticSkillComponentExample : (List SkillEffect, Maybe NonautomaticSkillComponent)
+
+Skill : Nat -> Type
+Skill n = (AutomaticSkillComponent n, List (NonautomaticSkillComponent n))
+
+
+
+
+{- a lot of places n will have the wrong value for what I'm doing. Currently ignore this. Just trying to get to typecheck -}
+
+AutomaticSkillComponentExample : {n : Nat} -> (List (SkillEffect n), Maybe (NonautomaticSkillComponent n))
 AutomaticSkillComponentExample = ([], Nothing)
 
 
 
-SkillExample : ((List SkillEffect, Maybe NonautomaticSkillComponent), List NonautomaticSkillComponent)
+SkillExample : ((List (SkillEffect 4), Maybe (NonautomaticSkillComponent 4)), List (NonautomaticSkillComponent 4))
 SkillExample = (AutomaticSkillComponentExample,SkillTailExample)
 
 
 
-
+{-IF HAS BOTH A STATEMENT TRUE AND A NEXT!!!!!   (NOT TO MENTION IT HAS A STATEMENT FALSE!) -}
 
 
 {- still have to represent rounds, initiative -}
@@ -356,15 +397,16 @@ SkillExample = (AutomaticSkillComponentExample,SkillTailExample)
 record Game where
  constructor MkGame
  round : Bounded 0 1
- skillHead : Maybe Skill
- skillQueue : List (List NonautomaticSkillComponent)
+ n : Nat {- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
+ skillHead : Maybe (Skill n)
+ skillQueue : List (List (NonautomaticSkillComponent n))
 
  player_A : Player
  player_B : Player
 
 
 
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) Nothing [] (new player tokenA) (new player tokenB)
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 Nothing [] (new player tokenA) (new player tokenB)
 
 
 game : Game
@@ -393,10 +435,13 @@ transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
 -}
 
 
+{-
+
 while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
 while_loop [] _ = ([],[])
 while_loop (g::gs) _ = ([],[])
 
+-}
 
 
 main : IO ()
@@ -427,6 +472,8 @@ index (FS k) (x::xs) = index k xs
 -}
 
 
+{-
+I used n above and now it's confused with this...
 
 using (G : Vect n Ty)
  data Env  : Vect n Ty -> Type where
@@ -436,7 +483,7 @@ using (G : Vect n Ty)
   Stop : HasType FZ (t :: G) t
   Pop  : HasType k G t -> HasType (FS k) (u :: G) t
 
-
+-}
 
 
 
