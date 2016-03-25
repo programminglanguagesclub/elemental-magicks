@@ -21,7 +21,7 @@ https://github.com/programminglanguagesclub/elemental-magicks/issues
 -- Our Facebook Page --
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/
 //Brief description
-
+ 
 -- Recent Group Messages and Updates--
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity
 //Brief description
