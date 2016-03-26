@@ -88,6 +88,32 @@ data Aliveness = Alive | DeadFresh | DeadStale
 
 
 
+
+
+
+
+
+{- rename this BoardIndex -}
+
+FieldIndex : Type
+FieldIndex = Bounded 0 8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 record Monster where
  constructor MkMonster
  attack : TemporaryPermanentBase Attack
@@ -214,24 +240,62 @@ data CardVar : Nat -> Type where
 
 
 
+
+
+{- The trick here is that for the purpose of selecting squares on the board I don't really want "Maybe Monster". If they select a monster,
+I want that to be the same monster even if it gets moved on the board. In the case of an empty square, however, it has to be that particular coordinate.
+
+It's worth nothing though that this means that in the case of empty squares that are no longer empty, we have a problem.
+
+Equally though, we have an issue with monsters that have moved to a region that does not allow certain skills to be applied with them in their former capacity.
+
+
+For now, it's acceptable to represent the square number and monster at the type level, and have a value level check to see if it's still valid.
+
+Then if it's not valid, the skill can terminate (or at least that part of it).
+
+This may be the best solution in the end because we may wish to allow skills to have the possibility of doing this depending on
+game state or player action.
+
+
+
+
+-}
+
+
+
+
+{- Might need another type for the Spawn position?? -}
+{- Rename set to spawn everywhere -}
+
+
+
 {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
-data BoardExistential = DeBruijnBoardExistential Side
-data BoardVar = BoundBoardVar Monster | UnBoundBoardVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
 
 
-BoardPredicate : Type
-BoardPredicate = Maybe Monster -> Bool
+data BoardMonsterExistential = DeBruijnBoardMonsterExistential Side
+data BoardMonsterVar = BoundBoardMonsterVar Monster | UnBoundBoardMonsterVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
+
+
+BoardMonsterPredicate : Type
+BoardMonsterPredicate = Monster -> Bool
+
+
+data BoardSquareExistential = DeBruijnBoardSquareExistential Side
+data BoardSquareVar = BoundBoardSquareVar FieldIndex | UnBoundBoardSquareVar (Fin n)
+
+
+{-I might need more information... I Might need to pass in the game object into these really...
+-}
+BoardSquarePredicate : Type
+BoardSquarePredicate = FieldIndex -> Bool
 
 
 
-MonsterExistsOnSquare : BoardPredicate
-MonsterExistsOnSquare (Just m) = True
-MonsterExistsOnSquare Nothing = False
 
-MonsterAlive : BoardPredicate
-MonsterAlive Nothing = False
-MonsterAlive (Just m) with (aliveness m)
+MonsterAlive : BoardMonsterPredicate
+MonsterAlive m with (aliveness m)
  | Alive = True
  | _ = False
 
@@ -245,9 +309,6 @@ CardPredicate = Card -> Bool
 
 
 
-
-FieldIndex : Type
-FieldIndex = Bounded 0 8
 
 HandIndex : Type
 HandIndex = Bounded 0 29
@@ -269,9 +330,11 @@ data StatRValue = TemporaryR | PermanentR | BaseR
 
 
 {- I need to put the constraints on the DeBruijn indices in the types here... -}
-data LazyInt : Nat -> Type where
+data LazyInt : Nat -> Nat -> Nat -> Type where
  {-Constant : Integer -> LazyInt 0 -} {-ignoring constant for now. It's neither bound to a card nor awaiting binding, so it's an edge case for this design-}
- AttackR : {n : Nat} -> StatRValue -> LazyInt n
+ BoardAttackR : {n : Nat} -> {m : Nat} -> {p : Nat} -> StatRValue -> Fin n -> LazyInt n m p
+{- THIS WONT DO.... I need to be able to have a monster here....-}
+{- Perhaps I should create yet another category: Board Monster and Board Empty?-}
 
 
 {-
@@ -287,8 +350,17 @@ data LazyInt : Nat -> Type where
 -}
 
 
-data SkillEffect : Nat -> Type where
- AttackL : {n : Nat} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt  n) -> SkillEffect n
+
+
+{- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
+
+data SkillEffect : Nat -> Nat -> Nat -> Type where
+ AttackL : {n : Nat} -> {m : Nat} -> {p : Nat} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt n m p) -> SkillEffect n m p
+
+
+
+
+{- can I write {n m p : Nat} -> ??? -}
 
 {-
  Refresh Side FieldIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
@@ -340,22 +412,98 @@ FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) (Constant 4)
 
 
 
-BoardCondition : Nat -> Type
-BoardCondition n = (Vect n BoardExistential, BoardPredicate)
+BoardSquareCondition : Nat -> Type
+BoardSquareCondition n = (Vect n BoardSquareExistential, BoardSquarePredicate)
+
+BoardMonsterCondition : Nat -> Type
+BoardMonsterCondition n = (Vect n BoardMonsterExistential, BoardMonsterPredicate)
 
 CardCondition : Nat -> Type
 CardCondition n = (Vect n CardExistential, CardPredicate)
 
-data Condition = BoardCondition_ (BoardCondition n) | CardCondition_ (CardCondition n)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{- Again, actually need 2-3 Nats. -}
+
+
+{-Nats refer to: Board, and then Graveyard | Hand | Discard, and then Spawn position.-}
+
+
+
+{- Need a way to combine this with earlier conditions so that the predicate can reference earlier existentials... -}
+
+{- for now ignoring whatever a set condition would be. It's not an existential. Maybe a universal...-}
+
+data Condition : Nat -> Nat -> Nat -> Type where
+ BoardMonsterCondition_ : (BoardMonsterCondition n) -> Condition n 0 0
+ BoardSquareCondition_ : (BoardSquareCondition n) -> Condition n 0 0
+ CardCondition_ : (CardCondition n) -> Condition 0 n 0
+
+
+
+
+
+
+
+{- Somewhere I have to define Env, which is going to be a Vect of bound (whatever)s -}
+
+
+
+
+
+
+
+
+
+Env : Nat -> Nat -> Nat -> Type
+Env m n p = (Vect m Monster, Vect n FieldIndex, Vect p Card)
+
+
+
+{- these need to be made into datatypes because they need to store Env.-}
 mutual
- NonautomaticSkillComponent : Nat -> Type
- NonautomaticSkillComponent n = (Condition, AutomaticSkillComponent n, AutomaticSkillComponent n, AutomaticSkillComponent n) {- in particular n could be different for this last one-}
+
+
+
+
+
+
+{- Need to concat in the env here!!!!-}
+{-
+
+Ah, so actually statement true is currently
+AutomaticSkillComponent (m) (n) (p) env,
+and it gets mapped to
+AutomaticSkillComponent (m+m') (n+n') (p+p') env'
+
+only when we are actually able to update env (produce env' that is),
+which happens in the small-step interpreter (when we get the bindings from Condition, in other words)
+
+-}
+ NonautomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env)
+{- in particular n could be different for this last one-}
+
+
 {- this is if(condition){do if true}{do if false}{do after if statement}-}
 {- not n in all cases here. Again, just trying to get to typecheck for now. -}
 {- Also there need to be two natural indices: one for selection of cards, and the other for selection of squares! -}
 {- Oh, then there's everything regarding the set location. That's a bit tricky because you shouldn't be able to affect its stats, so it's like a Card, but it can be empty, which is like a Square...-}
-
+{- Actually, the set location doesn't require being selected, although it does get bound (you can do things to the card that was on the set position at a particular time) -}
+{- maybe it doesn't get bound -}
 
 {-
 I have two mutually incompatible ways that "next" is being implemented.
@@ -363,20 +511,33 @@ One is I have it built directly into NonautomaticSkillComponent (instead of just
 The other is that in AutomaticSkillComponent I have a List of NonautomaticSkillComponents (instead of just Maybe NonautomaticSkillComponent)
 -}
 
- AutomaticSkillComponent : Nat -> Type
- AutomaticSkillComponent n = (List (SkillEffect n), Maybe (NonautomaticSkillComponent n))
 
-SkillTailExample : List (NonautomaticSkillComponent 4)
+
+{- These skill effects are bounded by m n and p, but I want it to type check if it has less restricted bounds... -}
+
+
+{-
+ TTT : (n : Nat) -> Type
+-}
+
+ AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ AutomaticSkillComponent m n p env = (List (SkillEffect m n p), Maybe (NonautomaticSkillComponent m n p env))
+
+{-
+SkillTailExample : List (NonautomaticSkillComponent 4 4 4)
 SkillTailExample = []
+-}
+
+{-
+Skill : Nat -> Nat -> Nat -> Type
+Skill m n p = (AutomaticSkillComponent m n p, List (NonautomaticSkillComponent m n p))
+-}
+Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+Skill m n p env = (AutomaticSkillComponent m n p env, List (NonautomaticSkillComponent m n p env))
 
 
 
-Skill : Nat -> Type
-Skill n = (AutomaticSkillComponent n, List (NonautomaticSkillComponent n))
-
-
-
-
+{-
 {- a lot of places n will have the wrong value for what I'm doing. Currently ignore this. Just trying to get to typecheck -}
 
 AutomaticSkillComponentExample : {n : Nat} -> (List (SkillEffect n), Maybe (NonautomaticSkillComponent n))
@@ -384,11 +545,13 @@ AutomaticSkillComponentExample = ([], Nothing)
 
 
 
+
+
 SkillExample : ((List (SkillEffect 4), Maybe (NonautomaticSkillComponent 4)), List (NonautomaticSkillComponent 4))
 SkillExample = (AutomaticSkillComponentExample,SkillTailExample)
 
-
-
+-}
+{-
 {-IF HAS BOTH A STATEMENT TRUE AND A NEXT!!!!!   (NOT TO MENTION IT HAS A STATEMENT FALSE!) -}
 
 
@@ -397,16 +560,21 @@ SkillExample = (AutomaticSkillComponentExample,SkillTailExample)
 record Game where
  constructor MkGame
  round : Bounded 0 1
- n : Nat {- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
- skillHead : Maybe (Skill n)
- skillQueue : List (List (NonautomaticSkillComponent n))
+ {-n : Nat
+ m : Nat
+ p : Nat
+-}
+
+{- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
+ skillHead : Maybe (Skill n m p)
+ skillQueue : List (List (NonautomaticSkillComponent n m p ))
 
  player_A : Player
  player_B : Player
 
 
 
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 Nothing [] (new player tokenA) (new player tokenB)
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 Nothing [] (new player tokenA) (new player tokenB)
 
 
 game : Game
@@ -442,6 +610,58 @@ while_loop [] _ = ([],[])
 while_loop (g::gs) _ = ([],[])
 
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 main : IO ()
@@ -498,12 +718,6 @@ using (G : Vect n Ty)
 
 foo54 : Fin 4 {-0~3-}
 foo54 = 3
-
-
-
-
-
-
 
 
 
