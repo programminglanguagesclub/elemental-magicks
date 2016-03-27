@@ -209,6 +209,21 @@ nextPhase RevivalPhase = SpawnPhase
 
 
 
+
+
+
+
+Env : Nat -> Nat -> Nat -> Type
+Env m n p = (Vect m Monster, Vect n FieldIndex, Vect p Card)
+
+
+{- For now, I am not putting the requirement that entries be unique into the type. This is IMPORTANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
+{-also for now cannot target discard.-}
+
+{-
+Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b FieldIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
+-}
+
 data Area = SpawnPosition | HandArea | GraveyardArea | DiscardArea
 data Side = Friendly | Enemy
 
@@ -330,11 +345,10 @@ data StatRValue = TemporaryR | PermanentR | BaseR
 
 
 {- I need to put the constraints on the DeBruijn indices in the types here... -}
-data LazyInt : Nat -> Nat -> Nat -> Type where
+data LazyInt : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
  {-Constant : Integer -> LazyInt 0 -} {-ignoring constant for now. It's neither bound to a card nor awaiting binding, so it's an edge case for this design-}
- BoardAttackR : {n : Nat} -> {m : Nat} -> {p : Nat} -> StatRValue -> Fin n -> LazyInt n m p
-{- THIS WONT DO.... I need to be able to have a monster here....-}
-{- Perhaps I should create yet another category: Board Monster and Board Empty?-}
+ BoardAttackR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
+
 
 
 {-
@@ -354,8 +368,8 @@ data LazyInt : Nat -> Nat -> Nat -> Type where
 
 {- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
 
-data SkillEffect : Nat -> Nat -> Nat -> Type where
- AttackL : {n : Nat} -> {m : Nat} -> {p : Nat} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt n m p) -> SkillEffect n m p
+data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
+ AttackL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt m n p env) -> SkillEffect m n p env
 
 
 
@@ -468,11 +482,6 @@ data Condition : Nat -> Nat -> Nat -> Type where
 
 
 
-Env : Nat -> Nat -> Nat -> Type
-Env m n p = (Vect m Monster, Vect n FieldIndex, Vect p Card)
-
-
-
 {- these need to be made into datatypes because they need to store Env.-}
 mutual
 
@@ -521,7 +530,7 @@ The other is that in AutomaticSkillComponent I have a List of NonautomaticSkillC
 -}
 
  AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
- AutomaticSkillComponent m n p env = (List (SkillEffect m n p), Maybe (NonautomaticSkillComponent m n p env))
+ AutomaticSkillComponent m n p env = (List (SkillEffect m n p env), Maybe (NonautomaticSkillComponent m n p env))
 
 {-
 SkillTailExample : List (NonautomaticSkillComponent 4 4 4)
@@ -532,49 +541,50 @@ SkillTailExample = []
 Skill : Nat -> Nat -> Nat -> Type
 Skill m n p = (AutomaticSkillComponent m n p, List (NonautomaticSkillComponent m n p))
 -}
+{-
 Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
 Skill m n p env = (AutomaticSkillComponent m n p env, List (NonautomaticSkillComponent m n p env))
+-}
 
 
-
-{-
-{- a lot of places n will have the wrong value for what I'm doing. Currently ignore this. Just trying to get to typecheck -}
-
-AutomaticSkillComponentExample : {n : Nat} -> (List (SkillEffect n), Maybe (NonautomaticSkillComponent n))
-AutomaticSkillComponentExample = ([], Nothing)
-
+Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+Skill m n p env = AutomaticSkillComponent m n p env
 
 
 
 
-SkillExample : ((List (SkillEffect 4), Maybe (NonautomaticSkillComponent 4)), List (NonautomaticSkillComponent 4))
-SkillExample = (AutomaticSkillComponentExample,SkillTailExample)
+
+
+
+{- I should wrap nonautomatic skill componenets in a datatype so that I don't have ot have
+the same m n p for all of them...
+
+Or wait... m n and p for them is always 0 in the case of the skill queue...
 
 -}
-{-
-{-IF HAS BOTH A STATEMENT TRUE AND A NEXT!!!!!   (NOT TO MENTION IT HAS A STATEMENT FALSE!) -}
-
 
 {- still have to represent rounds, initiative -}
 
 record Game where
  constructor MkGame
  round : Bounded 0 1
- {-n : Nat
  m : Nat
+ n : Nat
  p : Nat
--}
 
 {- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
- skillHead : Maybe (Skill n m p)
- skillQueue : List (List (NonautomaticSkillComponent n m p ))
+ 
+ env : Env m n p
+ empty_env : Env 0 0 0
+ skillHead : Maybe (Skill m n p env)
+ skillQueue : List (NonautomaticSkillComponent 0 0 0 empty_env)
 
  player_A : Player
  player_B : Player
 
 
 
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 Nothing [] (new player tokenA) (new player tokenB)
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB)
 
 
 game : Game
@@ -626,7 +636,7 @@ while_loop (g::gs) _ = ([],[])
 
 
 
--}
+
 
 
 
@@ -665,11 +675,15 @@ while_loop (g::gs) _ = ([],[])
 
 
 main : IO ()
-main = do {
+main =
+
+ putStrLn (show (Vect.nub [3,3,2,3,1,2,1,1,5,4,3,534,2,1]))
+
+{- do {
  input <- getLine;
  putStrLn input;
 }
-
+-}
 
 
 
@@ -718,13 +732,6 @@ using (G : Vect n Ty)
 
 foo54 : Fin 4 {-0~3-}
 foo54 = 3
-
-
-
-
-
-
-
 
 
 
