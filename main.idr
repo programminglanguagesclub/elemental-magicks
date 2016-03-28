@@ -38,6 +38,10 @@ Level = Bounded 0 9 {- bounds for card level and schools -}
 {- this should have a bound of 1 for base -}
 
 
+Schools : Type
+Schools = (Level,Level,Level,Level,Level,Level)
+
+
 
 TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
@@ -71,10 +75,12 @@ transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
 
 
 
-{-
+
 ExtractBounded : Bounded lower upper -> Integer
 ExtractBounded (n ** _) = n
--}
+
+
+
 
 
 
@@ -147,10 +153,10 @@ foo = MonsterCard mutant_pig
 
 Board : Type
 Board = Vect 9 (Maybe Monster)
-Hand : Type
-Hand = List Card
-Graveyard : Type
-Graveyard = List Card
+Hand : Nat -> Type
+Hand n = Vect n Card
+Graveyard : Nat -> Type
+Graveyard n = Vect n Card
 Spawn : Type
 Spawn = Maybe Card
 Soul : Type
@@ -165,13 +171,37 @@ Knowledge = Vect 6 (Level)
 {- A goes first in the first round; B goes first in the second round; -}
 
 
+{-
+record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) (cardsOnBoard : Fin 10) (cardsInSpawn : Fin 2) (cardsInDiscard : Fin 26) (cardsYetToDraw : Fin (26 - (finToNat cardsInHand))) where  {-Fin 26 represents natural numbers between 0 and 25, inclusive-}
+ {-how do I force the sum to equal 25?-}
+-}
 
 
-record Player where
+{-record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) where
+
+
+...
+
+
+ hand : Hand (finToNat cardsInHand)
+ graveyard : Graveyard (finToNat cardsInGraveyard)
+-}
+
+
+{-
+
+Opting to not force a bounds in the type currently.
+This can be done later.
+
+
+-}
+
+record Player (cardsInHand : Nat) (cardsInGraveyard : Nat) where
+ {-discard currently being ignored-}
  constructor MkPlayer
  board : Board
- hand : Hand
- graveyard : Graveyard
+ hand : Hand cardsInHand
+ graveyard : Graveyard cardsInGraveyard
  spawn : Spawn
  soul : Soul
  thoughts : Thoughts
@@ -220,9 +250,7 @@ Env m n p = (Vect m Monster, Vect n FieldIndex, Vect p Card)
 {- For now, I am not putting the requirement that entries be unique into the type. This is IMPORTANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
 {-also for now cannot target discard.-}
 
-{-
-Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b FieldIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
--}
+
 
 data Area = SpawnPosition | HandArea | GraveyardArea | DiscardArea
 data Side = Friendly | Enemy
@@ -579,16 +607,25 @@ record Game where
  skillHead : Maybe (Skill m n p env)
  skillQueue : List (NonautomaticSkillComponent 0 0 0 empty_env)
 
- player_A : Player
- player_B : Player
+ player_A : Player 0 0
+ player_B : Player 0 0
+ phase : Phase
 
 
 
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB)
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
 
 
 game : Game
 game = new game "playerAToken" "playerBToken"
+
+
+
+
+
+
+
+
 
 
 {-For now, I am ignoring spells.-}
@@ -597,8 +634,19 @@ game = new game "playerAToken" "playerBToken"
 
 data ClientUpdate = ClientDummy
 
-data ServerUpdate = ServerDummy
 
+{-ignoring the arguments on these for now. (all wrong currently) -}
+data ServerUpdate : Type where
+ SetCard : Schools -> (Fin 26) -> ServerUpdate
+ Skip : Schools -> ServerUpdate
+ AttackRow : Fin 4 -> ServerUpdate
+ Rest : ServerUpdate
+ DirectAttack : ServerUpdate
+ Move : FieldIndex -> ServerUpdate
+ SkillInitiation : Nat -> ServerUpdate
+ SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
+ Revive : Vect 9 Bool -> ServerUpdate
+ DrawCard : Nat -> ServerUpdate {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 
 
 ServerUpdateWrapper : Type
@@ -608,25 +656,184 @@ ServerUpdateWrapper = (ServerUpdate, String)
 
 {-need to create update stuff, but for now ignore-}
 
+
+
+
+
+
 {-
-transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
+Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b FieldIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
+-}
+
+{-
+DrawCard : Player -> Card -> Player
+DrawCard p c = record {hand = c :: hand p, cardsInHand = cardsInHand p + 1} p
+-}
+
+{-
+Blarg : Nat -> Nat -> Maybe Player n m
+Blarg n m = 
+
+ETC. Can use blarg for the type of fooplayer
+
+
+
+I makes sense by the way, to return a maybe here:
+
+We're dealing with user data at this point, and verifying it.
+It's okay to fail at this point.
+
+-}
+{-
+FooPlayer : Player n m -> Card -> Maybe (Player (S n) m)
+FooPlayer p c = MkPlayer board (c :: hand p) graveyard spawn soul thoughts knowledge token
+
+The way to do this is having a separate dependently typed field in player that is "cards not yet drawn",
+and also dependently typing field, etc, with number of cards.
 -}
 
 
+
+
+FooDrawCard : Player n m -> Card -> Player (S n) m
+FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (token player)
+
+
+
+
+
 {-
+addStudent : Person -> SizedClass n -> SizedClass (S n)
+addStudent p c =  SizedClassInfo (p :: students c) (className c)
+
+
+record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) where  {-Fin 26 represents natural numbers between 0 and 25, inclusive-}
+ constructor MkPlayer
+ board : Board
+ hand : Hand (finToNat cardsInHand)
+ graveyard : Graveyard (finToNat cardsInGraveyard)
+ spawn : Spawn
+ soul : Soul
+ thoughts : Thoughts
+ knowledge : Knowledge
+ token : String
+
+syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
+
+-}
+
+
+
+
+
+
+
+
+
+{-
+FooPlayer : Player -> Player
+FooPlayer p = record {token = "2435236"} p
+-}
+
+{-
+
+data Phase =
+ DrawPhase
+|SpawnPhase
+|SpellPhase
+|RemovalPhase
+|StartPhase
+|EngagementPhase
+|EndPhase
+|RevivalPhase
+
+-}
+
+
+transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame game serverupdate with (phase game,serverupdate)
+ | (DrawPhase,DrawCard id) = (game, []) {-Maybe-}
+ | (DrawPhase,_) = (game,[]) {-No-}
+ | (SpawnPhase,SetCard schools cardIndex) = (game, [])
+ | (SpawnPhase,Skip schools) = (game, [])
+ | (SpawnPhase, _) = (game,[])
+ | (SpellPhase,SkillSelection n) = (game,[]) {-again, this (the n) is currently indexed incorrectly-}
+ | (SpellPhase,_) = (game,[])
+ | (RemovalPhase,SkillSelection n) = (game,[]) {-again, this (the n) is currently indexed incorrectly-}
+ | (RemovalPhase,_) = (game,[])
+ | (StartPhase,SkillSelection n) = (game,[]) {-again, this (the n) is currently indexed incorrectly-}
+ | (StartPhase,_) = (game,[])
+ | (EngagementPhase, AttackRow n) = (game,[])
+ | (EngagementPhase, Rest) = (game,[])
+ | (EngagementPhase, DirectAttack) = (game,[])
+ | (EngagementPhase, Move) = (game,[])
+ | (EngagementPhase, SkillInitiation n) = (game,[])
+ | (EngagementPhase, SkillSelection n) = (game,[]) {-again, this (the n) is currently indexed incorrectly-}
+ | (EngagementPhase,_) = (game,[])
+ | (EndPhase,SkillSelection n) = (game,[]) {-again, this (the n) is currently indexed incorrectly-}
+ | (EndPhase,_) = (game,[])
+ | (RevivalPhase,Revive b) = (game, [])
+ | (RevivalPhase,_) = (game, [])
+ 
+
+{-
+
+
+
+
+data ServerUpdate : Type where
+ SetCard : Schools -> (Fin 26) -> ServerUpdate
+ Skip : Schools -> ServerUpdate
+ AttackRow : Fin 4 -> ServerUpdate
+ Rest : ServerUpdate
+ DirectAttack : ServerUpdate
+ Move : FieldIndex -> ServerUpdate
+ SkillInitiation : Nat -> ServerUpdate
+ SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
+ Revive : Vect 9 Bool -> ServerUpdate
+ DrawCard : Nat -> ServerUpdate
+
+
+
+
+
+-}
+
+{-
+
+record Game where
+ constructor MkGame
+ round : Bounded 0 1
+ m : Nat
+ n : Nat
+ p : Nat
+
+{- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
+ 
+ env : Env m n p
+ empty_env : Env 0 0 0
+ skillHead : Maybe (Skill m n p env)
+ skillQueue : List (NonautomaticSkillComponent 0 0 0 empty_env)
+
+ player_A : Player 0 0
+ player_B : Player 0 0
+ phase : Phase
+
+
+
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
+
+
+game : Game
+game = new game "playerAToken" "playerBToken"
+
+-}
+
+
 
 while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
 while_loop [] _ = ([],[])
 while_loop (g::gs) _ = ([],[])
-
--}
-
-
-
-
-
-
-
 
 
 
