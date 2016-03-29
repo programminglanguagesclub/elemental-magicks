@@ -12,7 +12,7 @@ gcc reader.c -o reader
 ./reader
 
 // **
-// ** If you download this folder you should be able to do the follow commands to run the program ** //
+// ** If you download this folder you should be able to do the follow commands to run the program
 // **
 
 Example running it, from 2 terminal windows:
