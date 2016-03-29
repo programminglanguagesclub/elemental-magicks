@@ -1,0 +1,7 @@
+package elementalmagicks
+
+modules = preliminaries, objects, skill_dsl, main 
+opts = "-p effects" 
+
+executable = elementalmagicks
+main = main
