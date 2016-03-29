@@ -1,123 +1,12 @@
+module Main
+
 import Data.Vect
 import Data.Fin
-
-
-data So : Bool -> Type where 
-    Oh : So True
-choose : (b : Bool) -> Either (So b) (So (not b))
-choose True  = Left Oh
-choose False = Right Oh
-
-
-Bounded : Integer -> Integer -> Type
-Bounded lower upper = (n ** So (n >= lower && n <= upper))
-
-
-
-
-absoluteLowerBound : Integer
-absoluteLowerBound = -1000
-
-absoluteUpperBound : Integer
-absoluteUpperBound = 1000
-
-Range : Type
-Range = Bounded 0 5
-
-Speed : Type
-Speed = Bounded absoluteLowerBound absoluteUpperBound
-
-Defense : Type
-Defense = Bounded 0 absoluteUpperBound
-
-Attack : Type
-Attack = Bounded 0 absoluteUpperBound
-
-Level : Type
-Level = Bounded 0 9 {- bounds for card level and schools -}
-{- this should have a bound of 1 for base -}
-
-
-Schools : Type
-Schools = (Level,Level,Level,Level,Level,Level)
-
-
-
-TemporaryPermanentBase : Type -> Type
-TemporaryPermanentBase t = (t,t,t)
-
-
-transformBounded : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> (Integer -> Integer) -> Bounded lower upper -> Bounded lower upper
-transformBounded lower upper ProofLower ProofUpper f (n ** _) =
- let m = f n in
-  case (choose (m <= upper)) of
-   Left ProofUpperBounded =>
-    case (choose (m >= lower && (m <= upper))) of
-     Left ProofBounded =>
-      (m ** ProofBounded)
-     Right _ =>
-      (lower ** ProofLower) {- must make sure that lower is less than upper -}
-   Right _ =>
-    (upper ** ProofUpper)
-
-
-
-
-transformRange : (Integer -> Integer) -> Range -> Range
-transformRange = transformBounded 0 5 Oh Oh
-transformSpeed : (Integer -> Integer) -> Speed -> Speed
-transformSpeed = transformBounded absoluteLowerBound absoluteUpperBound Oh Oh
-transformLevel : (Integer -> Integer) -> Level -> Level
-transformLevel = transformBounded 0 9 Oh Oh
-transformAttack : (Integer -> Integer) -> Attack -> Attack
-transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
-{-for some reason it doesn't unify here if I replace the literals with the named constants-}
-
-
-
-
-ExtractBounded : Bounded lower upper -> Integer
-ExtractBounded (n ** _) = n
-
-
-
-
-
-
-syntax iff "(" [condition] ")" "{" [true_branch] "}" "else" "{" [false_branch] "}"
- = if condition then true_branch else false_branch
+import Data.So
+import preliminaries
 
 
 data Aliveness = Alive | DeadFresh | DeadStale
-
-
-
-
-
-
-
-
-
-
-{- rename this BoardIndex -}
-
-FieldIndex : Type
-FieldIndex = Bounded 0 8
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 record Monster where
@@ -136,17 +25,12 @@ record Spell where
 
 data Card = SpellCard Spell | MonsterCard Monster
 
-
-
-
 syntax repeat3 [val] = ((val ** Oh),(val ** Oh),(val ** Oh))
 syntax monster [attack] [defense] [speed] [range] [level] = MkMonster (repeat3 attack) (repeat3 defense) (repeat3 speed) (repeat3 range) (repeat3 level) Alive
 syntax spell [level] = MkSpell level
 
-
 mutant_pig : Monster
 mutant_pig = monster 20 0 2 1 3
-
 
 foo : Card
 foo = MonsterCard mutant_pig
@@ -166,36 +50,8 @@ Thoughts = Bounded 0 absoluteUpperBound
 Knowledge : Type
 Knowledge = Vect 6 (Level)
 
-
-
 {- A goes first in the first round; B goes first in the second round; -}
-
-
-{-
-record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) (cardsOnBoard : Fin 10) (cardsInSpawn : Fin 2) (cardsInDiscard : Fin 26) (cardsYetToDraw : Fin (26 - (finToNat cardsInHand))) where  {-Fin 26 represents natural numbers between 0 and 25, inclusive-}
- {-how do I force the sum to equal 25?-}
--}
-
-
-{-record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) where
-
-
-...
-
-
- hand : Hand (finToNat cardsInHand)
- graveyard : Graveyard (finToNat cardsInGraveyard)
--}
-
-
-{-
-
-Opting to not force a bounds in the type currently.
-This can be done later.
-
-
--}
-
+{- a lot of types could be made more precise here -}
 record Player (cardsInHand : Nat) (cardsInGraveyard : Nat) where
  {-discard currently being ignored-}
  constructor MkPlayer
@@ -210,18 +66,14 @@ record Player (cardsInHand : Nat) (cardsInGraveyard : Nat) where
 
 syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
 
-
-
-data Phase =
- DrawPhase
-|SpawnPhase
-|SpellPhase
-|RemovalPhase
-|StartPhase
-|EngagementPhase
-|EndPhase
-|RevivalPhase
-
+data Phase = DrawPhase
+           | SpawnPhase
+           | SpellPhase
+           | RemovalPhase
+           | StartPhase
+           | EngagementPhase
+           | EndPhase
+           |RevivalPhase
 nextPhase : Phase -> Phase
 nextPhase DrawPhase = SpawnPhase
 nextPhase SpawnPhase = SpellPhase
@@ -232,57 +84,32 @@ nextPhase EngagementPhase = EndPhase
 nextPhase EndPhase = RevivalPhase
 nextPhase RevivalPhase = SpawnPhase
 
-{-
-		SetHp:function(object){return ModifyCard(object)},
-		SetMaxHp:function(object){return ModifyCard(object)},
--}
-
-
-
-
-
-
-
 Env : Nat -> Nat -> Nat -> Type
-Env m n p = (Vect m Monster, Vect n FieldIndex, Vect p Card)
+Env m n p = (Vect m Monster, Vect n BoardIndex, Vect p Card)
 
 
 {- For now, I am not putting the requirement that entries be unique into the type. This is IMPORTANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
 {-also for now cannot target discard.-}
 
-
-
 data Area = SpawnPosition | HandArea | GraveyardArea | DiscardArea
 data Side = Friendly | Enemy
-
-
 
 {- For now ignoring the client update part of this -}
 {- I might be able to get away with doing a lot more of this with type classes -}
 
 
-
 Set : Type
 Set = (Side, Area)
-
 
 {- not implementing universal quantifiers yet -}
 
 data CardExistential = DeBruijnCardExistential Set
-
-{- might have to index these entire datatypes with Fin... not sure... -}
-
-
 
 {-not sure if I want Fin n or Nat here...-}
 
 data CardVar : Nat -> Type where
  BoundCardVar : Card -> CardVar 0
  UnBoundCardVar : (Fin n) -> (CardVar n)
-
-
-
-
 
 
 {- The trick here is that for the purpose of selecting squares on the board I don't really want "Maybe Monster". If they select a monster,
@@ -306,12 +133,8 @@ game state or player action.
 -}
 
 
-
-
 {- Might need another type for the Spawn position?? -}
 {- Rename set to spawn everywhere -}
-
-
 
 {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
@@ -326,13 +149,13 @@ BoardMonsterPredicate = Monster -> Bool
 
 
 data BoardSquareExistential = DeBruijnBoardSquareExistential Side
-data BoardSquareVar = BoundBoardSquareVar FieldIndex | UnBoundBoardSquareVar (Fin n)
+data BoardSquareVar = BoundBoardSquareVar BoardIndex | UnBoundBoardSquareVar (Fin n)
 
 
 {-I might need more information... I Might need to pass in the game object into these really...
 -}
 BoardSquarePredicate : Type
-BoardSquarePredicate = FieldIndex -> Bool
+BoardSquarePredicate = BoardIndex -> Bool
 
 
 
@@ -348,9 +171,6 @@ MonsterAlive m with (aliveness m)
 
 CardPredicate : Type
 CardPredicate = Card -> Bool
-
-
-
 
 
 HandIndex : Type
@@ -397,7 +217,7 @@ data LazyInt : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
 {- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
 
 data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
- AttackL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> FieldIndex -> (LazyInt m n p env) -> SkillEffect m n p env
+ AttackL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
 
 
 
@@ -405,37 +225,37 @@ data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type wh
 {- can I write {n m p : Nat} -> ??? -}
 
 {-
- Refresh Side FieldIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
- |IncrementHp FieldIndex LazyInt {- to be revisted when hp is defined -}
- |IncrementMaxHp FieldIndex LazyInt {- to be revisted when hp is defined -}
- |SendFromFieldToHand Side FieldIndex
- |SendFromFieldToGraveyard Side FieldIndex GraveyardIndex {-etc, but we can also abstract over FROM and TO...-}
+ Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
+ |IncrementHp BoardIndex LazyInt {- to be revisted when hp is defined -}
+ |IncrementMaxHp BoardIndex LazyInt {- to be revisted when hp is defined -}
+ |SendFromFieldToHand Side BoardIndex
+ |SendFromFieldToGraveyard Side BoardIndex GraveyardIndex {-etc, but we can also abstract over FROM and TO...-}
  |SendFromGraveyardToGraveyard Side GraveyardIndex GraveyardIndex
  |SendFromGraveyardToHand Side GraveyardIndex HandIndex
  |SendFromHandToGraveyard Side HandIndex GraveyardIndex
  |SendFromHandToHand Side HandIndex HandIndex
  |SwitchSetAndHand Side HandIndex
- |SwitchFieldAndHand Side FieldIndex HandIndex
- |SwitchFieldAndGraveyard Side FieldIndex GraveyardIndex
- |SwitchFieldAndSet Side FieldIndex
+ |SwitchFieldAndHand Side BoardIndex HandIndex
+ |SwitchFieldAndGraveyard Side BoardIndex GraveyardIndex
+ |SwitchFieldAndSet Side BoardIndex
  |SwitchHandAndSet Side HandIndex
  |SwitchGraveyardAndSet Side GraveyardIndex
  |SendFromHandToSet Side HandIndex{- no effect if set occupied or no monsters in hand -}
- |SendFromHandToField Side HandIndex FieldIndex {- no effect if field occupied at determined index or no monsters in hand -} 
- |SendFromGraveyardToField Side GraveyardIndex FieldIndex {- no effect if field occupied at determined index or no monsters in graveyard -}
+ |SendFromHandToField Side HandIndex BoardIndex {- no effect if field occupied at determined index or no monsters in hand -} 
+ |SendFromGraveyardToField Side GraveyardIndex BoardIndex {- no effect if field occupied at determined index or no monsters in graveyard -}
 {- there might be some more cases I'm forgetting right now.. -}
- |SetHp Side FieldIndex LazyInt {- to be revisted when hp is defined -}
- |SetMaxHp Side FieldIndex LazyInt {- to be revisted when hp is defined -}
- |LevelL Mutator StatLValue Side FieldIndex LazyInt
- |SpeedL Mutator StatLValue Side FieldIndex LazyInt
- |AttackL Mutator StatLValue Side FieldIndex LazyInt
- |DefenseL Mutator StatLValue Side FieldIndex LazyInt
- |RangeL Mutator StatLValue Side FieldIndex LazyInt
- |ReviveCard Side FieldIndex
- |EngagementL Side FieldIndex LazyInt
+ |SetHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
+ |SetMaxHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
+ |LevelL Mutator StatLValue Side BoardIndex LazyInt
+ |SpeedL Mutator StatLValue Side BoardIndex LazyInt
+ |AttackL Mutator StatLValue Side BoardIndex LazyInt
+ |DefenseL Mutator StatLValue Side BoardIndex LazyInt
+ |RangeL Mutator StatLValue Side BoardIndex LazyInt
+ |ReviveCard Side BoardIndex
+ |EngagementL Side BoardIndex LazyInt
  |ThoughtsL Side Mutator LazyInt
  |KnowledgeL Mutator School Side LazyInt
- |TakeDamage Side FieldIndex LazyInt
+ |TakeDamage Side BoardIndex LazyInt
 
 -}
 
@@ -444,7 +264,7 @@ data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type wh
 
 
 
-{- in order to allow for universals and existentials, I should not require FieldIndex here to be predetermined.... -}
+{- in order to allow for universals and existentials, I should not require BoardIndex here to be predetermined.... -}
 
 
 {-
@@ -642,7 +462,7 @@ data ServerUpdate : Type where
  AttackRow : Fin 4 -> ServerUpdate
  Rest : ServerUpdate
  DirectAttack : ServerUpdate
- Move : FieldIndex -> ServerUpdate
+ Move : BoardIndex -> ServerUpdate
  SkillInitiation : Nat -> ServerUpdate
  SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
  Revive : Vect 9 Bool -> ServerUpdate
@@ -656,43 +476,9 @@ ServerUpdateWrapper = (ServerUpdate, String)
 
 {-need to create update stuff, but for now ignore-}
 
-
-
-
-
-
 {-
-Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b FieldIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
+Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b BoardIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
 -}
-
-{-
-DrawCard : Player -> Card -> Player
-DrawCard p c = record {hand = c :: hand p, cardsInHand = cardsInHand p + 1} p
--}
-
-{-
-Blarg : Nat -> Nat -> Maybe Player n m
-Blarg n m = 
-
-ETC. Can use blarg for the type of fooplayer
-
-
-
-I makes sense by the way, to return a maybe here:
-
-We're dealing with user data at this point, and verifying it.
-It's okay to fail at this point.
-
--}
-{-
-FooPlayer : Player n m -> Card -> Maybe (Player (S n) m)
-FooPlayer p c = MkPlayer board (c :: hand p) graveyard spawn soul thoughts knowledge token
-
-The way to do this is having a separate dependently typed field in player that is "cards not yet drawn",
-and also dependently typing field, etc, with number of cards.
--}
-
-
 
 
 FooDrawCard : Player n m -> Card -> Player (S n) m
@@ -701,54 +487,13 @@ FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (ha
 
 
 
-
+stepGame : Game -> Game
 {-
-addStudent : Person -> SizedClass n -> SizedClass (S n)
-addStudent p c =  SizedClassInfo (p :: students c) (className c)
-
-
-record Player (cardsInHand : Fin 26) (cardsInGraveyard : Fin 26) where  {-Fin 26 represents natural numbers between 0 and 25, inclusive-}
- constructor MkPlayer
- board : Board
- hand : Hand (finToNat cardsInHand)
- graveyard : Graveyard (finToNat cardsInGraveyard)
- spawn : Spawn
- soul : Soul
- thoughts : Thoughts
- knowledge : Knowledge
- token : String
-
-syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
-
+This will perform some automatically executing change. E.g. change in phase, etc.
+Each self-recursive call of stepGame corresponds to a single small step in the game update
+(perhaps going to the next phase, executing an automatic skill component, resolving a user skill selection, etc.)
 -}
-
-
-
-
-
-
-
-
-
-{-
-FooPlayer : Player -> Player
-FooPlayer p = record {token = "2435236"} p
--}
-
-{-
-
-data Phase =
- DrawPhase
-|SpawnPhase
-|SpellPhase
-|RemovalPhase
-|StartPhase
-|EngagementPhase
-|EndPhase
-|RevivalPhase
-
--}
-
+stepGame g = g {-dummy-}
 
 transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
 transformGame game serverupdate with (phase game,serverupdate)
@@ -774,111 +519,11 @@ transformGame game serverupdate with (phase game,serverupdate)
  | (EndPhase,_) = (game,[])
  | (RevivalPhase,Revive b) = (game, [])
  | (RevivalPhase,_) = (game, [])
- 
-
-{-
-
-
-
-
-data ServerUpdate : Type where
- SetCard : Schools -> (Fin 26) -> ServerUpdate
- Skip : Schools -> ServerUpdate
- AttackRow : Fin 4 -> ServerUpdate
- Rest : ServerUpdate
- DirectAttack : ServerUpdate
- Move : FieldIndex -> ServerUpdate
- SkillInitiation : Nat -> ServerUpdate
- SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
- Revive : Vect 9 Bool -> ServerUpdate
- DrawCard : Nat -> ServerUpdate
-
-
-
-
-
--}
-
-{-
-
-record Game where
- constructor MkGame
- round : Bounded 0 1
- m : Nat
- n : Nat
- p : Nat
-
-{- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
- 
- env : Env m n p
- empty_env : Env 0 0 0
- skillHead : Maybe (Skill m n p env)
- skillQueue : List (NonautomaticSkillComponent 0 0 0 empty_env)
-
- player_A : Player 0 0
- player_B : Player 0 0
- phase : Phase
-
-
-
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
-
-
-game : Game
-game = new game "playerAToken" "playerBToken"
-
--}
-
 
 
 while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
 while_loop [] _ = ([],[])
 while_loop (g::gs) _ = ([],[])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 main : IO ()
@@ -891,59 +536,6 @@ main =
  putStrLn input;
 }
 -}
-
-
-
-
-
-data Ty = TyInt
-        | TyBool
-        | TyFun Ty Ty
-
-interpTy : Ty -> Type
-interpTy TyInt       = Int
-interpTy TyBool      = Bool
-interpTy (TyFun s t) = interpTy s -> interpTy t
-
-
-
-{-index : Fin n -> Vect n a -> a
-index FZ     (x::xs) = x
-index (FS k) (x::xs) = index k xs
--}
-
-
-{-
-I used n above and now it's confused with this...
-
-using (G : Vect n Ty)
- data Env  : Vect n Ty -> Type where
-      Nil  : Env Nil
-      (::) : interpTy a -> Env G -> Env (a :: G)
- data HasType : (i : Fin n) -> Vect n Ty -> Ty -> Type where
-  Stop : HasType FZ (t :: G) t
-  Pop  : HasType k G t -> HasType (FS k) (u :: G) t
-
--}
-
-
-
-
-
-
-
-
-
-
-
-
-foo54 : Fin 4 {-0~3-}
-foo54 = 3
-
-
-
-
-
 
 
 
