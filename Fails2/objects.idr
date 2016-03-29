@@ -47,10 +47,8 @@ Thoughts = Bounded 0 absoluteUpperBound
 public export Knowledge : Type
 Knowledge = Vect 6 (Level)
 
-{- A goes first in the first round; B goes first in the second round; -}
-{- a lot of types could be made more precise here -}
+
 public export record Player (cardsInHand : Nat) (cardsInGraveyard : Nat) where
- {-discard currently being ignored-}
  constructor MkPlayer
  board : Board
  hand : Hand cardsInHand
