@@ -1,0 +1,7 @@
+package elementalmagicks
+
+modules = Preliminaries, main 
+opts = "-p effects" 
+
+executable = elementalmagicks
+main = main
