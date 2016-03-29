@@ -73,6 +73,7 @@ https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
 
 #### **Installing Idris** <br />
 brew update<br />
-brew install idris<br />
-OR Vewi the link for addition install options<br />
+brew install idris<br /> 
+
+OR Veiw the link for addition install options<br />
 http://www.idris-lang.org/download/
