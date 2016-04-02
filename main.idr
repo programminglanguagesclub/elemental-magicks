@@ -4,339 +4,12 @@ import Data.Vect
 import Data.Fin
 import Data.So
 import preliminaries
-
-
-data Aliveness = Alive | DeadFresh | DeadStale
-
-
-record Monster where
- constructor MkMonster
- attack : TemporaryPermanentBase Attack
- defense : TemporaryPermanentBase Defense
- speed : TemporaryPermanentBase Speed
- range : TemporaryPermanentBase Range
- level : TemporaryPermanentBase Level
- aliveness : Aliveness
-
-record Spell where
- constructor MkSpell
- level : Level
-
-
-data Card = SpellCard Spell | MonsterCard Monster
-
-syntax repeat3 [val] = ((val ** Oh),(val ** Oh),(val ** Oh))
-syntax monster [attack] [defense] [speed] [range] [level] = MkMonster (repeat3 attack) (repeat3 defense) (repeat3 speed) (repeat3 range) (repeat3 level) Alive
-syntax spell [level] = MkSpell level
-
-mutant_pig : Monster
-mutant_pig = monster 20 0 2 1 3
-
-foo : Card
-foo = MonsterCard mutant_pig
-
-Board : Type
-Board = Vect 9 (Maybe Monster)
-Hand : Nat -> Type
-Hand n = Vect n Card
-Graveyard : Nat -> Type
-Graveyard n = Vect n Card
-Spawn : Type
-Spawn = Maybe Card
-Soul : Type
-Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
-Thoughts : Type
-Thoughts = Bounded 0 absoluteUpperBound
-Knowledge : Type
-Knowledge = Vect 6 (Level)
-
-{- A goes first in the first round; B goes first in the second round; -}
-{- a lot of types could be made more precise here -}
-record Player (cardsInHand : Nat) (cardsInGraveyard : Nat) where
- {-discard currently being ignored-}
- constructor MkPlayer
- board : Board
- hand : Hand cardsInHand
- graveyard : Graveyard cardsInGraveyard
- spawn : Spawn
- soul : Soul
- thoughts : Thoughts
- knowledge : Knowledge
- token : String
-
-syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
-
-data Phase = DrawPhase
-           | SpawnPhase
-           | SpellPhase
-           | RemovalPhase
-           | StartPhase
-           | EngagementPhase
-           | EndPhase
-           |RevivalPhase
-nextPhase : Phase -> Phase
-nextPhase DrawPhase = SpawnPhase
-nextPhase SpawnPhase = SpellPhase
-nextPhase SpellPhase = RemovalPhase
-nextPhase RemovalPhase = StartPhase
-nextPhase StartPhase = EngagementPhase
-nextPhase EngagementPhase = EndPhase
-nextPhase EndPhase = RevivalPhase
-nextPhase RevivalPhase = SpawnPhase
-
-Env : Nat -> Nat -> Nat -> Type
-Env m n p = (Vect m Monster, Vect n BoardIndex, Vect p Card)
-
-
-{- For now, I am not putting the requirement that entries be unique into the type. This is IMPORTANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
-{-also for now cannot target discard.-}
-
-data Area = SpawnPosition | HandArea | GraveyardArea | DiscardArea
-data Side = Friendly | Enemy
-
-{- For now ignoring the client update part of this -}
-{- I might be able to get away with doing a lot more of this with type classes -}
-
-
-Set : Type
-Set = (Side, Area)
-
-{- not implementing universal quantifiers yet -}
-
-data CardExistential = DeBruijnCardExistential Set
-
-{-not sure if I want Fin n or Nat here...-}
-
-data CardVar : Nat -> Type where
- BoundCardVar : Card -> CardVar 0
- UnBoundCardVar : (Fin n) -> (CardVar n)
-
-
-{- The trick here is that for the purpose of selecting squares on the board I don't really want "Maybe Monster". If they select a monster,
-I want that to be the same monster even if it gets moved on the board. In the case of an empty square, however, it has to be that particular coordinate.
-
-It's worth nothing though that this means that in the case of empty squares that are no longer empty, we have a problem.
-
-Equally though, we have an issue with monsters that have moved to a region that does not allow certain skills to be applied with them in their former capacity.
-
-
-For now, it's acceptable to represent the square number and monster at the type level, and have a value level check to see if it's still valid.
-
-Then if it's not valid, the skill can terminate (or at least that part of it).
-
-This may be the best solution in the end because we may wish to allow skills to have the possibility of doing this depending on
-game state or player action.
-
-
-
-
--}
-
-
-{- Might need another type for the Spawn position?? -}
-{- Rename set to spawn everywhere -}
-
-{- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
-
-
-
-data BoardMonsterExistential = DeBruijnBoardMonsterExistential Side
-data BoardMonsterVar = BoundBoardMonsterVar Monster | UnBoundBoardMonsterVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
-
-
-BoardMonsterPredicate : Type
-BoardMonsterPredicate = Monster -> Bool
-
-
-data BoardSquareExistential = DeBruijnBoardSquareExistential Side
-data BoardSquareVar = BoundBoardSquareVar BoardIndex | UnBoundBoardSquareVar (Fin n)
-
-
-{-I might need more information... I Might need to pass in the game object into these really...
--}
-BoardSquarePredicate : Type
-BoardSquarePredicate = BoardIndex -> Bool
-
-
-
-
-MonsterAlive : BoardMonsterPredicate
-MonsterAlive m with (aliveness m)
- | Alive = True
- | _ = False
-
-
-
-
-
-CardPredicate : Type
-CardPredicate = Card -> Bool
-
-
-HandIndex : Type
-HandIndex = Bounded 0 29
-
-GraveyardIndex : Type
-GraveyardIndex = Bounded 0 29
-
-{- Hand and Graveyard indices point to the last available slot if they overshoot. The last available slot is the first one with no card in it. -}
-
-
-data StatLValue = TemporaryL | PermanentL
-data Mutator = IncrementL | SetL
-
-School : Type
-School = Bounded 0 5
-
-
-data StatRValue = TemporaryR | PermanentR | BaseR
-
-
-{- I need to put the constraints on the DeBruijn indices in the types here... -}
-data LazyInt : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
- {-Constant : Integer -> LazyInt 0 -} {-ignoring constant for now. It's neither bound to a card nor awaiting binding, so it's an edge case for this design-}
- BoardAttackR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
-
-
-
-{-
-             | AttackR StatRValue CardVar
-             | DefenseR StatRValue CardVar
-             | RangeR StatRValue CardVar
-             | SpeedR StatRValue CardVar
-             | SchoolR School
-             | ThoughtsR
-             | SoulPointsR
-             {- ignoring a few nice things like cardinality for now -}
-
--}
-
-
-
-
-{- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
-
-data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
- AttackL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
-
-
-
-
-{- can I write {n m p : Nat} -> ??? -}
-
-{-
- Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
- |IncrementHp BoardIndex LazyInt {- to be revisted when hp is defined -}
- |IncrementMaxHp BoardIndex LazyInt {- to be revisted when hp is defined -}
- |SendFromFieldToHand Side BoardIndex
- |SendFromFieldToGraveyard Side BoardIndex GraveyardIndex {-etc, but we can also abstract over FROM and TO...-}
- |SendFromGraveyardToGraveyard Side GraveyardIndex GraveyardIndex
- |SendFromGraveyardToHand Side GraveyardIndex HandIndex
- |SendFromHandToGraveyard Side HandIndex GraveyardIndex
- |SendFromHandToHand Side HandIndex HandIndex
- |SwitchSetAndHand Side HandIndex
- |SwitchFieldAndHand Side BoardIndex HandIndex
- |SwitchFieldAndGraveyard Side BoardIndex GraveyardIndex
- |SwitchFieldAndSet Side BoardIndex
- |SwitchHandAndSet Side HandIndex
- |SwitchGraveyardAndSet Side GraveyardIndex
- |SendFromHandToSet Side HandIndex{- no effect if set occupied or no monsters in hand -}
- |SendFromHandToField Side HandIndex BoardIndex {- no effect if field occupied at determined index or no monsters in hand -} 
- |SendFromGraveyardToField Side GraveyardIndex BoardIndex {- no effect if field occupied at determined index or no monsters in graveyard -}
-{- there might be some more cases I'm forgetting right now.. -}
- |SetHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
- |SetMaxHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
- |LevelL Mutator StatLValue Side BoardIndex LazyInt
- |SpeedL Mutator StatLValue Side BoardIndex LazyInt
- |AttackL Mutator StatLValue Side BoardIndex LazyInt
- |DefenseL Mutator StatLValue Side BoardIndex LazyInt
- |RangeL Mutator StatLValue Side BoardIndex LazyInt
- |ReviveCard Side BoardIndex
- |EngagementL Side BoardIndex LazyInt
- |ThoughtsL Side Mutator LazyInt
- |KnowledgeL Mutator School Side LazyInt
- |TakeDamage Side BoardIndex LazyInt
-
--}
-
-
-{-Counter Skills should not trigger more than once per <SkillQueue is cleared completely> This way I don't have to worry about players running out of time from massively titanic runs of counterskill chains, or even nontermination-}
-
-
-
-{- in order to allow for universals and existentials, I should not require BoardIndex here to be predetermined.... -}
-
-
-{-
-FooBlargFoo : SkillEffect
-FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) (Constant 4)
--}
-
-
-
-BoardSquareCondition : Nat -> Type
-BoardSquareCondition n = (Vect n BoardSquareExistential, BoardSquarePredicate)
-
-BoardMonsterCondition : Nat -> Type
-BoardMonsterCondition n = (Vect n BoardMonsterExistential, BoardMonsterPredicate)
-
-CardCondition : Nat -> Type
-CardCondition n = (Vect n CardExistential, CardPredicate)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{- Again, actually need 2-3 Nats. -}
-
-
-{-Nats refer to: Board, and then Graveyard | Hand | Discard, and then Spawn position.-}
-
-
-
-{- Need a way to combine this with earlier conditions so that the predicate can reference earlier existentials... -}
-
-{- for now ignoring whatever a set condition would be. It's not an existential. Maybe a universal...-}
-
-data Condition : Nat -> Nat -> Nat -> Type where
- BoardMonsterCondition_ : (BoardMonsterCondition n) -> Condition n 0 0
- BoardSquareCondition_ : (BoardSquareCondition n) -> Condition n 0 0
- CardCondition_ : (CardCondition n) -> Condition 0 n 0
-
-
-
-
-
-
-
-{- Somewhere I have to define Env, which is going to be a Vect of bound (whatever)s -}
-
-
-
-
-
-
-
-
+import phase
+import objects
+import skill_dsl
 
 {- these need to be made into datatypes because they need to store Env.-}
 mutual
-
-
-
-
-
 
 {- Need to concat in the env here!!!!-}
 {-
@@ -348,12 +21,13 @@ AutomaticSkillComponent (m+m') (n+n') (p+p') env'
 
 only when we are actually able to update env (produce env' that is),
 which happens in the small-step interpreter (when we get the bindings from Condition, in other words)
-
 -}
- NonautomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
- NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env)
-{- in particular n could be different for this last one-}
 
+ public export NonautomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ {-NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m n p m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env) -}
+ NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env)
+
+{- in particular n could be different for this last one-}
 
 {- this is if(condition){do if true}{do if false}{do after if statement}-}
 {- not n in all cases here. Again, just trying to get to typecheck for now. -}
@@ -362,60 +36,21 @@ which happens in the small-step interpreter (when we get the bindings from Condi
 {- Actually, the set location doesn't require being selected, although it does get bound (you can do things to the card that was on the set position at a particular time) -}
 {- maybe it doesn't get bound -}
 
-{-
-I have two mutually incompatible ways that "next" is being implemented.
-One is I have it built directly into NonautomaticSkillComponent (instead of just having StatementTrue and StatementFalse).
-The other is that in AutomaticSkillComponent I have a List of NonautomaticSkillComponents (instead of just Maybe NonautomaticSkillComponent)
--}
-
-
-
 {- These skill effects are bounded by m n and p, but I want it to type check if it has less restricted bounds... -}
 
-
-{-
- TTT : (n : Nat) -> Type
--}
-
- AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ public export AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
  AutomaticSkillComponent m n p env = (List (SkillEffect m n p env), Maybe (NonautomaticSkillComponent m n p env))
 
-{-
-SkillTailExample : List (NonautomaticSkillComponent 4 4 4)
-SkillTailExample = []
--}
-
-{-
-Skill : Nat -> Nat -> Nat -> Type
-Skill m n p = (AutomaticSkillComponent m n p, List (NonautomaticSkillComponent m n p))
--}
-{-
-Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
-Skill m n p env = (AutomaticSkillComponent m n p env, List (NonautomaticSkillComponent m n p env))
--}
-
-
-Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+public export Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
 Skill m n p env = AutomaticSkillComponent m n p env
-
-
-
-
-
-
-
-{- I should wrap nonautomatic skill componenets in a datatype so that I don't have ot have
-the same m n p for all of them...
-
-Or wait... m n and p for them is always 0 in the case of the skill queue...
-
--}
 
 {- still have to represent rounds, initiative -}
 
 record Game where
  constructor MkGame
  round : Bounded 0 1
+ player_A_Initiative : Bool
+ turnNumber : Nat
  m : Nat
  n : Nat
  p : Nat
@@ -423,39 +58,17 @@ record Game where
 {- skillHead index. I might want skillHead to not be a maybe, and consider "Nothing" to be where n = 0. Not sure. -}
  
  env : Env m n p
- empty_env : Env 0 0 0
- skillHead : Maybe (Skill m n p env)
- skillQueue : List (NonautomaticSkillComponent 0 0 0 empty_env)
-
+ skillHead : Maybe (NonautomaticSkillComponent m n p env)
+ skillQueue : List (Skill 0 0 0 empty_env)
  player_A : Player 0 0
  player_B : Player 0 0
  phase : Phase
 
-
-
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
-
-
-game : Game
-game = new game "playerAToken" "playerBToken"
-
-
-
-
-
-
-
-
-
-
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 0 0 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
+{- game : Game
+game = new game "playerAToken" "playerBToken" -}
 {-For now, I am ignoring spells.-}
-
-
-
 data ClientUpdate = ClientDummy
-
-
-{-ignoring the arguments on these for now. (all wrong currently) -}
 data ServerUpdate : Type where
  SetCard : Schools -> (Fin 26) -> ServerUpdate
  Skip : Schools -> ServerUpdate
@@ -468,32 +81,78 @@ data ServerUpdate : Type where
  Revive : Vect 9 Bool -> ServerUpdate
  DrawCard : Nat -> ServerUpdate {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 
-
 ServerUpdateWrapper : Type
 ServerUpdateWrapper = (ServerUpdate, String)
 
-
-
 {-need to create update stuff, but for now ignore-}
 
-{-
-Selection : (b : Nat) -> (h : Nat) -> (g : Nat) -> (Vect b BoardIndex, Vect h (Bounded howevermany there are in the hand at the moment.....)
--}
+{- For now I'm ignoring the distinction between client update and client update wrappers that define who the update gets sent to -}
 
+Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
+Selection game (board, hand, graveyard) with (skillHead game)
+ | Nothing = (game, [])
+ | skill = (game, [])
+
+
+getSoulPoints : Player h g -> Nat
+getSoulPoints player = 0 {-dummy-}
 
 FooDrawCard : Player n m -> Card -> Player (S n) m
 FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (token player)
 
-
-
-
+{-this currently ignores client updates-}
 stepGame : Game -> Game
 {-
 This will perform some automatically executing change. E.g. change in phase, etc.
 Each self-recursive call of stepGame corresponds to a single small step in the game update
 (perhaps going to the next phase, executing an automatic skill component, resolving a user skill selection, etc.)
 -}
-stepGame g = g {-dummy-}
+
+{-eventually encode in the type of game a constraint that it cannot reach 0 soul points for both players. This probably means not just doing getSoulPoints since that's a function.... -}
+stepGame g with (round g, player_A_Initiative g, turnNumber g, m g, n g, p g, env g, skillHead g, skillQueue g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,skillHead,skillQueue,player_A,player_B,phase,Z,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,skillHead,skillQueue,player_A,player_B,phase,asp,Z) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Just skillHead,skillQueue,player_A,player_B,phase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,skill::skillQueue,player_A,player_B,phase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,DrawPhase,asp,bsp) with (spawn player_A, spawn player_B)
+   | (Just cardA,Just cardB) = g {- record { phase = nextPhase DrawPhase } g -}
+   | _ = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,SpawnPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,SpellPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,RemovalPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,StartPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,EngagementPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,EndPhase,asp,bsp) = g
+ | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,RevivalPhase,asp,bsp) = g
+ | _ = g
+
+
+
+{-
+
+ with (hand player_A, graveyard player_A, spawn player_A, soul player_A, thoughts player_A, knowledge player_A, token player_A)
+   | (_,_,_,_,_,_,_) = g
+
+-}
+
+{-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
+
+{-For now, completely ignore the possibility of the user using skills! :D -}
+
+
+{-
+
+DrawPhase
+           | SpawnPhase
+           | SpellPhase
+           | RemovalPhase
+           | StartPhase
+           | EngagementPhase
+           | EndPhase
+           | RevivalPhase
+
+-}
+
 
 transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
 transformGame game serverupdate with (phase game,serverupdate)
@@ -525,17 +184,8 @@ while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
 while_loop [] _ = ([],[])
 while_loop (g::gs) _ = ([],[])
 
-
 main : IO ()
-main =
-
- putStrLn (show (Vect.nub [3,3,2,3,1,2,1,1,5,4,3,534,2,1]))
-
-{- do {
- input <- getLine;
- putStrLn input;
-}
--}
+main = putStrLn "hello world"
 
 
 

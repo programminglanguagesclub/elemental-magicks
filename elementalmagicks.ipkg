@@ -1,6 +1,6 @@
 package elementalmagicks
 
-modules = Preliminaries, main 
+modules = preliminaries, phase, objects, skill_dsl, main 
 opts = "-p effects" 
 
 executable = elementalmagicks
