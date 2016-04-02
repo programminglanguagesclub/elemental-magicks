@@ -3,16 +3,24 @@
 
 
 #### **Intro** <br />
- Elemental Magicks is the first game to be entirely skill based in the following sense:
- Given any legal position (not just the starting position),
-any strategy S from that position which is not mini-max cannot possibly
-achieve an inferior result if a decision in S is substituted from the mini-max strategy to replace a non-minimax optimal decision in S.
- That is to say, all minimax strategies is guaranteed to be best,
-Except for some cases where a strategy which is not mini-max in positions which are not reached,
-and mini-max (but could be a different mini-max decision) in cases which are reached.
+ Elemental Magicks is a card battle game and the first game to be entirely skill based :
+ 
+ In no case could a player benefit from playing a move which is sub-optimal in the mini-max sense.
+ 
+ https://en.wikipedia.org/wiki/Minimax
+ 
+ The only exceptions are cases where the player is factoring in both future errors they expect themselves to make,
+ and future errors they expect from the opponent.
+ 
  It is thus more pure as a strategy game even than chess, and much more than other games of its genre.
 
-#### **OurGoal** <br />
+ An equivalently pure game to Elemental Magicks would be
+ a version of chess where draws and ties are impossible (each game ends, and a game ending results in a player winning),
+ and the players play two rounds (one with white, and one with black).
+ Unfortunately chess is not designed to admit this modification without destroying much of the strategy.
+ 
+
+#### **Our Goal** <br />
  Having successfully prototyped this game in Java (about 100,000 line development),
 we seek to build a beautiful, concise, and robust version using the best programming languages currently available.
  That means development in Ur/Web and Idris.
