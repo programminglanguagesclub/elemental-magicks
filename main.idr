@@ -7,6 +7,7 @@ import preliminaries
 import phase
 import objects
 import skill_dsl
+import serverupdates
 
 {- these need to be made into datatypes because they need to store Env.-}
 mutual
@@ -23,7 +24,7 @@ only when we are actually able to update env (produce env' that is),
 which happens in the small-step interpreter (when we get the bindings from Condition, in other words)
 -}
 
- public export NonautomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ NonautomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
  {-NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m n p m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env) -}
  NonautomaticSkillComponent m n p env = {m' : Nat} -> {n' : Nat} -> {p' : Nat} -> ((Condition m' n' p'), AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env, AutomaticSkillComponent m n p env)
 
@@ -38,13 +39,21 @@ which happens in the small-step interpreter (when we get the bindings from Condi
 
 {- These skill effects are bounded by m n and p, but I want it to type check if it has less restricted bounds... -}
 
- public export AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
+ AutomaticSkillComponent : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
  AutomaticSkillComponent m n p env = (List (SkillEffect m n p env), Maybe (NonautomaticSkillComponent m n p env))
 
-public export Skill : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type
-Skill m n p env = AutomaticSkillComponent m n p env
+Skill : Type
+Skill = AutomaticSkillComponent 0 0 0 empty_env
 
 {- still have to represent rounds, initiative -}
+
+breakUp : Skill -> AutomaticSkillComponent 0 0 0 empty_env
+breakUp s = s
+
+{-
+breakUp : AutomaticSkillComponent m n p env -> (List (SkillEffect), Maybe (NonautomaticSkillComponent m n p env))
+breakUp x = x
+-}
 
 record Game where
  constructor MkGame
@@ -59,7 +68,7 @@ record Game where
  
  env : Env m n p
  skillHead : Maybe (NonautomaticSkillComponent m n p env)
- skillQueue : List (Skill 0 0 0 empty_env)
+ skillQueue : List (AutomaticSkillComponent 0 0 0 empty_env) {-Skill-}
  player_A : Player 0 0
  player_B : Player 0 0
  phase : Phase
@@ -69,17 +78,6 @@ syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 0 0 0 (Vect.Nil,
 game = new game "playerAToken" "playerBToken" -}
 {-For now, I am ignoring spells.-}
 data ClientUpdate = ClientDummy
-data ServerUpdate : Type where
- SetCard : Schools -> (Fin 26) -> ServerUpdate
- Skip : Schools -> ServerUpdate
- AttackRow : Fin 4 -> ServerUpdate
- Rest : ServerUpdate
- DirectAttack : ServerUpdate
- Move : BoardIndex -> ServerUpdate
- SkillInitiation : Nat -> ServerUpdate
- SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
- Revive : Vect 9 Bool -> ServerUpdate
- DrawCard : Nat -> ServerUpdate {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 
 ServerUpdateWrapper : Type
 ServerUpdateWrapper = (ServerUpdate, String)
@@ -100,7 +98,12 @@ getSoulPoints player = 0 {-dummy-}
 FooDrawCard : Player n m -> Card -> Player (S n) m
 FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (token player)
 
-{-this currently ignores client updates-}
+
+{-the following currently ignores client updates-}
+
+executeSkillEffects : Game -> List (SkillEffect m n p env) -> Game
+executeSkillEffects g a = g {-dummy-}
+
 stepGame : Game -> Game
 {-
 This will perform some automatically executing change. E.g. change in phase, etc.
@@ -109,50 +112,29 @@ Each self-recursive call of stepGame corresponds to a single small step in the g
 -}
 
 {-eventually encode in the type of game a constraint that it cannot reach 0 soul points for both players. This probably means not just doing getSoulPoints since that's a function.... -}
-stepGame g with (round g, player_A_Initiative g, turnNumber g, m g, n g, p g, env g, skillHead g, skillQueue g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
- | (round,player_A_Initiative,turnNumber,m,n,p,env,skillHead,skillQueue,player_A,player_B,phase,Z,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,skillHead,skillQueue,player_A,player_B,phase,asp,Z) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Just skillHead,skillQueue,player_A,player_B,phase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,skill::skillQueue,player_A,player_B,phase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,DrawPhase,asp,bsp) with (spawn player_A, spawn player_B)
+stepGame g with (m g, n g, p g, env g, skillHead g, skillQueue g)
+ | (m, n, p, env, Just skillHead, skillQueue) = g {-should first check to see if a skill selection can be made, because we might have to keep going...-}
+ | (m, n, p, env, Nothing, ((skillEffects, next)::skillQueue)) = stepGame (executeSkillEffects (record {skillHead = next} g) skillEffects)
+ | (m, n, p, env, Nothing, []) with (round g, player_A_Initiative g, turnNumber g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,asp,Z) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp) with (spawn player_A, spawn player_B)
    | (Just cardA,Just cardB) = g {- record { phase = nextPhase DrawPhase } g -}
    | _ = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,SpawnPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,SpellPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,RemovalPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,StartPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,EngagementPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,EndPhase,asp,bsp) = g
- | (round,player_A_Initiative,turnNumber,m,n,p,env,Nothing,[],player_A,player_B,RevivalPhase,asp,bsp) = g
- | _ = g
-
-
-
-{-
-
- with (hand player_A, graveyard player_A, spawn player_A, soul player_A, thoughts player_A, knowledge player_A, token player_A)
-   | (_,_,_,_,_,_,_) = g
-
--}
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,RevivalPhase,asp,bsp) = g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) = g
+  | _ = g
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
-
-
-{-
-
-DrawPhase
-           | SpawnPhase
-           | SpellPhase
-           | RemovalPhase
-           | StartPhase
-           | EngagementPhase
-           | EndPhase
-           | RevivalPhase
-
--}
-
 
 transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
 transformGame game serverupdate with (phase game,serverupdate)
