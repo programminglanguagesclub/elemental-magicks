@@ -15,16 +15,21 @@ public export record Monster where
  level : TemporaryPermanentBase Level
  aliveness : Aliveness
  usedAuto : Bool
+ usedStart : Bool
+ usedEnd : Bool
+ usedSpawn : Bool
+
 
 public export record Spell where
  constructor MkSpell
  level : Level
+ usedSpawn : Bool
 
 public export data Card = SpellCard Spell | MonsterCard Monster
 
 syntax repeat3 [val] = ((val ** Oh),(val ** Oh),(val ** Oh))
-syntax monster [attack] [defense] [speed] [range] [level] = MkMonster (repeat3 attack) (repeat3 defense) (repeat3 speed) (repeat3 range) (repeat3 level) Alive False
-syntax spell [level] = MkSpell level
+syntax monster [attack] [defense] [speed] [range] [level] = MkMonster (repeat3 attack) (repeat3 defense) (repeat3 speed) (repeat3 range) (repeat3 level) Alive False False False False
+syntax spell [level] = MkSpell level False
 
 mutant_pig : Monster
 mutant_pig = monster 20 0 2 1 3

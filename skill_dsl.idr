@@ -7,10 +7,12 @@ import preliminaries
 import objects
 
 
-public export Env : Nat -> Nat -> Nat -> Type
-Env m n p = (Vect m Monster, Vect n BoardIndex, Vect p Card)
+public export
+Env : Type
+Env = (List Monster, List BoardIndex, List Card)
 
-public export empty_env : Env 0 0 0
+public export
+empty_env : Env
 empty_env = ([],[],[])
 
 {- For now, I am not putting the requirement that entries be unique into the type. This is exportANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
@@ -88,13 +90,12 @@ public export data StatRValue = TemporaryR | PermanentR | BaseR
 
 
 {-currently no way to get attack from monster in hand, etc (as it might not be a monster). also ignoring set position for now -}
-public export data LazyInt : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
- {-Constant : Integer -> LazyInt 0 -} {-ignoring constant for now. It's neither bound to a card nor awaiting binding, so it's an edge case for this design-}
- BoardAttackR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
- BoardDefenseR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
- BoardRangeR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
- BoardSpeedR : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> StatRValue -> Fin n -> LazyInt m n p env
-             
+public export
+data LazyInt = BoardAttackR  Env StatRValue Nat
+             | BoardDefenseR Env StatRValue Nat
+             | BoardRangeR   Env StatRValue Nat
+             | BoardSpeedR   Env StatRValue Nat
+             | Constant      Integer
 {-
              | SchoolR School
              | ThoughtsR
@@ -104,12 +105,12 @@ public export data LazyInt : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) 
 
 {- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
 {- can I write {n m p : Nat} -> ??? -}
-public export data SkillEffect : (m : Nat) -> (n : Nat) -> (p : Nat) -> (Env m n p) -> Type where
- AttackL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
- DefenseL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
- RangeL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
- LevelL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
- SpeedL : {m : Nat} -> {n : Nat} -> {p : Nat} -> {env : Env m n p} -> Mutator -> StatLValue -> Side -> BoardIndex -> (LazyInt m n p env) -> SkillEffect m n p env
+public export
+ data SkillEffect = AttackL  Env Mutator StatLValue Side BoardIndex LazyInt
+                  | DefenseL Env Mutator StatLValue Side BoardIndex LazyInt
+                  | RangeL   Env Mutator StatLValue Side BoardIndex LazyInt
+                  | LevelL   Env Mutator StatLValue Side BoardIndex LazyInt
+                  | SpeedL   Env Mutator StatLValue Side BoardIndex LazyInt
 
 {-
  Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
@@ -156,7 +157,8 @@ FooBlargFoo = SpeedL SetL TemporaryL Friendly (2 ** Oh) (Constant 4)
 
 
 
-public export BoardSquareCondition : Nat -> Type
+public export
+BoardSquareCondition : Nat -> Type
 BoardSquareCondition n = (Vect n BoardSquareExistential, BoardSquarePredicate)
 
 public export BoardMonsterCondition : Nat -> Type
@@ -176,10 +178,14 @@ CardCondition n = (Vect n CardExistential, CardPredicate)
 
 {- for now ignoring whatever a set condition would be. It's not an existential. Maybe a universal...-}
 
-public export data Condition : {-Nat -> Nat -> Nat ->-} Nat -> Nat -> Nat -> Type where
- BoardMonsterCondition_ : (BoardMonsterCondition n) -> Condition n 0 0
- BoardSquareCondition_ : (BoardSquareCondition n) -> Condition n 0 0
- CardCondition_ : (CardCondition n) -> Condition 0 n 0
+public export
+data Condition = BoardMonsterCondition_ (BoardMonsterCondition n)
+               | BoardSquareCondition_ (BoardSquareCondition n)
+               | CardCondition_ (CardCondition n)
+
+public export
+data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent))
+
 
 
 

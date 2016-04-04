@@ -21,3 +21,7 @@ data ServerUpdate : Type where
  SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
  Revive : Vect 9 Bool -> ServerUpdate
  DrawCard : Nat -> ServerUpdate {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
+
+public export
+ServerUpdateWrapper : Type
+ServerUpdateWrapper = (ServerUpdate, String)
