@@ -4,16 +4,28 @@ import Data.Vect
 import Data.Fin
 import Data.So
 import preliminaries
-import objects
 
 
 public export
 Env : Type
-Env = (List Monster, List BoardIndex, List Card)
+Env = List Nat
+
+
+
+{- use Nat for IDs, and also drop the distinction between these lists...
+
+Actually, it's going to be hard to have these distinct as monster, card, etc,
+if they are just nats.... somehow this cyclic reference thing should be dealt with another way.
+
+(List Monster, List BoardIndex, List Card)
+
+
+
+-}
 
 public export
 empty_env : Env
-empty_env = ([],[],[])
+empty_env = []
 
 {- For now, I am not putting the requirement that entries be unique into the type. This is exportANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
 {-also for now cannot target discard.-}
@@ -34,8 +46,13 @@ public export data CardExistential = DeBruijnCardExistential Set
 
 {-not sure if I want Fin n or Nat here...-}
 
+
+
+
+
+
 public export data CardVar : Nat -> Type where
- BoundCardVar : Card -> CardVar 0
+ BoundCardVar : Nat -> CardVar 0 {- The Nat here is an ID to serve as a handle on the card. (not good with cyclic references so this will have to do for now) -}
  UnBoundCardVar : (Fin n) -> (CardVar n)
 
 
@@ -62,10 +79,11 @@ game state or player action.
 {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
 public export data BoardMonsterExistential = DeBruijnBoardMonsterExistential Side
-public export data BoardMonsterVar = BoundBoardMonsterVar Monster | UnBoundBoardMonsterVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}
+public export data BoardMonsterVar = BoundBoardMonsterVar Nat | UnBoundBoardMonsterVar (Fin n)
+{-BoundBoardMonsterVar Monster | UnBoundBoardMonsterVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}-}
 
 public export BoardMonsterPredicate : Type
-BoardMonsterPredicate = Monster -> Bool
+BoardMonsterPredicate = Nat -> Bool {- Nat -> Bool might not even be the correct type (pretty sure it's wrong actually), but it will serve as a placeholder for now...    Monster -> Bool-}
 
 public export data BoardSquareExistential = DeBruijnBoardSquareExistential Side
 public export data BoardSquareVar = BoundBoardSquareVar BoardIndex | UnBoundBoardSquareVar (Fin n)
@@ -75,13 +93,16 @@ public export data BoardSquareVar = BoundBoardSquareVar BoardIndex | UnBoundBoar
 public export BoardSquarePredicate : Type
 BoardSquarePredicate = BoardIndex -> Bool
 
+{-
 public export MonsterAlive : BoardMonsterPredicate
 MonsterAlive m with (aliveness m)
  | Alive = True
  | _ = False
+-}
+
 
 public export CardPredicate : Type
-CardPredicate = Card -> Bool
+CardPredicate = Nat -> Bool {-again, the Nat represents an ID for the card-}
 
 public export data StatLValue = TemporaryL | PermanentL
 public export data Mutator = IncrementL | SetL
