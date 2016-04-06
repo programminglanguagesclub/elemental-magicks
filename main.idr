@@ -6,7 +6,9 @@ import Data.So
 import preliminaries
 import phase
 import objects
+import objects_basic
 import skill_dsl
+import objects_advanced
 import serverupdates
 import clientupdates
 
@@ -75,8 +77,7 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
   | (round,player_A_Initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,RevivalPhase,asp,bsp)    = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) = ?g
-  | _                                                                                = ?g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) = (g,acc)
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 
