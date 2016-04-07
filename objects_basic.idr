@@ -9,6 +9,7 @@ public export data Aliveness = Alive | DeadFresh | DeadStale
 public export
 record BasicMonster where
  constructor MkBasicMonster
+ temporaryId : Nat
  attack : TemporaryPermanentBase Attack
  defense : TemporaryPermanentBase Defense
  speed : TemporaryPermanentBase Speed
@@ -19,6 +20,7 @@ record BasicMonster where
 public export
 record BasicSpell where
  constructor MkBasicSpell
+ temporaryId : Nat
  level : Level
 
 public export

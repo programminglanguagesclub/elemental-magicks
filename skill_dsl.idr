@@ -4,11 +4,12 @@ import Data.Vect
 import Data.Fin
 import Data.So
 import preliminaries
+import objects_basic
 
 
 public export
 Env : Type
-Env = List Nat
+Env = List BasicCard
 
 
 
@@ -52,7 +53,7 @@ public export data CardExistential = DeBruijnCardExistential Set
 
 
 public export data CardVar : Nat -> Type where
- BoundCardVar : Nat -> CardVar 0 {- The Nat here is an ID to serve as a handle on the card. (not good with cyclic references so this will have to do for now) -}
+ BoundCardVar : BasicCard -> CardVar 0 {- The Nat here is an ID to serve as a handle on the card. (not good with cyclic references so this will have to do for now) -}
  UnBoundCardVar : (Fin n) -> (CardVar n)
 
 
@@ -102,7 +103,7 @@ MonsterAlive m with (aliveness m)
 
 
 public export CardPredicate : Type
-CardPredicate = Nat -> Bool {-again, the Nat represents an ID for the card-}
+CardPredicate = BasicCard -> Bool {-again, the Nat represents an ID for the card-}
 
 public export data StatLValue = TemporaryL | PermanentL
 public export data Mutator = IncrementL | SetL

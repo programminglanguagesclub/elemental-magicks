@@ -5,7 +5,8 @@ import Data.Fin
 import Data.So
 import preliminaries
 import phase
-import objects
+import objects_basic
+import objects_advanced
 import skill_dsl
 
 

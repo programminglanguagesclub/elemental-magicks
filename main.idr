@@ -5,7 +5,6 @@ import Data.Fin
 import Data.So
 import preliminaries
 import phase
-import objects
 import objects_basic
 import skill_dsl
 import objects_advanced
@@ -59,18 +58,18 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
   | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
-   | (Just (MonsterCard IDA cardA),Just (MonsterCard IDB cardB))                     = ?g {- record { phase = nextPhase DrawPhase } g -}
-   | (Just (SpellCard IDA cardA),  Just (MonsterCard IDB cardB))                     = ?g
-   | (Just (MonsterCard IDA cardA),Just (SpellCard IDB cardB))                       = ?g
-   | (Just (SpellCard IDA cardA),  Just (SpellCard IDB cardB))                       = ?g
-   | (Just (MonsterCard IDA cardA),Nothing)                  with (usedSpawn cardA)
+   | (Just (MonsterCard cardA),Just (MonsterCard cardB))                             = ?g {- record { phase = nextPhase DrawPhase } g -}
+   | (Just (SpellCard cardA),  Just (MonsterCard cardB))                             = ?g
+   | (Just (MonsterCard cardA),Just (SpellCard cardB))                               = ?g
+   | (Just (SpellCard cardA),  Just (SpellCard cardB))                               = ?g
+   | (Just (MonsterCard cardA),Nothing)                  with (usedSpawn cardA)
     | True                                                                           = ?g
     | False                                                                          = ?g
-   | (Just (SpellCard IDA cardA),  Nothing)                                          = ?g
-   | (Nothing,                 Just (MonsterCard IDB cardB)) with (usedSpawn cardB)
+   | (Just (SpellCard cardA),  Nothing)                                              = ?g
+   | (Nothing,                 Just (MonsterCard cardB)) with (usedSpawn cardB)
     | True                                                                           = ?g
     | False                                                                          = ?g
-   | (Nothing,                 Just (SpellCard IDB cardB))                           = ?g
+   | (Nothing,                 Just (SpellCard cardB))                               = ?g
    | (Nothing, Nothing)                                                              = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
   | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp)    = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
