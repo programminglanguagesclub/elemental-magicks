@@ -36,11 +36,31 @@ FooDrawCard : Player n m -> Card -> Player (S n) m
 FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (token player)
 -}
 
+
+killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
+
 executeSkillEffects : Game -> List SkillEffect -> (Game, List ClientUpdate)
 executeSkillEffects g a = ?hole
 
 skillSelectionPossible : Game -> Condition -> Bool
 skillSelectionPossible game condition = ?hole
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-A lot of the cases for the working with the spawn skills currently work in progress-}
+
 
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
@@ -58,18 +78,29 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
   | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
-   | (Just (MonsterCard cardA),Just (MonsterCard cardB))                             = ?g {- record { phase = nextPhase DrawPhase } g -}
+   | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
+    |(Just (skillA, usedA, costA),Just (skillB, usedB, costB))                       = ?g
+    |(Just (skillA, usedA, costA),Nothing)                                           = ?g
+    |(Nothing,(skillB, usedB, costB))                                                = ?g
+    |(Nothing,Nothing)                                                               = ?g
    | (Just (SpellCard cardA),  Just (MonsterCard cardB))                             = ?g
-   | (Just (MonsterCard cardA),Just (SpellCard cardB))                               = ?g
-   | (Just (SpellCard cardA),  Just (SpellCard cardB))                               = ?g
-   | (Just (MonsterCard cardA),Nothing)                  with (usedSpawn cardA)
-    | True                                                                           = ?g
-    | False                                                                          = ?g
+   | (Just (MonsterCard cardA),Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
+    | (Just (skillA, usedA, costA), (skillB, usedB, costB))                          = ?g
+    | (Nothing, (skillB, usedB, costB))                                              = ?g
+   | (Just (SpellCard cardA),  Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
+    | (Just (skillA, usedA, costA), Just (skillB, usedB, costB))                     = ?g
+    | (Just (skillA, usedA, costA), Nothing)                                         = ?g
+    | (Nothing, Just (skillB, usedB, costB))                                         = ?g
+    | (Nothing, Nothing)                                                             = ?g
+   | (Just (MonsterCard cardA),Nothing)                  with (spawnSkill cardA)
+    | Just (skillA, usedA, costA)                                                    = ?g
+    | Nothing                                                                        = ?g
    | (Just (SpellCard cardA),  Nothing)                                              = ?g
-   | (Nothing,                 Just (MonsterCard cardB)) with (usedSpawn cardB)
-    | True                                                                           = ?g
-    | False                                                                          = ?g
-   | (Nothing,                 Just (SpellCard cardB))                               = ?g
+   | (Nothing,                 Just (MonsterCard cardB)) with (spawnSkill cardB)
+    | Just (skillB, usedB, costB)                                                    = ?g {-let (g', acc') = killFatallyDamaged (g, acc) in stepGame (record {phase = RemovalPhase} g, acc' ++ [SpellPhaseToRemovalPhase]) -}
+    | Nothing                                                                        = ?g
+   | (Nothing,                 Just (SpellCard cardB))   with (spawnSkill cardB)
+    | (skillB, usedB, costB)                                                         = ?g
    | (Nothing, Nothing)                                                              = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
   | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp)    = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
