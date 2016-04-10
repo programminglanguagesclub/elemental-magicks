@@ -7,27 +7,28 @@ import objects_basic
 import skill_dsl
 
 
+public export
+Skill : Type
+Skill = (SkillComponent, Bool, Nat) {- does a skill exist, and has it been used? This way I can also easily make it so that spell cards don't disappear as soon as they are used and monsters don't become engaged as they use their action skills-}
+
+{- used : Bool, cost : Nat -}
 
 public export
 record Monster where
  constructor MkMonster
  basic : BasicMonster
- autoSkill : Maybe SkillComponent
- usedAuto : Bool
- startSkill : Maybe SkillComponent
- usedStart : Bool
- endSkill : Maybe SkillComponent
- usedEnd : Bool
- spawnSkill : Maybe SkillComponent
- usedSpawn : Bool
- actionSkills : List SkillComponent
- usedAction : Bool {-This allows us to make monsters engaged AFTER they FINISH (one of ... s) their action skill -}
+ autoSkill : Maybe Skill
+ startSkill : Maybe Skill
+ endSkill : Maybe Skill
+ usedEnd : Maybe Skill
+ spawnSkill : Maybe Skill
+ actionSkills : List Skill
 
 public export
 record Spell where
  constructor MkSpell
  basic : BasicSpell
- spawnSkill : SkillComponent {-don't need used spawn as I'll have spell cards disappear as soon as they are cast, rather than after their effect goes off. (So might want to also engage units as soon as their action skills trigger. That would also be easier)-}
+ spawnSkill : Skill
 
 public export data Card = SpellCard Spell | MonsterCard Monster
 

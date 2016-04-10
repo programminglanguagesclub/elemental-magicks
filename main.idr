@@ -39,29 +39,33 @@ FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (ha
 
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
 
+
+
 executeSkillEffects : Game -> List SkillEffect -> (Game, List ClientUpdate)
 executeSkillEffects g a = ?hole
 
 skillSelectionPossible : Game -> Condition -> Bool
 skillSelectionPossible game condition = ?hole
 
+discardUsedSpell : Game -> (Game, List ClientUpdate)
+discardUsedSpell game = ?hole
 
 
 
 
+loadSkill : Game -> (SkillComponent, Bool, Nat) -> (Game, List ClientUpdate)
+loadSkill game = ?hole
 
 
 
 
-
-
-
+{-NEED to use ServerUpdateWrapper (or something that represents the player) rather than just ServerUpdate.-}
 
 
 
 {-A lot of the cases for the working with the spawn skills currently work in progress-}
 
-
+{-Also ignoring updates of the form "It's your turn". Perhaps separate code for this... -}
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
  | (Just (condition, ifSelects, SkillComponent_ (cannotSelectEffects, cannotSelectSkillHead) , next), skillQueue)
@@ -72,26 +76,24 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
  | (Nothing, (SkillComponent_ (skillEffects, next))::skillQueue)                     = let effectsApplied = executeSkillEffects (record {skillHead = next, skillQueue = skillQueue} g) skillEffects in
                                                                                        let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
  | (Nothing, []) with (round g, player_A_Initiative g, turnNumber g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = ?g {-have to handle going to the next round, ect (g,acc)-}
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,asp,Z)             = ?g {-(g,acc)-}
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,Z)               = ?g {-error case with both players having no soul points. For now, should include an error client update-}
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = ?g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = (g, acc ++ [RoundTerminated])
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,asp,Z)             = (g, acc ++ [RoundTerminated])
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,Z)               = (g, acc ++ [GameLogicError])
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = (g,acc)
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = (g,acc)
   | (round,player_A_Initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
    | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
     |(Just (skillA, usedA, costA),Just (skillB, usedB, costB))                       = ?g
     |(Just (skillA, usedA, costA),Nothing)                                           = ?g
-    |(Nothing,(skillB, usedB, costB))                                                = ?g
-    |(Nothing,Nothing)                                                               = ?g
-   | (Just (SpellCard cardA),  Just (MonsterCard cardB))                             = ?g
+    |(Nothing, Just (skillB, usedB, costB))                                          = ?g
+    |(Nothing,Nothing)                                                               = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
+   | (Just (SpellCard cardA),  Just (MonsterCard cardB)) with (spawnSkill cardA)
+    | (skillA, usedA, costA)                                                         = ?g {-if usedA || costA > (fromIntegerNat (extractBounded (thoughts (player_A g)))) then let (g', cu) = discardUsedSpell g in stepGame(g', acc ++ cu) else  ?hole -}
    | (Just (MonsterCard cardA),Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
     | (Just (skillA, usedA, costA), (skillB, usedB, costB))                          = ?g
     | (Nothing, (skillB, usedB, costB))                                              = ?g
    | (Just (SpellCard cardA),  Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
-    | (Just (skillA, usedA, costA), Just (skillB, usedB, costB))                     = ?g
-    | (Just (skillA, usedA, costA), Nothing)                                         = ?g
-    | (Nothing, Just (skillB, usedB, costB))                                         = ?g
-    | (Nothing, Nothing)                                                             = ?g
+    | ((skillA, usedA, costA), (skillB, usedB, costB))                               = ?g
    | (Just (MonsterCard cardA),Nothing)                  with (spawnSkill cardA)
     | Just (skillA, usedA, costA)                                                    = ?g
     | Nothing                                                                        = ?g
@@ -119,24 +121,24 @@ transformGame game serverupdate with (phase game,serverupdate)
  | (DrawPhase,_)                          = ?hole {-(game,[])-} {-No-}
  | (SpawnPhase,SetCard schools cardIndex) = ?hole
  | (SpawnPhase,Skip schools)              = ?hole
- | (SpawnPhase,_)                         = ?hole
+ | (SpawnPhase,_)                         = (game, [InvalidMove])
  | (SpellPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (SpellPhase,_)                         = ?hole
+ | (SpellPhase,_)                         = (game, [InvalidMove])
  | (RemovalPhase,SkillSelection n)        = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (RemovalPhase,_)                       = ?hole
+ | (RemovalPhase,_)                       = (game, [InvalidMove])
  | (StartPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (StartPhase,_)                         = ?hole
+ | (StartPhase,_)                         = (game, [InvalidMove])
  | (EngagementPhase, AttackRow n)         = ?hole
  | (EngagementPhase, Rest)                = ?hole
  | (EngagementPhase, DirectAttack)        = ?hole
  | (EngagementPhase, Move)                = ?hole
  | (EngagementPhase, SkillInitiation n)   = ?hole
  | (EngagementPhase, SkillSelection n)    = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EngagementPhase,_)                    = ?hole
+ | (EngagementPhase,_)                    = (game, [InvalidMove])
  | (EndPhase,SkillSelection n)            = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EndPhase,_)                           = ?hole
+ | (EndPhase,_)                           = (game, [InvalidMove])
  | (RevivalPhase,Revive b)                = ?hole
- | (RevivalPhase,_)                       = ?hole
+ | (RevivalPhase,_)                       = (game, [InvalidMove])
 
 
 while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)

@@ -52,8 +52,8 @@ transformLevel = transformBounded 0 9 Oh Oh
 public export transformAttack : (Integer -> Integer) -> Attack -> Attack
 transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
 
-public export ExtractBounded : Bounded lower upper -> Integer
-ExtractBounded (n ** _) = n
+public export extractBounded : Bounded lower upper -> Integer
+extractBounded (n ** _) = n
 
 public export BoardIndex : Type
 BoardIndex = Bounded 0 8
