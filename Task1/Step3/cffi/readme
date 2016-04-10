@@ -1,0 +1,18 @@
+to test:
+
+run build.sh
+
+
+run in two different terminals:
+
+
+cd app
+./app.exe
+
+
+AND
+
+
+cd lib
+./idris_program
+
