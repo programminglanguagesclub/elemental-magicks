@@ -115,9 +115,12 @@ uw_Basis_int uw_Lib_counter(uw_context ctx, uw_unit u) {
   writer(message);
   reader();
 
+  printf("About to return counter: %s\n", "yahoo");
+  //return counter++;
+  return 4;
 
-  return counter++;
 }
+
 
 
 

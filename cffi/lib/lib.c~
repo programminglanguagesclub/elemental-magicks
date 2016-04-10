@@ -25,60 +25,6 @@
 
 
 
-
-
-
-
-uw_Basis_string uw_Lib_hello(uw_context ctx, uw_unit u) {
-  return "Hello";
-}
-
-uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
-  uw_Basis_string s2 = uw_malloc(ctx, strlen(s)+2);
-
-  sprintf(s2, "%s!", s);
-  return s2;
-}
-
-static int counter;
-
-uw_Basis_int uw_Lib_counter(uw_context ctx, uw_unit u) {
-
-  char message[]="Hello";
-  writer(message);
-  reader();
-
-
-  return counter++;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 char *reader()
 {
  	int fd;
@@ -130,4 +76,75 @@ int fd;
         //remove the FIFO 
         unlink(myfifo);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+uw_Basis_string uw_Lib_hello(uw_context ctx, uw_unit u) {
+  return "Hello";
+}
+
+uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
+  uw_Basis_string s2 = uw_malloc(ctx, strlen(s)+2);
+
+  sprintf(s2, "%s!", s);
+  return s2;
+}
+
+static int counter;
+
+uw_Basis_int uw_Lib_counter(uw_context ctx, uw_unit u) {
+
+  char message[]="Hello";
+  writer(message);
+  reader();
+
+  printf("About to return counter: %s\n", "yahoo");
+  return counter++;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
