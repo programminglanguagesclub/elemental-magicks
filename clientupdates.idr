@@ -25,3 +25,10 @@ transformClientUpdate : ClientUpdate -> ClientUpdate
 transformClientUpdate clientUpdate with (clientUpdate)
  | SendToOnePlayer (update
 -}
+
+{-should use a typeclass for sendToOnePlayer, etc?-}
+
+public export
+serializeUpdateWrapper : ClientUpdateWrapper -> (String, String) {-update, player_token it's for-}
+serializeUpdateWrapper (SendToOnePlayer (foo,bar)) = ("","")
+serializeUpdateWrapper _ = ?gg
