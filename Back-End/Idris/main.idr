@@ -24,7 +24,7 @@ reader = foreign FFI_C "reader" (IO String)
 writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
-{-
+
 record Game where
  constructor MkGame
  round : Bounded 0 1
@@ -129,38 +129,42 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
 
-transformGame : Game -> ServerUpdate -> (Game, List ClientUpdate)
-transformGame game serverupdate with (phase game,serverupdate)
- | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                          = ?hole {-(game,[])-} {-No-}
- | (SpawnPhase,SetCard schools cardIndex) = ?hole
- | (SpawnPhase,Skip schools)              = ?hole
- | (SpawnPhase,_)                         = (game, [InvalidMove])
- | (SpellPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (SpellPhase,_)                         = (game, [InvalidMove])
- | (RemovalPhase,SkillSelection n)        = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (RemovalPhase,_)                       = (game, [InvalidMove])
- | (StartPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (StartPhase,_)                         = (game, [InvalidMove])
- | (EngagementPhase, AttackRow n)         = ?hole
- | (EngagementPhase, Rest)                = ?hole
- | (EngagementPhase, DirectAttack)        = ?hole
- | (EngagementPhase, Move)                = ?hole
- | (EngagementPhase, SkillInitiation n)   = ?hole
- | (EngagementPhase, SkillSelection n)    = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EngagementPhase,_)                    = (game, [InvalidMove])
- | (EndPhase,SkillSelection n)            = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EndPhase,_)                           = (game, [InvalidMove])
- | (RevivalPhase,Revive b)                = ?hole
- | (RevivalPhase,_)                       = (game, [InvalidMove])
 
 
-while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
+{-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
+transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)
+transformGame game serverUpdateWrapper with (phase game,serverUpdateWrapper)
+ | (DrawPhase,(player_token, DrawCard id))                = ?hole {-(game,[])-} {-Maybe-}
+ | (DrawPhase,_)                                          = ?hole {-(game,[])-} {-No-}
+ | (SpawnPhase,(player_token, SetCard schools cardIndex)) = ?hole
+ | (SpawnPhase,(player_token, Skip schools))              = ?hole
+ | (SpawnPhase,_)                                         = (game, [InvalidMove])
+ | (SpellPhase,(player_token, SkillSelection n))          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (SpellPhase,_)                                         = (game, [InvalidMove])
+ | (RemovalPhase,(player_token, SkillSelection n))        = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (RemovalPhase,_)                                       = (game, [InvalidMove])
+ | (StartPhase,(player_token, SkillSelection n))          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (StartPhase,_)                                         = (game, [InvalidMove])
+ | (EngagementPhase, (player_token, AttackRow n))         = ?hole
+ | (EngagementPhase, (player_token, Rest))                = ?hole
+ | (EngagementPhase, (player_token, DirectAttack))        = ?hole
+ | (EngagementPhase, (player_token, Move))                = ?hole
+ | (EngagementPhase, (player_token, SkillInitiation n))   = ?hole
+ | (EngagementPhase, (player_token, SkillSelection n))    = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EngagementPhase,_)                                    = (game, [InvalidMove])
+ | (EndPhase,(player_token, SkillSelection n))            = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EndPhase,_)                                           = (game, [InvalidMove])
+ | (RevivalPhase,(player_token, Revive b))                = ?hole
+ | (RevivalPhase,_)                                       = (game, [InvalidMove])
+
+
+while_loop : List Game -> ServerUpdateWrapper -> (List Game, List ClientUpdate) {-ClientUpdate or ClientUpdateWrapper?-}
 while_loop [] _      = ?hole {-([],[])-}
-while_loop (g::gs) _ = ?hole
+while_loop (g::gs) (player_token, serverUpdate) = if (token (player_A g)) == player_token || (token (player_B g)) == player_token then let (g',cus) = transformGame g (player_token, serverUpdate) in (g'::gs, cus)
+                                                  else let (gs',cus) = while_loop gs (player_token, serverUpdate) in (g::gs',cus)
 
 
--}
+
 
 main : IO ()
 main = do {

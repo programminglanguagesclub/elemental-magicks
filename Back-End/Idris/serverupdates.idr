@@ -25,4 +25,4 @@ data ServerUpdate : Type where
 
 public export
 ServerUpdateWrapper : Type
-ServerUpdateWrapper = (ServerUpdate, String)
+ServerUpdateWrapper = (String, ServerUpdate)

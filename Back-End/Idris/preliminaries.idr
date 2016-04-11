@@ -18,6 +18,13 @@ public export Defense : Type
 Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
+
+{- mess
+public export
+Hp : (baseHp : Bounded 1 absoluteUpperBound) -> Type
+Hp baseHp = {currentHp : Bounded absoluteLowerBound absoluteUpperBound} -> {maxHp : Bounded 0 absoluteUpperBound} -> ((currentHp,maxHp) ** So(currentHp = baseHp))
+-}
+
 public export Level : Type
 Level = Bounded 0 9 {- bounds for card level and schools -}
 {- this should have a bound of 1 for base -}
