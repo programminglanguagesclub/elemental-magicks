@@ -1,5 +1,7 @@
 module Main
 
+
+
 import Data.Vect
 import Data.Fin
 import Data.So
@@ -11,6 +13,18 @@ import objects_advanced
 import serverupdates
 import clientupdates
 
+
+
+%include C "../Glue/reader.h"
+%link C "../Glue/reader.o"
+
+reader : IO String
+reader = foreign FFI_C "reader" (IO String)
+
+writer : String -> IO Unit
+writer x = foreign FFI_C "writer" (String -> IO Unit) x
+
+{-
 record Game where
  constructor MkGame
  round : Bounded 0 1
@@ -145,8 +159,15 @@ while_loop : List Game -> ServerUpdate -> (List Game, List ClientUpdate)
 while_loop [] _      = ?hole {-([],[])-}
 while_loop (g::gs) _ = ?hole
 
+
+-}
+
 main : IO ()
-main = putStrLn "hello world"
+main = do {
+x <- reader;
+writer (x ++ " was received via Idris, the god of languages");
+main;
+}
 
 
 

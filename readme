@@ -1,0 +1,14 @@
+to test:
+
+run build.sh
+
+
+run in two different terminals:
+
+./app.exe
+
+
+AND
+
+./elementalmagicks
+
