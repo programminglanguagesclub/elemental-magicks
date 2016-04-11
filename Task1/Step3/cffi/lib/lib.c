@@ -34,7 +34,7 @@ char *reader()
 	
 	//Set to empty
 	char *buf;
-	buf = (char *) malloc(1024);
+	buf = (char *) malloc(1024); // memory leak
 	strcpy(buf, "empty");
         //char buf[MAX_BUF] = "empty";
 
@@ -109,16 +109,20 @@ uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
 
 static int counter;
 
-uw_Basis_int uw_Lib_counter(uw_context ctx, uw_unit u) {
-
-  char message[]="Hello";
-  writer(message);
-  reader();
-
-  printf("About to return counter: %s\n", "yahoo");
-  //return counter++;
-  return 4;
-
+uw_Basis_string uw_Lib_counter(uw_context ctx, uw_unit u) {
+ char message[]="Hello";
+ writer(message);
+ char *buf;
+ //buf = (char *) malloc(1024); // memory leak
+ buf = reader();
+ //printf("About to return counter: %s\n", buf);
+ //return counter++;
+ 
+ //uw_Basis_string s2 = uw_malloc(ctx, 6+1);
+ //sprintf(s2,"%s","hahaha");
+ return buf;//(&buf);
+ 
+// return "Hello";
 }
 
 

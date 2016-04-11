@@ -14,4 +14,5 @@ main : IO ()
 main = do {
 x <- reader;
 writer (x ++ " was received via Idris, the god of languages");
+main;
 }
