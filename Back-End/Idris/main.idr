@@ -76,6 +76,9 @@ loadSkill game = ?hole
 {-NEED to use ServerUpdateWrapper (or something that represents the player) rather than just ServerUpdate.-}
 
 
+{-Might actually want to be stepping round here, not game.-}
+
+
 
 {-A lot of the cases for the working with the spawn skills currently work in progress-}
 
@@ -157,37 +160,48 @@ allUnitsDead n [] = True
 -}
 
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)
-transformGame game serverUpdateWrapper with (phase game,serverUpdateWrapper)
- | (DrawPhase,(player_token, DrawCard id))                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                                          = (game, [InvalidMove])
- | (SpawnPhase,(player_token, SetCard schools cardIndex)) = ?hole
- | (SpawnPhase,(player_token, Skip schools))              = ?hole
- | (SpawnPhase,_)                                         = (game, [InvalidMove])
- | (SpellPhase,(player_token, SkillSelection n))          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (SpellPhase,_)                                         = (game, [InvalidMove])
- | (RemovalPhase,(player_token, SkillSelection n))        = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (RemovalPhase,_)                                       = (game, [InvalidMove])
- | (StartPhase,(player_token, SkillSelection n))          = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (StartPhase,_)                                         = (game, [InvalidMove])
- | (EngagementPhase, (player_token, AttackRow n))         = ?hole
- | (EngagementPhase, (player_token, Rest))                = ?hole
- | (EngagementPhase, (player_token, DirectAttack))        = ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}
- | (EngagementPhase, (player_token, Move))                = ?hole
- | (EngagementPhase, (player_token, SkillInitiation n))   = ?hole
- | (EngagementPhase, (player_token, SkillSelection n))    = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EngagementPhase,_)                                    = (game, [InvalidMove])
- | (EndPhase,(player_token, SkillSelection n))            = ?hole {-again, this (the n) is currently indexed incorrectly-}
- | (EndPhase,_)                                           = (game, [InvalidMove])
- | (RevivalPhase,(player_token, Revive b))                = ?hole
- | (RevivalPhase,_)                                       = (game, [InvalidMove])
+{-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
+transformGame : Game -> Player -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame game player serverUpdate with (phase game,serverUpdate)
+ | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
+ | (DrawPhase,_)                          = (game, [InvalidMove])
+ | (SpawnPhase,SetCard schools cardIndex) = ?hole
+ | (SpawnPhase,Skip schools)              = ?hole
+ | (SpawnPhase,_)                         = (game, [InvalidMove])
+ | (SpellPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (SpellPhase,_)                         = (game, [InvalidMove])
+ | (RemovalPhase,SkillSelection n)        = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (RemovalPhase,_)                       = (game, [InvalidMove])
+ | (StartPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (StartPhase,_)                         = (game, [InvalidMove])
+ | (EngagementPhase,AttackRow n)          = ?hole
+ | (EngagementPhase,Rest)                 = ?hole
+ | (EngagementPhase,DirectAttack)         = ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}
+ | (EngagementPhase,Move)                 = ?hole
+ | (EngagementPhase,SkillInitiation n)    = ?hole
+ | (EngagementPhase,SkillSelection n)     = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EngagementPhase,_)                    = (game, [InvalidMove])
+ | (EndPhase,SkillSelection n)            = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EndPhase,_)                           = (game, [InvalidMove])
+ | (RevivalPhase,Revive b)                = ?hole
+ | (RevivalPhase,_)                       = (game, [InvalidMove])
 
+
+getPlayerByToken : String -> Game -> Maybe Player
+getPlayerByToken playerToken game = if (token (player_A game)) == playerToken then Just (player_A game) else if (token (player_B game)) == playerToken then Just (player_B game) else Nothing
 
 while_loop : List Game -> ServerUpdateWrapper -> (List Game, List ClientUpdate) {-ClientUpdate or ClientUpdateWrapper?-}
 while_loop [] _      = ?hole {-([],[])-}
-while_loop (g::gs) (player_token, serverUpdate) = if (token (player_A g)) == player_token || (token (player_B g)) == player_token then let (g',cus) = transformGame g (player_token, serverUpdate) in (g'::gs, cus)
-                                                  else let (gs',cus) = while_loop gs (player_token, serverUpdate) in (g::gs',cus)
+while_loop (g::gs) (playerToken, serverUpdate) with (getPlayerByToken playerToken g)
+ | Nothing = let (gs',cus) = while_loop gs (playerToken, serverUpdate) in (g::gs',cus)
+ | Just player = let (g',cus) = transformGame g player serverUpdate in (g'::gs, cus)
 
+
+
+
+
+{- = if (token (player_A g)) == player_token || (token (player_B g)) == player_token then let (g',cus) = transformGame g (player_token, serverUpdate) in (g'::gs, cus)
+                                                  else let (gs',cus) = while_loop gs (player_token, serverUpdate) in (g::gs',cus) -}
 
 
 
