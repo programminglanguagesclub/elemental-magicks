@@ -131,11 +131,36 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 
 
+
+_allUnitsDead : List (Maybe Monster) -> Bool
+_allUnitsDead (Nothing::tl) = _allUnitsDead tl
+_allUnitsDead ((Just m)::tl) with (aliveness (basic m))
+ | Alive = False
+ | DeadFresh = _allUnitsDead tl
+ | DeadStale = _allUnitsDead tl
+_allUnitsDead [] = True
+
+
+allUnitsDead : Vect n (Maybe Monster) -> Bool
+allUnitsDead board = _allUnitsDead (toList board)
+
+playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode that at type level I suppose-}
+
+
+
+{-
+this code wrong in many ways.
+allUnitsDead : (n : Nat) -> Vect n (Maybe Monster) -> Bool
+allUnitsDead n (Nothing::tl) = allUnitsDead (n-1) tl
+allUnitsDead n ((Just m)::tl) = False
+allUnitsDead n [] = True
+-}
+
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)
 transformGame game serverUpdateWrapper with (phase game,serverUpdateWrapper)
  | (DrawPhase,(player_token, DrawCard id))                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                                          = ?hole {-(game,[])-} {-No-}
+ | (DrawPhase,_)                                          = (game, [InvalidMove])
  | (SpawnPhase,(player_token, SetCard schools cardIndex)) = ?hole
  | (SpawnPhase,(player_token, Skip schools))              = ?hole
  | (SpawnPhase,_)                                         = (game, [InvalidMove])
@@ -147,7 +172,7 @@ transformGame game serverUpdateWrapper with (phase game,serverUpdateWrapper)
  | (StartPhase,_)                                         = (game, [InvalidMove])
  | (EngagementPhase, (player_token, AttackRow n))         = ?hole
  | (EngagementPhase, (player_token, Rest))                = ?hole
- | (EngagementPhase, (player_token, DirectAttack))        = ?hole
+ | (EngagementPhase, (player_token, DirectAttack))        = ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}
  | (EngagementPhase, (player_token, Move))                = ?hole
  | (EngagementPhase, (player_token, SkillInitiation n))   = ?hole
  | (EngagementPhase, (player_token, SkillSelection n))    = ?hole {-again, this (the n) is currently indexed incorrectly-}
