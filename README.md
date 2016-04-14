@@ -80,8 +80,16 @@ https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
 
 
 #### **Installing Idris** <br />
+
+on Mac:
 brew update<br />
 brew install idris<br /> 
 
-OR Veiw the link for addition install options<br />
+OR View the link for addition install options<br />
 http://www.idris-lang.org/download/
+
+Ur/Web currently does not work well on Mac (due to an issue with the MLTON compiler).
+Ur/Web runs best with Ubuntu (which also works well with Idris).
+
+To install Ur/Web, visit http://www.impredicative.com/ur/ and follow the steps in the reference manual.
+
