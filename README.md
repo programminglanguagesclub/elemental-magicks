@@ -88,6 +88,8 @@ brew install idris<br />
 OR View the link for addition install options<br />
 http://www.idris-lang.org/download/
 
+#### **Installing Ur/Web** <br />
+
 Ur/Web currently does not work well on Mac (due to an issue with the MLTON compiler).
 Ur/Web runs best with Ubuntu (which also works well with Idris).
 
