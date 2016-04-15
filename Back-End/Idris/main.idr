@@ -32,10 +32,11 @@ record Game where
  turnNumber : Nat
  skillHead : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
  skillQueue : List SkillComponent
+ deathQueue : List Monster
  player_A : Player
  player_B : Player
  phase : Phase
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] (new player tokenA) (new player tokenB) DrawPhase
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
@@ -121,7 +122,9 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
    | (Nothing,                 Just (SpellCard cardB))   with (spawnSkill cardB)
     | (skillB, usedB, costB)                                                         = ?g
    | (Nothing, Nothing)                                                              = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp)    = ?g
+  | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) with (deathQueue g)
+   | []                                                                              = stepGame (record {phase = StartPhase} g, acc ++ [RemovalPhaseToStartPhase])
+   | (deadMonster :: deadMonsters)                                                   = ?g {-move card to graveyard, restore thoughts, and then remove life point... -}
   | (round,player_A_Initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g
   | (round,player_A_Initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g

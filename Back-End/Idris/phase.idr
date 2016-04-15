@@ -11,7 +11,7 @@ data Phase = DrawPhase
            | RevivalPhase
            | DeploymentPhase
 public export
-nextPhase : Phase -> Phase
+nextPhase : Phase -> Phase {-am I ever going to use this function???? Perhaps this should return the appropriate client update too?-}
 nextPhase DrawPhase = SpawnPhase
 nextPhase SpawnPhase = SpellPhase
 nextPhase SpellPhase = RemovalPhase
