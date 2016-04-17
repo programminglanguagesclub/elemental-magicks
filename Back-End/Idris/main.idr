@@ -25,10 +25,11 @@ writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
 data WhichPlayer = PlayerA | PlayerB
+data Round = FirstRound | SecondRound
 
 record Game where
  constructor MkGame
- round      : Bounded 0 1
+ round      : Round
  initiative : WhichPlayer
  turnNumber : Nat
  skillHead  : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
@@ -38,7 +39,9 @@ record Game where
  player_B   : Player
  phase      : Phase
  
-syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+
+
 
 
 
@@ -50,6 +53,61 @@ getPlayer game PlayerB = player_B game
 opponent : WhichPlayer -> WhichPlayer
 opponent PlayerA = PlayerB
 opponent PlayerB = PlayerA
+
+
+relativizePlayer : Game -> WhichPlayer -> Round -> Player
+relativizePlayer game p FirstRound = getPlayer game p
+relativizePlayer game p SecondRound = getPlayer game (opponent p)
+
+{-
+
+
+
+  0     1     1     0     0     1
+HA HB HB HA HB HA HA HB HA HB SB SA
+  1     0     0     1     1     0
+HB HA HA HB HA HB HB HA HB HA SA SB
+  0     1     1     0     0     1
+HA HB HB HA HB HA HA HB HA HB SB SA
+HB HA HA HB HA HB HB HA HB HA SA SB
+HA HB HB HA HB HA HA HB HA HB SB SA
+
+
+-}
+
+data CardDraw = AHand | BHand | ASoul | BSoul
+
+{-Do I have to inverse the action of relativize player when I return to  getNextTurnDraw?-}
+
+_getNextTurnDraw : Game -> Player -> Player -> WhichPlayer
+_getNextTurnDraw game playerA playerB with (length (hand playerA),length (hand playerB))
+ | (0,0)
+ | (1,0)
+ | (1,1)
+ | (1,2)
+ | (2,2)
+ | (2,3)
+ | (3,3)
+ | (4,3)
+ | (4,4)
+ | (5,4)
+ | (5,5)
+ | (5,6)
+ | (6,6)
+
+
+
+_getNextTurnDraw : Game -> Player -> Player -> WhichPlayer
+_getNextTurnDraw game playerA playerB with (length (hand playerA),length (hand playerB))
+
+
+
+
+
+
+getNextTurnDraw : Game -> WhichPlayer
+getNextTurnDraw game = let (playerA, playerB) = (relativizePlayer game PlayerA (round game), relativizePlayer game PlayerB (round game)) in _getNextTurnDraw game playerA playerB
+
 
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
@@ -193,20 +251,7 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
 
-
-
-
 playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode that at type level I suppose-}
-
-
-
-{-
-this code wrong in many ways.
-allUnitsDead : (n : Nat) -> Vect n (Maybe Monster) -> Bool
-allUnitsDead n (Nothing::tl) = allUnitsDead (n-1) tl
-allUnitsDead n ((Just m)::tl) = False
-allUnitsDead n [] = True
--}
 
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}

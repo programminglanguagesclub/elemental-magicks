@@ -16,7 +16,7 @@ data ClientUpdate = GameLogicError
                   | Kill Nat String String {-board index, player token, opponent token-}
                   | DeployCardRequest String
                   | SendSpawnToDiscard String String
-
+                        
 
                   {-
                   

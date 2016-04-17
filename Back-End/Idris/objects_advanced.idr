@@ -16,18 +16,18 @@ Skill = (SkillComponent, Bool, Nat) {- does a skill exist, and has it been used?
 public export
 record Monster where
  constructor MkMonster
- basic : BasicMonster
- autoSkill : Maybe Skill
- startSkill : Maybe Skill
- endSkill : Maybe Skill
- usedEnd : Maybe Skill
- spawnSkill : Maybe Skill
+ basic        : BasicMonster
+ autoSkill    : Maybe Skill
+ startSkill   : Maybe Skill
+ endSkill     : Maybe Skill
+ usedEnd      : Maybe Skill
+ spawnSkill   : Maybe Skill
  actionSkills : List Skill
 
 public export
 record Spell where
  constructor MkSpell
- basic : BasicSpell
+ basic      : BasicSpell
  spawnSkill : Skill
 
 public export data Card = SpellCard Spell | MonsterCard Monster
@@ -45,31 +45,33 @@ mutant_pig = basic monster 20 0 2 1 3
 
 
 
-public export Board : Type
+public export
+Board : Type
 Board = Vect 9 (Maybe Monster)
-public export Spawn : Type
+public export
+Spawn : Type
 Spawn = Maybe Card
-public export Soul : Type
+public export
+Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
-public export Thoughts : Type
+public export
+Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
-public export Knowledge : Type
+public export
+Knowledge : Type
 Knowledge = Vect 6 (Level)
 
-{- A goes first in the first round; B goes first in the second round; -}
-{- a lot of types could be made more precise here -}
 public export
 record Player where
- {-discard currently being ignored-}
  constructor MkPlayer
- board : Board
- hand : List Card
+ board     : Board
+ hand      : List Card
  graveyard : List Card
- discard : List Card
- spawn : Spawn
- soul : Soul
- thoughts : Thoughts
+ discard   : List Card
+ spawn     : Spawn
+ soul      : Soul
+ thoughts  : Thoughts
  knowledge : Knowledge
- token : String
+ token     : String
 
 syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
