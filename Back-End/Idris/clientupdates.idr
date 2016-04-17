@@ -13,11 +13,23 @@ data ClientUpdate = GameLogicError
                   | RevivalPhaseToDeploymentPhase
                   | DeploymentPhaseToSpawnPhase
                   | InvalidMove
+                  | Kill Nat String String {-board index, player token, opponent token-}
+                  | DeployCardRequest String
+                  | SendSpawnToDiscard String String
 
+
+                  {-
+                  
+                  | SetStat statblah Nat String String
+                  | Set
+  -}
+                  
+                                                  
+{-
 public export
-data ClientUpdateWrapper = SendToOnePlayer (ClientUpdate, String)
+data MarshalledClientUpdate = SendToOnePlayer (ClientUpdate, String)
                          | SendToBothPlayers ClientUpdate
-
+-}
 
 {- mess
 public export

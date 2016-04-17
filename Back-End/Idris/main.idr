@@ -24,19 +24,32 @@ reader = foreign FFI_C "reader" (IO String)
 writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
+data WhichPlayer = PlayerA | PlayerB
 
 record Game where
  constructor MkGame
- round : Bounded 0 1
- player_A_Initiative : Bool
+ round      : Bounded 0 1
+ initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
+ skillHead  : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
  skillQueue : List SkillComponent
  deathQueue : List Monster
- player_A : Player
- player_B : Player
- phase : Phase
+ player_A   : Player
+ player_B   : Player
+ phase      : Phase
+ 
 syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) True 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+
+
+
+
+getPlayer : Game -> WhichPlayer -> Player
+getPlayer game PlayerA = player_A game
+getPlayer game PlayerB = player_B game
+
+opponent : WhichPlayer -> WhichPlayer
+opponent PlayerA = PlayerB
+opponent PlayerB = PlayerA
 
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
@@ -62,9 +75,19 @@ executeSkillEffects g a = ?hole
 skillSelectionPossible : Game -> Condition -> Bool
 skillSelectionPossible game condition = ?hole
 
-discardUsedSpell : Game -> (Game, List ClientUpdate)
-discardUsedSpell game = ?hole
 
+
+{-discardUsedSpell : Game -> (Game, List ClientUpdate)
+discardUsedSpell game = ?hole
+-}
+
+removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
+removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
+ | Nothing = (game, acc ++ [GameLogicError])
+ | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (token (player_A game)) (token (player_B game))])
+removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
+ | Nothing = (game, acc ++ [GameLogicError])
+ | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (token (player_B game)) (token (player_A game))])
 
 
 
@@ -73,69 +96,13 @@ loadSkill game = ?hole
 
 
 
+_boardFull : List (Maybe Monster) -> Bool
+_boardFull (Nothing::_) = False
+_boardFull ((Just m)::tl) = _boardFull tl
+_boardFull [] = True
 
-{-NEED to use ServerUpdateWrapper (or something that represents the player) rather than just ServerUpdate.-}
-
-
-{-Might actually want to be stepping round here, not game.-}
-
-
-
-{-A lot of the cases for the working with the spawn skills currently work in progress-}
-
-{-Also ignoring updates of the form "It's your turn". Perhaps separate code for this... -}
-stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
-stepGame (g,acc) with (skillHead g, skillQueue g)
- | (Just (condition, ifSelects, SkillComponent_ (cannotSelectEffects, cannotSelectSkillHead) , next), skillQueue)
-
-                                                                                     = if skillSelectionPossible g condition then (g,acc)
-                                                                                       else let effectsApplied = executeSkillEffects (record {skillHead = cannotSelectSkillHead} g) cannotSelectEffects in
-                                                                                            let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
- | (Nothing, (SkillComponent_ (skillEffects, next))::skillQueue)                     = let effectsApplied = executeSkillEffects (record {skillHead = next, skillQueue = skillQueue} g) skillEffects in
-                                                                                       let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
- | (Nothing, []) with (round g, player_A_Initiative g, turnNumber g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = (g, acc ++ [RoundTerminated])
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,asp,Z)             = (g, acc ++ [RoundTerminated])
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,phase,Z,Z)               = (g, acc ++ [GameLogicError])
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = (g,acc)
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = (g,acc)
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
-   | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
-    |(Just (skillA, usedA, costA),Just (skillB, usedB, costB))                       = ?g
-    |(Just (skillA, usedA, costA),Nothing)                                           = ?g
-    |(Nothing, Just (skillB, usedB, costB))                                          = ?g
-    |(Nothing,Nothing)                                                               = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
-   | (Just (SpellCard cardA),  Just (MonsterCard cardB)) with (spawnSkill cardA)
-    | (skillA, usedA, costA)                                                         = ?g {-if usedA || costA > (fromIntegerNat (extractBounded (thoughts (player_A g)))) then let (g', cu) = discardUsedSpell g in stepGame(g', acc ++ cu) else  ?hole -}
-   | (Just (MonsterCard cardA),Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
-    | (Just (skillA, usedA, costA), (skillB, usedB, costB))                          = ?g
-    | (Nothing, (skillB, usedB, costB))                                              = ?g
-   | (Just (SpellCard cardA),  Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
-    | ((skillA, usedA, costA), (skillB, usedB, costB))                               = ?g
-   | (Just (MonsterCard cardA),Nothing)                  with (spawnSkill cardA)
-    | Just (skillA, usedA, costA)                                                    = ?g
-    | Nothing                                                                        = ?g
-   | (Just (SpellCard cardA),  Nothing)                                              = ?g
-   | (Nothing,                 Just (MonsterCard cardB)) with (spawnSkill cardB)
-    | Just (skillB, usedB, costB)                                                    = ?g {-let (g', acc') = killFatallyDamaged (g, acc) in stepGame (record {phase = RemovalPhase} g, acc' ++ [SpellPhaseToRemovalPhase]) -}
-    | Nothing                                                                        = ?g
-   | (Nothing,                 Just (SpellCard cardB))   with (spawnSkill cardB)
-    | (skillB, usedB, costB)                                                         = ?g
-   | (Nothing, Nothing)                                                              = stepGame (record {phase = RemovalPhase} g, acc ++ [SpellPhaseToRemovalPhase])
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) with (deathQueue g)
-   | []                                                                              = stepGame (record {phase = StartPhase} g, acc ++ [RemovalPhaseToStartPhase])
-   | (deadMonster :: deadMonsters)                                                   = ?g {-move card to graveyard, restore thoughts, and then remove life point... -}
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,RevivalPhase,asp,bsp)    = ?g
-  | (round,player_A_Initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) = (g,acc)
-
-{-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
-
-{-For now, completely ignore the possibility of the user using skills! :D -}
-
-
+boardFull : Board -> Bool {-don't want to make players try to deploy if the board is full -}
+boardFull board = _boardFull (toList board)
 
 
 _allUnitsDead : List (Maybe Monster) -> Bool
@@ -149,6 +116,85 @@ _allUnitsDead [] = True
 
 allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
+
+{-NEED to use ServerUpdateWrapper (or something that represents the player) rather than just ServerUpdate.-}
+
+
+{-Might actually want to be stepping round here, not game.-}
+
+
+
+{-A lot of the cases for the working with the spawn skills currently work in progress-}
+
+{-Also ignoring updates of the form "It's your turn". Perhaps separate code for this... -}
+
+
+goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
+goToNextPhase (game,acc) = let (retPhase, phaseUpdate) = nextPhase (phase game) in (record {phase = retPhase} game, acc ++ [phaseUpdate])
+
+{-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
+
+
+
+stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
+stepGame (g,acc) with (skillHead g, skillQueue g)
+ | (Just (condition, ifSelects, SkillComponent_ (cannotSelectEffects, cannotSelectSkillHead) , next), skillQueue)
+                                                                            = if skillSelectionPossible g condition then (g,acc)
+                                                                              else let effectsApplied = executeSkillEffects (record {skillHead = cannotSelectSkillHead} g) cannotSelectEffects in
+                                                                                   let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
+ | (Nothing, (SkillComponent_ (skillEffects, next))::skillQueue)            = let effectsApplied = executeSkillEffects (record {skillHead = next, skillQueue = skillQueue} g) skillEffects in
+                                                                              let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
+ | (Nothing, []) with (round g, initiative g, turnNumber g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
+  | (round,initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = (g, acc ++ [RoundTerminated])
+  | (round,initiative,turnNumber,player_A,player_B,phase,asp,Z)             = (g, acc ++ [RoundTerminated])
+  | (round,initiative,turnNumber,player_A,player_B,phase,Z,Z)               = (g, acc ++ [GameLogicError])
+  | (round,initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = (g,acc) {-send message-}
+  | (round,initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = (g,acc) {-send message-}
+  | (round,initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
+   | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
+    |(Just (skillA, usedA, costA),Just (skillB, usedB, costB))              = ?g
+    |(Just (skillA, usedA, costA),Nothing)                                  = ?g
+    |(Nothing, Just (skillB, usedB, costB))                                 = ?g
+    |(Nothing,Nothing)                                                      = stepGame (goToNextPhase (g,acc))
+   | (Just (SpellCard cardA),  Just (MonsterCard cardB)) with (spawnSkill cardA)
+    | (skillA, usedA, costA)                                                = ?g {-if usedA || costA > (fromIntegerNat (extractBounded (thoughts (player_A g)))) then let (g', cu) = discardUsedSpell g in stepGame(g', acc ++ cu) else  ?hole -}
+   | (Just (MonsterCard cardA),Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
+    | (Just (skillA, usedA, costA), (skillB, usedB, costB))                 = ?g
+    | (Nothing, (skillB, usedB, costB))                                     = ?g
+   | (Just (SpellCard cardA),  Just (SpellCard cardB))   with (spawnSkill cardA, spawnSkill cardB)
+    | ((skillA, usedA, costA), (skillB, usedB, costB))                      = ?g
+   | (Just (MonsterCard cardA),Nothing)                  with (spawnSkill cardA)
+    | Just (skillA, usedA, costA)                                           = ?g
+    | Nothing                                                               = ?g
+   | (Just (SpellCard cardA),  Nothing)                                     = ?g
+   | (Nothing,                 Just (MonsterCard cardB)) with (spawnSkill cardB)
+    | Just (skillB, usedB, costB)                                           = ?g {-let (g', acc') = killFatallyDamaged (g, acc) in stepGame (record {phase = RemovalPhase} g, acc' ++ [SpellPhaseToRemovalPhase]) -}
+    | Nothing                                                               = ?g
+   | (Nothing,                 Just (SpellCard cardB))   with (spawnSkill cardB)
+    | (skillB, usedB, costB)                                                = ?g
+   | (Nothing, Nothing)                                                     = stepGame (goToNextPhase (g,acc))
+  | (round,initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) with (deathQueue g)
+   | []                                                                     = stepGame (goToNextPhase (g,acc))
+   | (deadMonster :: deadMonsters)                                          = ?g {-move card to graveyard, restore thoughts, and then remove life point... -}
+  | (round,initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
+  | (round,initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g
+  | (round,initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g
+  | (round,initiative,turnNumber,player_A,player_B,RevivalPhase,asp,bsp)    = ?g
+  | (round,initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) with (spawn player_A, spawn player_B)
+   | (Nothing, Nothing)                                                     = stepGame (goToNextPhase (g,acc))
+   | (Just (MonsterCard cardA), Nothing)                                    = if boardFull (board player_A) then ?g else (g, acc ++ [DeployCardRequest (token player_A)])
+   | (Nothing, Just(MonsterCard cardB))                                     = if boardFull (board player_B) then ?g else (g, acc ++ [DeployCardRequest (token player_B)])
+   | (Just (MonsterCard cardA), Just (MonsterCard cardB))                   = if boardFull (board player_A) then ?g else if boardFull (board player_B) then ?g
+                                                                              else (g, acc ++ [DeployCardRequest (token (getPlayer g initiative))])
+   | (Just (SpellCard cardA),_)                                             = (g, acc ++ [GameLogicError])
+   | (_,Just (SpellCard cardB))                                             = (g, acc ++ [GameLogicError])
+
+{-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
+
+{-For now, completely ignore the possibility of the user using skills! :D -}
+
+
+
 
 playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode that at type level I suppose-}
 

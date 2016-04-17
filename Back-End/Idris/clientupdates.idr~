@@ -13,11 +13,22 @@ data ClientUpdate = GameLogicError
                   | RevivalPhaseToDeploymentPhase
                   | DeploymentPhaseToSpawnPhase
                   | InvalidMove
+                  | Kill Nat String String {-board index, player token, opponent token-}
+                  | DeployCardRequest String
 
+
+                  {-
+                  
+                  | SetStat statblah Nat String String
+                  | Set
+  -}
+                  
+                                                  
+{-
 public export
-data ClientUpdateWrapper = SendToOnePlayer (ClientUpdate, String)
+data MarshalledClientUpdate = SendToOnePlayer (ClientUpdate, String)
                          | SendToBothPlayers ClientUpdate
-
+-}
 
 {- mess
 public export
@@ -27,8 +38,9 @@ transformClientUpdate clientUpdate with (clientUpdate)
 -}
 
 {-should use a typeclass for sendToOnePlayer, etc?-}
-
+{-
 public export
 serializeUpdateWrapper : ClientUpdateWrapper -> (String, String) {-update, player_token it's for-}
 serializeUpdateWrapper (SendToOnePlayer (foo,bar)) = ("","")
 serializeUpdateWrapper _ = ?gg
+-}
