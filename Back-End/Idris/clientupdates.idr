@@ -15,6 +15,8 @@ data ClientUpdate = GameLogicError
                   | InvalidMove
                   | Kill Nat String String {-board index, player token, opponent token-}
                   | DeployCardRequest String
+                  | RequestDrawHand (String,String)
+                  | RequestDrawSoul (String,String)
                   | SendSpawnToDiscard String String
                         
 

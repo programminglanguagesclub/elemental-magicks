@@ -19,7 +19,7 @@ data ServerUpdate : Type where
  DirectAttack : ServerUpdate
  Move : BoardIndex -> ServerUpdate
  SkillInitiation : Nat -> ServerUpdate
- SkillSelection : Nat -> ServerUpdate {-this currently wrong-}
+ SkillSelection : (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> ServerUpdate
  Revive : Vect 9 Bool -> ServerUpdate
  DrawCard : Nat -> ServerUpdate {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 

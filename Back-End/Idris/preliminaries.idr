@@ -32,7 +32,7 @@ Level = Bounded 0 9 {- bounds for card level and schools -}
 School : Type
 School = Bounded 0 5
 public export Schools : Type
-Schools = (Level,Level,Level,Level,Level,Level)
+Schools = Vect 6 Level
 public export TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
 
@@ -71,6 +71,33 @@ GraveyardIndex = Bounded 0 25
 {-these could maybe be better. I don't have anything at the type level that forces them to be valid hand or graveyard indices... I can fix this later-}
 
 {- Hand and Graveyard indices point to the last available slot if they overshoot. The last available slot is the first one with no card in it. (so have to make sure there's not more than 1 that overshoots!)-}
+
+
+public export
+sumVect : Vect n (Bounded lower upper) -> Integer
+sumVect [] = 0
+sumVect (x::xs) = (extractBounded x) + (sumVect xs)
+
+{-This can be made much more general when type classes are added to Bounded-}
+public export
+dominatesVect : Vect n (Bounded lower upper) -> Vect n (Bounded lower upper) -> Bool
+dominatesVect [] [] = True
+dominatesVect (x::xs) (y::ys) = (extractBounded x) >= (extractBounded y) && dominatesVect xs ys
+
+public export
+totalDifferenceVect : Vect n (Bounded lower upper) -> Vect n (Bounded lower upper) -> Integer
+totalDifferenceVect [] [] = 0
+totalDifferenceVect (x::xs) (y::ys) = ((extractBounded x) - (extractBounded y)) + (totalDifferenceVect xs ys)
+
+
+
+
+
+
+
+
+
+
 
 
 

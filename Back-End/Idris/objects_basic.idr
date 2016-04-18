@@ -15,6 +15,7 @@ record BasicMonster where
  speed : TemporaryPermanentBase Speed
  range : TemporaryPermanentBase Range
  level : TemporaryPermanentBase Level
+ soulPoints : Nat {-Bounded 0 3-}
  aliveness : Aliveness
 
 public export

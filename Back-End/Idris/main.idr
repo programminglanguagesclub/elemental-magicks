@@ -1,7 +1,6 @@
 module Main
 
-
-
+import Prelude.Nat
 import Data.Vect
 import Data.Fin
 import Data.So
@@ -69,7 +68,9 @@ HA HB HB HA HB HA HA HB HA HB SB SA
 HB HA HA HB HA HB HB HA HB HA SA SB
   0     1     1     0     0     1
 HA HB HB HA HB HA HA HB HA HB SB SA
+  1     0     0     1     1     0
 HB HA HA HB HA HB HB HA HB HA SA SB
+  0     1     1     0     0     1
 HA HB HB HA HB HA HA HB HA HB SB SA
 
 
@@ -77,36 +78,70 @@ HA HB HB HA HB HA HA HB HA HB SB SA
 
 data CardDraw = AHand | BHand | ASoul | BSoul
 
-{-Do I have to inverse the action of relativize player when I return to  getNextTurnDraw?-}
 
-_getNextTurnDraw : Game -> Player -> Player -> WhichPlayer
-_getNextTurnDraw game playerA playerB with (length (hand playerA),length (hand playerB))
- | (0,0)
- | (1,0)
- | (1,1)
- | (1,2)
- | (2,2)
- | (2,3)
- | (3,3)
- | (4,3)
- | (4,4)
- | (5,4)
- | (5,5)
- | (5,6)
- | (6,6)
+swapDrawCommand : CardDraw -> CardDraw
+swapDrawCommand AHand = BHand
+swapDrawCommand BHand = AHand
+swapDrawCommand ASoul = BSoul
+swapDrawCommand BSoul = ASoul
+
+maybeSwapDrawCommand : Maybe CardDraw -> Maybe CardDraw
+maybeSwapDrawCommand (Just AHand) = Just BHand
+maybeSwapDrawCommand (Just BHand) = Just AHand
+maybeSwapDrawCommand (Just ASoul) = Just BSoul
+maybeSwapDrawCommand (Just BSoul) = Just ASoul
+maybeSwapDrawCommand Nothing = Nothing
 
 
-
-_getNextTurnDraw : Game -> Player -> Player -> WhichPlayer
-_getNextTurnDraw game playerA playerB with (length (hand playerA),length (hand playerB))
-
-
+relativizeDrawCommand : CardDraw -> Round -> CardDraw
+relativizeDrawCommand cardDraw FirstRound = cardDraw
+relativizeDrawCommand cardDraw SecondRound = swapDrawCommand cardDraw
 
 
+maybeRelativizeDrawCommand : Maybe CardDraw -> Round -> Maybe CardDraw
+maybeRelativizeDrawCommand (Just cardDraw) FirstRound = Just cardDraw
+maybeRelativizeDrawCommand (Just cardDraw) SecondRound = maybeSwapDrawCommand (Just cardDraw)
+maybeRelativizeDrawCommand Nothing _ = Nothing
 
 
-getNextTurnDraw : Game -> WhichPlayer
-getNextTurnDraw game = let (playerA, playerB) = (relativizePlayer game PlayerA (round game), relativizePlayer game PlayerB (round game)) in _getNextTurnDraw game playerA playerB
+__getNextTurnDraw : Nat -> Nat -> Maybe CardDraw
+__getNextTurnDraw x y = let (a,b) = ((toIntegerNat x),(toIntegerNat y)) in
+ if (a == 0 && b == 0) then Just AHand
+ else Nothing
+
+
+{-
+ if      ((a,b) = ((fromIntegerNat 0),(fromIntegerNat 0))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 0))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 1))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 2))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 2),(fromIntegerNat 2))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 2),(fromIntegerNat 3))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 3),(fromIntegerNat 3))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 4),(fromIntegerNat 3))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 4),(fromIntegerNat 4))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 4))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 5))) == True then Just AHand
+ else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 6))) == True then Just AHand
+ else                                                         Nothing
+-}
+
+
+_getNextTurnDraw : Game -> Player -> Player -> Maybe CardDraw {-ignoring error case currently-}
+_getNextTurnDraw game playerA playerB =
+ let (a,b) = (length (hand playerA),length (hand playerB)) in
+ let x = __getNextTurnDraw (modNat a 6) (modNat b 6) in
+ let y = modNat (modNat (a+b) 12) 2 in
+ if      y == 0
+  then x
+ else if y == 1
+  then maybeSwapDrawCommand x
+  else Nothing
+
+getNextTurnDraw : Game -> Maybe CardDraw
+getNextTurnDraw game =
+ let (playerA, playerB) = (relativizePlayer game PlayerA (round game), relativizePlayer game PlayerB (round game)) in
+ maybeRelativizeDrawCommand (_getNextTurnDraw game playerA playerB) (round game)
 
 
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
@@ -193,6 +228,17 @@ goToNextPhase (game,acc) = let (retPhase, phaseUpdate) = nextPhase (phase game) 
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
 
 
+getTokens : Game -> WhichPlayer -> (String,String)
+
+
+spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
+
+
+handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
+
+
+
+handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
 
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
@@ -206,7 +252,12 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
   | (round,initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = (g, acc ++ [RoundTerminated])
   | (round,initiative,turnNumber,player_A,player_B,phase,asp,Z)             = (g, acc ++ [RoundTerminated])
   | (round,initiative,turnNumber,player_A,player_B,phase,Z,Z)               = (g, acc ++ [GameLogicError])
-  | (round,initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp)       = (g,acc) {-send message-}
+  | (round,initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp) with (getNextTurnDraw g)
+   | Just AHand                                                             = (g, acc ++ [RequestDrawHand (getTokens g PlayerA)])
+   | Just BHand                                                             = (g, acc ++ [RequestDrawHand (getTokens g PlayerB)])
+   | Just ASoul                                                             = (g, acc ++ [RequestDrawSoul (getTokens g PlayerA)])
+   | Just BSoul                                                             = (g, acc ++ [RequestDrawSoul (getTokens g PlayerB)])
+   | Nothing                                                                = (g, acc ++ [GameLogicError]) {-(g,acc) {-send message-}-}
   | (round,initiative,turnNumber,player_A,player_B,SpawnPhase,asp,bsp)      = (g,acc) {-send message-}
   | (round,initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
    | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
@@ -260,22 +311,24 @@ transformGame game player serverUpdate with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
  | (DrawPhase,_)                          = (game, [InvalidMove])
  | (SpawnPhase,SetCard schools cardIndex) = ?hole
- | (SpawnPhase,Skip schools)              = ?hole
+ | (SpawnPhase,Skip schools)              = if (dominatesVect (knowledge player) schools) && (totalDifferenceVect (knowledge player) schools <= extractBounded (thoughts player))
+                                             then ?g
+                                             else ?g
  | (SpawnPhase,_)                         = (game, [InvalidMove])
- | (SpellPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (SpellPhase,SkillSelection s)          = handleSkillSelection game s
  | (SpellPhase,_)                         = (game, [InvalidMove])
- | (RemovalPhase,SkillSelection n)        = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (RemovalPhase,SkillSelection s)        = handleSkillSelection game s
  | (RemovalPhase,_)                       = (game, [InvalidMove])
- | (StartPhase,SkillSelection n)          = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (StartPhase,SkillSelection s)          = handleSkillSelection game s
  | (StartPhase,_)                         = (game, [InvalidMove])
  | (EngagementPhase,AttackRow n)          = ?hole
  | (EngagementPhase,Rest)                 = ?hole
  | (EngagementPhase,DirectAttack)         = ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}
  | (EngagementPhase,Move)                 = ?hole
- | (EngagementPhase,SkillInitiation n)    = ?hole
- | (EngagementPhase,SkillSelection n)     = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EngagementPhase,SkillInitiation n)    = handleSkillInitiation game n
+ | (EngagementPhase,SkillSelection s)     = handleSkillSelection game s
  | (EngagementPhase,_)                    = (game, [InvalidMove])
- | (EndPhase,SkillSelection n)            = ?hole {-again, this (the n) is currently indexed incorrectly-}
+ | (EndPhase,SkillSelection s)            = handleSkillSelection game s {-In all of these handleSkillSelection and handleSkillInitiation have to make sure that the right player is moving, that there is/isn't a pending skill, etc.-}
  | (EndPhase,_)                           = (game, [InvalidMove])
  | (RevivalPhase,Revive b)                = ?hole
  | (RevivalPhase,_)                       = (game, [InvalidMove])
