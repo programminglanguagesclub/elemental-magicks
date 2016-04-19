@@ -12,7 +12,7 @@ data ClientUpdate = GameLogicError
                   | EndPhaseToRevivalPhase
                   | RevivalPhaseToDeploymentPhase
                   | DeploymentPhaseToSpawnPhase
-                  | InvalidMove
+                  | InvalidMove String
                   | Kill Nat String String {-board index, player token, opponent token-}
                   | DeployCardRequest String
                   | RequestDrawHand (String,String)

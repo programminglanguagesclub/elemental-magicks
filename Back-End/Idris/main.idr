@@ -26,6 +26,9 @@ writer x = foreign FFI_C "writer" (String -> IO Unit) x
 data WhichPlayer = PlayerA | PlayerB
 data Round = FirstRound | SecondRound
 
+
+{-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
+
 record Game where
  constructor MkGame
  round      : Round
@@ -302,47 +305,69 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
 
+
+
+
+
+
+engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> Maybe (WhichPlayer, Nat)
+inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Nat) -> (row : Nat) -> Maybe Bool
+
+
+{-
 playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode that at type level I suppose-}
+-}
+
 
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
-transformGame : Game -> Player -> ServerUpdate -> (Game, List ClientUpdate)
-transformGame game player serverUpdate with (phase game,serverUpdate)
+transformGame : Game -> (player : Player) -> (opponent : Player) -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame game player opponent serverUpdate with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                          = (game, [InvalidMove])
+ | (DrawPhase,_)                          = (game, [(InvalidMove (token player))])
  | (SpawnPhase,SetCard schools cardIndex) = ?hole
- | (SpawnPhase,Skip schools)              = if (dominatesVect (knowledge player) schools) && (totalDifferenceVect (knowledge player) schools <= extractBounded (thoughts player))
+ | (SpawnPhase,Skip schools)              = if (dominatesVect (knowledge player) schools) && (totalDifferenceVect (knowledge player) schools <= extractBounded (thoughts player)) {-Does not yet check to make sure 9 9 9 9 9 9 dominates schools.-}
                                              then ?g
                                              else ?g
- | (SpawnPhase,_)                         = (game, [InvalidMove])
+ | (SpawnPhase,_)                         = (game, [InvalidMove (token player)])
  | (SpellPhase,SkillSelection s)          = handleSkillSelection game s
- | (SpellPhase,_)                         = (game, [InvalidMove])
+ | (SpellPhase,_)                         = (game, [InvalidMove (token player)])
  | (RemovalPhase,SkillSelection s)        = handleSkillSelection game s
- | (RemovalPhase,_)                       = (game, [InvalidMove])
+ | (RemovalPhase,_)                       = (game, [InvalidMove (token player)])
  | (StartPhase,SkillSelection s)          = handleSkillSelection game s
- | (StartPhase,_)                         = (game, [InvalidMove])
- | (EngagementPhase,AttackRow n)          = ?hole
+ | (StartPhase,_)                         = (game, [InvalidMove (token player)])
+ | (EngagementPhase,AttackRow n)          = ?g
  | (EngagementPhase,Rest)                 = ?hole
- | (EngagementPhase,DirectAttack)         = ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}
+ | (EngagementPhase,DirectAttack) with (skillHead game, skillQueue game)
+  | (Nothing, []) with (allUnitsDead (board opponent))
+   | False                                = (game, [InvalidMove (token player)])
+   | True                                 = ?g {-with (engagementOnMove (boar))      ... Need to make sure that the user can move with the card that is attacking, and that they have at least 1 thought...-}
+  | (_,_)                                 = (game, [InvalidMove (token player)])                 {-   ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}-}
  | (EngagementPhase,Move)                 = ?hole
  | (EngagementPhase,SkillInitiation n)    = handleSkillInitiation game n
  | (EngagementPhase,SkillSelection s)     = handleSkillSelection game s
- | (EngagementPhase,_)                    = (game, [InvalidMove])
+ | (EngagementPhase,_)                    = (game, [InvalidMove (token player)])
  | (EndPhase,SkillSelection s)            = handleSkillSelection game s {-In all of these handleSkillSelection and handleSkillInitiation have to make sure that the right player is moving, that there is/isn't a pending skill, etc.-}
- | (EndPhase,_)                           = (game, [InvalidMove])
+ | (EndPhase,_)                           = (game, [InvalidMove (token player)])
  | (RevivalPhase,Revive b)                = ?hole
- | (RevivalPhase,_)                       = (game, [InvalidMove])
+ | (RevivalPhase,_)                       = (game, [InvalidMove (token player)])
 
 
 getPlayerByToken : String -> Game -> Maybe Player
 getPlayerByToken playerToken game = if (token (player_A game)) == playerToken then Just (player_A game) else if (token (player_B game)) == playerToken then Just (player_B game) else Nothing
 
+
+{-
 while_loop : List Game -> ServerUpdateWrapper -> (List Game, List ClientUpdate) {-ClientUpdate or ClientUpdateWrapper?-}
 while_loop [] _      = ?hole {-([],[])-}
 while_loop (g::gs) (playerToken, serverUpdate) with (getPlayerByToken playerToken g)
  | Nothing = let (gs',cus) = while_loop gs (playerToken, serverUpdate) in (g::gs',cus)
  | Just player = let (g',cus) = transformGame g player serverUpdate in (g'::gs, cus)
 
+
+Need to get opponent to call transformGame
+
+-}
 
 
 

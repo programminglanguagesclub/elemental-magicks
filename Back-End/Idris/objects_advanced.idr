@@ -64,14 +64,65 @@ Knowledge = Vect 6 (Level)
 public export
 record Player where
  constructor MkPlayer
- board     : Board
- hand      : List Card
- graveyard : List Card
- discard   : List Card
- spawn     : Spawn
- soul      : Soul
- thoughts  : Thoughts
- knowledge : Knowledge
- token     : String
+ board           : Vect 9 (Maybe Monster)
+ rowTarget       : Vect 3 (Fin 3)
+ hand            : List Card
+ graveyard       : List Card
+ discard         : List Card
+ spawn           : Spawn
+ soul            : Soul
+ thoughts        : Thoughts
+ knowledge       : Knowledge
+ token           : String
+
+
+
+
+
+
+transformRowTarget : Fin 3 -> Vect 3 (Maybe Monster) -> Fin 3
+transformRowTarget f m with (f)
+ | FZ = ?g {-FS FZ-}
+ | FS FZ = FS (FS FZ)
+ | FS (FS FZ) = FZ
+
+
+{-
+This doesn't quite work. I need to move to the next position AFTER the next card....
+-}
+
+{-
+
+goToNextRowTarget : Player -> Fin 3 -> Player
+goToNextRowTarget player n = case n of
+                              FZ => record {rowTarget = replaceAt FZ (transformRowTarget) (rowTarget player))(rowTarget player)} player
+                              FS FZ => record {rowTarget = (rowTarget player)} player
+                              FS (FS FZ) => record {rowTarget = (rowTarget player)} player
+
+-}
+
+
+{-
+goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
+ | _ = player
+-}
+{-
+
+foo : Int -> Int
+foo x = case isLT of
+            Yes => x*2
+            No => x*4
+    where
+       data MyLT = Yes | No
+
+       isLT : MyLT
+       isLT = if x < 20 then Yes else No
+
+
+
+-}
+
+
+
 
 syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
