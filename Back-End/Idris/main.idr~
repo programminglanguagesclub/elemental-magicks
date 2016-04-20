@@ -44,10 +44,6 @@ record Game where
 syntax "new" "game" [tokenA] [tokenB] = MkGame (0 ** Oh) PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
 
-
-
-
-
 getPlayer : Game -> WhichPlayer -> Player
 getPlayer game PlayerA = player_A game
 getPlayer game PlayerB = player_B game
@@ -111,24 +107,6 @@ __getNextTurnDraw : Nat -> Nat -> Maybe CardDraw
 __getNextTurnDraw x y = let (a,b) = ((toIntegerNat x),(toIntegerNat y)) in
  if (a == 0 && b == 0) then Just AHand
  else Nothing
-
-
-{-
- if      ((a,b) = ((fromIntegerNat 0),(fromIntegerNat 0))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 0))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 1))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 1),(fromIntegerNat 2))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 2),(fromIntegerNat 2))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 2),(fromIntegerNat 3))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 3),(fromIntegerNat 3))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 4),(fromIntegerNat 3))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 4),(fromIntegerNat 4))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 4))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 5))) == True then Just AHand
- else if ((a,b) = ((fromIntegerNat 5),(fromIntegerNat 6))) == True then Just AHand
- else                                                         Nothing
--}
-
 
 _getNextTurnDraw : Game -> Player -> Player -> Maybe CardDraw {-ignoring error case currently-}
 _getNextTurnDraw game playerA playerB =
@@ -213,16 +191,9 @@ _allUnitsDead [] = True
 allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
 
-{-NEED to use ServerUpdateWrapper (or something that represents the player) rather than just ServerUpdate.-}
-
 
 {-Might actually want to be stepping round here, not game.-}
 
-
-
-{-A lot of the cases for the working with the spawn skills currently work in progress-}
-
-{-Also ignoring updates of the form "It's your turn". Perhaps separate code for this... -}
 
 
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
@@ -289,7 +260,7 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
    | []                                                                     = stepGame (goToNextPhase (g,acc))
    | (deadMonster :: deadMonsters)                                          = ?g {-move card to graveyard, restore thoughts, and then remove life point... -}
   | (round,initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
-  | (round,initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g
+  | (round,initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g {-represent going to the next phase if no skills pending, etc, no units disengaged-}
   | (round,initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g
   | (round,initiative,turnNumber,player_A,player_B,RevivalPhase,asp,bsp)    = ?g
   | (round,initiative,turnNumber,player_A,player_B,DeploymentPhase,asp,bsp) with (spawn player_A, spawn player_B)
@@ -310,8 +281,9 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 
 
-engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> Maybe (WhichPlayer, Nat)
-inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Nat) -> (row : Nat) -> Maybe Bool
+_engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> (WhichPlayer, Nat)
+engagementOnMove : (game : Game) -> (player : Player) -> (opponent : Player) -> (Bool, Nat) {-could return a maybe nat, where nothing indicates an error, but I'll trust the ability to not have it the engagement phase if there's nothing next to move-}
+inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Nat) -> (row : Fin 3) -> Maybe Bool
 
 
 {-
@@ -336,7 +308,12 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
  | (RemovalPhase,_)                       = (game, [InvalidMove (token player)])
  | (StartPhase,SkillSelection s)          = handleSkillSelection game s
  | (StartPhase,_)                         = (game, [InvalidMove (token player)])
- | (EngagementPhase,AttackRow n)          = ?g
+ | (EngagementPhase,AttackRow n) with (engagementOnMove game player opponent)
+  | (False,_)                             = (game, [GameLogicError]) {-assume we already filter for whose turn it is in Ur/Web-}
+  | (True,i) with (inRangeRow (board player) (board opponent) i n)
+   | Nothing                              = (game, [GameLogicError])
+   | Just False                           = (game, [InvalidMove (token player)])
+   | Just True                            = ?g
  | (EngagementPhase,Rest)                 = ?hole
  | (EngagementPhase,DirectAttack) with (skillHead game, skillQueue game)
   | (Nothing, []) with (allUnitsDead (board opponent))

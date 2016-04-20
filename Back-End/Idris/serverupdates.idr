@@ -14,7 +14,7 @@ public export
 data ServerUpdate : Type where
  SetCard : Schools -> (Bounded 0 25) -> ServerUpdate
  Skip : Schools -> ServerUpdate
- AttackRow : (Bounded 0 3) -> ServerUpdate
+ AttackRow : (Fin 3) -> ServerUpdate
  Rest : ServerUpdate
  DirectAttack : ServerUpdate
  Move : BoardIndex -> ServerUpdate

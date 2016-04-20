@@ -77,14 +77,45 @@ record Player where
 
 
 
+getLiving : Maybe Monster -> Bool
+getLiving Nothing = False
+getLiving (Just m) with (aliveness (basic m))
+ | Alive = True
+ | DeadFresh = False
+ | DeadStale = False
 
 
 
-transformRowTarget : Fin 3 -> Vect 3 (Maybe Monster) -> Fin 3
-transformRowTarget f m with (f)
- | FZ = ?g {-FS FZ-}
- | FS FZ = FS (FS FZ)
- | FS (FS FZ) = FZ
+{-getRowTarget : Player -> Fin 3 -> Maybe Nat {-This takes a player and a row, and returns the index of the next target, or nothing if there is no valid target (living monster)-}-}
+
+
+
+
+getRowTarget : Fin 3 -> Vect 9 (Maybe Monster) -> Fin 9 -> Fin 9 -> Fin 9 -> Maybe (Fin 9)
+getRowTarget FZ m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+ | (True,_,_) = Just a
+ | (False,True,_) = Just b
+ | (False,False,True) = Just c
+ | (False,False,False) = Nothing
+getRowTarget (FS FZ) m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+ | (_,True,_) = Just b
+ | (_,False,True) = Just c
+ | (True,False,False) = Just a
+ | (False,False,False) = Nothing
+getRowTarget (FS (FS FZ)) m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+ | (_,_,True) = Just c
+ | (True,_,False) = Just a
+ | (False,True,False) = Just b
+ | (False,False,False) = Nothing
+
+
+getNextRowTarget : Fin 3 -> Fin 3
+getNextRowTarget FZ = FS FZ
+getNextRowTarget (FS FZ) = FS (FS FZ)
+getNextRowTarget (FS (FS FZ)) = FZ
+
+
+
 
 
 {-
