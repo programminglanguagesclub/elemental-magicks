@@ -64,7 +64,7 @@ Knowledge = Vect 6 (Level)
 public export
 record Player where
  constructor MkPlayer
- board           : Vect 9 (Maybe Monster)
+ board           : Board {-Vect 9 (Maybe Monster)-}
  rowTarget       : Vect 3 (Fin 3)
  hand            : List Card
  graveyard       : List Card

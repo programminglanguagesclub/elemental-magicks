@@ -281,9 +281,19 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
 
 
 
-_engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> (WhichPlayer, Nat)
-engagementOnMove : (game : Game) -> (player : Player) -> (opponent : Player) -> (Bool, Nat) {-could return a maybe nat, where nothing indicates an error, but I'll trust the ability to not have it the engagement phase if there's nothing next to move-}
-inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Nat) -> (row : Fin 3) -> Maybe Bool
+_engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> (WhichPlayer, Fin 9)
+engagementOnMove : (game : Game) -> (player : Player) -> (opponent : Player) -> (Bool, Fin 9) {-could return a maybe nat, where nothing indicates an error, but I'll trust the ability to not have it the engagement phase if there's nothing next to move-}
+
+_getEnemyStuffInFront : (defenderBoard) -> (row : Fin 3) -> Nat
+_getFriendlyStuffInFront : (attackerBoard : Board) -> (attackerSquare : Fin 9) -> Nat 
+inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Fin 9) -> (row : Fin 3) -> Maybe Bool
+inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSquare attackerBoard)
+ | Nothing = Nothing
+ | Just monster with (aliveness (basic monster))
+  | DeadFresh = Nothing
+  | DeadStale = Nothing
+  | Alive with (range (basic monster))
+   | (temporaryRange,_,_) = if gt (fromIntegerNat (extractBounded temporaryRange)) ((_getFriendlyStuffInFront attackerBoard attackerSquare) + (_getEnemyStuffInFront defenderBoard row)) then Just True else Just False
 
 
 {-
@@ -313,7 +323,7 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
   | (True,i) with (inRangeRow (board player) (board opponent) i n)
    | Nothing                              = (game, [GameLogicError])
    | Just False                           = (game, [InvalidMove (token player)])
-   | Just True                            = ?g
+   | Just True                            = ?g {-NEED TO ALSO MAKE SURE THAT THERE IS A VALID TARGET IN THE ROW (NOT JUST THAT IT IS IN RANGE)-}
  | (EngagementPhase,Rest)                 = ?hole
  | (EngagementPhase,DirectAttack) with (skillHead game, skillQueue game)
   | (Nothing, []) with (allUnitsDead (board opponent))
