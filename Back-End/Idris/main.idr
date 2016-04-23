@@ -301,6 +301,11 @@ playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode 
 -}
 
 
+moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board 
+
+
+
+{-RIGHT NOW THIS IS IGNORING CALLING THE SUBSEQUENT STEP GAME FUNCTION!!!!-}
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 transformGame : Game -> (player : Player) -> (opponent : Player) -> ServerUpdate -> (Game, List ClientUpdate)
@@ -330,7 +335,11 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
    | False                                = (game, [InvalidMove (token player)])
    | True                                 = ?g {-with (engagementOnMove (boar))      ... Need to make sure that the user can move with the card that is attacking, and that they have at least 1 thought...-}
   | (_,_)                                 = (game, [InvalidMove (token player)])                 {-   ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}-}
- | (EngagementPhase,Move)                 = ?hole
+ | (EngagementPhase,Move moveTo) with (engagementOnMove game player opponent)
+  | (False,_)                             = (game, [GameLogicError]) {-assume we already filter for whose turn it is in Ur/Web-}
+  | (True,moveFrom) with (index moveTo(board (player)))
+   | Nothing                              = ?g {- oops. Need to index the correct player. Perhaps have some other function do this? ((record {player->board = moveUnit moveFrom moveTo (board (player game))} game), [MoveUnit moveFrom moveTo (token player) (token opponent)]) {-Actually move the monster-}-}
+   | Just monster                         = (game, [InvalidMove (token player)]) {-Can't move to a location with something-}
  | (EngagementPhase,SkillInitiation n)    = handleSkillInitiation game n
  | (EngagementPhase,SkillSelection s)     = handleSkillSelection game s
  | (EngagementPhase,_)                    = (game, [InvalidMove (token player)])

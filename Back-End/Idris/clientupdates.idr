@@ -1,5 +1,7 @@
 module Clientupdates
 
+import Data.Fin
+
 public export
 data ClientUpdate = GameLogicError
                   | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
@@ -18,7 +20,7 @@ data ClientUpdate = GameLogicError
                   | RequestDrawHand (String,String)
                   | RequestDrawSoul (String,String)
                   | SendSpawnToDiscard String String
-                        
+                  | MoveUnit (Fin 9) (Fin 9) String String      
 
                   {-
                   
