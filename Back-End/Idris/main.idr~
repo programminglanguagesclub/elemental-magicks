@@ -301,7 +301,7 @@ playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode 
 -}
 
 
-moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board 
+moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board {-this actually does a swap-}
 
 
 

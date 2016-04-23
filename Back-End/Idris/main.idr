@@ -301,8 +301,8 @@ playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode 
 -}
 
 
-moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board 
-
+moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board {-this actually does a swap-}
+moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 
 
 {-RIGHT NOW THIS IS IGNORING CALLING THE SUBSEQUENT STEP GAME FUNCTION!!!!-}
@@ -333,7 +333,7 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
  | (EngagementPhase,DirectAttack) with (skillHead game, skillQueue game)
   | (Nothing, []) with (allUnitsDead (board opponent))
    | False                                = (game, [InvalidMove (token player)])
-   | True                                 = ?g {-with (engagementOnMove (boar))      ... Need to make sure that the user can move with the card that is attacking, and that they have at least 1 thought...-}
+   | True                                 = ?g {-with (engagementOnMove (board))      ... Need to make sure that the user can move with the card that is attacking, and that they have at least 1 thought...-}
   | (_,_)                                 = (game, [InvalidMove (token player)])                 {-   ?hole {-how do I get the player. Should that be passed instead of just the token? Also call all units dead.-}-}
  | (EngagementPhase,Move moveTo) with (engagementOnMove game player opponent)
   | (False,_)                             = (game, [GameLogicError]) {-assume we already filter for whose turn it is in Ur/Web-}
