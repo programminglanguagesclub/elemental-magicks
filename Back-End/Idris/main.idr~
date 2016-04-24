@@ -264,7 +264,7 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
    | []                                                                     = stepGame (goToNextPhase (g,acc))
    | (deadMonster :: deadMonsters) with (getMonsterField player_A player_B deadMonster)
     | Nothing                                                               = (g, acc ++ [GameLogicError])
-    | Just (player,location,monster) with (alive (basic monster))
+    | Just (player,location,monster) with (aliveness (basic monster))
      | Alive                                                                = (g, acc ++ [GameLogicError])
      | DeadFresh                                                            = stepGame (record {deathQueue = deadMonsters} g, acc)
      | DeadStale with (level (basic monster))
@@ -318,11 +318,13 @@ moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board {-
 moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 
 
-{-RIGHT NOW THIS IS IGNORING CALLING THE SUBSEQUENT STEP GAME FUNCTION!!!!-}
+restUnit : (location : Fin 9) -> Game -> Player {-WhichPlayer-} -> (Game,List ClientUpdate)
+
+
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
-transformGame : Game -> (player : Player) -> (opponent : Player) -> ServerUpdate -> (Game, List ClientUpdate)
-transformGame game player opponent serverUpdate with (phase game,serverUpdate)
+transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame game player opponent whichPlayer serverUpdate with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
  | (DrawPhase,_)                          = (game, [(InvalidMove (token player))])
  | (SpawnPhase,SetCard schools cardIndex) = ?hole
@@ -342,7 +344,11 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
    | Nothing                              = (game, [GameLogicError])
    | Just False                           = (game, [InvalidMove (token player)])
    | Just True                            = ?g {-NEED TO ALSO MAKE SURE THAT THERE IS A VALID TARGET IN THE ROW (NOT JUST THAT IT IS IN RANGE)-}
- | (EngagementPhase,Rest)                 = ?hole
+ | (EngagementPhase,Rest) with (skillHead game, skillQueue game)
+  | (Nothing, []) with (engagementOnMove game player opponent)
+   | (False,_)                            = (game, [GameLogicError])
+   | (True,location)                      = restUnit location game player
+  | (_,_)                                 = (game, [InvalidMove(token player)])
  | (EngagementPhase,DirectAttack) with (skillHead game, skillQueue game)
   | (Nothing, []) with (allUnitsDead (board opponent))
    | False                                = (game, [InvalidMove (token player)])
@@ -351,7 +357,9 @@ transformGame game player opponent serverUpdate with (phase game,serverUpdate)
  | (EngagementPhase,Move moveTo) with (engagementOnMove game player opponent)
   | (False,_)                             = (game, [GameLogicError]) {-assume we already filter for whose turn it is in Ur/Web-}
   | (True,moveFrom) with (index moveTo(board (player)))
-   | Nothing                              = ?g {- oops. Need to index the correct player. Perhaps have some other function do this? ((record {player->board = moveUnit moveFrom moveTo (board (player game))} game), [MoveUnit moveFrom moveTo (token player) (token opponent)]) {-Actually move the monster-}-}
+   | Nothing with (whichPlayer)
+    | PlayerA = ((record {player_A->board = moveUnit moveFrom moveTo (board player)} game), [MoveUnit moveFrom moveTo (token player) (token opponent)])
+    | PlayerB = ((record {player_B->board = moveUnit moveFrom moveTo (board player)} game), [MoveUnit moveFrom moveTo (token player) (token opponent)])
    | Just monster                         = (game, [InvalidMove (token player)]) {-Can't move to a location with something-}
  | (EngagementPhase,SkillInitiation n)    = handleSkillInitiation game n
  | (EngagementPhase,SkillSelection s)     = handleSkillSelection game s

@@ -9,7 +9,8 @@ public export data Aliveness = Alive | DeadFresh | DeadStale
 public export
 record BasicMonster where
  constructor MkBasicMonster
- temporaryId : Nat
+ permanentId : Nat {-equivalence classes of cards. Used for revival-}
+ temporaryId : Nat {-Id of a particular card for the game-}
  attack : TemporaryPermanentBase Attack
  defense : TemporaryPermanentBase Defense
  speed : TemporaryPermanentBase Speed
