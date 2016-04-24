@@ -36,7 +36,7 @@ record Game where
  turnNumber : Nat
  skillHead  : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
  skillQueue : List SkillComponent
- deathQueue : List Monster
+ deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  player_A   : Player
  player_B   : Player
  phase      : Phase
@@ -214,6 +214,10 @@ handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
 
 handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
 
+damageSoul : Game -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
+
+getMonsterField : Player -> Player -> Nat -> Maybe (Player,(Fin 9),Monster)
+
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
  | (Just (condition, ifSelects, SkillComponent_ (cannotSelectEffects, cannotSelectSkillHead) , next), skillQueue)
@@ -258,7 +262,16 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
    | (Nothing, Nothing)                                                     = stepGame (goToNextPhase (g,acc))
   | (round,initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) with (deathQueue g)
    | []                                                                     = stepGame (goToNextPhase (g,acc))
-   | (deadMonster :: deadMonsters)                                          = ?g {-move card to graveyard, restore thoughts, and then remove life point... -}
+   | (deadMonster :: deadMonsters) with (getMonsterField player_A player_B deadMonster)
+    | Nothing                                                               = (g, acc ++ [GameLogicError])
+    | Just (player,location,monster) with (aliveness (basic monster))
+     | Alive                                                                = (g, acc ++ [GameLogicError])
+     | DeadFresh                                                            = stepGame (record {deathQueue = deadMonsters} g, acc)
+     | DeadStale with (level (basic monster))
+      |(_,_,baseLevel)                                                      = ?g  {-move card to graveyard, restore thoughts, and then remove life point... -}
+   {-
+(record {player->board = moveUnit moveFrom moveTo (board (player game))} game)
+-}
   | (round,initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
   | (round,initiative,turnNumber,player_A,player_B,EngagementPhase,asp,bsp) = ?g {-represent going to the next phase if no skills pending, etc, no units disengaged-}
   | (round,initiative,turnNumber,player_A,player_B,EndPhase,asp,bsp)        = ?g
