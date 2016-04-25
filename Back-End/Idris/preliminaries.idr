@@ -90,16 +90,38 @@ totalDifferenceVect [] [] = 0
 totalDifferenceVect (x::xs) (y::ys) = ((extractBounded x) - (extractBounded y)) + (totalDifferenceVect xs ys)
 
 
+public export
+data MultiTree k = Node (MultiTree k) k Nat (MultiTree k) | Leaf
+public export
+insert : Ord k => MultiTree k -> k -> MultiTree k
+insert Leaf key = Node Leaf key 1 Leaf
+insert (Node left _key value right) key = if (_key == key)
+                                           then Node left _key (value + 1) right
+                                          else if (key < _key)
+                                           then Node (insert left key) _key value right
+                                           else Node left _key value (insert right key)
+
+public export
+get : Ord k => MultiTree k -> k -> Nat
+get Left key = 0
+get (Node left _key value right) key = if (_key == key)
+                                        then value
+                                       else if (key < _key)
+                                        then (get left key)
+                                        else (get right key)
+
+{- Ө(n log n) -}
+public export {-this should be made into a typeclass-}
+dominates : Ord k => MultiTree k -> MultiTree k -> Bool
+dominates _ Leaf = True
+dominates bigger (Node left key value right) = ((get bigger key) >= value) && (dominates bigger left) && (dominates bigger right)
 
 
 
 
 
-
-
-
-
-
+public export
+extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
 
 
 

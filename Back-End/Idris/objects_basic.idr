@@ -11,6 +11,7 @@ record BasicMonster where
  constructor MkBasicMonster
  permanentId : Nat {-equivalence classes of cards. Used for revival-}
  temporaryId : Nat {-Id of a particular card for the game-}
+ schools : List Nat {-Vector of elements 0~5 of length 0, 1 or 2, with distinct elements-}
  attack : TemporaryPermanentBase Attack
  defense : TemporaryPermanentBase Defense
  speed : TemporaryPermanentBase Speed
@@ -23,6 +24,7 @@ public export
 record BasicSpell where
  constructor MkBasicSpell
  temporaryId : Nat
+ schools : List Nat {-Vector of elements 0~5 of length 0, 1 or 2, with distinct elements-}
  level : Level
 
 public export

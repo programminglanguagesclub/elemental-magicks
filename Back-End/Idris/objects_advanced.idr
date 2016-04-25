@@ -75,7 +75,8 @@ record Player where
  knowledge       : Knowledge
  token           : String
 
-
+public export
+getNumberOfSchools : Monster -> Nat
 
 getLiving : Maybe Monster -> Bool
 getLiving Nothing = False

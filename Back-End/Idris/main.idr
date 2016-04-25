@@ -197,7 +197,21 @@ allUnitsDead board = _allUnitsDead (toList board)
 
 
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
-goToNextPhase (game,acc) = let (retPhase, phaseUpdate) = nextPhase (phase game) in (record {phase = retPhase} game, acc ++ [phaseUpdate])
+goToNextPhase (game,acc) = ?g {-let (retPhase, phaseUpdate) = nextPhase (phase game) in (record {phase = retPhase} game, acc ++ [phaseUpdate])-}
+
+
+
+
+{-HAVE TO GIVE EXTRA THOUGHTS AND SET DEATHSTALE/FRESH SOMEWHERE WHEN TRANSITIONING PHASES
+
+Also have to change the turn count, and possibly decrement soul points depending on what turn it is.
+-}
+
+
+
+
+
+
 
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
 
@@ -321,6 +335,37 @@ moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFr
 restUnit : (location : Fin 9) -> Game -> Player {-WhichPlayer-} -> (Game,List ClientUpdate)
 
 
+_getHandCards : (hand : List Card) -> (acc : MultiTree Nat) -> MultiTree Nat
+_getHandCards [] acc = acc
+_getHandCards (card::cards) acc with (card)
+ |MonsterCard m      = _getHandCards cards (insert acc (permanentId (basic m)))
+ |SpellCard s        = _getHandCards cards acc
+getHandCards : (hand : List Card) -> MultiTree Nat
+getHandCards hand = _getHandCards hand Leaf
+__canRevive : (thoughtCost : Nat) -> (thoughts : Thoughts) -> (boardCards : MultiTree Nat) -> (handCards : MultiTree Nat) -> Bool
+__canRevive thoughtCost thoughts boardCards handCards = ((extractBoundedNat thoughts) >= thoughtCost) && (dominates handCards boardCards)
+_canRevive : Player -> List Bool -> (currentIndex : Nat) -> (thoughtAcc : Nat) -> (boardCardsAcc : MultiTree Nat) -> Bool
+_canRevive player [] currentIndex thoughtAcc boardCardsAcc = __canRevive thoughtAcc (thoughts player) boardCardsAcc (getHandCards (hand player))
+_canRevive player (x::xs) currentIndex thoughtAcc boardCardsAcc with (x)
+ |False             = _canRevive player xs (currentIndex + 1) thoughtAcc boardCardsAcc
+ |True with (index' currentIndex (toList (board player)))
+  |Nothing          = False {-error-} {-there could be one of two errors: index out of bounds or no monster at location-}
+  |Just Nothing     = False
+  |Just (Just m) with (aliveness (basic m))
+   | Alive          = False
+   | DeadFresh      = False {-error-}
+   | DeadStale      = _canRevive player xs (currentIndex + 1) (thoughtAcc + (getNumberOfSchools m)) (insert boardCardsAcc (permanentId (basic m)))
+canRevive : Player -> Vect 9 Bool -> Bool {-might want to return the cards from the hand as well and the thoughts-}
+canRevive player selection = _canRevive player (toList selection) 0 0 Leaf
+
+
+{-
+Rewrite the above code using list comprehension (or at least filter) + fold.
+
+-}
+
+
+
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that token)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
@@ -366,7 +411,9 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
  | (EngagementPhase,_)                    = (game, [InvalidMove (token player)])
  | (EndPhase,SkillSelection s)            = handleSkillSelection game s {-In all of these handleSkillSelection and handleSkillInitiation have to make sure that the right player is moving, that there is/isn't a pending skill, etc.-}
  | (EndPhase,_)                           = (game, [InvalidMove (token player)])
- | (RevivalPhase,Revive b)                = ?hole
+ | (RevivalPhase,Revive b)                = if canRevive player b
+                                             then ?g
+                                             else (game, [InvalidMove (token player)])
  | (RevivalPhase,_)                       = (game, [InvalidMove (token player)])
 
 
