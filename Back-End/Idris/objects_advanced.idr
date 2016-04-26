@@ -61,6 +61,24 @@ public export
 Knowledge : Type
 Knowledge = Vect 6 (Level)
 
+
+
+{-
+
+I'm making the LP on cards be either 1 or 2 (to start with. Then they can be 0, 1 or 2).
+That way it decreases the max game length, and also adds more strategy (can't just mindlessly fill out a bunch of 3 LP cards)
+
+-}
+
+
+
+
+{-this might go in preliminaries-}
+public export
+transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
+transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
+
+
 public export
 record Player where
  constructor MkPlayer

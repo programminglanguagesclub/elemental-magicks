@@ -197,9 +197,12 @@ allUnitsDead board = _allUnitsDead (toList board)
 
 
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
-goToNextPhase (game,acc) = ?g {-let (retPhase, phaseUpdate) = nextPhase (phase game) in (record {phase = retPhase} game, acc ++ [phaseUpdate])-}
-
-
+goToNextPhase (game,acc) =
+ let (retPhase, phaseUpdate) = nextPhase (phase game) in
+ let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
+ case retPhase of
+  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game'))} game', acc' ++ [phaseUpdate])
+  
 
 
 {-HAVE TO GIVE EXTRA THOUGHTS AND SET DEATHSTALE/FRESH SOMEWHERE WHEN TRANSITIONING PHASES

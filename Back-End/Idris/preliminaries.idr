@@ -50,6 +50,16 @@ transformBounded lower upper ProofLower ProofUpper f (n ** _) =
    Right _ =>
     (upper ** ProofUpper)
 
+{-
+public export
+increment : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> Integer -> Bounded lower upper -> Bounded lower upper
+increment lower upper ProofLower ProofUpper v proof = transformBounded lower upper ProofLower ProofUpper (\x => x+v) proof
+-}
+
+
+
+
+
 public export transformRange : (Integer -> Integer) -> Range -> Range
 transformRange = transformBounded 0 5 Oh Oh
 public export transformSpeed : (Integer -> Integer) -> Speed -> Speed
