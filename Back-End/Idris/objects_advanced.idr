@@ -5,6 +5,7 @@ import Data.So
 import preliminaries
 import objects_basic
 import skill_dsl
+import phase
 
 
 public export
@@ -96,6 +97,7 @@ record Player where
 public export
 getNumberOfSchools : Monster -> Nat
 
+public export
 getLiving : Maybe Monster -> Bool
 getLiving Nothing = False
 getLiving (Just m) with (aliveness (basic m))
@@ -109,7 +111,7 @@ getLiving (Just m) with (aliveness (basic m))
 
 
 
-
+public export
 getRowTarget : Fin 3 -> Vect 9 (Maybe Monster) -> Fin 9 -> Fin 9 -> Fin 9 -> Maybe (Fin 9)
 getRowTarget FZ m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
  | (True,_,_) = Just a
@@ -176,3 +178,61 @@ foo x = case isLT of
 
 
 syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
+
+
+
+
+
+
+
+
+
+
+public export
+data WhichPlayer = PlayerA | PlayerB
+public export
+data Round = FirstRound | SecondRound
+
+
+{-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
+
+
+public export
+record Game where
+ constructor MkGame
+ initiative : WhichPlayer
+ turnNumber : Nat
+ skillHead  : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
+ skillQueue : List SkillComponent
+ deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ player_A   : Player
+ player_B   : Player
+ phase      : Phase
+ 
+syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+
+public export
+record Battle where
+ constructor MkBattle
+ round                : Round
+ originalPlayerAToken : String
+ originalPlayerBToken : String
+ game                 : Game
+
+public export
+getPlayer : Game -> WhichPlayer -> Player
+getPlayer game PlayerA = player_A game
+getPlayer game PlayerB = player_B game
+
+public export
+opponent : WhichPlayer -> WhichPlayer
+opponent PlayerA = PlayerB
+opponent PlayerB = PlayerA
+
+
+
+
+
+
+
+
