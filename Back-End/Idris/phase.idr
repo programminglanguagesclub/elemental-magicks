@@ -6,7 +6,7 @@ data Phase = DrawPhase
            | SpawnPhase
            | SpellPhase
            | RemovalPhase
-           | StartPhase
+           | StartPhase {-Let's damage soul at the start of this phase!-}
            | EngagementPhase
            | EndPhase
            | RevivalPhase

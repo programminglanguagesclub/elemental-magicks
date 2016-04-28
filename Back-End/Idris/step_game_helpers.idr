@@ -11,6 +11,11 @@ import clientupdates
 
 
 
+
+public export
+damageSoul : Game -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
+
+
 {-
 
 
@@ -114,6 +119,13 @@ public export
 allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
 
+
+
+
+
+resetAllSkills : Game -> Game {-Resets start skills, end skills, and counter skills. also decrements engagement (autoskills are reset whenever this happens) -}
+possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
+
 {-Might actually want to be stepping round here, not game.-}
 public export
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
@@ -121,11 +133,24 @@ goToNextPhase (game,acc) =
  let (retPhase, phaseUpdate) = nextPhase (phase game) in
  let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
  case retPhase of
-  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game'))} game', acc' ++ [phaseUpdate])
+  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')), turnNumber = S (turnNumber game)} game', acc' ++ [phaseUpdate])
+  SpellPhase => (game', acc')
+  RemovalPhase => (game', acc')
+  StartPhase => (resetAllSkills game', acc')
+  EngagementPhase => (game', acc')
+  EndPhase => (game', acc')
+  RevivalPhase => (game', acc')
+  DeploymentPhase => (game', acc')
 
-{-HAVE TO GIVE EXTRA THOUGHTS AND SET DEATHSTALE/FRESH SOMEWHERE WHEN TRANSITIONING PHASES
-Also have to reset counter skills (so they can trigger again) probably reset auto skills as well? Maybe that can happen when cards are disengaged (so that soul skills can also cause that to happen)
-Also have to change the turn count, and possibly decrement soul points depending on what turn it is.
+
+{-
+
+
+
+HAVE TO SET DEATHSTALE/FRESH SOMEWHERE WHEN TRANSITIONING PHASES
+Also have to possibly decrement soul points depending on what turn it is.
+
+
 -}
 
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
@@ -142,7 +167,5 @@ handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
 
 public export
 handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
-public export
-damageSoul : Game -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
 public export
 getMonsterField : Player -> Player -> Nat -> Maybe (Player,(Fin 9),Monster)
