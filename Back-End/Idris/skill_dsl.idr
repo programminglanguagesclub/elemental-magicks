@@ -6,30 +6,19 @@ import Data.So
 import preliminaries
 import objects_basic
 
-
 public export
 Env : Type
+{-
 Env = List BasicCard
-
-
-
-{- use Nat for IDs, and also drop the distinction between these lists...
-
-Actually, it's going to be hard to have these distinct as monster, card, etc,
-if they are just nats.... somehow this cyclic reference thing should be dealt with another way.
-
-(List Monster, List BoardIndex, List Card)
-
-
-
 -}
+Env = List BasicMonster
 
 public export
 empty_env : Env
 empty_env = []
 
 {- For now, I am not putting the requirement that entries be unique into the type. This is exportANT, but it is unclear to me now where it should be handled (could even be done in Ur/Web) -}
-{-also for now cannot target discard.-}
+
 
 public export data Area = SpawnPosition | HandArea | GraveyardArea | DiscardArea
 public export data Side = Friendly | Enemy
@@ -42,14 +31,8 @@ public export Set : Type
 Set = (Side, Area)
 
 {- not implementing universal quantifiers yet -}
-
 public export data CardExistential = DeBruijnCardExistential Set
-
 {-not sure if I want Fin n or Nat here...-}
-
-
-
-
 
 
 public export data CardVar : Nat -> Type where
@@ -75,7 +58,6 @@ game state or player action.
 -}
 
 {- Might need another type for the Spawn position?? -}
-{- Rename set to spawn everywhere -}
 
 {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
@@ -118,6 +100,49 @@ data LazyInt = BoardAttackR  Env StatRValue Nat
              | BoardRangeR   Env StatRValue Nat
              | BoardSpeedR   Env StatRValue Nat
              | Constant      Integer
+
+
+
+{-
+_evaluateLazyInt : Nat -> Env -> (Maybe Monster -> Integer) -> Maybe Integer
+_evaluateLazyInt (BoardAttackR env statRValue nat) f = 
+
+trying to clean up the boilerplate below.
+-}
+
+
+{-can use a function that accesses stat to simplify the code here-}
+evaluateLazyInt : LazyInt -> Maybe Integer {-Nothing indicates logic error-}
+evaluateLazyInt (BoardAttackR  env statRValue nat) with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster with (statRValue)
+  |TemporaryR = Just (extractBounded (getTemporary (attack basicMonster)))
+  |PermanentR = Just (extractBounded (getPermanent (attack basicMonster)))
+  |BaseR = Just (extractBounded (getBase (attack basicMonster)))
+evaluateLazyInt (BoardDefenseR env statRValue nat) with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster with (statRValue)
+  |TemporaryR = Just (extractBounded (getTemporary (defense basicMonster)))
+  |PermanentR = Just (extractBounded (getPermanent (defense basicMonster)))
+  |BaseR = Just (extractBounded (getBase (defense basicMonster))) 
+evaluateLazyInt (BoardRangeR   env statRValue nat) with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster with (statRValue)
+  |TemporaryR = Just (extractBounded (getTemporary (range basicMonster)))
+  |PermanentR = Just (extractBounded (getPermanent (range basicMonster)))
+  |BaseR = Just (extractBounded (getBase (range basicMonster)))
+evaluateLazyInt (BoardSpeedR   env statRValue nat) with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster with (statRValue)
+  |TemporaryR = Just (extractBounded (getTemporary (speed basicMonster)))
+  |PermanentR = Just (extractBounded (getPermanent (speed basicMonster)))
+  |BaseR = Just (extractBounded (getBase (speed basicMonster)))
+evaluateLazyInt (Constant integer) = Just integer
+
+
+
+
+
 {-
              | SchoolR School
              | ThoughtsR
@@ -127,12 +152,31 @@ data LazyInt = BoardAttackR  Env StatRValue Nat
 
 {- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
 {- can I write {n m p : Nat} -> ??? -}
-public export
+
+
+{-public export
  data SkillEffect = AttackL  Env Mutator StatLValue Side BoardIndex LazyInt
                   | DefenseL Env Mutator StatLValue Side BoardIndex LazyInt
                   | RangeL   Env Mutator StatLValue Side BoardIndex LazyInt
                   | LevelL   Env Mutator StatLValue Side BoardIndex LazyInt
                   | SpeedL   Env Mutator StatLValue Side BoardIndex LazyInt
+-}
+
+
+{-currently only target the board I guess -}
+
+public export
+data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | DefenseL Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | RangeL   Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | LevelL   Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | SpeedL   Env Mutator StatLValue BoardMonsterVar LazyInt
+
+
+{-the following could probably be cleaned up a lot as well....-}
+executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-}
+{-executeSkillEffectTransform (AttackL env mutator statLValue boardMonsterVar lazyInt) basicMonster with (mutator, statLValue, )-}
+
 
 {-
  Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}

@@ -6,7 +6,7 @@ import preliminaries
 import objects_basic
 import skill_dsl
 import phase
-
+import clientupdates
 
 public export
 Skill : Type
@@ -210,6 +210,37 @@ record Game where
  phase      : Phase
  
 syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+
+
+
+{-
+
+
+                    AttackL  Env Mutator StatLValue Side BoardMonsterVar LazyInt
+                  | DefenseL Env Mutator StatLValue Side BoardMonsterVar LazyInt
+                  | RangeL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
+                  | LevelL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
+                  | SpeedL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
+
+-}
+
+{-I might already have a hole by this name-}
+public export
+executeSkillEffect : Game -> SkillEffect -> (Game, List ClientUpdate)
+executeSkillEffect game skillEffect with (skillEffect)
+ |AttackL env mutator statLValue boardMonsterVar lazyInt = (game,[])
+ |_ = (game,[])
+
+{-This should use executeSkillEffectTransform to replace the monster affected in the game-}
+
+
+
+
+
+
+
+
+
 
 public export
 record Battle where

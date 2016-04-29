@@ -33,8 +33,19 @@ School : Type
 School = Bounded 0 5
 public export Schools : Type
 Schools = Vect 6 Level
-public export TemporaryPermanentBase : Type -> Type
+public export
+TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
+public export
+getTemporary : (t,t,t) -> t
+getTemporary (temporary,_,_) = temporary
+public export
+getPermanent : (t,t,t) -> t
+getPermanent (_,permanent,_) = permanent
+public export
+getBase : (t,t,t) -> t
+getBase (_,_,base) = base
+
 
 {-actually this one I might want to hide...-}
 public export transformBounded : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> (Integer -> Integer) -> Bounded lower upper -> Bounded lower upper
