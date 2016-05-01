@@ -33,6 +33,14 @@ School : Type
 School = Bounded 0 5
 public export Schools : Type
 Schools = Vect 6 Level
+
+public export
+maxSchool : Level
+maxSchool = (9 ** Oh)
+public export
+maxSchools : Schools
+maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
+
 public export
 TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)

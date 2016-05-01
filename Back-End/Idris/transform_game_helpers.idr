@@ -15,6 +15,11 @@ import step_game
 import step_game_helpers
 
 
+
+
+public export
+updateGame : Game -> Player -> Game {-figures out which player to modify and does the update-}
+
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 
 {-For now, completely ignore the possibility of the user using skills! :D -}

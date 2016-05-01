@@ -23,9 +23,9 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
  | (DrawPhase,_)                          = (game, [(InvalidMove (token player))])
  | (SpawnPhase,SetCard schools cardIndex) = ?hole
- | (SpawnPhase,Skip schools)              = if (dominatesVect (knowledge player) schools) && (totalDifferenceVect (knowledge player) schools <= extractBounded (thoughts player)) {-Does not yet check to make sure 9 9 9 9 9 9 dominates schools.-}
-                                             then ?g
-                                             else ?g
+ | (SpawnPhase,Skip schools)              = if (dominatesVect maxSchools schools) && (dominatesVect schools (knowledge player)) && (totalDifferenceVect schools (knowledge player) <= extractBounded (thoughts player))
+                                             then (updateGame game player, [UpdateSchools schools (token player) (token opponent)])
+                                             else (game, [InvalidMove (token player)])
  | (SpawnPhase,_)                         = (game, [InvalidMove (token player)])
  | (SpellPhase,SkillSelection s)          = handleSkillSelection game s
  | (SpellPhase,_)                         = (game, [InvalidMove (token player)])

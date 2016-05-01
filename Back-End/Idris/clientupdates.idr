@@ -1,6 +1,7 @@
 module Clientupdates
 
 import Data.Fin
+import preliminaries
 
 public export
 data ClientUpdate = GameLogicError
@@ -21,7 +22,8 @@ data ClientUpdate = GameLogicError
                   | RequestDrawSoul (String,String)
                   | SendSpawnToDiscard String String
                   | MoveUnit (Fin 9) (Fin 9) String String      
-
+                  | UpdateThoughts Nat String String
+                  | UpdateSchools Schools String String
                   {-
                   
                   | SetStat statblah Nat String String
