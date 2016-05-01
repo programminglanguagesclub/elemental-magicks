@@ -12,7 +12,7 @@ import skill_dsl
 
 public export
 data ServerUpdate : Type where
- SetCard : Schools -> (Bounded 0 25) -> ServerUpdate
+ SetCard : Schools -> {-(Bounded 0 25)-} Nat -> ServerUpdate
  Skip : Schools -> ServerUpdate
  AttackRow : (Fin 3) -> ServerUpdate
  Rest : ServerUpdate

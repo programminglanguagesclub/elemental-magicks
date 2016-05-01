@@ -1,6 +1,7 @@
 module Transform_game
 
 import Data.Vect
+import Data.So
 import preliminaries
 import phase
 import objects_basic
@@ -22,7 +23,26 @@ transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer 
 transformGame game player opponent whichPlayer serverUpdate with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
  | (DrawPhase,_)                          = (game, [(InvalidMove (token player))])
- | (SpawnPhase,SetCard schools cardIndex) = ?hole
+ | (SpawnPhase,SetCard schools cardIndex) with (index' cardIndex (hand player))        {-Also have to make sure it's the player's turn!!-}
+  | Nothing = (game,[GameLogicError])                {-well, right now the user can input too large a number, but this will be a logic error once that is fixed-}
+  | Just (MonsterCard card) = if schoolsHighEnoughToPlayCard player (MonsterCard card)
+                               then
+                                let hand' = removeAt (hand player) cardIndex in
+                                let thoughts' = (extractBounded (thoughts player)) - (extractBounded (getBase (level (basic card)))) in
+                                ?g
+                               else
+                               (game, [InvalidMove (token player)])
+  | Just (SpellCard card) = if schoolsHighEnoughToPlayCard player (SpellCard card)
+                             then
+                              let hand' = removeAt (hand player) cardIndex in
+                              let thoughts' = (extractBounded (thoughts player)) - (extractBounded (level (basic card))) in
+                              ?g
+                             else
+                              (game, [InvalidMove (token player)])
+
+
+
+{-Also have to make sure it's the player's turn!!-}
  | (SpawnPhase,Skip schools)              = if (dominatesVect maxSchools schools) && (dominatesVect schools (knowledge player)) && (totalDifferenceVect schools (knowledge player) <= extractBounded (thoughts player))
                                              then (updateGame game player, [UpdateSchools schools (token player) (token opponent)])
                                              else (game, [InvalidMove (token player)])

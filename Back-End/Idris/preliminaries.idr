@@ -154,4 +154,23 @@ extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to
 
 
 
+public export {-not tail recursive-}
+removeAt : List a -> Nat -> Maybe (List a)
+removeAt [] _ = Nothing
+removeAt (x::xs) Z = Just xs
+removeAt (x::xs) (S k) with (removeAt xs k)
+ | Nothing = Nothing
+ | Just xs' = Just (x :: xs')
+
+
+
+
+
+
+
+
+
+
+
+
 

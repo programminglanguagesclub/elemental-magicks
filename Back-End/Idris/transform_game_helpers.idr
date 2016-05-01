@@ -15,7 +15,12 @@ import step_game
 import step_game_helpers
 
 
+public export
+revive : (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
 
+
+public export
+schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 
 public export
 updateGame : Game -> Player -> Game {-figures out which player to modify and does the update-}
