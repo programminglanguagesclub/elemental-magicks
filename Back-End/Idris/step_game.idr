@@ -54,16 +54,28 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
    | (Nothing,                 Just (SpellCard cardB))   with (spawnSkill cardB)
     | (skillB, usedB, costB)                                                = ?g
    | (Nothing, Nothing)                                                     = stepGame (goToNextPhase (g,acc))
-  | (initiative,turnNumber,player_A,player_B,RemovalPhase,asp,bsp) with (deathQueue g)
+  | (initiative,turnNumber,player_A_,player_B_,RemovalPhase,asp,bsp) with (deathQueue g)
    | []                                                                     = stepGame (goToNextPhase (g,acc))
-   | (deadMonster :: deadMonsters) with (getMonsterField player_A player_B deadMonster)
+   | (deadMonster :: deadMonsters) with (getMonsterField player_A_ player_B_ deadMonster)
     | Nothing                                                               = (g, acc ++ [GameLogicError])
     | Just (player,location,monster) with (aliveness (basic monster))
      | Alive                                                                = (g, acc ++ [GameLogicError])
      | DeadFresh                                                            = stepGame (record {deathQueue = deadMonsters} g, acc)
      | DeadStale with (level (basic monster))
-      |(_,_,baseLevel)                                                      = ?g  {-move card to graveyard, restore thoughts, and then remove life point... -}
+      |(_,_,baseLevel)                                                      = if (token player_A_) == (token player) {-move card to graveyard, restore thoughts, and then remove life point... DOES NOT DO ALL OF THIS YET. STILL WORKING-}
+                                                                               then
+                                                                                let g' = (record {player_A->thoughts = transformThoughts (\x => x + (extractBounded baseLevel)) (thoughts player_A_),
+                                                                                                  player_A->graveyard = ((graveyard player_A_) ++ [MonsterCard monster])} g) in ?g
+
+
+{-damageSoul (?g,acc ++ [UpdateThoughts ]) player_A (S Z)-}
+                                                                               else ?g
+
+
    {-
+UpdateThoughts Nat String String
+damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
+
 (record {player->board = moveUnit moveFrom moveTo (board (player game))} game)
 -}
   | (initiative,turnNumber,player_A,player_B,StartPhase,asp,bsp)      = ?g
