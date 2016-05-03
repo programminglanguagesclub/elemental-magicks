@@ -13,8 +13,11 @@ import clientupdates
 
 
 public export
-damageSoul : Game -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
+damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
 
+
+public export
+reviveCard : Monster -> Monster
 
 {-
 

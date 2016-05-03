@@ -2,6 +2,7 @@ module Step_game
 
 import Data.Fin
 import Data.So
+import Data.Vect
 import preliminaries
 import phase
 import objects_basic
@@ -62,14 +63,22 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
      | Alive                                                                = (g, acc ++ [GameLogicError])
      | DeadFresh                                                            = stepGame (record {deathQueue = deadMonsters} g, acc)
      | DeadStale with (level (basic monster))
-      |(_,_,baseLevel)                                                      = if (token player_A_) == (token player) {-move card to graveyard, restore thoughts, and then remove life point... DOES NOT DO ALL OF THIS YET. STILL WORKING-}
+      |(_,_,baseLevel)                                                      = if (token player_A_) == (token player)
                                                                                then
                                                                                 let g' = (record {player_A->thoughts = transformThoughts (\x => x + (extractBounded baseLevel)) (thoughts player_A_),
-                                                                                                  player_A->graveyard = ((graveyard player_A_) ++ [MonsterCard monster])} g) in ?g
+                                                                                                  player_A->graveyard = ((graveyard player_A_) ++ [MonsterCard (reviveCard monster)]),
+                                                                                                  player_A->board = replaceAt (board player_A_) location Nothing,
+                                                                                                  deathQueue = deadMonsters} g) in
+                                                                                let (a,b) = ((token player_A_), (token player_B_)) in
+                                                                                stepGame (damageSoul (g', acc ++ [(LoseSoulPoint a b), SendBoardToGraveyard location a b, (UpdateThoughts (thoughts (player_A g')) a b)]) (player_A g') (S Z))
+                                                                               else
+                                                                                let g' = (record {player_B->thoughts = transformThoughts (\x => x + (extractBounded baseLevel)) (thoughts player_B_),
+                                                                                                  player_B->graveyard = ((graveyard player_B_) ++ [MonsterCard (reviveCard monster)]),
+                                                                                                  player_B->board = replaceAt (board player_B_) location Nothing,
+                                                                                                  deathQueue = deadMonsters} g) in
+                                                                                let (a,b) = ((token player_A_), (token player_B_)) in
+                                                                                stepGame (damageSoul (g', acc ++ [(LoseSoulPoint b a), SendBoardToGraveyard location b a, (UpdateThoughts (thoughts (player_B g')) b a)]) (player_B g') (S Z))
 
-
-{-damageSoul (?g,acc ++ [UpdateThoughts ]) player_A (S Z)-}
-                                                                               else ?g
 
 
    {-

@@ -163,7 +163,17 @@ removeAt (x::xs) (S k) with (removeAt xs k)
  | Just xs' = Just (x :: xs')
 
 
+public export
+replaceAt : Vect n a -> Fin n -> a -> Vect n a
+replaceAt (x::xs) FZ y = (y::xs)
+replaceAt (x::xs) (FS k) y = x :: (replaceAt xs k y)
 
+
+{-replaceAt : List a -> Nat -> a -> List a {-ignores out of bounds case-}
+replaceAt [] _ _ = []
+replaceAt (x::xs) Z y = (y::xs)
+replaceAt (x::xs) (S k) y = x :: (replaceAt xs k y)
+-}
 
 
 
