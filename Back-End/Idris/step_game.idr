@@ -12,6 +12,22 @@ import serverupdates
 import clientupdates
 import step_game_helpers
 
+
+
+{-THERE'S A HUGE BUG HERE!!!
+Normally, I want to finish executing skills before going on, but an exception is applied to the spell phase.
+During that phase, I want both spells to finish activating before dealing with any counter skills, etc.
+
+I'm not sure if the code currently does this.
+
+
+
+
+
+I can achieve this by pushing both of the spawn skills onto the queue/head/whatever at the start of the spell phase (during the transition to the spell phase)
+
+-}
+
 public export
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
