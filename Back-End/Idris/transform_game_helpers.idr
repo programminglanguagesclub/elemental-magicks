@@ -15,14 +15,51 @@ import step_game
 import step_game_helpers
 
 
-public export
-revive : (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
+
+
+
+
 
 
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
+schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
+schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
+ | NoSchools = True
+ | OneSchool s = extractBounded (index s (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
+ | TwoSchools s1 s2 = extractBounded (index s1 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card)))) && extractBounded (index s2 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
 
 public export
+getNumberOfSchools : BasicMonster -> Nat
+getNumberOfSchools monster with (schools monster)
+ | NoSchools      = 0
+ | OneSchool _    = 1
+ | TwoSchools _ _ = 2
+
+
+
+
+{-(positions : List Nat) -> (board : List (Maybe Monster)) -> (acc : Nat) -> Nat-}
+
+
+public export
+getReviveCost : (toRevive : List Monster) -> Nat
+getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
+
+public export
+_revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (List Card,Nat,List Card,List Card)
+
+public export
+revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
+revive positions board thoughts hand graveyard = _revive positions board thoughts hand graveyard Z
+
+
+
+
+
+
+
+public export {-this has been deprecated in favor of updatePlayer in step_game_helpers-}
 updateGame : Game -> Player -> Game {-figures out which player to modify and does the update-}
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
@@ -80,7 +117,7 @@ _canRevive player (x::xs) currentIndex thoughtAcc boardCardsAcc with (x)
   |Just (Just m) with (aliveness (basic m))
    | Alive          = False
    | DeadFresh      = False {-error-}
-   | DeadStale      = _canRevive player xs (currentIndex + 1) (thoughtAcc + (getNumberOfSchools m)) (insert boardCardsAcc (permanentId (basic m)))
+   | DeadStale      = _canRevive player xs (currentIndex + 1) (thoughtAcc + (getNumberOfSchools (basic m))) (insert boardCardsAcc (permanentId (basic m)))
 public export
 canRevive : Player -> Vect 9 Bool -> Bool {-might want to return the cards from the hand as well and the thoughts-}
 canRevive player selection = _canRevive player (toList selection) 0 0 Leaf

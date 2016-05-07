@@ -19,6 +19,11 @@ damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, Lis
 public export
 reviveCard : Monster -> Monster
 
+
+
+public export
+updatePlayer : Game -> Player -> (Player -> Player) -> Game {-applies update to player_A or player_B, as appropriate-}
+
 {-
 
 

@@ -29,8 +29,10 @@ public export Level : Type
 Level = Bounded 0 9 {- bounds for card level and schools -}
 {- this should have a bound of 1 for base -}
 
+public export
 School : Type
-School = Bounded 0 5
+{-School = Bounded 0 5-}
+School = Fin 6
 public export Schools : Type
 Schools = Vect 6 Level
 
@@ -53,6 +55,9 @@ getPermanent (_,permanent,_) = permanent
 public export
 getBase : (t,t,t) -> t
 getBase (_,_,base) = base
+public export
+getBaseLevel : (t,t,t'') -> t''
+getBaseLevel (_,_,baseLevel) = baseLevel
 
 
 {-actually this one I might want to hide...-}

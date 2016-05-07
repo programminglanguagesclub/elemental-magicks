@@ -94,8 +94,6 @@ record Player where
  knowledge       : Knowledge
  token           : String
 
-public export
-getNumberOfSchools : Monster -> Nat
 
 public export
 getLiving : Maybe Monster -> Bool

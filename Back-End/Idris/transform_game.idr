@@ -25,10 +25,12 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
  | (DrawPhase,_)                          = (game, [(InvalidMove (token player))])
  | (SpawnPhase,SetCard schools cardIndex) with (index' cardIndex (hand player))        {-Also have to make sure it's the player's turn!!-}
   | Nothing = (game,[GameLogicError])                {-well, right now the user can input too large a number, but this will be a logic error once that is fixed-}
-  | Just (MonsterCard card) = if schoolsHighEnoughToPlayCard player (MonsterCard card)
+  | Just (MonsterCard card) = if schoolsHighEnoughToPlayCard player (MonsterCard card) {-THIS DOES NOT ACTUALLY CHECK IF THE SCHOOLS ARE HIGH ENOUGH AFTER REGISTERING THE RAISE SCHOOLS CHANGE-}
                                then
+                                let spawn' = index' cardIndex (hand player) in
                                 let hand' = removeAt (hand player) cardIndex in
-                                let thoughts' = (extractBounded (thoughts player)) - (extractBounded (getBase (level (basic card)))) in
+                                let thoughts' = (extractBounded (thoughts player)) - (extractBounded (getBaseLevel (level (basic card)))) in
+                                {-let schools' = ?g in-}
                                 ?g
                                else
                                (game, [InvalidMove (token player)])
@@ -41,6 +43,12 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
                               (game, [InvalidMove (token player)])
 
 
+
+{-
+                let pu = \p => p in
+                                let game' = updatePlayer game player in
+
+-}
 
 {-Also have to make sure it's the player's turn!!-}
  | (SpawnPhase,Skip schools)              = if (dominatesVect maxSchools schools) && (dominatesVect schools (knowledge player)) && (totalDifferenceVect schools (knowledge player) <= extractBounded (thoughts player))
