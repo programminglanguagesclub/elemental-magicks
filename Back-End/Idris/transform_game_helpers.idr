@@ -46,13 +46,35 @@ public export
 getReviveCost : (toRevive : List Monster) -> Nat
 getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
 
+
+{-
+_getToRevive : Vect n Bool -> Vect n (Maybe Monster) -> List Monster -> List Monster {-It might be better to eventually do this where I return the indices? Hmm... wait why am I even doing this....-}
+_getToRevive [] [] acc = acc
+_getToRevive (b::bs) (m::ms) acc = _getToRevive bs ms (if b then (m::))
+getToRevive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> List Monster
+-}
+
+
+
+
+
+public export
+_removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card) {-Nothing means card does not exist in hand-}
+_removeMonsterFromHandByPermanentId [] _ _ = (Nothing,[])
+_removeMonsterFromHandByPermanentId acc ((SpellCard _)::xs) id = _removeMonsterFromHandByPermanentId acc xs id
+_removeMonsterFromHandByPermanentId acc ((MonsterCard m)::xs) id = if (permanentId (basic m)) == id then (Just m,acc ++ xs) else _removeMonsterFromHandByPermanentId (acc ++ [MonsterCard m]) xs id
+{-could optimize this to use :: instead of ++ and then reverse at the end-}
+public export
+removeMonsterFromHandByPermanentId : (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card)
+removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
+
+
 public export
 _revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (List Card,Nat,List Card,List Card)
 
 public export
 revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
 revive positions board thoughts hand graveyard = _revive positions board thoughts hand graveyard Z
-
 
 
 
