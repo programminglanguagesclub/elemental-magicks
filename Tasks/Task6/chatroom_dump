@@ -1,0 +1,109 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: uw_chatroom_room_message; Type: TABLE; Schema: public; Owner: tamago; Tablespace: 
+--
+
+CREATE TABLE uw_chatroom_room_message (
+    uw_room bigint NOT NULL,
+    uw_when timestamp without time zone NOT NULL,
+    uw_text text NOT NULL
+);
+
+
+ALTER TABLE uw_chatroom_room_message OWNER TO tamago;
+
+--
+-- Name: uw_chatroom_room_room; Type: TABLE; Schema: public; Owner: tamago; Tablespace: 
+--
+
+CREATE TABLE uw_chatroom_room_room (
+    uw_id bigint NOT NULL,
+    uw_title text NOT NULL
+);
+
+
+ALTER TABLE uw_chatroom_room_room OWNER TO tamago;
+
+--
+-- Name: uw_chatroom_room_subscriber; Type: TABLE; Schema: public; Owner: tamago; Tablespace: 
+--
+
+CREATE TABLE uw_chatroom_room_subscriber (
+    uw_room bigint NOT NULL,
+    uw_chan bigint NOT NULL
+);
+
+
+ALTER TABLE uw_chatroom_room_subscriber OWNER TO tamago;
+
+--
+-- Data for Name: uw_chatroom_room_message; Type: TABLE DATA; Schema: public; Owner: tamago
+--
+
+COPY uw_chatroom_room_message (uw_room, uw_when, uw_text) FROM stdin;
+0	2016-05-03 00:19:43.7411	ha!
+0	2016-05-03 00:20:01.776826	Hello there!
+\.
+
+
+--
+-- Data for Name: uw_chatroom_room_room; Type: TABLE DATA; Schema: public; Owner: tamago
+--
+
+COPY uw_chatroom_room_room (uw_id, uw_title) FROM stdin;
+0	lalala
+\.
+
+
+--
+-- Data for Name: uw_chatroom_room_subscriber; Type: TABLE DATA; Schema: public; Owner: tamago
+--
+
+COPY uw_chatroom_room_subscriber (uw_room, uw_chan) FROM stdin;
+\.
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
