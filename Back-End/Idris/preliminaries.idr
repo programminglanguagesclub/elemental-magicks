@@ -47,17 +47,27 @@ public export
 TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
 public export
-getTemporary : (t,t,t) -> t
+getTemporary : (t,t',t'') -> t
 getTemporary (temporary,_,_) = temporary
 public export
-getPermanent : (t,t,t) -> t
+getPermanent : (t,t',t'') -> t'
 getPermanent (_,permanent,_) = permanent
 public export
-getBase : (t,t,t) -> t
+getBase : (t,t',t'') -> t''
 getBase (_,_,base) = base
+
+
+{- remove these -}
+public export
+getTemporaryLevel : (t,t,t'') -> t
+getTemporaryLevel (temporaryLevel,_,_) = temporaryLevel
+public export
+getPermanentLevel : (t,t,t'') -> t
+getPermanentLevel (_,permanentLevel,_) = permanentLevel
 public export
 getBaseLevel : (t,t,t'') -> t''
 getBaseLevel (_,_,baseLevel) = baseLevel
+{-/remove these-}
 
 
 {-actually this one I might want to hide...-}

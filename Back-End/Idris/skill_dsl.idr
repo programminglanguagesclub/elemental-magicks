@@ -94,51 +94,38 @@ public export data StatRValue = TemporaryR | PermanentR | BaseR
 
 
 {-currently no way to get attack from monster in hand, etc (as it might not be a monster). also ignoring set position for now -}
+
 public export
-data LazyInt = BoardAttackR  Env StatRValue Nat
-             | BoardDefenseR Env StatRValue Nat
-             | BoardRangeR   Env StatRValue Nat
-             | BoardSpeedR   Env StatRValue Nat
-             | Constant      Integer
+getStatValueR : StatRValue -> (Bounded n m, Bounded n m, Bounded n' m) -> Integer
+getStatValueR TemporaryR bounded = extractBounded (getTemporary bounded)
+getStatValueR PermanentR bounded = extractBounded (getPermanent bounded)
+getStatValueR BaseR bounded = extractBounded (getBase bounded)
 
+public export
+data LazyIntStatType = BoardAttackR
+                     | BoardDefenseR
+                     | BoardRangeR
+                     | BoardSpeedR
+                     | BoardLevelR
 
+public export
+data LazyInt = LazyIntStat LazyIntStatType Env StatRValue Nat
+             | Constant Integer
 
-{-
-_evaluateLazyInt : Nat -> Env -> (Maybe Monster -> Integer) -> Maybe Integer
-_evaluateLazyInt (BoardAttackR env statRValue nat) f = 
+public export
+getStat : LazyIntStatType -> StatRValue -> BasicMonster -> Integer
+getStat BoardAttackR  statRValue basicMonster = getStatValueR statRValue (attack basicMonster)
+getStat BoardDefenseR statRValue basicMonster = getStatValueR statRValue (defense basicMonster)
+getStat BoardRangeR   statRValue basicMonster = getStatValueR statRValue (range basicMonster)
+getStat BoardSpeedR   statRValue basicMonster = getStatValueR statRValue (speed basicMonster)
+getStat BoardLevelR   statRValue basicMonster = getStatValueR statRValue (level basicMonster)
 
-trying to clean up the boilerplate below.
--}
-
-
-{-can use a function that accesses stat to simplify the code here-}
-evaluateLazyInt : LazyInt -> Maybe Integer {-Nothing indicates logic error-}
-evaluateLazyInt (BoardAttackR  env statRValue nat) with (index' nat env)
+public export
+evaluateLazyInt : LazyInt -> Maybe Integer
+evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) with (index' nat env)
  |Nothing = Nothing
- |Just basicMonster with (statRValue)
-  |TemporaryR = Just (extractBounded (getTemporary (attack basicMonster)))
-  |PermanentR = Just (extractBounded (getPermanent (attack basicMonster)))
-  |BaseR = Just (extractBounded (getBase (attack basicMonster)))
-evaluateLazyInt (BoardDefenseR env statRValue nat) with (index' nat env)
- |Nothing = Nothing
- |Just basicMonster with (statRValue)
-  |TemporaryR = Just (extractBounded (getTemporary (defense basicMonster)))
-  |PermanentR = Just (extractBounded (getPermanent (defense basicMonster)))
-  |BaseR = Just (extractBounded (getBase (defense basicMonster))) 
-evaluateLazyInt (BoardRangeR   env statRValue nat) with (index' nat env)
- |Nothing = Nothing
- |Just basicMonster with (statRValue)
-  |TemporaryR = Just (extractBounded (getTemporary (range basicMonster)))
-  |PermanentR = Just (extractBounded (getPermanent (range basicMonster)))
-  |BaseR = Just (extractBounded (getBase (range basicMonster)))
-evaluateLazyInt (BoardSpeedR   env statRValue nat) with (index' nat env)
- |Nothing = Nothing
- |Just basicMonster with (statRValue)
-  |TemporaryR = Just (extractBounded (getTemporary (speed basicMonster)))
-  |PermanentR = Just (extractBounded (getPermanent (speed basicMonster)))
-  |BaseR = Just (extractBounded (getBase (speed basicMonster)))
+ |Just basicMonster = Just (getStat lazyIntStatType statRValue basicMonster)
 evaluateLazyInt (Constant integer) = Just integer
-
 
 
 
