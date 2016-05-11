@@ -92,7 +92,47 @@ record Player where
  soul            : Soul
  thoughts        : Thoughts
  knowledge       : Knowledge
- token           : String
+ temporaryId     : String
+
+
+
+
+
+
+public export
+evaluateLazyInt : LazyInt -> (player : Player) -> (opponent : Player) -> Maybe Integer
+evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster = Just (getStat lazyIntStatType statRValue basicMonster)
+evaluateLazyInt (Constant integer) _ _ = Just integer
+evaluateLazyInt (ThoughtsR CardOwner) player _ = Just (extractBounded (thoughts player))
+evaluateLazyInt (ThoughtsR CardOpponent) _ opponent = Just (extractBounded (thoughts opponent))
+evaluateLazyInt (SchoolR CardOwner school) player _ = Just (extractBounded (index school (knowledge player)))
+evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 public export
@@ -102,6 +142,11 @@ getLiving (Just m) with (aliveness (basic m))
  | Alive = True
  | DeadFresh = False
  | DeadStale = False
+
+
+
+
+
 
 
 
@@ -155,21 +200,6 @@ goToNextRowTarget player n = case n of
 {-
 goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
  | _ = player
--}
-{-
-
-foo : Int -> Int
-foo x = case isLT of
-            Yes => x*2
-            No => x*4
-    where
-       data MyLT = Yes | No
-
-       isLT : MyLT
-       isLT = if x < 20 then Yes else No
-
-
-
 -}
 
 
@@ -229,6 +259,9 @@ executeSkillEffect game skillEffect with (skillEffect)
  |AttackL env mutator statLValue boardMonsterVar lazyInt = (game,[])
  |_ = (game,[])
 
+{-One of the things I need to do here is have functionality for getting the owner player and opponent player-}
+
+
 {-This should use executeSkillEffectTransform to replace the monster affected in the game-}
 
 
@@ -239,6 +272,12 @@ executeSkillEffect game skillEffect with (skillEffect)
 
 
 
+
+
+
+
+{-I'm using tokens to identify players. I should abstract this. It's okay if it's the same data but I should not depend on this being the case.-}
+{-This is particularly the case as I'll probably store the player identifier in skills to keep track of the owner. This means that when a player reconnects they need to still be matched even if they have a new token, etc-}
 
 public export
 record Battle where

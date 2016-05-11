@@ -86,7 +86,7 @@ getSoulPoints player = ?hole
 
 {-
 FooDrawCard : Player n m -> Card -> Player (S n) m
-FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (token player)
+FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (temporaryId player)
 -}
 public export
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
@@ -100,10 +100,10 @@ public export
 removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
 removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
- | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (token (player_A game)) (token (player_B game))])
+ | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game)) (temporaryId (player_B game))])
 removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
  | Nothing = (game, acc ++ [GameLogicError])
- | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (token (player_B game)) (token (player_A game))])
+ | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_B game)) (temporaryId (player_A game))])
 public export
 loadSkill : Game -> (SkillComponent, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
@@ -164,7 +164,7 @@ Also have to possibly decrement soul points depending on what turn it is.
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
 
 public export
-getTokens : Game -> WhichPlayer -> (String,String)
+getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
 
 public export
 spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)

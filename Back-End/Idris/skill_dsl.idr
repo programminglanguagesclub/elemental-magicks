@@ -62,7 +62,7 @@ game state or player action.
 {- the idea is that once everything is bound, n will be 0, and we can just extract the card via matching -}
 
 public export data BoardMonsterExistential = DeBruijnBoardMonsterExistential Side
-public export data BoardMonsterVar = BoundBoardMonsterVar Nat | UnBoundBoardMonsterVar (Fin n)
+public export data BoardMonsterVar = BoundBoardMonsterVar Nat | UnBoundBoardMonsterVar (Fin n) Side
 {-BoundBoardMonsterVar Monster | UnBoundBoardMonsterVar (Fin n) {- so essentially what these mean is "the n-1th variable that is not yet bound... or something like that" -}-}
 
 public export BoardMonsterPredicate : Type
@@ -109,8 +109,13 @@ data LazyIntStatType = BoardAttackR
                      | BoardLevelR
 
 public export
+data PlayerType = CardOwner | CardOpponent
+
+public export
 data LazyInt = LazyIntStat LazyIntStatType Env StatRValue Nat
              | Constant Integer
+             | ThoughtsR PlayerType
+             | SchoolR PlayerType School
 
 public export
 getStat : LazyIntStatType -> StatRValue -> BasicMonster -> Integer
@@ -120,37 +125,16 @@ getStat BoardRangeR   statRValue basicMonster = getStatValueR statRValue (range 
 getStat BoardSpeedR   statRValue basicMonster = getStatValueR statRValue (speed basicMonster)
 getStat BoardLevelR   statRValue basicMonster = getStatValueR statRValue (level basicMonster)
 
-public export
-evaluateLazyInt : LazyInt -> Maybe Integer
-evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) with (index' nat env)
- |Nothing = Nothing
- |Just basicMonster = Just (getStat lazyIntStatType statRValue basicMonster)
-evaluateLazyInt (Constant integer) = Just integer
+
+
 
 
 
 
 {-
-             | SchoolR School
-             | ThoughtsR
              | SoulPointsR
              {- ignoring a few nice things like cardinality for now -}
 -}
-
-{- Need to keep track of the accessing index so Fin n Fin m Fin p goes somewhere around here... in LazyInt somewhere? How do I fit it? -}
-{- can I write {n m p : Nat} -> ??? -}
-
-
-{-public export
- data SkillEffect = AttackL  Env Mutator StatLValue Side BoardIndex LazyInt
-                  | DefenseL Env Mutator StatLValue Side BoardIndex LazyInt
-                  | RangeL   Env Mutator StatLValue Side BoardIndex LazyInt
-                  | LevelL   Env Mutator StatLValue Side BoardIndex LazyInt
-                  | SpeedL   Env Mutator StatLValue Side BoardIndex LazyInt
--}
-
-
-{-currently only target the board I guess -}
 
 public export
 data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
@@ -237,7 +221,7 @@ data Condition = BoardMonsterCondition_ (BoardMonsterCondition n)
                | CardCondition_ (CardCondition n)
 
 public export
-data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent))
+data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)) String {-the string here is the temporaryId of the player in the game-}
 
 
 
