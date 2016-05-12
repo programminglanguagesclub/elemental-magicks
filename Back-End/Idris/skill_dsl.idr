@@ -137,15 +137,32 @@ getStat BoardLevelR   statRValue basicMonster = getStatValueR statRValue (level 
 -}
 
 public export
-data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
-                 | DefenseL Env Mutator StatLValue BoardMonsterVar LazyInt
-                 | RangeL   Env Mutator StatLValue BoardMonsterVar LazyInt
-                 | LevelL   Env Mutator StatLValue BoardMonsterVar LazyInt
-                 | SpeedL   Env Mutator StatLValue BoardMonsterVar LazyInt
+data SkillEffectStatType = AttackL
+                         | DefenseL
+                         | RangeL
+                         | LevelL
+                         | SpeedL
+
+public export
+data SkillEffect = SkillEffectStatL SkillEffectStatType Env Mutator StatLValue BoardMonsterVar LazyInt
 
 
-{-the following could probably be cleaned up a lot as well....-}
+
+
+{-the following could probably be cleaned up a lot as well....-} {-I don't think I need to pass basic monster as an argument.... This might just be removed..-}
 executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-}
+executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (UnBoundBoardMonsterVar _ _) lazyInt) = Nothing
+executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (BoundBoardMonsterVar nat) lazyInt) = ?g
+
+{-
+executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue boardMonsterVar lazyInt) = setStatValueL statLValue (attack boardMonsterVar turn this into basic monster...) {-like in get stat, except for set stat! Also somewhere return update?-}
+-}
+
+
+
+
+{-public export data BoardMonsterVar = BoundBoardMonsterVar Nat | UnBoundBoardMonsterVar (Fin n) Side-}
+
 {-executeSkillEffectTransform (AttackL env mutator statLValue boardMonsterVar lazyInt) basicMonster with (mutator, statLValue, )-}
 
 

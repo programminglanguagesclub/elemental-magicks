@@ -99,26 +99,6 @@ record Player where
 
 
 
-public export
-evaluateLazyInt : LazyInt -> (player : Player) -> (opponent : Player) -> Maybe Integer
-evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index' nat env)
- |Nothing = Nothing
- |Just basicMonster = Just (getStat lazyIntStatType statRValue basicMonster)
-evaluateLazyInt (Constant integer) _ _ = Just integer
-evaluateLazyInt (ThoughtsR CardOwner) player _ = Just (extractBounded (thoughts player))
-evaluateLazyInt (ThoughtsR CardOpponent) _ opponent = Just (extractBounded (thoughts opponent))
-evaluateLazyInt (SchoolR CardOwner school) player _ = Just (extractBounded (index school (knowledge player)))
-evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent)))
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -241,23 +221,59 @@ syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect
 
 
 
-{-
 
 
-                    AttackL  Env Mutator StatLValue Side BoardMonsterVar LazyInt
-                  | DefenseL Env Mutator StatLValue Side BoardMonsterVar LazyInt
-                  | RangeL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
-                  | LevelL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
-                  | SpeedL   Env Mutator StatLValue Side BoardMonsterVar LazyInt
+
+
+
+public export
+evaluateLazyInt : LazyInt -> (player : Player) -> (opponent : Player) -> Maybe Integer
+evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index' nat env)
+ |Nothing = Nothing
+ |Just basicMonster = Just (getStat lazyIntStatType statRValue basicMonster)
+evaluateLazyInt (Constant integer) _ _ = Just integer
+evaluateLazyInt (ThoughtsR CardOwner) player _ = Just (extractBounded (thoughts player))
+evaluateLazyInt (ThoughtsR CardOpponent) _ opponent = Just (extractBounded (thoughts opponent))
+evaluateLazyInt (SchoolR CardOwner school) player _ = Just (extractBounded (index school (knowledge player)))
+evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent)))
+
+
+{- {-from skill_dsl:-}
+
+public export
+data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | DefenseL Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | RangeL   Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | LevelL   Env Mutator StatLValue BoardMonsterVar LazyInt
+                 | SpeedL   Env Mutator StatLValue BoardMonsterVar LazyInt
+
+public export
+data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)) String {-the string here is the temporaryId of the player in the game-}
+
+
+
+
+{-the following could probably be cleaned up a lot as well....-}
+executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-} {-Probably this needs to go-}
+{-executeSkillEffectTransform (AttackL env mutator statLValue boardMonsterVar lazyInt) basicMonster with (mutator, statLValue, )-}
 
 -}
 
+
 {-I might already have a hole by this name-}
+
+
+
+{-
 public export
 executeSkillEffect : Game -> SkillEffect -> (Game, List ClientUpdate)
 executeSkillEffect game skillEffect with (skillEffect)
  |AttackL env mutator statLValue boardMonsterVar lazyInt = (game,[])
  |_ = (game,[])
+
+-}
+
+
 
 {-One of the things I need to do here is have functionality for getting the owner player and opponent player-}
 
