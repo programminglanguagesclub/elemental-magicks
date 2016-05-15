@@ -1,0 +1,13 @@
+rm clientupdates.ibc
+rm 00elementalmagicks-idx.ibc
+rm main.ibc
+rm objects_advanced.ibc
+rm objects_basic.ibc
+rm phase.ibc
+rm preliminaries.ibc
+rm serverupdates.ibc
+rm skill_dsl.ibc
+rm step_game.ibc
+rm step_game_helpers.ibc
+rm transform_game.ibc
+rm transform_game_helpers.ibc
