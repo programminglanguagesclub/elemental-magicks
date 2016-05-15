@@ -72,12 +72,12 @@ https://www.facebook.com/groups/UOProgrammingLanguagesClub/
 #### **Recent Group Messages and Updates** <br />
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?notif_t=group_activity
 
-
-
-
 #### **Our Events Page** <br />
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
 
+#### **Installing Ubuntu on Virtual Box** <br />
+Due to Ur/Web not working on Mac and PC, we are using Ubuntu to work with it. If you don't have Ubuntu on your computer, you can use Virtual box. We set up a guide on installing Virtual box and Ubuntu.<br />
+http://bootupcorner.blogspot.com/2016/05/installing-ubuntu-on-virtual-box.html <br />
 
 #### **Installing Idris** <br />
 
