@@ -11,4 +11,4 @@ cd Glue
 gcc -g -O -c reader.c
 cd ..
 cd Idris
-idris --log 1 --build elementalmagicks.ipkg
+./build.sh

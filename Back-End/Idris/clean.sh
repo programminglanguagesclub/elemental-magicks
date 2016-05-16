@@ -13,6 +13,7 @@ rm transform_game.ibc
 rm transform_game_helpers.ibc
 
 rm clean.sh~
+rm build.sh~
 rm clientupdates.idr~
 rm elementalmagicks.ipkg~
 rm main.idr~
