@@ -148,16 +148,16 @@ data SkillEffect = SkillEffectStatL SkillEffectStatType Env Mutator StatLValue B
 
 
 
-
+{-
 {-the following could probably be cleaned up a lot as well....-} {-I don't think I need to pass basic monster as an argument.... This might just be removed..-}
 executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-}
-executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (UnBoundBoardMonsterVar _ _) lazyInt) = Nothing
+executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (UnBoundBoardMonsterVar _ _) lazyInt) _ = Nothing
 executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (BoundBoardMonsterVar nat) lazyInt) = ?g
 
 {-
 executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue boardMonsterVar lazyInt) = setStatValueL statLValue (attack boardMonsterVar turn this into basic monster...) {-like in get stat, except for set stat! Also somewhere return update?-}
 -}
-
+-}
 
 
 

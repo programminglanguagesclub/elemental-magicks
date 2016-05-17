@@ -254,10 +254,33 @@ data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, Skill
 
 
 {-the following could probably be cleaned up a lot as well....-}
-executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-} {-Probably this needs to go-}
+
+
+{-executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists 
+-}
+
+in objects_advanced, but handles integration with the game, etc.-} {-Probably this needs to go-}
 {-executeSkillEffectTransform (AttackL env mutator statLValue boardMonsterVar lazyInt) basicMonster with (mutator, statLValue, )-}
 
+
+
+
+
+
+executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (UnBoundBoardMonsterVar _ _) lazyInt) _ = Nothing
+
 -}
+
+
+public export
+getIndexOfMonster' : Nat -> Board -> Maybe (Fin 9)
+getIndexOfMonster' nat board = head' (findIndices (\m => True) board)
+
+public export
+getIndexOfMonster : Player -> BoardMonsterVar -> Maybe (Fin 9)
+getIndexOfMonster _ (UnBoundBoardMonsterVar _ _) = Nothing
+getIndexOfMonster player (BoundBoardMonsterVar nat) = getIndexOfMonster' nat (board player)
+
 
 
 {-I might already have a hole by this name-}
