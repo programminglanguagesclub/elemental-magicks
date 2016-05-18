@@ -283,6 +283,20 @@ getIndexOfMonster player (BoundBoardMonsterVar nat) = getIndexOfMonster' nat (bo
 
 
 
+
+public export
+executeSkillEffect : Game -> (player : Player) -> (opponent : Player) -> SkillEffect -> (Game, List ClientUpdate)
+executeSkillEffect game player opponent (SkillEffectStatL skillEffectStatType env mutator statLValue boardMonsterVar lazyInt) with (getIndexOfMonster player boardMonsterVar)
+ | Nothing = (game, [GameLogicError])
+ | Just indexOfMonster with (skillEffectStatType)
+  | AttackL  = ?g
+  | DefenseL = ?g
+  | RangeL   = ?g
+  | LevelL   = ?g
+  | SpeedL   = ?g
+
+
+
 {-I might already have a hole by this name-}
 
 
