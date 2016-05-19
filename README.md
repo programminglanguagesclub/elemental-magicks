@@ -34,7 +34,7 @@ Please send me a message if you want to be added to our team (i.e. need write ac
 
  **Game Design** : Raleigh Foster
 
-**Programming** : Rob Sap, Raleigh Foster
+**Programming** : Rob Sap, Raleigh Foster, Matt Almenshad
 
 
 
@@ -49,6 +49,7 @@ We also work on group projects,
 designed to give us experience in powerful languages,
 and provide examples of powerful languages in action.
 
+This card game is our first group project.
 
 #### **Tasks to Work On**<br />
 https://github.com/programminglanguagesclub/elemental-magicks/issues <br />
@@ -76,7 +77,7 @@ https://www.facebook.com/groups/UOProgrammingLanguagesClub/986712538043434/?noti
 https://www.facebook.com/groups/UOProgrammingLanguagesClub/events/ <br />
 
 #### **Installing Ubuntu on Virtual Box** <br />
-Due to Ur/Web not working on Mac and PC, we are using Ubuntu to work with it. If you don't have Ubuntu on your computer, you can use Virtual box. We set up a guide on installing Virtual box and Ubuntu.<br />
+Due to Ur/Web not working on Mac and Windows, we are using Ubuntu to work with it. If you don't have Ubuntu on your computer, you can use Virtual box. We set up a guide on installing Virtual box and Ubuntu.<br />
 http://bootupcorner.blogspot.com/2016/05/installing-ubuntu-on-virtual-box.html <br />
 
 #### **Installing Idris** <br />
