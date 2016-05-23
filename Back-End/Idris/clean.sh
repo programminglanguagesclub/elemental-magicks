@@ -27,3 +27,8 @@ rm step_game.idr~
 rm step_game_helpers.idr~
 rm transform_game.idr~
 rm transform_game_helpers.idr~
+
+
+
+
+rm 00elementalmagicks-idx.ibc
