@@ -1,6 +1,3 @@
-PATH=$PATH:~/.cabal/bin
-export path
-
 cd Back-End
 cd Glue
 make
