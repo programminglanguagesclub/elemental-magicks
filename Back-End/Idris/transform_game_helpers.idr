@@ -16,11 +16,6 @@ import step_game_helpers
 
 
 
-
-
-
-
-
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
@@ -36,28 +31,27 @@ getNumberOfSchools monster with (schools monster)
  | OneSchool _    = 1
  | TwoSchools _ _ = 2
 
-
-
-
-{-(positions : List Nat) -> (board : List (Maybe Monster)) -> (acc : Nat) -> Nat-}
-
-
 public export
 getReviveCost : (toRevive : List Monster) -> Nat
 getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
 
 
+
+
+{-this just ignores any selection that was made on a square that didn't have anything-}
 {-
 _getToRevive : Vect n Bool -> Vect n (Maybe Monster) -> List Monster -> List Monster {-It might be better to eventually do this where I return the indices? Hmm... wait why am I even doing this....-}
 _getToRevive [] [] acc = acc
-_getToRevive (b::bs) (m::ms) acc = _getToRevive bs ms (if b then (m::))
+_getToRevive (b::bs) (Monster(m)::ms) acc = _getToRevive bs ms (if b then (acc ++ [m]) else acc)
+_getToRevive (b::bs) (Nothing::ms) acc = _getToRevive bs ms acc
 getToRevive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> List Monster
+getToRevive selection field = _getToRevive selection field []
 -}
 
 
 
 
-
+{-I might want to move these to the graceyard rather than simply removing them from the hand-}
 public export
 _removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card) {-Nothing means card does not exist in hand-}
 _removeMonsterFromHandByPermanentId [] _ _ = (Nothing,[])
@@ -75,9 +69,6 @@ _revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (
 public export
 revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
 revive positions board thoughts hand graveyard = _revive positions board thoughts hand graveyard Z
-
-
-
 
 
 
