@@ -39,13 +39,29 @@ getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))
 
 
 {-this just ignores any selection that was made on a square that didn't have anything-}
-{-
+
 _getToRevive : Vect n Bool -> Vect n (Maybe Monster) -> List Monster -> List Monster {-It might be better to eventually do this where I return the indices? Hmm... wait why am I even doing this....-}
 _getToRevive [] [] acc = acc
-_getToRevive (b::bs) (Monster(m)::ms) acc = _getToRevive bs ms (if b then (acc ++ [m]) else acc)
+_getToRevive (b::bs) ((Just m)::ms) acc = _getToRevive bs ms (if b then (acc ++ [m]) else acc)
 _getToRevive (b::bs) (Nothing::ms) acc = _getToRevive bs ms acc
 getToRevive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> List Monster
 getToRevive selection field = _getToRevive selection field []
+
+{-
+
+{-not tail recursive yet-}
+removeFromHandByPermanentId : (revivePermanentId : Nat) -> (hand : List Monster) -> Maybe (List Monster) {-indicates if the removal was successful-}
+removeFromHandByPermanentId revivePermanentId [] = Nothing
+removeFromHandByPermanentId revivePermanentId (m :: hand') =
+ if (permanentId (basic m)) == revivePermanentId
+  then Just hand'
+  else 
+
+-}
+{-
+getEnoughReplacementCardsToRevive : (toRevive : List Monster) -> (hand : List Monster) -> Bool
+getEnoughReplacementCardsToRevive [] _ = True
+getEnoughReplacementCardsToRevive [] 
 -}
 
 
