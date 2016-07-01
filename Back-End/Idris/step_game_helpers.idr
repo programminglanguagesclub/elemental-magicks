@@ -141,7 +141,10 @@ goToNextPhase (game,acc) =
  let (retPhase, phaseUpdate) = nextPhase (phase game) in
  let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
  case retPhase of
-  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')), turnNumber = S (turnNumber game)} game', acc' ++ [phaseUpdate])
+  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),
+                         player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')), 
+                         turnNumber = S (turnNumber game)}
+                        game', acc' ++ [phaseUpdate])
   SpellPhase => (game', acc')
   RemovalPhase => (game', acc')
   StartPhase => (resetAllSkills game', acc')
@@ -166,8 +169,36 @@ Also have to possibly decrement soul points depending on what turn it is.
 public export
 getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
 
+
+
+public export
+transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
+transformPlayer (game,updateAcc) PlayerA transform =
+ let (player,updates) = transform (player_A game) in
+ let game' = record {player_A = player} game in
+ let updateAcc' = updateAcc ++ updates in
+ (game',updateAcc')
+
+transformPlayer (game,updateAcc) PlayerB transform =
+ let (player,updates) = transform (player_B game) in
+ let game' = record {player_B = player} game in
+ let updateAcc' = updateAcc ++ updates in
+ (game', updateAcc')
+
+
+
+
+{-This needs to be fixed, but probably should just get numeric typeclasses working first... -}
 public export
 spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
+spendThoughts (game, clientUpdates) whichPlayer n =
+ transformPlayer (game, clientUpdates)
+                 whichPlayer
+                 (\p => ((record{thoughts = (thoughts p) {- - n -}} p),
+                        clientUpdates ++ [UpdateThoughts (transformThoughts (\t => t {- - n -}) (thoughts p)) (temporaryId p) (temporaryId (getPlayer game (opponent whichPlayer))) ]))
+
+
+
 
 public export
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)

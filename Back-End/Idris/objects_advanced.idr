@@ -79,7 +79,6 @@ public export
 transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
 transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
 
-
 public export
 record Player where
  constructor MkPlayer
