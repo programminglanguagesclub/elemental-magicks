@@ -123,20 +123,38 @@ removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 
 
 
-
+{-
 public export
 testFoo : Bool -> Maybe Monster -> Bool
 testFoo b Nothing = b
 testFoo b (Just m) = not b
+-}
 
 
+
+public export
+reviveMonster : Monster -> Monster
 
 {-public export
 __revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)-}
 
 public export
 _revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
-_revive positions board thoughts hand graveyard = let zipped = zipWith testFoo positions board in _revive positions board thoughts hand graveyard
+_revive positions board thoughts hand graveyard =
+ let zipped = zipWith reviveSelectedMonsters positions boardaaa in
+ (board, thoughts, hand, graveyard) where
+  reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster
+  reviveSelectedMonsters True (Just m) = Just (reviveMonster m)
+  reviveSelectedMonsters _ _ = Nothing
+  boardaaa : Vect 9 (Maybe Monster)
+  boardaaa = board
+ 
+Now we can iterate over zipped to remove them from hand (and put those cards in the graveyard)
+
+
+
+{-doesn't account for removing cards from hand yet...-}
+
 
 public export
 revive : (positions : Vect 9 Bool) -> (player : Player) -> Player
