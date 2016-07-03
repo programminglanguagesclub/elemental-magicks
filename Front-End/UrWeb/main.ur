@@ -1,3 +1,18 @@
+
+
+
+
+
+
+
+fun ask_idris (message : string) : string = "a"
+
+
+
+
+
+
+
 fun counter () =
   n1 <- Lib.counter ();
  (* n2 <- Lib.counter ();*)

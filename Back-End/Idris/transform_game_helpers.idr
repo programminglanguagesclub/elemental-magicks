@@ -16,6 +16,16 @@ import step_game_helpers
 
 
 
+
+
+{- syntax for {x} in [xs] ":" [body] = forLoop xs (\x => body) -}
+
+
+
+
+
+
+
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
@@ -38,14 +48,30 @@ getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))
 
 
 
+
+{- can replace getToRevive by using ZipWith, and then generating a list with the vector which is elements that are not Nothing -}
+
 {-this just ignores any selection that was made on a square that didn't have anything-}
 
 _getToRevive : Vect n Bool -> Vect n (Maybe Monster) -> List Monster -> List Monster {-It might be better to eventually do this where I return the indices? Hmm... wait why am I even doing this....-}
 _getToRevive [] [] acc = acc
 _getToRevive (b::bs) ((Just m)::ms) acc = _getToRevive bs ms (if b then (acc ++ [m]) else acc)
 _getToRevive (b::bs) (Nothing::ms) acc = _getToRevive bs ms acc
+
+
+
+
 getToRevive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> List Monster
 getToRevive selection field = _getToRevive selection field []
+
+
+
+
+
+
+
+
+
 
 {-
 
@@ -67,6 +93,18 @@ getEnoughReplacementCardsToRevive []
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 {-I might want to move these to the graceyard rather than simply removing them from the hand-}
 public export
 _removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card) {-Nothing means card does not exist in hand-}
@@ -79,12 +117,45 @@ removeMonsterFromHandByPermanentId : (hand : List Card) -> (id : Nat) -> (Maybe 
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 
 
-public export
-_revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (List Card,Nat,List Card,List Card)
+
+
+
+
+
+
 
 public export
-revive : (positions : List Nat) -> (board : List Card) -> (thoughts : Nat) -> (hand : List Card) -> (graveyard : List Card) -> (List Card,Nat,List Card,List Card)
-revive positions board thoughts hand graveyard = _revive positions board thoughts hand graveyard Z
+testFoo : Bool -> Maybe Monster -> Bool
+testFoo b Nothing = b
+testFoo b (Just m) = not b
+
+
+
+{-public export
+__revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)-}
+
+public export
+_revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
+_revive positions board thoughts hand graveyard = let zipped = zipWith testFoo positions board in _revive positions board thoughts hand graveyard
+
+public export
+revive : (positions : Vect 9 Bool) -> (player : Player) -> Player
+revive positions player = let (board', thoughts', hand', graveyard') = _revive positions (board player) (thoughts player) (hand player) (graveyard player) in
+ record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
