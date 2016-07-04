@@ -47,6 +47,7 @@ public export
 removeMonsterFromHandByPermanentId : (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card)
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 
+public export
 moveMonsterFromHandToGraveyardByPermanentId : (hand : List Card) -> (graveyard : List Card) -> (id : Nat) -> Maybe (List Card, List Card)
 moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
  case removeMonsterFromHandByPermanentId hand id of
@@ -56,15 +57,15 @@ moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
 public export
 reviveMonster : Monster -> Monster
 
-{-public export
-__revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (acc : Nat) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)-}
 
 public export
-_revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
+_revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> Maybe (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
- (board, thoughts, hand, graveyard) where
+ (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard 3930 of
+      Nothing => Nothing
+      Just (hand', graveyard') => Just (board, thoughts, hand, graveyard)) where
   reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster
   reviveSelectedMonsters True (Just m) = Just (reviveMonster m)
   reviveSelectedMonsters _ _ = Nothing
@@ -88,8 +89,8 @@ _revive positions board thoughts hand graveyard =
 
 public export
 revive : (positions : Vect 9 Bool) -> (player : Player) -> Maybe Player
-revive positions player = let (board', thoughts', hand', graveyard') = _revive positions (board player) (thoughts player) (hand player) (graveyard player) in
- Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)
+revive positions player = {-let (board', thoughts', hand', graveyard') = _revive positions (board player) (thoughts player) (hand player) (graveyard player) in-}
+ {-Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)-} ?g
 
 
 
