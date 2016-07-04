@@ -89,9 +89,9 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
  | (EngagementPhase,_)                    = (game, [InvalidMove (temporaryId player)])
  | (EndPhase,SkillSelection s)            = handleSkillSelection game s {-In all of these handleSkillSelection and handleSkillInitiation have to make sure that the right player is moving, that there is/isn't a pending skill, etc.-}
  | (EndPhase,_)                           = (game, [InvalidMove (temporaryId player)])
- | (RevivalPhase,Revive b)                = if canRevive player b
+ | (RevivalPhase,Revive b)                = ?g {-if canRevive player b
                                              then ?g
-                                             else (game, [InvalidMove (temporaryId player)])
+                                             else (game, [InvalidMove (temporaryId player)])-}
  | (RevivalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
 
 

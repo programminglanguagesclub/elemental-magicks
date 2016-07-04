@@ -15,17 +15,6 @@ import step_game
 import step_game_helpers
 
 
-
-
-
-{- syntax for {x} in [xs] ":" [body] = forLoop xs (\x => body) -}
-
-
-
-
-
-
-
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
@@ -41,69 +30,11 @@ getNumberOfSchools monster with (schools monster)
  | OneSchool _    = 1
  | TwoSchools _ _ = 2
 
+{-
 public export
 getReviveCost : (toRevive : List Monster) -> Nat
 getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
-
-
-
-
-
-{- can replace getToRevive by using ZipWith, and then generating a list with the vector which is elements that are not Nothing -}
-
-{-this just ignores any selection that was made on a square that didn't have anything-}
-
-_getToRevive : Vect n Bool -> Vect n (Maybe Monster) -> List Monster -> List Monster {-It might be better to eventually do this where I return the indices? Hmm... wait why am I even doing this....-}
-_getToRevive [] [] acc = acc
-_getToRevive (b::bs) ((Just m)::ms) acc = _getToRevive bs ms (if b then (acc ++ [m]) else acc)
-_getToRevive (b::bs) (Nothing::ms) acc = _getToRevive bs ms acc
-
-
-
-
-getToRevive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> List Monster
-getToRevive selection field = _getToRevive selection field []
-
-
-
-
-
-
-
-
-
-
-{-
-
-{-not tail recursive yet-}
-removeFromHandByPermanentId : (revivePermanentId : Nat) -> (hand : List Monster) -> Maybe (List Monster) {-indicates if the removal was successful-}
-removeFromHandByPermanentId revivePermanentId [] = Nothing
-removeFromHandByPermanentId revivePermanentId (m :: hand') =
- if (permanentId (basic m)) == revivePermanentId
-  then Just hand'
-  else 
-
 -}
-{-
-getEnoughReplacementCardsToRevive : (toRevive : List Monster) -> (hand : List Monster) -> Bool
-getEnoughReplacementCardsToRevive [] _ = True
-getEnoughReplacementCardsToRevive [] 
--}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {-I might want to move these to the graceyard rather than simply removing them from the hand-}
 public export
@@ -116,21 +47,11 @@ public export
 removeMonsterFromHandByPermanentId : (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card)
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 
-
-
-
-
-
-
-
-{-
-public export
-testFoo : Bool -> Maybe Monster -> Bool
-testFoo b Nothing = b
-testFoo b (Just m) = not b
--}
-
-
+moveMonsterFromHandToGraveyardByPermanentId : (hand : List Card) -> (graveyard : List Card) -> (id : Nat) -> Maybe (List Card, List Card)
+moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
+ case removeMonsterFromHandByPermanentId hand id of
+      (Nothing, hand') => Nothing
+      (Just m, hand') => Just (hand', (graveyard ++ [MonsterCard m]))
 
 public export
 reviveMonster : Monster -> Monster
@@ -141,15 +62,24 @@ __revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (tho
 public export
 _revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
 _revive positions board thoughts hand graveyard =
- let zipped = zipWith reviveSelectedMonsters positions boardaaa in
+ let zipped = zipWith reviveSelectedMonsters positions board in
+ let revivedMonsters = justRevivedMonsters (toList zipped) in
  (board, thoughts, hand, graveyard) where
   reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster
   reviveSelectedMonsters True (Just m) = Just (reviveMonster m)
   reviveSelectedMonsters _ _ = Nothing
-  boardaaa : Vect 9 (Maybe Monster)
-  boardaaa = board
- 
-Now we can iterate over zipped to remove them from hand (and put those cards in the graveyard)
+  justRevivedMonsters : List (Maybe Monster) -> List Monster
+  justRevivedMonsters [] = []
+  justRevivedMonsters (Nothing::xs) = justRevivedMonsters xs
+  justRevivedMonsters ((Just m)::xs) = [m] ++ (justRevivedMonsters xs)
+  {-removeRevivedCards : List Monster -> List Card -> List Card -> (List Card, List Card)
+  removeRevivedCards [] hand graveyard = (hand, graveyard)
+  removeRevivedCards (x::xs) hand graveyard = ?h
+  -}
+
+
+
+{-Now we can iterate over zipped to remove them from hand (and put those cards in the graveyard)-}
 
 
 
@@ -157,13 +87,13 @@ Now we can iterate over zipped to remove them from hand (and put those cards in 
 
 
 public export
-revive : (positions : Vect 9 Bool) -> (player : Player) -> Player
+revive : (positions : Vect 9 Bool) -> (player : Player) -> Maybe Player
 revive positions player = let (board', thoughts', hand', graveyard') = _revive positions (board player) (thoughts player) (hand player) (graveyard player) in
- record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player
+ Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)
 
 
 
-
+{-I can remove can revive, and simply return Nothing from this if we cannot revive. That is probably a much better solution overall.-}
 
 
 
@@ -221,6 +151,9 @@ _getHandCards (card::cards) acc with (card)
 public export
 getHandCards : (hand : List Card) -> MultiTree Nat
 getHandCards hand = _getHandCards hand Leaf
+
+
+{-
 public export
 __canRevive : (thoughtCost : Nat) -> (thoughts : Thoughts) -> (boardCards : MultiTree Nat) -> (handCards : MultiTree Nat) -> Bool
 __canRevive thoughtCost thoughts boardCards handCards = ((extractBoundedNat thoughts) >= thoughtCost) && (dominates handCards boardCards)
@@ -239,6 +172,9 @@ _canRevive player (x::xs) currentIndex thoughtAcc boardCardsAcc with (x)
 public export
 canRevive : Player -> Vect 9 Bool -> Bool {-might want to return the cards from the hand as well and the thoughts-}
 canRevive player selection = _canRevive player (toList selection) 0 0 Leaf
+
+-}
+
 
 
 {-
