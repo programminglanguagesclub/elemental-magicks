@@ -1,3 +1,13 @@
+allow url http://elementalmagicks.ml/home.css
+allow url http://elementalmagicks.ml/*
+allow url http://elementalmagicks.ml
+rewrite style Main/navMenu navMenu
+rewrite style Main/metal metal
+rewrite style Main/linear linear
+rewrite style Main/bodyArea bodyArea
+rewrite style Main/wrapper wrapper
+rewrite style Main/content content
+rewrite style Main/footerClass footerClass
 library ../../Back-End/Glue
 
 main

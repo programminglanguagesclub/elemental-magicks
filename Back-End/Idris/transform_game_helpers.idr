@@ -15,6 +15,18 @@ import step_game
 import step_game_helpers
 
 
+
+
+
+vectThing : (n : Nat) -> Vect (n + m) Monster -> Vect n Monster -> Monster {--> Vect (n + m) Monster-}
+vectThing (S n')  original acc = index n original
+
+
+
+
+
+
+
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
@@ -38,7 +50,7 @@ getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))
 
 {-I might want to move these to the graceyard rather than simply removing them from the hand-}
 public export
-_removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card) {-Nothing means card does not exist in hand-}
+_removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card)
 _removeMonsterFromHandByPermanentId [] _ _ = (Nothing,[])
 _removeMonsterFromHandByPermanentId acc ((SpellCard _)::xs) id = _removeMonsterFromHandByPermanentId acc xs id
 _removeMonsterFromHandByPermanentId acc ((MonsterCard m)::xs) id = if (permanentId (basic m)) == id then (Just m,acc ++ xs) else _removeMonsterFromHandByPermanentId (acc ++ [MonsterCard m]) xs id
@@ -59,7 +71,7 @@ reviveMonster : Monster -> Monster
 
 
 public export
-_revive : (positions : Vect 9 Bool) -> (board : Vect 9 (Maybe Monster)) -> (thoughts : Thoughts) -> (hand : List Card) -> (graveyard : List Card) -> Maybe (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
+_revive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> Thoughts -> List Card -> List Card -> Maybe (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
@@ -78,26 +90,11 @@ _revive positions board thoughts hand graveyard =
   removeRevivedCards (x::xs) hand graveyard = ?h
   -}
 
-
-
-{-Now we can iterate over zipped to remove them from hand (and put those cards in the graveyard)-}
-
-
-
-{-doesn't account for removing cards from hand yet...-}
-
-
 public export
 revive : (positions : Vect 9 Bool) -> (player : Player) -> Maybe Player
-revive positions player = {-let (board', thoughts', hand', graveyard') = _revive positions (board player) (thoughts player) (hand player) (graveyard player) in-}
- {-Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)-} ?g
-
-
-
-{-I can remove can revive, and simply return Nothing from this if we cannot revive. That is probably a much better solution overall.-}
-
-
-
+revive positions player = case _revive positions (board player) (thoughts player) (hand player) (graveyard player) of
+                               Nothing => Nothing
+                               Just (board', thoughts', hand', graveyard') => Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)
 
 
 
@@ -173,13 +170,6 @@ _canRevive player (x::xs) currentIndex thoughtAcc boardCardsAcc with (x)
 public export
 canRevive : Player -> Vect 9 Bool -> Bool {-might want to return the cards from the hand as well and the thoughts-}
 canRevive player selection = _canRevive player (toList selection) 0 0 Leaf
-
--}
-
-
-
-{-
-Rewrite the above code using list comprehension (or at least filter) + fold.
 
 -}
 
