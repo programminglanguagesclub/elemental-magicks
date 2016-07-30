@@ -19,6 +19,10 @@ Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
 
+
+public export Hp : {- should probably just use data. Might be better to use data for the others too, because then I won't be able to use attack in place of defense, etc. -}
+
+
 {- mess
 public export
 Hp : (baseHp : Bounded 1 absoluteUpperBound) -> Type
