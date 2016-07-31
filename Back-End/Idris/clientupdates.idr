@@ -24,7 +24,7 @@ data ClientUpdate = GameLogicError
                   | RequestDrawSoul (String,String)
                   | SendSpawnToDiscard String String
                   | MoveUnit (Fin 9) (Fin 9) String String      
-                  | UpdateThoughts (Bounded 0 absoluteUpperBound) String String
+                  | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) String String
                   | UpdateSchools Schools String String
                   | LoseSoulPoint String String
                   | SendBoardToGraveyard (Fin 9) String String

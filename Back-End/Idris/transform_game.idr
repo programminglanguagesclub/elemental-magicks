@@ -19,7 +19,7 @@ import step_game_helpers
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that temporaryId)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 public export
-transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, WhichPlayer, List ClientUpdate)
 transformGame game player opponent whichPlayer serverUpdate with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
  | (DrawPhase,_)                          = (game, [(InvalidMove (temporaryId player))])

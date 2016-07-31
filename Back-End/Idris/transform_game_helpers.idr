@@ -17,10 +17,10 @@ import step_game_helpers
 
 
 
-
+{-
 vectThing : (n : Nat) -> Vect (n + m) Monster -> Vect n Monster -> Monster {--> Vect (n + m) Monster-}
 vectThing (S n')  original acc = index n original
-
+-}
 
 
 
