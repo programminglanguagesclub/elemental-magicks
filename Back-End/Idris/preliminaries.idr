@@ -20,8 +20,8 @@ public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
 
 
-public export Hp : {- should probably just use data. Might be better to use data for the others too, because then I won't be able to use attack in place of defense, etc. -}
-
+{- public export Hp : {- should probably just use data. Might be better to use data for the others too, because then I won't be able to use attack in place of defense, etc. -}
+-}
 
 {- mess
 public export
@@ -193,13 +193,3 @@ replaceAt [] _ _ = []
 replaceAt (x::xs) Z y = (y::xs)
 replaceAt (x::xs) (S k) y = x :: (replaceAt xs k y)
 -}
-
-
-
-
-
-
-
-
-
-

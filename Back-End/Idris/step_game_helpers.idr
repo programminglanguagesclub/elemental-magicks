@@ -11,7 +11,6 @@ import clientupdates
 
 
 
-
 public export
 damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
 
@@ -80,9 +79,20 @@ Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b Boar
 Selection game (board, hand, graveyard) with (skillHead game)
  | Nothing = ?hole {-(game, [])-}
  | skill = ?hole
+
+public export
+foo7312016 : Maybe Monster -> Nat
+foo7312016 Nothing = 0
+foo7312016 (Just m) with (soulPoints ( basic(m) ))
+  | n = n
+
+public export
+getPointsFromSoul : Soul -> Nat
+getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
+
 public export
 getSoulPoints : Player -> Nat
-getSoulPoints player = ?hole
+getSoulPoints player = getPointsFromSoul(soul player)
 
 {-
 FooDrawCard : Player n m -> Card -> Player (S n) m
@@ -142,7 +152,7 @@ goToNextPhase (game,acc) =
  let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
  case retPhase of
   SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),
-                         player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')), 
+                         player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')),
                          turnNumber = S (turnNumber game)}
                         game', acc' ++ [phaseUpdate])
   SpellPhase => (game', acc')

@@ -20,11 +20,14 @@ import step_game_helpers
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 public export
 transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, WhichPlayer, List ClientUpdate)
-transformGame game player opponent whichPlayer serverUpdate with (phase game,serverUpdate)
+transformGame game player opponent whichPlayer serverUpdate = ?hole
+
+
+{-with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                          = (game, [(InvalidMove (temporaryId player))])
+ | (DrawPhase,_)                          = (game, whichPlayer, [(InvalidMove (temporaryId player))])
  | (SpawnPhase,SetCard schools cardIndex) with (index' cardIndex (hand player))        {-Also have to make sure it's the player's turn!!-}
-  | Nothing = (game,[GameLogicError])                {-well, right now the user can input too large a number, but this will be a logic error once that is fixed-}
+  | Nothing = (game, whichPlayer, [GameLogicError])                {-well, right now the user can input too large a number, but this will be a logic error once that is fixed-}
   | Just (MonsterCard card) = if schoolsHighEnoughToPlayCard player (MonsterCard card) {-THIS DOES NOT ACTUALLY CHECK IF THE SCHOOLS ARE HIGH ENOUGH AFTER REGISTERING THE RAISE SCHOOLS CHANGE-}
                                then
                                 let spawn' = index' cardIndex (hand player) in
@@ -93,6 +96,4 @@ transformGame game player opponent whichPlayer serverUpdate with (phase game,ser
                                              then ?g
                                              else (game, [InvalidMove (temporaryId player)])-}
  | (RevivalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
-
-
-
+-}
