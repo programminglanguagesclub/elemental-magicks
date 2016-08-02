@@ -74,7 +74,10 @@ getBaseLevel (_,_,baseLevel) = baseLevel
 {-/remove these-}
 
 
+
 {-actually this one I might want to hide...-}
+
+{-This needs to be rewritten to use auto and not make the callers responsible for micromanaging weird arguments-}
 public export transformBounded : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> (Integer -> Integer) -> Bounded lower upper -> Bounded lower upper
 transformBounded lower upper ProofLower ProofUpper f (n ** _) =
  let m = f n in
@@ -170,8 +173,38 @@ dominates bigger (Node left key value right) = ((get bigger key) >= value) && (d
 
 public export
 extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
+{-
+(<) : Bounded 0 upperBound -> Nat -> Bool
+(<) b n = (extractBoundedNat b) < n 
+-}
+
+(<) : Bounded _ _ -> Bounded _ _ -> Bool
+(<) (b1 ** _) (b2 ** _) = b1 < b2
+
+(<=) : Bounded _ _ -> Bounded _ _ -> Bool
+(<=) (b1 ** _) (b2 ** _) = b1 <= b2
+
+(>) : Bounded _ _ -> Bounded _ _ -> Bool
+(>) (b1 ** _) (b2 ** _) = b1 > b2
+
+(>=) : Bounded _ _ -> Bounded _ _ -> Bool
+(>=) (b1 ** _) (b2 ** _) = b1 >= b2
 
 
+
+
+{-
+
+
+This will be easier when I fix transform bounded to use basic proof search
+
+(-) : Bounded _ _ -> Bounded _ _ -> Integer
+(-) (b1 ** _) (b2 ** _) = b1 - b2
+
+(+) : Bounded n1 m1 -> Bounded n2 m2 -> Bounded n1 m1
+(+) {b1 : n ** So(n >= n1 && n <= m1)} b1 (b2 ** _) = transformBounded n1 m1 Oh Oh (\x => x - b2) b1
+
+-}
 
 public export {-not tail recursive-}
 removeAt : List a -> Nat -> Maybe (List a)
