@@ -143,6 +143,16 @@ transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
 public export extractBounded : Bounded lower upper -> Integer
 extractBounded (n ** _) = n
 
+
+{-
+public export tb : Bounded l m -> (Integer -> Integer) -> Bounded l m
+tb {l=l} {m=m} (n ** p) f = transformBounded l m Oh Oh f (n ** p)
+-}
+
+
+
+
+
 public export BoardIndex : Type
 BoardIndex = Fin 9
 public export HandIndex : Type
@@ -152,6 +162,9 @@ GraveyardIndex = Fin 25
 {-these could maybe be better. I don't have anything at the type level that forces them to be valid hand or graveyard indices... I can fix this later-}
 
 {- Hand and Graveyard indices point to the last available slot if they overshoot. The last available slot is the first one with no card in it. (so have to make sure there's not more than 1 that overshoots!)-}
+
+
+
 
 
 public export
