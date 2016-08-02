@@ -10,6 +10,29 @@ public export absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 public export absoluteUpperBound : Integer
 absoluteUpperBound = 1000
+
+
+public export
+extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
+                                                                                                           {-
+                                                                                                            (<) : Bounded 0 upperBound -> Nat -> Bool
+                                                                                                             (<) b n = (extractBoundedNat b) < n 
+                                                                                                            -}
+public export                                                                                               
+(<) : Bounded _ _ -> Bounded _ _ -> Bool
+(<) (b1 ** _) (b2 ** _) = b1 < b2     
+public export
+(<=) : Bounded _ _ -> Bounded _ _ -> Bool
+(<=) (b1 ** _) (b2 ** _) = b1 <= b2                                                                                                                     
+public export
+(>) : Bounded _ _ -> Bounded _ _ -> Bool
+(>) (b1 ** _) (b2 ** _) = b1 > b2                                                                                  
+public export
+(>=) : Bounded _ _ -> Bounded _ _ -> Bool
+(>=) (b1 ** _) (b2 ** _) = b1 >= b2
+
+
+
 public export Range : Type
 Range = Bounded 0 5
 public export Speed : Type
@@ -18,6 +41,9 @@ public export Defense : Type
 Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
+
+public export
+Hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
 
 
 {- public export Hp : {- should probably just use data. Might be better to use data for the others too, because then I won't be able to use attack in place of defense, etc. -}
@@ -90,6 +116,10 @@ transformBounded lower upper ProofLower ProofUpper f (n ** _) =
       (lower ** ProofLower) {- must make sure that lower is less than upper -}
    Right _ =>
     (upper ** ProofUpper)
+
+
+
+
 
 {-
 public export
@@ -167,28 +197,6 @@ dominates : Ord k => MultiTree k -> MultiTree k -> Bool
 dominates _ Leaf = True
 dominates bigger (Node left key value right) = ((get bigger key) >= value) && (dominates bigger left) && (dominates bigger right)
 
-
-
-
-
-public export
-extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
-{-
-(<) : Bounded 0 upperBound -> Nat -> Bool
-(<) b n = (extractBoundedNat b) < n 
--}
-
-(<) : Bounded _ _ -> Bounded _ _ -> Bool
-(<) (b1 ** _) (b2 ** _) = b1 < b2
-
-(<=) : Bounded _ _ -> Bounded _ _ -> Bool
-(<=) (b1 ** _) (b2 ** _) = b1 <= b2
-
-(>) : Bounded _ _ -> Bounded _ _ -> Bool
-(>) (b1 ** _) (b2 ** _) = b1 > b2
-
-(>=) : Bounded _ _ -> Bounded _ _ -> Bool
-(>=) (b1 ** _) (b2 ** _) = b1 >= b2
 
 
 
