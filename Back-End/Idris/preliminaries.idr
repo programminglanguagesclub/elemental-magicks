@@ -4,7 +4,26 @@ import Data.Vect
 import Data.Fin
 import Data.So
 
-public export Bounded : Integer -> Integer -> Type
+
+
+public export
+
+
+Number : Maybe (Integer,Integer) -> Type
+Number Nothing = Integer
+Number (Just(lower,upper)) = (n ** So(n >= lower && n <= upper && lower <= upper))
+
+
+bar : Number t -> (Integer -> Integer) -> Number t
+bar {t = Nothing} x f = x
+bar {t = Just(lower,upper)} x f = x
+
+
+
+
+
+public export
+Bounded : Integer -> Integer -> Type
 Bounded lower upper = (n ** So (n >= lower && n <= upper))
 public export absoluteLowerBound : Integer
 absoluteLowerBound = -1000
