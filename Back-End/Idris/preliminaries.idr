@@ -15,43 +15,36 @@ Number (Just(lower,upper)) = (n ** So(n >= lower && n <= upper && lower <= upper
 
 
 bar : Number t -> (Integer -> Integer) -> Number t
-bar {t = Nothing} x f = x
+bar {t = Nothing} x f = f x
 bar {t = Just(lower,upper)} x f = x
+{-
+  let m = f x in case (choose (m <= u))
+ 
+ Same code as for transformBounded below I think.
+ 
+ -}
 
 
-
-
-
-public export
-Bounded : Integer -> Integer -> Type
+public export Bounded : Integer -> Integer -> Type
 Bounded lower upper = (n ** So (n >= lower && n <= upper))
 public export absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 public export absoluteUpperBound : Integer
 absoluteUpperBound = 1000
-
-
 public export
 extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
                                                                                                            {-
                                                                                                             (<) : Bounded 0 upperBound -> Nat -> Bool
-                                                                                                             (<) b n = (extractBoundedNat b) < n 
-                                                                                                            -}
-public export                                                                                               
-(<) : Bounded _ _ -> Bounded _ _ -> Bool
+                                                                                                                (<) b n = (extractBoundedNat b) < n 
+                                                                                                         -}
+public export (<) : Bounded _ _ -> Bounded _ _ -> Bool
 (<) (b1 ** _) (b2 ** _) = b1 < b2     
-public export
-(<=) : Bounded _ _ -> Bounded _ _ -> Bool
+public export (<=) : Bounded _ _ -> Bounded _ _ -> Bool
 (<=) (b1 ** _) (b2 ** _) = b1 <= b2                                                                                                                     
-public export
-(>) : Bounded _ _ -> Bounded _ _ -> Bool
+public export (>) : Bounded _ _ -> Bounded _ _ -> Bool
 (>) (b1 ** _) (b2 ** _) = b1 > b2                                                                                  
-public export
-(>=) : Bounded _ _ -> Bounded _ _ -> Bool
+public export (>=) : Bounded _ _ -> Bounded _ _ -> Bool
 (>=) (b1 ** _) (b2 ** _) = b1 >= b2
-
-
-
 public export Range : Type
 Range = Bounded 0 5
 public export Speed : Type
@@ -60,65 +53,35 @@ public export Defense : Type
 Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
-
-public export
-Hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
-
-
-{- public export Hp : {- should probably just use data. Might be better to use data for the others too, because then I won't be able to use attack in place of defense, etc. -}
--}
-
-{- mess
-public export
-Hp : (baseHp : Bounded 1 absoluteUpperBound) -> Type
-Hp baseHp = {currentHp : Bounded absoluteLowerBound absoluteUpperBound} -> {maxHp : Bounded 0 absoluteUpperBound} -> ((currentHp,maxHp) ** So(currentHp = baseHp))
--}
-
+public export Hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
 public export Level : Type
 Level = Bounded 0 9 {- bounds for card level and schools -}
 {- this should have a bound of 1 for base -}
-
-public export
-School : Type
+public export School : Type
 {-School = Bounded 0 5-}
 School = Fin 6
 public export Schools : Type
 Schools = Vect 6 Level
-
-public export
-maxSchool : Level
+public export maxSchool : Level
 maxSchool = (9 ** Oh)
-public export
-maxSchools : Schools
+public export maxSchools : Schools
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
-
-public export
-TemporaryPermanentBase : Type -> Type
+public export TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
-public export
-getTemporary : (t,t',t'') -> t
+public export getTemporary : (t,t',t'') -> t
 getTemporary (temporary,_,_) = temporary
-public export
-getPermanent : (t,t',t'') -> t'
+public export getPermanent : (t,t',t'') -> t'
 getPermanent (_,permanent,_) = permanent
-public export
-getBase : (t,t',t'') -> t''
+public export getBase : (t,t',t'') -> t''
 getBase (_,_,base) = base
-
-
 {- remove these -}
-public export
-getTemporaryLevel : (t,t,t'') -> t
+public export getTemporaryLevel : (t,t,t'') -> t
 getTemporaryLevel (temporaryLevel,_,_) = temporaryLevel
-public export
-getPermanentLevel : (t,t,t'') -> t
+public export getPermanentLevel : (t,t,t'') -> t
 getPermanentLevel (_,permanentLevel,_) = permanentLevel
-public export
-getBaseLevel : (t,t,t'') -> t''
+public export getBaseLevel : (t,t,t'') -> t''
 getBaseLevel (_,_,baseLevel) = baseLevel
 {-/remove these-}
-
-
 
 {-actually this one I might want to hide...-}
 
