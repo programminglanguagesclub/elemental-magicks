@@ -11,12 +11,51 @@ public export
 
 Number : Maybe (Integer,Integer) -> Type
 Number Nothing = Integer
-Number (Just(lower,upper)) = (n ** So(n >= lower && n <= upper && lower <= upper))
+Number (Just(lower,upper)) = (n ** (So(lower <= n), So(n <= upper), So(lower <= upper)))
 
 
-bar : Number t -> (Integer -> Integer) -> Number t
-bar {t = Nothing} x f = f x
-bar {t = Just(lower,upper)} x f = x
+bar : (Integer -> Integer) -> Number t -> Number t
+bar {t = Nothing} f x = f x
+bar {t = Just(lower,upper)} f (x ** (proofLower,proofUpper,proofInhabitedInterval)) =
+ let m = f x in
+  case (choose (m <= upper)) of
+   Left proofUpperBounded =>
+    case (choose (lower <= m)) of
+     Left proofLowerBounded =>
+      (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
+     Right _ =>
+      case (choose (lower <= lower)) of
+      Left top => (lower ** (top,proofInhabitedInterval,proofInhabitedInterval))
+      Right bot => (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-this is an impossible case...-}   {-(lower ** (absurd bot,proofInhabitedInterval,proofInhabitedInterval))-}
+   Right _ =>
+    case (choose (upper <= upper)) of
+    Left top =>  (upper ** (proofInhabitedInterval,top,proofInhabitedInterval))
+    Right bot => (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
+
+
+{- still need to make infix -}
+nlt : Number t1 -> Number t2 -> Bool
+nlt {t1 = Nothing} {t2 = Nothing} x1 x2 = x1 < x2
+nlt {t1 = Nothing} {t2 = Just(lower,upper)} x1 (x2 ** _) = x1 < x2
+nlt {t1 = Just(lower,upper)} {t2 = Nothing} (x1 ** _) x2 = x1 < x2
+nlt {t1 = Just(lower1,upper1)} {t2 = Just(lower2,upper2)} (x1 ** _) (x2 ** _) = x1 < x2
+
+
+
+ttt : Number(Just (0,10))
+ttt = (4**(Oh,Oh,Oh))
+sss : Number Nothing
+sss = 4
+blarg : Bool
+blarg = nlt ttt ttt
+
+
+
+
+
+{-public export
+-}
+
 {-
   let m = f x in case (choose (m <= u))
  
@@ -36,7 +75,10 @@ extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to
                                                                                                            {-
                                                                                                             (<) : Bounded 0 upperBound -> Nat -> Bool
                                                                                                                 (<) b n = (extractBoundedNat b) < n 
-                                                                                                         -}
+                                                                                            -}
+
+
+{-
 public export (<) : Bounded _ _ -> Bounded _ _ -> Bool
 (<) (b1 ** _) (b2 ** _) = b1 < b2     
 public export (<=) : Bounded _ _ -> Bounded _ _ -> Bool
@@ -45,6 +87,7 @@ public export (>) : Bounded _ _ -> Bounded _ _ -> Bool
 (>) (b1 ** _) (b2 ** _) = b1 > b2                                                                                  
 public export (>=) : Bounded _ _ -> Bounded _ _ -> Bool
 (>=) (b1 ** _) (b2 ** _) = b1 >= b2
+-}
 public export Range : Type
 Range = Bounded 0 5
 public export Speed : Type
@@ -53,7 +96,22 @@ public export Defense : Type
 Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
+
+
+
+
+
+
+{-this not working due to update of above-}
+{-
 public export Hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
+-}
+
+
+
+
+
+
 public export Level : Type
 Level = Bounded 0 9 {- bounds for card level and schools -}
 {- this should have a bound of 1 for base -}
