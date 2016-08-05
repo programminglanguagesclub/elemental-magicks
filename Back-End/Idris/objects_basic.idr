@@ -3,6 +3,9 @@ module Objects_basic
 import Data.Vect
 import Data.So
 import preliminaries
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 
 public export data Aliveness = Alive | DeadFresh | DeadStale
 

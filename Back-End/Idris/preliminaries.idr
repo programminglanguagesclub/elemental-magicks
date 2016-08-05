@@ -7,90 +7,13 @@ import bounded
 import bounded_then_integer
 import integer_then_bounded
 
-
-{-
-public export
-
-
-Number : Maybe (Integer,Integer) -> Type
-Number Nothing = Integer
-Number (Just(lower,upper)) = (n ** (So(lower <= n), So(n <= upper), So(lower <= upper)))
-
-
-bar : (Integer -> Integer) -> Number t -> Number t
-bar {t = Nothing} f x = f x
-bar {t = Just(lower,upper)} f (x ** (proofLower,proofUpper,proofInhabitedInterval)) =
- let m = f x in
-  case (choose (m <= upper)) of
-   Left proofUpperBounded =>
-    case (choose (lower <= m)) of
-     Left proofLowerBounded =>
-      (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
-     Right _ =>
-      case (choose (lower <= lower)) of
-      Left top => (lower ** (top,proofInhabitedInterval,proofInhabitedInterval))
-      Right bot => (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-this is an impossible case...-}   {-(lower ** (absurd bot,proofInhabitedInterval,proofInhabitedInterval))-}
-   Right _ =>
-    case (choose (upper <= upper)) of
-    Left top =>  (upper ** (proofInhabitedInterval,top,proofInhabitedInterval))
-    Right bot => (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
-
-
-{- still need to make infix -}
-nlt : Number t1 -> Number t2 -> Bool
-nlt {t1 = Nothing} {t2 = Nothing} x1 x2 = x1 < x2
-nlt {t1 = Nothing} {t2 = Just(lower,upper)} x1 (x2 ** _) = x1 < x2
-nlt {t1 = Just(lower,upper)} {t2 = Nothing} (x1 ** _) x2 = x1 < x2
-nlt {t1 = Just(lower1,upper1)} {t2 = Just(lower2,upper2)} (x1 ** _) (x2 ** _) = x1 < x2
-
-
-
-ttt : Number(Just (0,10))
-ttt = (4**(Oh,Oh,Oh))
-sss : Number Nothing
-sss = 4
-blarg : Bool
-blarg = nlt ttt ttt
--}
-
-
-
-
-{-public export
--}
-
-{-
-  let m = f x in case (choose (m <= u))
- 
- Same code as for transformBounded below I think.
- 
- -}
-
-
-public export Bounded : Integer -> Integer -> Type
-Bounded lower upper = (n ** So (n >= lower && n <= upper))
 public export absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 public export absoluteUpperBound : Integer
 absoluteUpperBound = 1000
 public export
 extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
-                                                                                                           {-
-                                                                                                            (<) : Bounded 0 upperBound -> Nat -> Bool
-                                                                                                                (<) b n = (extractBoundedNat b) < n 
-                                                                                            -}
 
-
-{-
-public export (<) : Bounded _ _ -> Bounded _ _ -> Bool
-(<) (b1 ** _) (b2 ** _) = b1 < b2     
-public export (<=) : Bounded _ _ -> Bounded _ _ -> Bool
-(<=) (b1 ** _) (b2 ** _) = b1 <= b2                                                                                                                     
-public export (>) : Bounded _ _ -> Bounded _ _ -> Bool
-(>) (b1 ** _) (b2 ** _) = b1 > b2                                                                                  
-public export (>=) : Bounded _ _ -> Bounded _ _ -> Bool
-(>=) (b1 ** _) (b2 ** _) = b1 >= b2
--}
 public export Range : Type
 Range = Bounded 0 5
 public export Speed : Type
@@ -100,15 +23,6 @@ Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
 
-
-
-
-
-
-{-this not working due to update of above-}
-{-
-public export Hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
--}
 
 
 
@@ -124,7 +38,7 @@ School = Fin 6
 public export Schools : Type
 Schools = Vect 6 Level
 public export maxSchool : Level
-maxSchool = (9 ** Oh)
+maxSchool = (9 ** (Oh,Oh,Oh))
 public export maxSchools : Schools
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
 public export TemporaryPermanentBase : Type -> Type
@@ -144,23 +58,6 @@ public export getBaseLevel : (t,t,t'') -> t''
 getBaseLevel (_,_,baseLevel) = baseLevel
 {-/remove these-}
 
-{-actually this one I might want to hide...-}
-
-{-This needs to be rewritten to use auto and not make the callers responsible for micromanaging weird arguments-}
-public export transformBounded : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> (Integer -> Integer) -> Bounded lower upper -> Bounded lower upper
-transformBounded lower upper ProofLower ProofUpper f (n ** _) =
- let m = f n in
-  case (choose (m <= upper)) of
-   Left ProofUpperBounded =>
-    case (choose (m >= lower && (m <= upper))) of
-     Left ProofBounded =>
-      (m ** ProofBounded)
-     Right _ =>
-      (lower ** ProofLower) {- must make sure that lower is less than upper -}
-   Right _ =>
-    (upper ** ProofUpper)
-
-
 
 
 
@@ -173,7 +70,7 @@ increment lower upper ProofLower ProofUpper v proof = transformBounded lower upp
 
 
 
-
+{-
 public export transformRange : (Integer -> Integer) -> Range -> Range
 transformRange = transformBounded 0 5 Oh Oh
 public export transformSpeed : (Integer -> Integer) -> Speed -> Speed
@@ -182,7 +79,7 @@ public export transformLevel : (Integer -> Integer) -> Level -> Level
 transformLevel = transformBounded 0 9 Oh Oh
 public export transformAttack : (Integer -> Integer) -> Attack -> Attack
 transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
-
+-}
 public export extractBounded : Bounded lower upper -> Integer
 extractBounded (n ** _) = n
 

@@ -3,6 +3,9 @@ module Skill_dsl
 import Data.Vect
 import Data.Fin
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import objects_basic
 
@@ -95,6 +98,9 @@ public export data StatRValue = TemporaryR | PermanentR | BaseR
 
 {-currently no way to get attack from monster in hand, etc (as it might not be a monster). also ignoring set position for now -}
 
+
+
+
 public export
 getStatValueR : StatRValue -> (Bounded n m, Bounded n m, Bounded n' m) -> Integer
 getStatValueR TemporaryR bounded = extractBounded (getTemporary bounded)
@@ -119,12 +125,13 @@ data LazyInt = LazyIntStat LazyIntStatType Env StatRValue Nat
 
 public export
 getStat : LazyIntStatType -> StatRValue -> BasicMonster -> Integer
+{- {-this used to work before I changed preliminaries-}
 getStat BoardAttackR  statRValue basicMonster = getStatValueR statRValue (attack basicMonster)
 getStat BoardDefenseR statRValue basicMonster = getStatValueR statRValue (defense basicMonster)
 getStat BoardRangeR   statRValue basicMonster = getStatValueR statRValue (range basicMonster)
 getStat BoardSpeedR   statRValue basicMonster = getStatValueR statRValue (speed basicMonster)
 getStat BoardLevelR   statRValue basicMonster = getStatValueR statRValue (level basicMonster)
-
+-}
 
 
 

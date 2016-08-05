@@ -3,6 +3,9 @@ module Clientupdates
 import Data.Fin
 import preliminaries
 import objects_basic
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 
 
 public export

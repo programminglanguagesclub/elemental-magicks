@@ -5,12 +5,12 @@ import Data.Fin
 import Data.So
 
 public export
-Bounded : (Integer,Integer) -> Type
-Bounded (lower,upper) = (n ** (So(lower <= n), So(n <= upper), So(lower <= upper)))
+Bounded : Integer -> Integer -> Type
+Bounded lower upper = (n ** (So(lower <= n), So(n <= upper), So(lower <= upper)))
 
 public export
-transformBounded : (Integer -> Integer) -> Bounded a -> Bounded a
-transformBounded {a = (lower,upper)}  f (x ** (proofLower,proofUpper,proofInhabitedInterval)) =
+transformBounded : (Integer -> Integer) -> Bounded a b -> Bounded a b
+transformBounded {a = lower} {b = upper}  f (x ** (proofLower,proofUpper,proofInhabitedInterval)) =
   let m = f x in
    case (choose (m <= upper)) of
     Left proofUpperBounded =>

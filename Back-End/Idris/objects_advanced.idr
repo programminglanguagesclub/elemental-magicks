@@ -2,6 +2,9 @@ module Objects_advanced
 
 import Data.Vect
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import objects_basic
 import skill_dsl
@@ -55,9 +58,24 @@ Spawn = Maybe Card
 public export
 Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
+
+
+{- unused? -}
 public export
 Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
+
+
+
+
+
+
+
+
+
+
+
+
 public export
 Knowledge : Type
 Knowledge = Vect 6 (Level)
@@ -75,9 +93,18 @@ That way it decreases the max game length, and also adds more strategy (can't ju
 
 
 {-this might go in preliminaries-}
+{-
 public export
 transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
 transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
+-}
+
+
+
+
+
+
+
 
 public export
 record Player where
@@ -89,7 +116,7 @@ record Player where
  discard         : List Card
  spawn           : Spawn
  soul            : Soul
- thoughts        : Thoughts
+ thoughts        : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge       : Knowledge
  temporaryId     : String
 
