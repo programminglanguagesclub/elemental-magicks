@@ -3,9 +3,12 @@ module Preliminaries
 import Data.Vect
 import Data.Fin
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 
 
-
+{-
 public export
 
 
@@ -48,7 +51,7 @@ sss : Number Nothing
 sss = 4
 blarg : Bool
 blarg = nlt ttt ttt
-
+-}
 
 
 

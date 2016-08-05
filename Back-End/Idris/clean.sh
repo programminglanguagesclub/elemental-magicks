@@ -11,6 +11,8 @@ rm step_game.ibc
 rm step_game_helpers.ibc
 rm transform_game.ibc
 rm transform_game_helpers.ibc
+rm bounded.ibc
+
 
 rm clean.sh~
 rm build.sh~
@@ -27,7 +29,7 @@ rm step_game.idr~
 rm step_game_helpers.idr~
 rm transform_game.idr~
 rm transform_game_helpers.idr~
-
+rm bounded.idr~
 
 
 
