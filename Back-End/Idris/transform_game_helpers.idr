@@ -32,11 +32,11 @@ vectThing (S n')  original acc = index n original
 
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
-schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
+schoolsHighEnoughToPlayCard player (SpellCard card) = geq (index (school $ basic card) $ knowledge player) (level $ basic card)
 schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
  | NoSchools = True
- | OneSchool s = extractBounded (index s (knowledge player)) >= (extractBounded (snd $ snd (level (basic card))))
- | TwoSchools s1 s2 = extractBounded (index s1 (knowledge player)) >= (extractBounded (snd $ snd (level (basic card)))) && extractBounded (index s2 (knowledge player)) >= (extractBounded (snd $ snd (level (basic card))))
+ | OneSchool s = geq (index s $ knowledge player) (snd $ snd $ level $ basic card)
+ | TwoSchools s1 s2 = geq (index s1 $ knowledge player) (snd $ snd $ level $ basic card) && geq (index s2 $ knowledge player) (snd $ snd $ level $ basic card)
 
 public export
 getNumberOfSchools : BasicMonster -> Nat
