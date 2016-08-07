@@ -193,6 +193,16 @@ record Game where
 syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
 
+
+playerOnMove : Game -> WhichPlayer
+
+
+
+
+
+
+
+
 public export
 evaluateLazyInt : LazyInt -> (player : Player) -> (opponent : Player) -> Maybe Integer
 evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index' nat env)

@@ -6,6 +6,7 @@ import preliminaries
 import bounded
 import bounded_then_integer
 import integer_then_bounded
+import hp
 
 public export data Aliveness = Alive | DeadFresh | DeadStale
 
@@ -21,6 +22,7 @@ record BasicMonster where
  permanentId : Nat {-equivalence classes of cards. Used for revival-}
  temporaryId : Nat {-Id of a particular card for the game-}
  schools : MonsterSchools
+ hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
  attack : TemporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  defense : TemporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  speed : TemporaryPermanentBase (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound)
