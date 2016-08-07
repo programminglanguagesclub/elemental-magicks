@@ -65,33 +65,6 @@ public export
 Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
 
-
-
-
-
-
-
-
-
-
-
-
-public export
-Knowledge : Type
-Knowledge = Vect 6 (Level)
-
-
-
-{-
-
-I'm making the LP on cards be either 1 or 2 (to start with. Then they can be 0, 1 or 2).
-That way it decreases the max game length, and also adds more strategy (can't just mindlessly fill out a bunch of 3 LP cards)
-
--}
-
-
-
-
 {-this might go in preliminaries-}
 {-
 public export
@@ -117,29 +90,8 @@ record Player where
  spawn           : Spawn
  soul            : Soul
  thoughts        : Bounded 0 Preliminaries.absoluteUpperBound
- knowledge       : Knowledge
+ knowledge       : Vect 6 (Bounded 0 9)
  temporaryId     : String
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 public export
 getLiving : Maybe Monster -> Bool
@@ -148,11 +100,6 @@ getLiving (Just m) with (aliveness (basic m))
  | Alive = True
  | DeadFresh = False
  | DeadStale = False
-
-
-
-
-
 
 
 
@@ -246,12 +193,6 @@ record Game where
 syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
 
-
-
-
-
-
-
 public export
 evaluateLazyInt : LazyInt -> (player : Player) -> (opponent : Player) -> Maybe Integer
 evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index' nat env)
@@ -260,8 +201,8 @@ evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index
 evaluateLazyInt (Constant integer) _ _ = Just integer
 evaluateLazyInt (ThoughtsR CardOwner) player _ = Just (extractBounded (thoughts player))
 evaluateLazyInt (ThoughtsR CardOpponent) _ opponent = Just (extractBounded (thoughts opponent))
-evaluateLazyInt (SchoolR CardOwner school) player _ = Just (extractBounded (index school (knowledge player)))
-evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent)))
+evaluateLazyInt (SchoolR CardOwner school) player _ = {-Just (extractBounded (index school (knowledge player)))-} let x = index school (knowledge player) in Just 0
+{- temporarily disabled .... evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent))) -}
 
 
 {- {-from skill_dsl:-}
@@ -275,11 +216,6 @@ data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
 
 public export
 data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)) String {-the string here is the temporaryId of the player in the game-}
-
-
-
-
-{-the following could probably be cleaned up a lot as well....-}
 
 
 {-executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists 

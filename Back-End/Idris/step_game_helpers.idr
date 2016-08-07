@@ -1,6 +1,10 @@
 module Step_game_helpers
 
 import Data.Vect
+import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
@@ -74,24 +78,27 @@ _getNextTurnDraw game playerA playerB =
 public export
 getNextTurnDraw : Game -> Maybe CardDraw
 getNextTurnDraw game = _getNextTurnDraw game (player_A game) (player_B game)
+
+
+{-I think some places I used Bounded 0 25 for hand index. Should change that if I did-}
 public export
-Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b BoardIndex, Vect h HandIndex, Vect g GraveyardIndex) -> (Game, List ClientUpdate)
+Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b (Fin 9), Vect h (Fin 25), Vect g (Fin 25)) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
  | Nothing = ?hole {-(game, [])-}
  | skill = ?hole
 
 public export
-foo7312016 : Maybe Monster -> Nat
+foo7312016 : Maybe Monster -> Integer
 foo7312016 Nothing = 0
 foo7312016 (Just m) with (soulPoints ( basic(m) ))
-  | n = n
+  | ((current ** _),_) = current
 
 public export
-getPointsFromSoul : Soul -> Nat
+getPointsFromSoul : Soul -> Integer
 getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
 
 public export
-getSoulPoints : Player -> Nat
+getSoulPoints : Player -> Integer
 getSoulPoints player = getPointsFromSoul(soul player)
 
 {-
@@ -151,8 +158,8 @@ goToNextPhase (game,acc) =
  let (retPhase, phaseUpdate) = nextPhase (phase game) in
  let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
  case retPhase of
-  SpawnPhase => (record {player_A->thoughts = transformThoughts (\x => x + 2) (thoughts (player_A game')),
-                         player_B->thoughts = transformThoughts (\x => x + 2) (thoughts (player_B game')),
+  SpawnPhase => (record {player_A->thoughts = transformBounded (\x => x + 2) (thoughts (player_A game')),
+                         player_B->thoughts = transformBounded (\x => x + 2) (thoughts (player_B game')),
                          turnNumber = S (turnNumber game)}
                         game', acc' ++ [phaseUpdate])
   SpellPhase => (game', acc')
@@ -205,7 +212,7 @@ spendThoughts (game, clientUpdates) whichPlayer n =
  transformPlayer (game, clientUpdates)
                  whichPlayer
                  (\p => ((record{thoughts = (thoughts p) {- - n -}} p),
-                        clientUpdates ++ [UpdateThoughts (transformThoughts (\t => t {- - n -}) (thoughts p)) (temporaryId p) (temporaryId (getPlayer game (opponent whichPlayer))) ]))
+                        clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p) (temporaryId (getPlayer game (opponent whichPlayer))) ]))
 
 
 

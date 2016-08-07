@@ -3,6 +3,9 @@ module Step_game
 import Data.Fin
 import Data.So
 import Data.Vect
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
@@ -38,9 +41,9 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
  | (Nothing, (SkillComponent_ (skillEffects, next) playerTemporaryId)::skillQueue)            = let effectsApplied = executeSkillEffects (record {skillHead = next, skillQueue = skillQueue} g) skillEffects in
                                                                               let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))
  | (Nothing, []) with (initiative g, turnNumber g, player_A g, player_B g, phase g, getSoulPoints (player_A g), getSoulPoints (player_B g))
-  | (initiative,turnNumber,player_A,player_B,phase,Z,bsp)             = (g, acc ++ [RoundTerminated])
-  | (initiative,turnNumber,player_A,player_B,phase,asp,Z)             = (g, acc ++ [RoundTerminated])
-  | (initiative,turnNumber,player_A,player_B,phase,Z,Z)               = (g, acc ++ [GameLogicError])
+  | (initiative,turnNumber,player_A,player_B,phase,0,bsp)             = (g, acc ++ [RoundTerminated])
+  | (initiative,turnNumber,player_A,player_B,phase,asp,0)             = (g, acc ++ [RoundTerminated])
+  | (initiative,turnNumber,player_A,player_B,phase,0,0)               = (g, acc ++ [GameLogicError])
   | (initiative,turnNumber,player_A,player_B,DrawPhase,asp,bsp) with (getNextTurnDraw g)
    | Just AHand                                                             = (g, acc ++ [RequestDrawHand (getTemporaryIdentifiers g PlayerA)])
    | Just BHand                                                             = (g, acc ++ [RequestDrawHand (getTemporaryIdentifiers g PlayerB)])
@@ -81,14 +84,14 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
      | DeadStale with (level (basic monster))
       |(_,_,baseLevel)                                                      = if (temporaryId player_A_) == (temporaryId player)
                                                                                then
-                                                                                let g' = (record {player_A->thoughts = transformThoughts (\x => x + (extractBounded baseLevel)) (thoughts player_A_),
+                                                                                let g' = (record {player_A->thoughts = transformBounded (\x => x + (extractBounded baseLevel)) (thoughts player_A_),
                                                                                                   player_A->graveyard = ((graveyard player_A_) ++ [MonsterCard (reviveCard monster)]),
                                                                                                   player_A->board = replaceAt (board player_A_) location Nothing,
                                                                                                   deathQueue = deadMonsters} g) in
                                                                                 let (a,b) = ((temporaryId player_A_), (temporaryId player_B_)) in
                                                                                 stepGame (damageSoul (g', acc ++ [(LoseSoulPoint a b), SendBoardToGraveyard location a b, (UpdateThoughts (thoughts (player_A g')) a b)]) (player_A g') (S Z))
                                                                                else
-                                                                                let g' = (record {player_B->thoughts = transformThoughts (\x => x + (extractBounded baseLevel)) (thoughts player_B_),
+                                                                                let g' = (record {player_B->thoughts = transformBounded (\x => x + (extractBounded baseLevel)) (thoughts player_B_),
                                                                                                   player_B->graveyard = ((graveyard player_B_) ++ [MonsterCard (reviveCard monster)]),
                                                                                                   player_B->board = replaceAt (board player_B_) location Nothing,
                                                                                                   deathQueue = deadMonsters} g) in

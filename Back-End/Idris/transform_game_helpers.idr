@@ -75,7 +75,7 @@ _revive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> Thoughts -> List Card -> List
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
- (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard 3930 of
+ (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard ?hole of
       Nothing => Nothing
       Just (hand', graveyard') => Just (board, thoughts, hand, graveyard)) where
   reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster

@@ -27,78 +27,35 @@ Attack = Bounded 0 absoluteUpperBound
 
 
 
-
+{-
 
 public export Level : Type
-Level = Bounded 0 9 {- bounds for card level and schools -}
-{- this should have a bound of 1 for base -}
+Level = (Bounded 0 9,Bounded 0 9, Bounded 1 9)
+
 public export School : Type
-{-School = Bounded 0 5-}
 School = Fin 6
 public export Schools : Type
-Schools = Vect 6 Level
-public export maxSchool : Level
+Schools = Vect 6 (Bounded 0 9)
+-}
+public export maxSchool : Bounded 0 9
 maxSchool = (9 ** (Oh,Oh,Oh))
-public export maxSchools : Schools
+public export maxSchools : Vect 6 (Bounded 0 9)
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
 public export TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
-public export getTemporary : (t,t',t'') -> t
-getTemporary (temporary,_,_) = temporary
-public export getPermanent : (t,t',t'') -> t'
-getPermanent (_,permanent,_) = permanent
-public export getBase : (t,t',t'') -> t''
-getBase (_,_,base) = base
-{- remove these -}
-public export getTemporaryLevel : (t,t,t'') -> t
-getTemporaryLevel (temporaryLevel,_,_) = temporaryLevel
-public export getPermanentLevel : (t,t,t'') -> t
-getPermanentLevel (_,permanentLevel,_) = permanentLevel
-public export getBaseLevel : (t,t,t'') -> t''
-getBaseLevel (_,_,baseLevel) = baseLevel
-{-/remove these-}
 
-
-
-
-{-
-public export
-increment : (lower:Integer) -> (upper:Integer) -> So (lower >= lower && lower <= upper) -> So (upper >= lower && upper <= upper) -> Integer -> Bounded lower upper -> Bounded lower upper
-increment lower upper ProofLower ProofUpper v proof = transformBounded lower upper ProofLower ProofUpper (\x => x+v) proof
--}
-
-
-
-
-{-
-public export transformRange : (Integer -> Integer) -> Range -> Range
-transformRange = transformBounded 0 5 Oh Oh
-public export transformSpeed : (Integer -> Integer) -> Speed -> Speed
-transformSpeed = transformBounded absoluteLowerBound absoluteUpperBound Oh Oh
-public export transformLevel : (Integer -> Integer) -> Level -> Level
-transformLevel = transformBounded 0 9 Oh Oh
-public export transformAttack : (Integer -> Integer) -> Attack -> Attack
-transformAttack = transformBounded 0 absoluteUpperBound Oh Oh
--}
 public export extractBounded : Bounded lower upper -> Integer
 extractBounded (n ** _) = n
-
-
 {-
-public export tb : Bounded l m -> (Integer -> Integer) -> Bounded l m
-tb {l=l} {m=m} (n ** p) f = transformBounded l m Oh Oh f (n ** p)
--}
-
-
-
-
-
 public export BoardIndex : Type
 BoardIndex = Fin 9
 public export HandIndex : Type
 HandIndex = Fin 25
 public export GraveyardIndex : Type
 GraveyardIndex = Fin 25
+-}
+
+
 {-these could maybe be better. I don't have anything at the type level that forces them to be valid hand or graveyard indices... I can fix this later-}
 
 {- Hand and Graveyard indices point to the last available slot if they overshoot. The last available slot is the first one with no card in it. (so have to make sure there's not more than 1 that overshoots!)-}
@@ -153,20 +110,6 @@ dominates bigger (Node left key value right) = ((get bigger key) >= value) && (d
 
 
 
-
-{-
-
-
-This will be easier when I fix transform bounded to use basic proof search
-
-(-) : Bounded _ _ -> Bounded _ _ -> Integer
-(-) (b1 ** _) (b2 ** _) = b1 - b2
-
-(+) : Bounded n1 m1 -> Bounded n2 m2 -> Bounded n1 m1
-(+) {b1 : n ** So(n >= n1 && n <= m1)} b1 (b2 ** _) = transformBounded n1 m1 Oh Oh (\x => x - b2) b1
-
--}
-
 public export {-not tail recursive-}
 removeAt : List a -> Nat -> Maybe (List a)
 removeAt [] _ = Nothing
@@ -182,8 +125,3 @@ replaceAt (x::xs) FZ y = (y::xs)
 replaceAt (x::xs) (FS k) y = x :: (replaceAt xs k y)
 
 
-{-replaceAt : List a -> Nat -> a -> List a {-ignores out of bounds case-}
-replaceAt [] _ _ = []
-replaceAt (x::xs) Z y = (y::xs)
-replaceAt (x::xs) (S k) y = x :: (replaceAt xs k y)
--}

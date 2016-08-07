@@ -72,12 +72,12 @@ public export BoardMonsterPredicate : Type
 BoardMonsterPredicate = Nat -> Bool {- Nat -> Bool might not even be the correct type (pretty sure it's wrong actually), but it will serve as a placeholder for now...    Monster -> Bool-}
 
 public export data BoardSquareExistential = DeBruijnBoardSquareExistential Side
-public export data BoardSquareVar = BoundBoardSquareVar BoardIndex | UnBoundBoardSquareVar (Fin n)
+public export data BoardSquareVar = BoundBoardSquareVar (Fin 9) | UnBoundBoardSquareVar (Fin n)
 
 {-I might need more information... I Might need to pass in the game object into these really...
 -}
 public export BoardSquarePredicate : Type
-BoardSquarePredicate = BoardIndex -> Bool
+BoardSquarePredicate = (Fin 9) -> Bool
 
 {-
 public export MonsterAlive : BoardMonsterPredicate
@@ -103,9 +103,9 @@ public export data StatRValue = TemporaryR | PermanentR | BaseR
 
 public export
 getStatValueR : StatRValue -> (Bounded n m, Bounded n m, Bounded n' m) -> Integer
-getStatValueR TemporaryR bounded = extractBounded (getTemporary bounded)
-getStatValueR PermanentR bounded = extractBounded (getPermanent bounded)
-getStatValueR BaseR bounded = extractBounded (getBase bounded)
+getStatValueR TemporaryR (temporary,_,_) = extractBounded temporary
+getStatValueR PermanentR (_,permanent,_) = extractBounded permanent
+getStatValueR BaseR (_,_,base) = extractBounded base
 
 public export
 data LazyIntStatType = BoardAttackR
@@ -121,7 +121,7 @@ public export
 data LazyInt = LazyIntStat LazyIntStatType Env StatRValue Nat
              | Constant Integer
              | ThoughtsR PlayerType
-             | SchoolR PlayerType School
+             | SchoolR PlayerType (Fin 6)
 
 public export
 getStat : LazyIntStatType -> StatRValue -> BasicMonster -> Integer

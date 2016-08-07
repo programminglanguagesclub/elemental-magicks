@@ -27,3 +27,9 @@ transformBounded {a = lower} {b = upper}  f (x ** (proofLower,proofUpper,proofIn
      Right bot => (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
 
 
+foo : Bounded 1 9
+foo = (3 ** (Oh,Oh,Oh))
+
+bar : Bounded 1 9
+bar = transformBounded (\x => x) foo
+
