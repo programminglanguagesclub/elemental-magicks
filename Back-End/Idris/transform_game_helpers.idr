@@ -4,6 +4,9 @@ module Transform_game_helpers
 import Data.Fin
 import Data.Vect
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
@@ -32,8 +35,8 @@ schoolsHighEnoughToPlayCard : Player -> Card -> Bool
 schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
 schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
  | NoSchools = True
- | OneSchool s = extractBounded (index s (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
- | TwoSchools s1 s2 = extractBounded (index s1 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card)))) && extractBounded (index s2 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
+ | OneSchool s = extractBounded (index s (knowledge player)) >= (extractBounded (snd $ snd (level (basic card))))
+ | TwoSchools s1 s2 = extractBounded (index s1 (knowledge player)) >= (extractBounded (snd $ snd (level (basic card)))) && extractBounded (index s2 (knowledge player)) >= (extractBounded (snd $ snd (level (basic card))))
 
 public export
 getNumberOfSchools : BasicMonster -> Nat

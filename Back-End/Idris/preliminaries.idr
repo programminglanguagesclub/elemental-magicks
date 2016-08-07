@@ -11,6 +11,9 @@ public export absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 public export absoluteUpperBound : Integer
 absoluteUpperBound = 1000
+
+
+{-
 public export
 extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
 
@@ -23,7 +26,7 @@ Defense = Bounded 0 absoluteUpperBound
 public export Attack : Type
 Attack = Bounded 0 absoluteUpperBound
 
-
+-}
 
 
 
@@ -38,14 +41,14 @@ public export Schools : Type
 Schools = Vect 6 (Bounded 0 9)
 -}
 public export maxSchool : Bounded 0 9
-maxSchool = (9 ** (Oh,Oh,Oh))
+maxSchool = (MkBounded (9 ** (Oh,Oh,Oh)))
 public export maxSchools : Vect 6 (Bounded 0 9)
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
 public export TemporaryPermanentBase : Type -> Type
 TemporaryPermanentBase t = (t,t,t)
 
 public export extractBounded : Bounded lower upper -> Integer
-extractBounded (n ** _) = n
+extractBounded (MkBounded (n ** _)) = n
 {-
 public export BoardIndex : Type
 BoardIndex = Fin 9

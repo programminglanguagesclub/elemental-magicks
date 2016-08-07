@@ -4,16 +4,16 @@ import Data.So
 import bounded
 
 (<) : Bounded lower upper -> Integer -> Bool
-(<) (x1 ** _) x2 = x1 < x2
+(<) (MkBounded (x1 ** _)) x2 = x1 < x2
 (>) : Bounded lower upper -> Integer -> Bool
-(>) (x1 ** _) x2 = x1 > x2
+(>) (MkBounded (x1 ** _)) x2 = x1 > x2
 (<=) : Bounded lower upper -> Integer -> Bool
-(<=) (x1 ** _) x2 = x1 <= x2
+(<=) (MkBounded (x1 ** _)) x2 = x1 <= x2
 (>=) : Bounded lower upper -> Integer -> Bool
-(>=) (x1 ** _) x2 = x1 >= x2
+(>=) (MkBounded (x1 ** _)) x2 = x1 >= x2
 {-infixr 6 ===;-}
 (==) : Bounded lower upper -> Integer -> Bool
-(==) (x1 ** _) x2 = (x1 == x2)
+(==) (MkBounded (x1 ** _)) x2 = (x1 == x2)
 
 (+) : Bounded lower upper -> Integer -> Bounded lower upper
 (+) x1 x2 = transformBounded (\x1 => x1 + x2) x1

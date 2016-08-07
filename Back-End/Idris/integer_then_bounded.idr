@@ -7,16 +7,16 @@ import bounded
 
 
 (<) : Integer -> Bounded lower upper -> Bool
-(<) x1 (x2 ** _) = x1 < x2
+(<) x1 (MkBounded (x2 ** _)) = x1 < x2
 (>) : Integer -> Bounded lower upper -> Bool
-(>) x1 (x2 ** _) = x1 > x2
+(>) x1 (MkBounded (x2 ** _)) = x1 > x2
 (<=) : Integer -> Bounded lower upper -> Bool
-(<=) x1 (x2 ** _) = x1 <= x2
+(<=) x1 (MkBounded (x2 ** _)) = x1 <= x2
 (>=) : Integer -> Bounded lower upper -> Bool
-(>=) x1 (x2 ** _) = x1 >= x2
+(>=) x1 (MkBounded (x2 ** _)) = x1 >= x2
 {-infixr 6 ===;-}
 (==) : Integer -> Bounded lower upper -> Bool
-(==) x1 (x2 ** _) = (x1 == x2)
+(==) x1 (MkBounded (x2 ** _)) = (x1 == x2)
 
 (+) : Integer -> Bounded lower upper -> Bounded lower upper
 (+) x1 x2 = transformBounded (\x2 => x1 + x2) x2

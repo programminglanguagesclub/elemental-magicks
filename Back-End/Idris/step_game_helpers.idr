@@ -91,7 +91,7 @@ public export
 foo7312016 : Maybe Monster -> Integer
 foo7312016 Nothing = 0
 foo7312016 (Just m) with (soulPoints ( basic(m) ))
-  | ((current ** _),_) = current
+  | (MkBounded (current ** _),_) = current
 
 public export
 getPointsFromSoul : Soul -> Integer
