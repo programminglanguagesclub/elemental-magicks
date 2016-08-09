@@ -1,9 +1,11 @@
 module Transform_game_helpers
 
-
 import Data.Fin
 import Data.Vect
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
@@ -14,26 +16,13 @@ import clientupdates
 import step_game
 import step_game_helpers
 
-
-
-
-{-
-vectThing : (n : Nat) -> Vect (n + m) Monster -> Vect n Monster -> Monster {--> Vect (n + m) Monster-}
-vectThing (S n')  original acc = index n original
--}
-
-
-
-
-
-
 public export
 schoolsHighEnoughToPlayCard : Player -> Card -> Bool
-schoolsHighEnoughToPlayCard player (SpellCard card) = extractBounded (index (school (basic card)) (knowledge player)) >= (extractBounded (level (basic card)))
+schoolsHighEnoughToPlayCard player (SpellCard card) = geq (index (school $ basic card) $ knowledge player) (level $ basic card)
 schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
  | NoSchools = True
- | OneSchool s = extractBounded (index s (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
- | TwoSchools s1 s2 = extractBounded (index s1 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card)))) && extractBounded (index s2 (knowledge player)) >= (extractBounded (getBaseLevel (level (basic card))))
+ | OneSchool s = geq (index s $ knowledge player) (snd $ snd $ level $ basic card)
+ | TwoSchools s1 s2 = geq (index s1 $ knowledge player) (snd $ snd $ level $ basic card) && geq (index s2 $ knowledge player) (snd $ snd $ level $ basic card)
 
 public export
 getNumberOfSchools : BasicMonster -> Nat
@@ -42,11 +31,11 @@ getNumberOfSchools monster with (schools monster)
  | OneSchool _    = 1
  | TwoSchools _ _ = 2
 
-{-
+
 public export
 getReviveCost : (toRevive : List Monster) -> Nat
 getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
--}
+
 
 {-I might want to move these to the graceyard rather than simply removing them from the hand-}
 public export
@@ -75,7 +64,7 @@ _revive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> Thoughts -> List Card -> List
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
- (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard 3930 of
+ (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard ?hole of
       Nothing => Nothing
       Just (hand', graveyard') => Just (board, thoughts, hand, graveyard)) where
   reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster
@@ -98,16 +87,6 @@ revive positions player = case _revive positions (board player) (thoughts player
 
 
 
-
-
-
-
-
-
-
-public export {-this has been deprecated in favor of updatePlayer in step_game_helpers-}
-updateGame : Game -> Player -> Game {-figures out which player to modify and does the update-}
-
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
@@ -128,11 +107,6 @@ inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSq
   | Alive with (range (basic monster))
    | (temporaryRange,_,_) = if gt (fromIntegerNat (extractBounded temporaryRange)) ((_getFriendlyStuffInFront attackerBoard attackerSquare) + (_getEnemyStuffInFront defenderBoard row)) then Just True else Just False
 
-
-{-
-playerOnMove : Game -> Player -> Bool {-assumes engagement phase.. could encode that at type level I suppose-}
--}
-
 public export
 moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board {-this actually does a swap-}
 moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
@@ -149,27 +123,4 @@ _getHandCards (card::cards) acc with (card)
 public export
 getHandCards : (hand : List Card) -> MultiTree Nat
 getHandCards hand = _getHandCards hand Leaf
-
-
-{-
-public export
-__canRevive : (thoughtCost : Nat) -> (thoughts : Thoughts) -> (boardCards : MultiTree Nat) -> (handCards : MultiTree Nat) -> Bool
-__canRevive thoughtCost thoughts boardCards handCards = ((extractBoundedNat thoughts) >= thoughtCost) && (dominates handCards boardCards)
-public export
-_canRevive : Player -> List Bool -> (currentIndex : Nat) -> (thoughtAcc : Nat) -> (boardCardsAcc : MultiTree Nat) -> Bool
-_canRevive player [] currentIndex thoughtAcc boardCardsAcc = __canRevive thoughtAcc (thoughts player) boardCardsAcc (getHandCards (hand player))
-_canRevive player (x::xs) currentIndex thoughtAcc boardCardsAcc with (x)
- |False             = _canRevive player xs (currentIndex + 1) thoughtAcc boardCardsAcc
- |True with (index' currentIndex (toList (board player)))
-  |Nothing          = False {-error-} {-there could be one of two errors: index out of bounds or no monster at location-}
-  |Just Nothing     = False
-  |Just (Just m) with (aliveness (basic m))
-   | Alive          = False
-   | DeadFresh      = False {-error-}
-   | DeadStale      = _canRevive player xs (currentIndex + 1) (thoughtAcc + (getNumberOfSchools (basic m))) (insert boardCardsAcc (permanentId (basic m)))
-public export
-canRevive : Player -> Vect 9 Bool -> Bool {-might want to return the cards from the hand as well and the thoughts-}
-canRevive player selection = _canRevive player (toList selection) 0 0 Leaf
-
--}
 

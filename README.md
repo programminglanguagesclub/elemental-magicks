@@ -34,7 +34,7 @@ Please send me a message if you want to be added to our team (i.e. need write ac
 
  **Game Design** : Raleigh Foster
 
-**Programming** : Rob Sap, Raleigh Foster, Matt Almenshad
+**Programming** : Rob Sap, Raleigh Foster, Matt Almenshad, Andy Hampton
 
 
 

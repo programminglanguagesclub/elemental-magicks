@@ -2,6 +2,9 @@ module Objects_advanced
 
 import Data.Vect
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import objects_basic
 import skill_dsl
@@ -55,29 +58,26 @@ Spawn = Maybe Card
 public export
 Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
+
+
+{- unused? -}
 public export
 Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
-public export
-Knowledge : Type
-Knowledge = Vect 6 (Level)
 
-
-
+{-this might go in preliminaries-}
 {-
-
-I'm making the LP on cards be either 1 or 2 (to start with. Then they can be 0, 1 or 2).
-That way it decreases the max game length, and also adds more strategy (can't just mindlessly fill out a bunch of 3 LP cards)
-
+public export
+transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
+transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
 -}
 
 
 
 
-{-this might go in preliminaries-}
-public export
-transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
-transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
+
+
+
 
 public export
 record Player where
@@ -89,30 +89,9 @@ record Player where
  discard         : List Card
  spawn           : Spawn
  soul            : Soul
- thoughts        : Thoughts
- knowledge       : Knowledge
+ thoughts        : Bounded 0 Preliminaries.absoluteUpperBound
+ knowledge       : Vect 6 (Bounded 0 9)
  temporaryId     : String
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 public export
 getLiving : Maybe Monster -> Bool
@@ -121,11 +100,6 @@ getLiving (Just m) with (aliveness (basic m))
  | Alive = True
  | DeadFresh = False
  | DeadStale = False
-
-
-
-
-
 
 
 
@@ -220,6 +194,10 @@ syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect
 
 
 
+playerOnMove : Game -> WhichPlayer
+
+
+
 
 
 
@@ -233,8 +211,8 @@ evaluateLazyInt (LazyIntStat lazyIntStatType env statRValue nat) _ _ with (index
 evaluateLazyInt (Constant integer) _ _ = Just integer
 evaluateLazyInt (ThoughtsR CardOwner) player _ = Just (extractBounded (thoughts player))
 evaluateLazyInt (ThoughtsR CardOpponent) _ opponent = Just (extractBounded (thoughts opponent))
-evaluateLazyInt (SchoolR CardOwner school) player _ = Just (extractBounded (index school (knowledge player)))
-evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent)))
+evaluateLazyInt (SchoolR CardOwner school) player _ = {-Just (extractBounded (index school (knowledge player)))-} let x = index school (knowledge player) in Just 0
+{- temporarily disabled .... evaluateLazyInt (SchoolR CardOpponent school) _ opponent = Just (extractBounded (index school (knowledge opponent))) -}
 
 
 {- {-from skill_dsl:-}
@@ -248,11 +226,6 @@ data SkillEffect = AttackL  Env Mutator StatLValue BoardMonsterVar LazyInt
 
 public export
 data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)) String {-the string here is the temporaryId of the player in the game-}
-
-
-
-
-{-the following could probably be cleaned up a lot as well....-}
 
 
 {-executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists 

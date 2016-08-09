@@ -1,8 +1,12 @@
 module Clientupdates
 
 import Data.Fin
+import Data.Vect
 import preliminaries
 import objects_basic
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 
 
 public export
@@ -25,7 +29,7 @@ data ClientUpdate = GameLogicError
                   | SendSpawnToDiscard String String
                   | MoveUnit (Fin 9) (Fin 9) String String      
                   | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) String String
-                  | UpdateSchools Schools String String
+                  | UpdateSchools (Vect 6 (Bounded 0 9)) String String
                   | LoseSoulPoint String String
                   | SendBoardToGraveyard (Fin 9) String String
                   {-
