@@ -30,8 +30,7 @@ public export data Side = Friendly | Enemy
 {- I might be able to get away with doing a lot more of this with type classes -}
 
 
-public export Set : Type
-Set = (Side, Area)
+public export data Set = MkSet(Side,Area)
 
 {- not implementing universal quantifiers yet -}
 public export data CardExistential = DeBruijnCardExistential Set
@@ -125,13 +124,11 @@ data LazyInt = LazyIntStat LazyIntStatType Env StatRValue Nat
 
 public export
 getStat : LazyIntStatType -> StatRValue -> BasicMonster -> Integer
-{- {-this used to work before I changed preliminaries-}
 getStat BoardAttackR  statRValue basicMonster = getStatValueR statRValue (attack basicMonster)
 getStat BoardDefenseR statRValue basicMonster = getStatValueR statRValue (defense basicMonster)
 getStat BoardRangeR   statRValue basicMonster = getStatValueR statRValue (range basicMonster)
 getStat BoardSpeedR   statRValue basicMonster = getStatValueR statRValue (speed basicMonster)
 getStat BoardLevelR   statRValue basicMonster = getStatValueR statRValue (level basicMonster)
--}
 
 
 
@@ -154,27 +151,12 @@ public export
 data SkillEffect = SkillEffectStatL SkillEffectStatType Env Mutator StatLValue BoardMonsterVar LazyInt
 
 
-
-{-
-{-the following could probably be cleaned up a lot as well....-} {-I don't think I need to pass basic monster as an argument.... This might just be removed..-}
-executeSkillEffectTransform : SkillEffect -> BasicMonster -> Maybe BasicMonster {-Nothing indicates a logic error-} {-This function already exists in objects_advanced, but handles integration with the game, etc.-}
-executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (UnBoundBoardMonsterVar _ _) lazyInt) _ = Nothing
-executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue (BoundBoardMonsterVar nat) lazyInt) = ?g
-
-{-
-executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue boardMonsterVar lazyInt) = setStatValueL statLValue (attack boardMonsterVar turn this into basic monster...) {-like in get stat, except for set stat! Also somewhere return update?-}
--}
--}
-
-
-
 {-public export data BoardMonsterVar = BoundBoardMonsterVar Nat | UnBoundBoardMonsterVar (Fin n) Side-}
 
 {-executeSkillEffectTransform (AttackL env mutator statLValue boardMonsterVar lazyInt) basicMonster with (mutator, statLValue, )-}
 
-
 {-
- Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
+ |Refresh Side BoardIndex {-if alive, restores all stats to base... could maybe not have this be a core thing. could even create syntactic sugar for this with syntax.... -}
  |IncrementHp BoardIndex LazyInt {- to be revisted when hp is defined -}
  |IncrementMaxHp BoardIndex LazyInt {- to be revisted when hp is defined -}
  |SendFromFieldToHand Side BoardIndex
@@ -192,23 +174,19 @@ executeSkillEffectTransform (SkillEffectStatL AttackL env mutator statLValue boa
  |SendFromHandToSet Side HandIndex{- no effect if set occupied or no monsters in hand -}
  |SendFromHandToField Side HandIndex BoardIndex {- no effect if field occupied at determined index or no monsters in hand -} 
  |SendFromGraveyardToField Side GraveyardIndex BoardIndex {- no effect if field occupied at determined index or no monsters in graveyard -}
-{- there might be some more cases I'm forgetting right now.. -}
- |SetHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
- |SetMaxHp Side BoardIndex LazyInt {- to be revisted when hp is defined -}
+ |SetHp Side BoardIndex LazyInt
+ |SetMaxHp Side BoardIndex LazyInt
  |ReviveCard Side BoardIndex
  |EngagementL Side BoardIndex LazyInt
  |ThoughtsL Side Mutator LazyInt
  |KnowledgeL Mutator School Side LazyInt
  |TakeDamage Side BoardIndex LazyInt
-
--}
-
+ -}
 
 {-Counter Skills should not trigger more than once per <SkillQueue is cleared completely> This way I don't have to worry about players running out of time from massively titanic runs of counterskill chains, or even nontermination-}
 
-
-
 {- in order to allow for universals and existentials, I should not require BoardIndex here to be predetermined.... -}
+
 
 
 {-
