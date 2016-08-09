@@ -3,6 +3,9 @@ module ServerUpdates
 import Data.Vect
 import Data.Fin
 import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
@@ -12,12 +15,12 @@ import skill_dsl
 
 public export
 data ServerUpdate : Type where
- SetCard : Schools -> {-(Bounded 0 25)-} Nat -> ServerUpdate
- Skip : Schools -> ServerUpdate
+ SetCard : Vect 6 (Bounded 0 9) -> {-(Bounded 0 25)-} Nat -> ServerUpdate
+ Skip : Vect 6 (Bounded 0 9) -> ServerUpdate
  AttackRow : (Fin 3) -> ServerUpdate
  Rest : ServerUpdate
  DirectAttack : ServerUpdate
- Move : BoardIndex -> ServerUpdate
+ Move : Fin 9 -> ServerUpdate
  SkillInitiation : Nat -> ServerUpdate
  SkillSelection : (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> ServerUpdate
  Revive : Vect 9 Bool -> ServerUpdate
