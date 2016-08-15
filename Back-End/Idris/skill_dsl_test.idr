@@ -45,7 +45,7 @@ soul_strike : Skill
 soul_strike = action;
  exists monster x in enemy board
   selected => damage x $ attack / 2; then
-  execute if hp x < 0 then bury x
+  execute if hp x <= 0 then bury x
 
 devastating_strike : Skill
 devastating_strike = action; 2 thoughts;
