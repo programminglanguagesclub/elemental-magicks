@@ -12,12 +12,14 @@
 
 char *reader()
 {
+	
+	
         int fd;
-
         //Where to store the pipe according to library
         char * myfifo = "/tmp/myfifo";
 
 
+//This section sets the size of the message, for the reader to expect
  	//Set to empty
         char *sizeOfMessage;
         sizeOfMessage = (char *) malloc(1024);
@@ -40,8 +42,9 @@ char *reader()
                 read(fd, sizeOfMessage, MAX_BUF);
         }
         
+ //This section takes the incomming message size and allocates that on the heap
         char *message;
-        
+
         int sizeOfNewMessage = atoi(sizeOfMessage);
         
         message = (char *) malloc(sizeOfNewMessage);
@@ -78,7 +81,9 @@ int fd;
         fd = open(myfifo, O_WRONLY);
 
         //Actualy thing send (where im sending, message, size of message)
-        write(fd, message, 128);
+        
+        //Fill in size of message later where 128 is (messageSize)
+        write(fd, message, sizeof(message));
 
         //Close the pipe
         close(fd);
