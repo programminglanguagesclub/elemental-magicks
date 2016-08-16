@@ -37,7 +37,8 @@ char *reader()
 	
 	//Set to empty
 	char *message;
-	message = (char *) malloc(1024); // memory leak
+	int sizeOfMessage = atoi(sizeOfIncommingMessage);
+	message = (char *) malloc(sizeOfMessage); // memory leak
 	strcpy(message, "empty");
 
         // open, read, and display the message from FIFO 
