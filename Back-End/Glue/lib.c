@@ -49,7 +49,7 @@ char *reader()
         	fd = open(myfifo, O_RDONLY);
 		
 		//Read the pipe (location, message, size of message)
-        	read(fd, message, MAX_BUF);
+        	read(fd, message, sizeOfMessage);
 	}
 	//Print the message
 	 printf("Received: %s\n", sizeOfIncommingMessage);
