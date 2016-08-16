@@ -1,3 +1,5 @@
+C_INCLUDE_PATH=/usr/include/urweb
+export C_INCLUDE_PATH
 cd Back-End
 cd Glue
 make
