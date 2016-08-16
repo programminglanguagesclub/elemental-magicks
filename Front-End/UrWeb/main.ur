@@ -46,7 +46,7 @@ fun main () : transaction page = return <xml><body>
 
 
 
-
+(*
 
 
 (* leaving out microdata and styles for now (have to go into apache2 stuff or urp or something to set rewrites for styles*)
@@ -69,7 +69,7 @@ fun credits () : transaction page = return <xml>
 
 
 
-
+*)
 
 
 

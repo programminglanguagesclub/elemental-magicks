@@ -7,7 +7,7 @@ import preliminaries
 
 {-if I made this a GADT with a single constructor, then I can't pattern match on it apparently. This seems like a bug, although it doesn't matter-}
 public export
-data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 0 Preliminaries.absoluteUpperBound)
+data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 1 Preliminaries.absoluteUpperBound)
 
 public export
 getCurrentHp : Hp -> Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound
@@ -16,7 +16,7 @@ public export
 getMaxHp : Hp -> Bounded 0 Preliminaries.absoluteUpperBound
 getMaxHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = maxHp
 public export
-getBaseHp : Hp -> Bounded 0 Preliminaries.absoluteUpperBound
+getBaseHp : Hp -> Bounded 1 Preliminaries.absoluteUpperBound
 getBaseHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = baseHp
 public export
 transformHp : (Integer -> Integer) -> Hp -> Hp
@@ -45,7 +45,7 @@ rest (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => extractBounde
 
 public export
 pierce : Integer {-should this take an integer or a bounded?-} -> Hp -> Hp
-pierce val (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => extractBounded (currentHp - val)) (MkHp((currentHp**(maxHp**prf)),baseHp))
+pierce val (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => x - val) (MkHp((currentHp**(maxHp**prf)),baseHp))
 
 
 
