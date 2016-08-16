@@ -74,7 +74,7 @@ int fd;
         fd = open(myfifo, O_WRONLY);
 
 	//Actualy thing send (where im sending, message, size of message)
-        write(fd, message, 128);
+        write(fd, message, sizeof(message));
 
 	//Close the pipe
         close(fd);
