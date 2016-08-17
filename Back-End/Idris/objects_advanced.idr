@@ -192,9 +192,25 @@ record Game where
  
 syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
-
+{-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}
 
 playerOnMove : Game -> WhichPlayer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

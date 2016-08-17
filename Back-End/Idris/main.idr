@@ -8,7 +8,8 @@ import preliminaries
 import phase
 import objects_basic
 import skill_dsl
-import objects_advanced
+import player
+import game
 import serverupdates
 import clientupdates
 import transform_game

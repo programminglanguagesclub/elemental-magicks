@@ -9,7 +9,8 @@ import integer_then_bounded
 import preliminaries
 import phase
 import objects_basic
-import objects_advanced
+import player
+import game
 import skill_dsl
 
 
