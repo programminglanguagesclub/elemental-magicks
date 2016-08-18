@@ -16,8 +16,9 @@ import skill_dsl
 
 public export
 data ServerUpdate : Type where
- SetCard : Vect 6 (Bounded 0 9) -> {-(Bounded 0 25)-} Nat -> ServerUpdate
+ SpawnCard : Vect 6 (Bounded 0 9) -> {-(Bounded 0 25)-} Nat -> ServerUpdate
  Skip : Vect 6 (Bounded 0 9) -> ServerUpdate
+ DeployCard : Fin 9 -> ServerUpdate
  AttackRow : (Fin 3) -> ServerUpdate
  Rest : ServerUpdate
  DirectAttack : ServerUpdate

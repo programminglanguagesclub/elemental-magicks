@@ -28,6 +28,11 @@ public export
 public export
 (*) : Bounded lower upper -> Integer -> Bounded lower upper
 (*) x1 x2 = transformBounded (\x1 => x1 * x2) x1
+infixr 4 :=
+public export
+(:=) : Bounded lower upper -> Integer -> Bounded lower upper
+(:=) x1 x2 = transformBounded (\x1 => x2) x1
+
 {-
 mod : Bounded lower upper -> Nat -> Bounded lower upper
 mod x1 x2 = transformBounded (\x1 => mod x1 x2) x1

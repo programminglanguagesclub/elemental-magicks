@@ -44,8 +44,8 @@ public export maxSchool : Bounded 0 9
 maxSchool = (MkBounded (9 ** (Oh,Oh,Oh)))
 public export maxSchools : Vect 6 (Bounded 0 9)
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
-public export TemporaryPermanentBase : Type -> Type
-TemporaryPermanentBase t = (t,t,t)
+public export temporaryPermanentBase : Type -> Type
+temporaryPermanentBase t = (t,t,t)
 
 public export extractBounded : Bounded lower upper -> Integer
 extractBounded (MkBounded (n ** _)) = n

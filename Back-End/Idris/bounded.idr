@@ -8,6 +8,8 @@ public export
 data Bounded : Integer -> Integer -> Type where
   MkBounded : (n ** (So(lower <= n),So(n <= upper),So(lower <= upper))) -> Bounded lower upper
 
+syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh,Oh))
+
 {-not going to make Num instances yet for now-}
 public export
 Eq (Bounded lower upper) where
