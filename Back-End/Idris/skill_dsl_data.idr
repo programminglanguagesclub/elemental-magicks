@@ -122,7 +122,7 @@ be marshalled into arbitrary bounded types....-}
 
 
 applyStatEffect : BasicMonster -> StatEffect -> String -> (BasicMonster, (String,String))
-applyStatEffect basic (MkStatEffect stat mutator temporality x) name = let m = (basicStatSetter stat) ((selectMutator mutator temporality) ((basicStat stat) basic) x) basic in
+applyStatEffect basic (MkStatEffect stat mutator temporality x) name = let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in
                                                                             (m, (name, marshall temporality((basicStat stat)m)))
 applyStatEffect basic (MkHpEffect Mutator CurrentHp x) name = ?hole
 applyStatEffect basic (MkHpEffect Mutator MaxHp x) name = ?hole
