@@ -56,7 +56,20 @@ data SkillEffect = SkillEffectStatEffect StatEffect
 
 
 
+{-
+
+
+Something like “basicStatType stat = (Bounded (statTypeLower stat) (statTypeUpper stat), Bounded (statTypeLower stat) (statTypeUpper stat), statTypeBase stat)” or so. Then since there’s no case split an application of basicStatType can reduce right away, and that is far enough to unify it with the required type.
+
+
+
+-Melvar
+                                       -}
+
+
+
 {-gosh, speed has the wrong type as well (wrong bounds...) URG!!-}
+
 basicStatType : Stat -> Type
 basicStatType Attack = temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) {--> BasicMonster -> BasicMonster-}
 basicStatType Defense = temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) {--> BasicMonster -> BasicMonster-}
@@ -65,11 +78,11 @@ basicStatType Range = temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUp
 basicStatType Level = (Bounded 0 9, Bounded 0 9, Bounded 1 9) {--> BasicMonster -> BasicMonster-}
 
 basicStat : (s : Stat) -> BasicMonster -> basicStatType s
-basicStat Attack m = attack m
-basicStat Defense m = defense m
-basicStat Speed m = speed m
-basicStat Range m = range m
-basicStat Level m = level m
+basicStat Attack = attack
+basicStat Defense = defense
+basicStat Speed = speed
+basicStat Range = range
+basicStat Level = level
 {-
 basicStatSetterType : Stat -> Type
 basicStatSetterType Attack = (basicStatType Attack) -> BasicMonster -> BasicMonster
@@ -102,6 +115,21 @@ applyStatEffect' basic (MkStatEffect stat mutator temporality x) name = let m = 
                                                                             (m, (name, marshall temporality((basicStat stat)m)))
                                                                           
 
+{-
+syntax applyStatEffect'-}
+
+{-
+applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
+applyStatEffect basic (MkStatEffect stat mutator temporality x) = let (setter,getter) = (case stat of
+                                                                                             Attack => (basicStatSetter Attack, basicStat Attack)
+                                                                                             Defense => (basicStatSetter Defense, basicStat Defense)
+                                                                                             Speed => (basicStatSetter Speed, basicStat Speed)
+                                                                                             Range => (basicStatSetter Range, basicStat Range)
+                                                                                             Level => (basicStatSetter Level, basicStat Level) in ?hole
+
+
+-}
+{-
 applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String)) {-wrong to triple which even changes the base but okay...-}
 applyStatEffect basic (MkStatEffect Attack mutator temporality x) = let m = (basicStatSetter Attack) ((selectMutator mutator temporality) ((basicStat Attack) basic) x) basic in
                                                                         (m, ("attack", marshall temporality((basicStat Attack) m))) {-need to know if I want temporary or permanet, etc....-}
@@ -115,7 +143,7 @@ applyStatEffect basic (MkStatEffect Level mutator temporality x) = let m = (basi
                                                                        (m, ("level", marshall temporality((basicStat Level) m)))
 applyStatEffect basic (MkHpEffect Mutator CurrentHp x) = ?hole
 applyStatEffect basic (MkHpEffect Mutator MaxHp x) = ?hole
-
+-}
 
 
 
