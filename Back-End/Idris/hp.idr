@@ -37,6 +37,9 @@ transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
      Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
      -}
 
+public export
+transformMaxHp : (Integer -> Integer) -> Hp -> Hp
+transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
 
 {-I feel I should be doing something monadic here, but it's perhaps a bit more complicated-}
 public export

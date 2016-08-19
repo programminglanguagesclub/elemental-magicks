@@ -5,6 +5,7 @@ import Data.So
 import bounded
 import bounded_then_integer
 import integer_then_bounded
+import hp
 import preliminaries
 import objects_basic
 data Stat = Attack | Defense | Speed | Range | Level
@@ -56,5 +57,11 @@ basicStatSetter Level = set_level
 applyStatEffect : BasicMonster -> StatEffect -> String -> (BasicMonster, (String,String))
 applyStatEffect basic (MkStatEffect stat mutator temporality x) name =
   let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (name, marshall temporality $ basicStat stat m))
-applyStatEffect basic (MkHpEffect Mutator CurrentHp x) name = ?hole
+
+
+
+{- ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound) -}
+
+applyStatEffect basic (MkHpEffect Increment CurrentHp x) name = let m = record {hp = transformHp (\h => h + x) $ hp basic} basic in (m,"","")
+applyStatEffect basic (MkHpEffect Assign CurrentHp x) name = let m = record {hp = transformHp (\h => x) $ hp basic} basic in (m, "","")
 applyStatEffect basic (MkHpEffect Mutator MaxHp x) name = ?hole

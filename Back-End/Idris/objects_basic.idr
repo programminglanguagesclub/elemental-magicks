@@ -22,7 +22,7 @@ record BasicMonster where
  permanentId : Nat {-equivalence classes of cards. Used for revival-}
  temporaryId : Nat {-Id of a particular card for the game-}
  schools : MonsterSchools
- hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
+ hp : Hp
  attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  defense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  speed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)

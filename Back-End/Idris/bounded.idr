@@ -10,6 +10,9 @@ data Bounded : Integer -> Integer -> Type where
 
 syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh,Oh))
 
+foo12 : Bounded 0 31
+foo12 = >> 21 <<
+
 {-not going to make Num instances yet for now-}
 public export
 Eq (Bounded lower upper) where
