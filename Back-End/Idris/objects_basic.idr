@@ -25,8 +25,8 @@ record BasicMonster where
  hp : ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound)
  attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  defense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
- speed : temporaryPermanentBase (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound)
- range : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+ speed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
+ range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
  level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
  aliveness : Aliveness
