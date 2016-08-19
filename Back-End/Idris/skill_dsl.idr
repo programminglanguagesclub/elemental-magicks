@@ -1,5 +1,22 @@
 module Skill_dsl
 
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+
+
+
+
 import Data.Vect
 import Data.Fin
 import Data.So
@@ -228,4 +245,4 @@ data SkillComponent = SkillComponent_ (List SkillEffect, Maybe (Condition, Skill
 
 
 
-
+-}
