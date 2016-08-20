@@ -62,39 +62,15 @@ marshallClientUpdate (DrawSoul cardId soulIndex playerId) id = Just $ augment (M
 marshallClientUpdate (SendSpawnToDiscard playerId) id = Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
 marshallClientUpdate (MoveUnit from to playerId) id = Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
 marshallClientUpdate (UpdateThoughts val playerId) id = Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
-marshallClientUpdate (UpdateSchools [earth,fire,water,air,spirit,void'] playerId) id = Just $ augment (MkMarshalledClientUpdate "updateSchools" [("earth",show $ extractBounded earth), ("fire",show $ extractBounded fire), ("water", show $ extractBounded water), ("air", show $ extractBounded air),("spirit", show $ extractBounded spirit),("void",show $ extractBounded void')]) (playerId == id)
+marshallClientUpdate (UpdateSchools schools playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "updateSchools" (toList $ zipWith (\x,y => (x,show $ extractBounded y)) ["earth","fire","water","air","spirit","void"] schools)) (playerId == id)
 marshallClientUpdate (LoseSoulPoint playerId) id = Just $ augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
 marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
-marshallClientUpdate (SetStat stat val boardIndex playerId) id = ?hole
-marshallClientUpdate (SpawnCard handIndex playerId) id = ?hole
-
-
-
-
-
-
-
-
-
-
-
-{-
-public export
-data MarshalledClientUpdate = SendToOnePlayer (ClientUpdate, String)
-                         | SendToBothPlayers ClientUpdate
--}
-
-{- mess
-public export
-transformClientUpdate : ClientUpdate -> ClientUpdate
-transformClientUpdate clientUpdate with (clientUpdate)
- | SendToOnePlayer (update
--}
-
-{-should use a typeclass for sendToOnePlayer, etc?-}
-{-
-public export
-serializeUpdateWrapper : ClientUpdateWrapper -> (String, String) {-update, player_token it's for-}
-serializeUpdateWrapper (SendToOnePlayer (foo,bar)) = ("","")
-serializeUpdateWrapper _ = ?gg
--}
+marshallClientUpdate (SetStat stat val boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "setStat" [("stat",stat),("val",val),("index",show $ finToNat boardIndex)]) (playerId == id)
+marshallClientUpdate (SpawnCard handIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
+serializeInfo : List (String,String) -> String
+serializeInfo [] = ""
+serializeInfo ((k,v)::[]) = k ++ ":" ++ v
+serializeInfo ((k,v)::xs) = k ++ ":" ++ v ++ "," ++ (serializeInfo xs)
+serialize : MarshalledClientUpdate -> String
+serialize marshalledClientUpdate = "{updateType:" ++ (type marshalledClientUpdate) ++ ",updateData:{" ++ (serializeInfo (info marshalledClientUpdate)) ++ "}"
