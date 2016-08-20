@@ -6,6 +6,7 @@ import preliminaries
 import phase
 import objects_basic
 import skill_dsl
+import skill_dsl_data
 import player
 import game
 import serverupdates
@@ -13,6 +14,24 @@ import clientupdates
 import transform_game_helpers
 import step_game
 import step_game_helpers
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+
+
+
+
+
 
 
 {-Somewhere I also have to return whose turn it is.-}
@@ -97,4 +116,19 @@ transformGame game player opponent whichPlayer serverUpdate = ?hole
                                              then ?g
                                              else (game, [InvalidMove (temporaryId player)])-}
  | (RevivalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -}

@@ -9,6 +9,7 @@ import preliminaries
 import phase
 import objects_basic
 import skill_dsl
+import skill_dsl_data
 import player
 import game
 import serverupdates
@@ -85,8 +86,13 @@ getNextTurnDraw game = _getNextTurnDraw game (player_A game) (player_B game)
 public export
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b (Fin 9), Vect h (Fin 25), Vect g (Fin 25)) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
- | Nothing = ?hole {-(game, [])-}
+  | _ = ?hole
+ {-| Nothing = ?hole {-(game, [])-}{-probably match on whether it's terminated.-}
  | skill = ?hole
+ -}
+
+
+
 
 public export
 foo7312016 : Maybe Monster -> Integer
@@ -123,7 +129,7 @@ removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
  | Nothing = (game, acc ++ [GameLogicError])
  | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_B game)) (temporaryId (player_A game))])
 public export
-loadSkill : Game -> (SkillComponent, Bool, Nat) -> (Game, List ClientUpdate)
+loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
 public export
 _boardFull : List (Maybe Monster) -> Bool

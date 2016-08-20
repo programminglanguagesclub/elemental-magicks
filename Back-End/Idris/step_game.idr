@@ -10,6 +10,7 @@ import preliminaries
 import phase
 import objects_basic
 import skill_dsl
+import skill_dsl_data
 import player
 import game
 import serverupdates
@@ -35,6 +36,17 @@ I can achieve this by pushing both of the spawn skills onto the queue/head/whate
 public export
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
+  | _ = ?hole {-again, going to have to change to checking if the skillHead is terminated or not, rather than being nothing or just...-}
+ 
+
+
+
+
+
+{-
+
+
+
  | (Just (condition, ifSelects, SkillComponent_ (cannotSelectEffects, cannotSelectSkillHead) playerTemporaryId, next), skillQueue)
                                                                             = if skillSelectionPossible g condition then (g,acc)
                                                                               else let effectsApplied = executeSkillEffects (record {skillHead = cannotSelectSkillHead} g) cannotSelectEffects in
@@ -119,6 +131,13 @@ damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, Lis
                                                                               else (g, acc ++ [DeployCardRequest (temporaryId (getPlayer g initiative))])
    | (Just (SpellCard cardA),_)                                             = (g, acc ++ [GameLogicError])
    | (_,Just (SpellCard cardB))                                             = (g, acc ++ [GameLogicError])
+
+
+
+
+
+
+-}
 
 
 
