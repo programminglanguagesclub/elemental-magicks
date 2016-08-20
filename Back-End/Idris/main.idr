@@ -48,6 +48,13 @@ Need to get opponent to call transformGame
 {- TOKEN WRONG = if (temporaryId (player_A g)) == player_token || (temporaryId (player_B g)) == player_token then let (g',cus) = transformGame g (player_token, serverUpdate) in (g'::gs, cus)
                                                   else let (gs',cus) = while_loop gs (player_token, serverUpdate) in (g::gs',cus) -}
 
+
+
+{-I also need a mechanism for creating games. Ur/Web can handle this and just tell Idris when it has happened...-}
+
+
+
+
 main : IO ()
 main = do {
 x <- reader;
