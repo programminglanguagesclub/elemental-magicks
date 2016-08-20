@@ -42,31 +42,33 @@ getCardName : Nat -> String
 
 record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
- type, description, data : String
+ type : String
+ info : List (String, String) {-name of field, value of field.. for now no uniqueness guarantee at the type level-}
 
 
 marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
-marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" "Game Logic Error" ""
-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" "Round Terminated" "" {-include data about the next round?-}
-marshallClientUpdate DrawPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" "Draw Phase Ends - Spawn Phase Begins" ""
-marshallClientUpdate SpawnPhaseToSpellPhase _ = Just $ "spawnPhase""Spawn Phase Ends - Spell Phase Begins"
-marshallClientUpdate SpellPhaseToRemovalPhase _ = Just "Spell Phase Ends - Removal Phase Begins"
-marshallClientUpdate RemovalPhaseToStartPhase _ = Just "Removal Phase Ends - Start Phase Begins"
-marshallClientUpdate StartPhaseToEngagementPhase _ = Just "Start Phase Ends - Engagement Phase Begins"
-marshallClientUpdate EngagementPhaseToEndPhase _ = Just "Engagement Phase Ends - End Phase Begins"
-marshallClientUpdate EndPhaseToRevivalPhase _ = Just "End Phase Ends - Revival Phase Begins"
-marshallClientUpdate RevivalPhaseToDeploymentPhase _ = Just "Revival Phase Ends - Deployment Phase Begins"
-marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just "Deployment Phase Ends - Spawn Phase Begins"
+marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" []
+marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}
+marshallClientUpdate DrawPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
+marshallClientUpdate SpawnPhaseToSpellPhase _ = Just $ MkMarshalledClientUpdate "spawnPhaseToSpellPhase" []
+marshallClientUpdate SpellPhaseToRemovalPhase _ = Just $ MkMarshalledClientUpdate "spellPhaseToRemovalphase" []
+marshallClientUpdate RemovalPhaseToStartPhase _ = Just $ MkMarshalledClientUpdate "removalPhaseToStartPhase" []
+marshallClientUpdate StartPhaseToEngagementPhase _ = Just $ MkMarshalledClientUpdate "startPhaseToEngagementPhase" []
+marshallClientUpdate EngagementPhaseToEndPhase _ = Just $ MkMarshalledClientUpdate "engagementPhaseToEndPhase" []
+marshallClientUpdate EndPhaseToRevivalPhase _ = Just $ MkMarshalledClientUpdate "endPhaseToRevivalPhase" []
+marshallClientUpdate RevivalPhaseToDeploymentPhase _ = Just $ MkMarshalledClientUpdate "revivalPhaseToDeploymentPhase" []
+marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
 marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
-  | True = Just ("Invalid Move: " ++ message)
-marshallClientUpdate (Kill boardIndex playerId) id = ?hole
+  | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
+marshallClientUpdate (Kill boardIndex playerId) id = Just $ MkMarshalledClientUpdate "kill" []
 marshallClientUpdate (DeployCard boardIndex playerId) id with (playerId == id)
-  | False = Just("Enemy card deployed to position " $ show boardIndex)
-  | True = Just("Card deployed to position " ++ $ show boardIndex) {-message currently 0 indexes the board-}
+  | False = Just $ MkMarshalledClientUpdate "deployCard" [("index",show $ finToInteger boardIndex),("player","opponent")]
+  | True = Just $ MkMarshalledClientUpdate "deployCard" [("index",show $ finToInteger boardIndex),("player","player")] {-message currently 0 indexes the board-}
 marshallClientUpdate (DrawHand cardId playerId) id with (playerId == id)
-  | False = Just("Enemy drew card"
-  | True = Just("") {-need to have some other -}
+  | False = Just $ MkMarshalledClientUpdate "drawCard" [("name",getCardName cardId),("player","opponent")]
+  {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
+  | True = Just $ MkMarshalledClientUpdate "drawCard" [("name",getCardName cardId),("player","player")] {-need to have some other -}
 
 
 
