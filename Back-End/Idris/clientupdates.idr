@@ -1,5 +1,4 @@
 module Clientupdates
-
 import Data.Fin
 import Data.Vect
 import preliminaries
@@ -7,8 +6,6 @@ import objects_basic
 import bounded
 import bounded_then_integer
 import integer_then_bounded
-
-
 public export
 data ClientUpdate = GameLogicError
                   | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
@@ -39,9 +36,8 @@ record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
  type : String
  info : List (String, String) {-name of field, value of field.. for now no uniqueness guarantee at the type level-}
-
-augmentMarshalledClientUpdate : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
-augmentMarshalledClientUpdate marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
+augment : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
+augment marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
 marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
 marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" []
 marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}
@@ -58,41 +54,21 @@ marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
   | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
 marshallClientUpdate (Kill boardIndex playerId) id = Just $ MkMarshalledClientUpdate "kill" []
-marshallClientUpdate (DeployCard boardIndex playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "deployCard" [("index",show $ finToInteger boardIndex),("player","opponent")]
-  | True = Just $ MkMarshalledClientUpdate "deployCard" [("index",show $ finToInteger boardIndex),("player","player")] {-message currently 0 indexes the board-}
-marshallClientUpdate (DrawHand cardId playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "drawHandCard" [("name",getCardName cardId),("player","opponent")]
+marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
+{-message currently 0 indexes the board-}
+marshallClientUpdate (DrawHand cardId playerId) id = Just $ augment (MkMarshalledClientUpdate "drawHandCard" [("name",getCardName cardId)]) (playerId == id)
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
-  | True = Just $ MkMarshalledClientUpdate "drawHandCard" [("name",getCardName cardId),("player","player")] {-need to have some other -}
-marshallClientUpdate (DrawSoul cardId soulIndex playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "drawSoulCard" [("name",getCardName cardId),("index",show $ finToInteger soulIndex),("player","opponent")]
-  | True = Just $ MkMarshalledClientUpdate "drawSoulCard" [("name",getCardName cardId),("index",show $ finToInteger soulIndex),("player","player")]
-marshallClientUpdate (SendSpawnToDiscard playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "sendSpawnToDiscard" [("player","opponent")]
-  | True = Just $ MkMarshalledClientUpdate "sendSpawnToDiscard" [("player","player")]
-marshallClientUpdate (MoveUnit from to playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "moveUnit" [("player","opponent"),("from",show $ finToInteger from),("to",show $ finToInteger to)]
-  | True = Just $ MkMarshalledClientUpdate "moveUnit" [("player","player"),("from",show $ finToInteger from),("to",show $ finToInteger to)]
-marshallClientUpdate (UpdateThoughts val playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "updateThoughts" [("player","opponent"),("val",show $ extractBounded val)]
-  | True = Just $ MkMarshalledClientUpdate "updateThoughts" [("player","player"),("val",show $ extractBounded val)]
-marshallClientUpdate (UpdateSchools [earth,fire,water,air,spirit,void'] playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "updateSchools" [("player","opponent"),("earth",show $ extractBounded earth), ("fire",show $ extractBounded fire), ("water", show $ extractBounded water), ("air", show $ extractBounded air),("spirit", show $ extractBounded spirit),("void",show $ extractBounded void')]
-  | True = Just $ MkMarshalledClientUpdate "updateSchools" [("player","player"),("earth",show $ extractBounded earth),("fire", show $ extractBounded fire),("water", show $ extractBounded water), ("air", show $ extractBounded air),("spirit",show $ extractBounded spirit),("void", show $ extractBounded void')]
-marshallClientUpdate (LoseSoulPoint playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "loseSoulPoint" [("player","opponent")]
-  | True = Just $ MkMarshalledClientUpdate "loseSoulPoint" [("player","player")]
-marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id with (playerId == id)
-  | False = Just $ MkMarshalledClientUpdate "sendBoardToGraveyard" [("player","opponent"),("boardIndex",show $ finToInteger boardIndex)]
-  | True = Just $ MkMarshalledClientUpdate "sendBoardToGraveyard" [("player","player"),("boardIndex",show $ finToInteger boardIndex)]
+marshallClientUpdate (DrawSoul cardId soulIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "drawSoulCard" [("name",getCardName cardId),("index",show $ finToNat soulIndex)]) (playerId == id)
+marshallClientUpdate (SendSpawnToDiscard playerId) id = Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
+marshallClientUpdate (MoveUnit from to playerId) id = Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
+marshallClientUpdate (UpdateThoughts val playerId) id = Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
+marshallClientUpdate (UpdateSchools [earth,fire,water,air,spirit,void'] playerId) id = Just $ augment (MkMarshalledClientUpdate "updateSchools" [("earth",show $ extractBounded earth), ("fire",show $ extractBounded fire), ("water", show $ extractBounded water), ("air", show $ extractBounded air),("spirit", show $ extractBounded spirit),("void",show $ extractBounded void')]) (playerId == id)
+marshallClientUpdate (LoseSoulPoint playerId) id = Just $ augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
+marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
 marshallClientUpdate (SetStat stat val boardIndex playerId) id = ?hole
 marshallClientUpdate (SpawnCard handIndex playerId) id = ?hole
 
 
-
-
-{- more cases.. -}
 
 
 
