@@ -85,10 +85,8 @@ data Condition = LT | EQ | GT | LEQ | GEQ | And Condition Condition | Or Conditi
 
 
 mutual
-  data Nonautomatic : Nat -> Type where
-    TerminatedSkill : Nonautomatic 0
-    Existential : (n : Nat) -> (Vect n String) -> Condition -> Automatic -> Automatic -> Nonautomatic n
-  data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic n)
+  data Nonautomatic = TerminatedSkill | Existential (Vect n String) Condition Automatic Automatic
+  data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic )
                                
 
 
