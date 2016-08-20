@@ -8,6 +8,7 @@ import integer_then_bounded
 import hp
 import preliminaries
 import objects_basic
+%access export
 data Stat = Attack | Defense | Speed | Range | Level
 data Mutator = Increment | Assign
 data Temporality = Temporary | Permanent
@@ -15,6 +16,9 @@ data HpStat = CurrentHp | MaxHp
 marshall : Temporality -> (Bounded lower upper, Bounded lower upper, t3) -> String
 marshall Temporary (x,_,_) = show $ extractBounded x
 marshall Permanent (_,x,_) = show $ extractBounded x
+marshallHp : HpStat -> Hp -> String
+marshallHp CurrentHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = show $ extractBounded currentHp
+marshallHp MaxHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = show $ extractBounded maxHp
 selectMutator : Mutator -> Temporality -> (Bounded lower upper, Bounded lower upper, base) -> Integer -> (Bounded lower upper, Bounded lower upper, base)
 selectMutator Assign Temporary = setTemporary
 selectMutator Assign Permanent = setPermanent
@@ -23,7 +27,7 @@ selectMutator Increment Permanent = incrementPermanent
 data StatEffect = MkStatEffect Stat Mutator Temporality Integer | MkHpEffect Mutator HpStat Integer
 data ResourceEffect = ResourceDummy
 data PositionEffect = PositionDummy
-data SkillEffect = SkillEffectStatEffect StatEffect | SkillEffectResourceEffect ResourceEffect | SkillEffectPositionEffect PositionEffect
+data SkillEffect = SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
 statTypeLower : Stat -> Integer
 statTypeLower Speed = Preliminaries.absoluteLowerBound
 statTypeLower _ = 0
@@ -54,14 +58,42 @@ basicStatSetter Defense = set_defense
 basicStatSetter Speed = set_speed
 basicStatSetter Range = set_range
 basicStatSetter Level = set_level
-applyStatEffect : BasicMonster -> StatEffect -> String -> (BasicMonster, (String,String))
-applyStatEffect basic (MkStatEffect stat mutator temporality x) name =
-  let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (name, marshall temporality $ basicStat stat m))
+hpTransformType : HpStat -> (Integer -> Integer) -> Hp -> Hp
+hpTransformType CurrentHp = transformHp
+hpTransformType MaxHp = transformMaxHp
+hpTransformMutator : Mutator -> Integer -> Integer -> Integer
+hpTransformMutator Increment x h = h + x
+hpTransformMutator Assign x h = x
+getStatTypeName : Stat -> String
+getStatTypeName Attack = "attack"
+getStatTypeName Defense = "defense"
+getStatTypeName Speed = "speed"
+getStatTypeName Range = "range"
+getStatTypeName Level = "level"
+getHpTypeName : HpStat -> String
+getHpTypeName CurrentHp = "hp"
+getHpTypeName MaxHp = "max hp"
+applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
+applyStatEffect basic (MkStatEffect stat mutator temporality x) =
+  let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (getStatTypeName stat, marshall temporality $ basicStat stat m))
+applyStatEffect basic (MkHpEffect mutator hpStat x) = let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)
+
+{-dummy stuff for now-}
+data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR
+data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger
+data Condition = LT | EQ | GT | LEQ | GEQ | And Condition Condition | Or Condition Condition
+
+
+mutual
+  data Nonautomatic : Nat -> Type where
+    TerminatedSkill : Nonautomatic 0
+    Existential : (n : Nat) -> (Vect n String) -> Condition -> Automatic -> Automatic -> Nonautomatic n
+  data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic n)
+                               
 
 
 
-{- ((currentHp : Bounded 0 Preliminaries.absoluteUpperBound ** (maxHp : Bounded 0 Preliminaries.absoluteUpperBound ** So (currentHp <= maxHp))), {-baseHp:-} Bounded 0 Preliminaries.absoluteUpperBound) -}
 
-applyStatEffect basic (MkHpEffect Increment CurrentHp x) name = let m = record {hp = transformHp (\h => h + x) $ hp basic} basic in (m,"","")
-applyStatEffect basic (MkHpEffect Assign CurrentHp x) name = let m = record {hp = transformHp (\h => x) $ hp basic} basic in (m, "","")
-applyStatEffect basic (MkHpEffect Mutator MaxHp x) name = ?hole
+
+
+

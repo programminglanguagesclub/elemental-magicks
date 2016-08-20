@@ -18,7 +18,10 @@ import clientupdates
 
 public export
 Skill : Type
-Skill = (SkillComponent, Bool, Nat) {- does a skill exist, and has it been used? This way I can also easily make it so that spell cards don't disappear as soon as they are used and monsters don't become engaged as they use their action skills-}
+Skill = (Automatic, Bool, Nat)
+
+
+{- does a skill exist, and has it been used? This way I can also easily make it so that spell cards don't disappear as soon as they are used and monsters don't become engaged as they use their action skills-}
 
 {- used : Bool, cost : Nat -}
 

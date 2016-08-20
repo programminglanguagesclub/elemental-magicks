@@ -31,8 +31,8 @@ record Game where
  constructor MkGame
  initiative : WhichPlayer
  turnNumber : Nat
- skillHead  : Maybe (Condition, SkillComponent, SkillComponent, SkillComponent)
- skillQueue : List SkillComponent
+ skillHead  : Nonautomatic 
+ skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  player_A   : Player
  player_B   : Player
