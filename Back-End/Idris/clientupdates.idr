@@ -39,6 +39,9 @@ record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
  type : String
  info : List (String, String) {-name of field, value of field.. for now no uniqueness guarantee at the type level-}
+
+augmentMarshalledClientUpdate : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
+augmentMarshalledClientUpdate marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
 marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
 marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" []
 marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}
@@ -80,7 +83,9 @@ marshallClientUpdate (UpdateSchools [earth,fire,water,air,spirit,void'] playerId
 marshallClientUpdate (LoseSoulPoint playerId) id with (playerId == id)
   | False = Just $ MkMarshalledClientUpdate "loseSoulPoint" [("player","opponent")]
   | True = Just $ MkMarshalledClientUpdate "loseSoulPoint" [("player","player")]
-marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id = ?hole
+marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id with (playerId == id)
+  | False = Just $ MkMarshalledClientUpdate "sendBoardToGraveyard" [("player","opponent"),("boardIndex",show $ finToInteger boardIndex)]
+  | True = Just $ MkMarshalledClientUpdate "sendBoardToGraveyard" [("player","player"),("boardIndex",show $ finToInteger boardIndex)]
 marshallClientUpdate (SetStat stat val boardIndex playerId) id = ?hole
 marshallClientUpdate (SpawnCard handIndex playerId) id = ?hole
 
