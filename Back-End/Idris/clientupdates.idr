@@ -22,25 +22,34 @@ data ClientUpdate = GameLogicError
                   | RevivalPhaseToDeploymentPhase
                   | DeploymentPhaseToSpawnPhase
                   | InvalidMove String String {-error message ; player id-}
-                  | Kill Nat String String {-board index, player token, opponent token-}
-                  | DeployCardRequest String
-                  | DrawHand Nat String String
-                  | DrawSoul Nat String String
-                  | SendSpawnToDiscard String String
-                  | MoveUnit (Fin 9) (Fin 9) String String      
-                  | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) String String
-                  | UpdateSchools (Vect 6 (Bounded 0 9)) String String
-                  | LoseSoulPoint String String {- for now you only lose one at a time -}
-                  | SendBoardToGraveyard (Fin 9) String String
-                  | SetStat String String Nat String String {-stat name, marshalled stat value, board index, player Id, opponent Id -}
-                  | SpawnCard Nat String String
+                  | Kill (Fin 9) String {-board index, player id-}
+                  | DeployCard (Fin 9) String
+                  | DrawHand Nat String
+                  | DrawSoul Nat String
+                  | SendSpawnToDiscard String
+                  | MoveUnit (Fin 9) (Fin 9) String      
+                  | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) String
+                  | UpdateSchools (Vect 6 (Bounded 0 9)) String
+                  | LoseSoulPoint String {- for now you only lose one at a time -}
+                  | SendBoardToGraveyard (Fin 9) String
+                  | SetStat String String (Fin 9) String {-stat name, marshalled stat value, board index, player Id -}
+                  | SpawnCard Nat String
 
 
-marshallClientUpdate : ClientUpdate -> String -> Maybe String {-nothing if the user should not be receiving this update-}
-marshallClientUpdate GameLogicError _ = Just "Game Logic Error"
-marshallClientUpdate RoundTerminated _ = Just "Round Terminated"
-marshallClientUpdate DrawPhaseToSpawnPhase _ = Just "Draw Phase Ends - Spawn Phase Begins"
-marshallClientUpdate SpawnPhaseToSpellPhase _ = Just "Spawn Phase Ends - Spell Phase Begins"
+
+getCardName : Nat -> String
+
+
+record MarshalledClientUpdate where
+ constructor MkMarshalledClientUpdate 
+ type, description, data : String
+
+
+marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
+marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" "Game Logic Error" ""
+marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" "Round Terminated" "" {-include data about the next round?-}
+marshallClientUpdate DrawPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" "Draw Phase Ends - Spawn Phase Begins" ""
+marshallClientUpdate SpawnPhaseToSpellPhase _ = Just $ "spawnPhase""Spawn Phase Ends - Spell Phase Begins"
 marshallClientUpdate SpellPhaseToRemovalPhase _ = Just "Spell Phase Ends - Removal Phase Begins"
 marshallClientUpdate RemovalPhaseToStartPhase _ = Just "Removal Phase Ends - Start Phase Begins"
 marshallClientUpdate StartPhaseToEngagementPhase _ = Just "Start Phase Ends - Engagement Phase Begins"
@@ -51,8 +60,19 @@ marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just "Deployment Phase Ends
 marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
   | True = Just ("Invalid Move: " ++ message)
-marshallClientUpdate (Kill boardIndex playerId opponentId) id = ?hole {-I don't really need the opponent Id too do I? I already know the player in question is one of the players in the game.... -}
-                                                  
+marshallClientUpdate (Kill boardIndex playerId) id = ?hole
+marshallClientUpdate (DeployCard boardIndex playerId) id with (playerId == id)
+  | False = Just("Enemy card deployed to position " $ show boardIndex)
+  | True = Just("Card deployed to position " ++ $ show boardIndex) {-message currently 0 indexes the board-}
+marshallClientUpdate (DrawHand cardId playerId) id with (playerId == id)
+  | False = Just("Enemy drew card"
+  | True = Just("") {-need to have some other -}
+
+
+
+
+
+
 {- more cases.. -}
 
 
