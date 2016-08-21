@@ -40,6 +40,12 @@ getField [] _ = Nothing
 getField ((k,v)::xs) x = if (k==x) then Just v else getField xs x
 
 
+removeCharacter : Char -> String -> String {-does not remove all whitespace-}
+removeCharacter _ "" = ""
+removeCharacter c s with (strHead s == c)
+  | True  = removeCharacter c (strTail s)
+  | False = (singleton (strHead s)) ++ (removeCharacter c (strTail s))
+
 
 getSchool : String -> Maybe (Bounded 0 9)
 getSchool s = do parsedInteger <- parseInteger s
@@ -65,11 +71,7 @@ getRevivePositions : String -> Maybe (Vect 9 Bool)
 
 
 
-removeCharacter : Char -> String -> String {-does not remove all whitespace-}
-removeCharacter _ "" = ""
-removeCharacter c s with (strHead s == c)
-  | True  = removeCharacter c (strTail s)
-  | False = (singleton (strHead s)) ++ (removeCharacter c (strTail s))
+
 
 
 {- parseBounded : (lower : Integer) -> (upper : Integer) -> String -> Maybe (Bounded lower upper) -}
@@ -150,19 +152,10 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
 
 {-some more monad fun to do in these help functions-}
 removeSpaces : String -> String {-does not remove all whitespace-}
-removeSpaces "" = ""
-removeSpaces s with (strHead s)
-  | ' ' = removeSpaces (strTail s)
-  | x = (singleton x) ++ (removeSpaces (strTail s))
+removeSpaces = removeCharacter ' '
 
-{-should combine shed brackets and remove spaces.-}
 shedBrackets : String -> String
-shedBrackets "" = ""
-shedBrackets s with (strHead s)
-  | '{' = shedBrackets (strTail s)
-  | '}' = shedBrackets (strTail s)
-  | x = (singleton x) ++ (shedBrackets (strTail s))
-
+shedBrackets s = removeCharacter '{' $ removeCharacter '}' s
 
 generateRawKeyValueList : String -> List String
 generateRawKeyValueList s = split (==',') s
