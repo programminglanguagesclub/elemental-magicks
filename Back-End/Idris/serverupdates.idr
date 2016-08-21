@@ -92,3 +92,63 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
   | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
                     id <- parsePositive {a=Nat} rawId
                     return (DrawCard id $ player marshalledServerUpdate)
+
+
+
+
+{-some more monad fun to do in these help functions-}
+removeSpaces : String -> String {-does not remove all whitespace-}
+removeSpaces "" = ""
+removeSpaces s with (strHead s)
+  | ' ' = removeSpaces (strTail s)
+  | x = (singleton x) ++ (removeSpaces (strTail s))
+shedBrackets : String -> Maybe String
+shedBrackets s = ?hole
+
+
+generateRawKeyValueList : String -> List String
+generateRawKeyValueList s = split (==',') s
+
+generateParsedKeyValue : String -> Maybe (String,String)
+generateParsedKeyValue s = let ss = split (==':') s in case ss of
+                                                            [s1,s2] => Just (s1,s2)
+                                                            _ => Nothing
+
+
+generateParsedKeyValueList : List String -> Maybe (List (String,String))
+generateParsedKeyValueList [] = Just []
+generateParsedKeyValueList (x::xs) = do firstParsed <- generateParsedKeyValue x
+                                        remainingParsed <- generateParsedKeyValueList xs
+                                        return (firstParsed :: remainingParsed)
+
+extractField : String -> List (String,String) -> Maybe String
+extractField _ [] = Nothing
+extractField name ((key,val)::xs) with (name == key)
+  | True = Just val
+  | False = extractField name xs
+
+removeField : String -> List (String,String) -> List (String,String)
+removeField _ [] = []
+removeField name ((key,value)::xs) with (name == key)
+  | True = xs
+  | False = (key,value) :: (removeField name xs)
+
+extractAndRemoveField : String -> List (String,String) -> Maybe (List (String,String), String)
+extractAndRemoveField name pairs = do val <- extractField name pairs
+                                      return (removeField name pairs, val)
+
+
+marshallJson : String -> Maybe MarshalledServerUpdate
+marshallJson json = do cleanedJson <- shedBrackets $ removeSpaces json
+                       keyValueList <- generateParsedKeyValueList $ generateRawKeyValueList cleanedJson
+                       (keyValueList',id) <- extractAndRemoveField "player" keyValueList
+                       (keyValueList'',updateType) <- extractAndRemoveField "updateType" keyValueList' 
+                       return (MkMarshalledServerUpdate updateType id keyValueList'')
+
+
+parseJson : String -> Maybe ServerUpdate
+parseJson json = do marshalledJson <- marshallJson json
+                    serverUpdate <- generateServerUpdate marshalledJson
+                    return serverUpdate
+
+
