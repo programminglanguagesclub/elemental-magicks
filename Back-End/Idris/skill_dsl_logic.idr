@@ -31,28 +31,30 @@ satisfiableExistentialCondition arguments condition env = True
 
 satisfiedExistentialCondition : Vect n String -> Vect n Nat -> Condition -> Env -> Bool
 
-applySkillEffect : SkillEffect -> Game -> Env -> (Game,List Message)
-applySkillEffect Dummy MkGame env = (MkGame, [])
-applySkillEffect (IncrementTemporaryAttack var) MkGame env = (MkGame, [MkMessage])
-
-applySkillEffects : List SkillEffect -> Game -> Env -> (Game,List Message)
-applySkillEffects [] game env = (game, [])
-applySkillEffects (effect::effects) game env =
-  let (game',messages) = applySkillEffect effect game env in
-      let (game'',messages') = applySkillEffects effects game' env in
-          (game'',messages ++ messages')
+applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
+applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
 
 
 
-step_interp : Automatic -> Game -> Env -> (Game, List Message, (n ** Nonautomatic n), Env)
-step_interp (MkAutomatic skillEffects nonautomatic) game env =
-  let (game', messages) = applySkillEffects skillEffects game env in
+
+applySkillEffects : List SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
+applySkillEffects [] player opponent env = (player, opponent, [])
+applySkillEffects (effect::effects) player opponent env =
+  let (player',opponent',updates) = applySkillEffect effect player opponent env in
+      let (player'',opponent'',updates') = applySkillEffects effects player' opponent' env in
+          (player'',opponent'',updates ++ updates')
+
+
+
+step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List ClientUpdate, Nonautomatic, Env)
+step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
+  let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
       case nonautomatic of
-           TerminatedSkill => (game',messages,(0 ** TerminatedSkill),env)
-           Existential n arguments condition selected failed => case satisfiableExistentialCondition arguments condition env of
-                                                                     True => (game', messages, (n ** nonautomatic),env)
-                                                                     False => let (game'', messages', nonautomatic',env') = step_interp selected game' env in
-                                                                                  (game'', messages ++ messages', nonautomatic',env')
+           TerminatedSkill => (player',opponent',messages,(0 ** TerminatedSkill),env)
+           Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition env of
+                                                                     True => (player',opponent', messages, nonautomatic, env)
+                                                                     False => let (player'',opponent'', messages', nonautomatic',env') = step_interp selected player' opponent' env in
+                                                                                  (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
 extend_env : Env -> Vect n String -> Vect n Nat -> Env
