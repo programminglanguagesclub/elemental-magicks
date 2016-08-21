@@ -8,7 +8,7 @@ import integer_then_bounded
 import hp
 import preliminaries
 import objects_basic
-%access export
+%access public export
 data Stat = Attack | Defense | Speed | Range | Level
 data Mutator = Increment | Assign
 data Temporality = Temporary | Permanent

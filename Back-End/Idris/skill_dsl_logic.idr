@@ -29,7 +29,9 @@ data Env = MkEnv (List (String,Nat))
 satisfiableExistentialCondition : Vect n String -> Condition -> Env -> Bool
 satisfiableExistentialCondition arguments condition env = True
 
-satisfiedExistentialCondition : Vect n String -> Vect n Nat -> Condition -> Env -> Bool
+satisfiedExistentialCondition : Vect n String -> Vect m Nat -> Condition -> Env -> Bool {-this probably needs the players too as arguments...-}
+{-can first check to see if n == m-}
+
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
 applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
@@ -50,24 +52,26 @@ step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List Clien
 step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
       case nonautomatic of
-           TerminatedSkill => (player',opponent',messages,(0 ** TerminatedSkill),env)
+           TerminatedSkill => (player',opponent',messages,TerminatedSkill,env)
            Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition env of
                                                                      True => (player',opponent', messages, nonautomatic, env)
                                                                      False => let (player'',opponent'', messages', nonautomatic',env') = step_interp selected player' opponent' env in
                                                                                   (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
-extend_env : Env -> Vect n String -> Vect n Nat -> Env
+extend_env : Env -> Vect n String -> Vect m Nat -> Env
+{-nmm,... should really do this with n == m...-}
+                           {-
 extend_env (MkEnv env) arguments selection = MkEnv (env ++ (toList (zip arguments selection)))
-
+-}
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
 {-I can require the move to be satisfiable at the type level, but ignore that for now I guess?-}
-move_interp : Nonautomatic n -> Vect n Nat -> Game -> Env -> (Game, List Message, (m ** Nonautomatic m),Env)
-move_interp TerminatedSkill _ game env = (game,[],(0 ** TerminatedSkill),env) {-error case?-}
-move_interp (Existential n arguments condition selected failed) selection game env with (satisfiedExistentialCondition arguments selection condition env)
-  | False = (game, [], (n ** (Existential n arguments condition selected failed)),env) {-could add a "failed selection" message-}
-  | True = step_interp selected game (extend_env env arguments selection)
+move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
+move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
+move_interp (Existential arguments condition selected failed) selection player opponent env with (satisfiedExistentialCondition arguments selection condition env)
+  | False = (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
+  | True = step_interp selected player opponent (extend_env env arguments selection)
 
 
 
