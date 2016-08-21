@@ -55,18 +55,39 @@ getSchool s = do parsedInteger <- parseInteger s
 
 getSchools'' : List String -> Maybe (List (Bounded 0 9))
 getSchools'' [] = Just []
-getSchools (x::xs) = do s <- getSchool x
-                        ss <- getSchools'' xs
-                        return (s :: ss)
+getSchools'' (x::xs) = do s <- getSchool x
+                          ss <- getSchools'' xs
+                          return (s :: ss)
 
 getSchools' : String -> Maybe (List (Bounded 0 9))
-getSchools' s = getSchools'' $ removeCharacter '[' $ removeCharacter ']' $ removeCharacter ',' s
+getSchools' s = getSchools'' $ split (==',') $ removeCharacter '[' $ removeCharacter ']' s
 
 getSchools : String -> Maybe (Vect 6 (Bounded 0 9))
-getSchools s = ?hole
+getSchools s = do l <- getSchools' s
+                  v <- exactLength 6 (fromList l)
+                  return v
 
+
+getRevivePosition : String -> Maybe Bool
+getRevivePosition "false" = Just False
+getRevivePosition "False" = Just False
+getRevivePosition "true" = Just True
+getRevivePosition "True" = Just True
+getRevivePosition _ = Nothing
+
+getRevivePositions'' : List String -> Maybe (List Bool)
+getRevivePositions'' [] = Just []
+getRevivePositions'' (x::xs) = do p <- getRevivePosition x
+                                  ps <- getRevivePositions'' xs
+                                  return (p :: ps)
+
+getRevivePositions' : String -> Maybe (List Bool)
+getRevivePositions' s = getRevivePositions'' $ split (==',') $ removeCharacter '[' $ removeCharacter ']' s
 
 getRevivePositions : String -> Maybe (Vect 9 Bool)
+getRevivePositions s = do l <- getRevivePositions' s
+                          v <- exactLength 9 (fromList l)
+                          return v
 
 
 
@@ -146,6 +167,7 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
   | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
                     id <- parsePositive {a=Nat} rawId
                     return (DrawCard id $ player marshalledServerUpdate)
+  | _ = Nothing
 
 
 
@@ -200,16 +222,4 @@ parseJson : String -> Maybe ServerUpdate
 parseJson json = do marshalledJson <- marshallJson json
                     serverUpdate <- generateServerUpdate marshalledJson
                     return serverUpdate
-{-
 
-I'm getting this weird output right now in the REPL
-
-*serverupdates> parseJson "{updateType:rtest<Plug>PeepOpenlayer:321}"
-Prelude.Maybe implementation of Prelude.Monad.Monad, method >>= (with block in ServerUpdates.generateServerUpdate "rtest"
-                                                                                                                                                                                  (MkMarshalledServerUpdate "rtest" "321" []))
-                                                                                                                                                                                                                                                  (\serverUpdate => Just serverUpdate) : Maybe ServerUpdate
-                                                                                                                                                                                                                                                  Holes: ServerUpdates.parseListNat, ServerUpdates.parseListFin, ServerUpdates.getRevivePositions, ServerUpdates.getSchools, ... ( + 4 others)
-
-
-
--}
