@@ -13,6 +13,18 @@ syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh,Oh))
 foo12 : Bounded 0 31
 foo12 = >> 21 <<
 
+public export
+integerToBounded : Integer -> (lower : Integer) -> (upper : Integer) -> Maybe (Bounded lower upper)
+integerToBounded m lower upper = case (choose (m <= upper)) of
+                                      Left proofUpperBounded => case (choose (lower <= m)) of
+                                                                     Left proofLowerBounded => case (choose (lower <= upper)) of
+                                                                                                    Left proofInhabitedInterval => Just $ MkBounded (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
+                                                                                                    Right _ => Nothing
+                                                                     Right _ => Nothing
+                                      Right _ => Nothing
+
+
+
 {-not going to make Num instances yet for now-}
 public export
 Eq (Bounded lower upper) where

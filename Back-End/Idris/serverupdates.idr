@@ -39,17 +39,65 @@ getField : List(String,String) -> String -> Maybe String
 getField [] _ = Nothing
 getField ((k,v)::xs) x = if (k==x) then Just v else getField xs x
 
+
+
+getSchool : String -> Maybe (Bounded 0 9)
+getSchool s = do parsedInteger <- parseInteger s
+                 parsedBounded <- integerToBounded parsedInteger 0 9
+                 return parsedBounded
+
+
+getSchools'' : List String -> Maybe (List (Bounded 0 9))
+getSchools'' [] = Just []
+getSchools (x::xs) = do s <- getSchool x
+                        ss <- getSchools'' xs
+                        return (s :: ss)
+
+getSchools' : String -> Maybe (List (Bounded 0 9))
+getSchools' s = getSchools'' $ removeCharacter '[' $ removeCharacter ']' $ removeCharacter ',' s
+
 getSchools : String -> Maybe (Vect 6 (Bounded 0 9))
+getSchools s = ?hole
+
+
 getRevivePositions : String -> Maybe (Vect 9 Bool)
+
+
+
+
+removeCharacter : Char -> String -> String {-does not remove all whitespace-}
+removeCharacter _ "" = ""
+removeCharacter c s with (strHead s == c)
+  | True  = removeCharacter c (strTail s)
+  | False = (singleton (strHead s)) ++ (removeCharacter c (strTail s))
+
 
 {- parseBounded : (lower : Integer) -> (upper : Integer) -> String -> Maybe (Bounded lower upper) -}
 parseFin : (n : Nat) -> String -> Maybe (Fin n)
 parseFin n s = do nat <- parsePositive {a=Nat} s
                   fin <- natToFin nat n
                   return fin
-parseListFin : (n : Nat) -> String -> Maybe (List (Fin n))
-parseListNat : String -> Maybe (List Nat)
+parseEachNat : List String -> Maybe (List Nat)
+parseEachNat [] = Just []
+parseEachNat (x::xs) = do parseFirst <- parsePositive x
+                          parseRest <- parseEachNat xs
+                          return (parseFirst :: parseRest)
 
+parseListNat : String -> Maybe (List Nat)
+parseListNat s = let numbers = split (==',') $ removeCharacter '[' $ removeCharacter ']' s in
+                     parseEachNat numbers
+
+parseEachFin : (n : Nat) -> List String -> Maybe (List (Fin n))
+parseEachFin _ [] = Just []
+parseEachFin n (x::xs) = do nat <- parsePositive x
+                            fin <- natToFin nat n
+                            theRest <- parseEachFin n xs
+                            return (fin :: theRest)
+
+
+parseListFin : (n : Nat) -> String -> Maybe (List (Fin n))
+parseListFin n s = let numbers = split (==',') $ removeCharacter '[' $ removeCharacter ']' s in
+                       parseEachFin n numbers
 
 
 {-definitely want to use monads here-}
