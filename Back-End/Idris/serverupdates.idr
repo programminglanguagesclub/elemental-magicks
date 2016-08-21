@@ -44,8 +44,12 @@ getRevivePositions : String -> Maybe (Vect 9 Bool)
 
 {- parseBounded : (lower : Integer) -> (upper : Integer) -> String -> Maybe (Bounded lower upper) -}
 parseFin : (n : Nat) -> String -> Maybe (Fin n)
+parseFin n s = do nat <- parsePositive {a=Nat} s
+                  fin <- natToFin nat n
+                  return fin
 parseListFin : (n : Nat) -> String -> Maybe (List (Fin n))
 parseListNat : String -> Maybe (List Nat)
+
 
 
 {-definitely want to use monads here-}
@@ -102,8 +106,14 @@ removeSpaces "" = ""
 removeSpaces s with (strHead s)
   | ' ' = removeSpaces (strTail s)
   | x = (singleton x) ++ (removeSpaces (strTail s))
-shedBrackets : String -> Maybe String
-shedBrackets s = ?hole
+
+{-should combine shed brackets and remove spaces.-}
+shedBrackets : String -> String
+shedBrackets "" = ""
+shedBrackets s with (strHead s)
+  | '{' = shedBrackets (strTail s)
+  | '}' = shedBrackets (strTail s)
+  | x = (singleton x) ++ (shedBrackets (strTail s))
 
 
 generateRawKeyValueList : String -> List String
@@ -139,8 +149,7 @@ extractAndRemoveField name pairs = do val <- extractField name pairs
 
 
 marshallJson : String -> Maybe MarshalledServerUpdate
-marshallJson json = do cleanedJson <- shedBrackets $ removeSpaces json
-                       keyValueList <- generateParsedKeyValueList $ generateRawKeyValueList cleanedJson
+marshallJson json = do keyValueList <- generateParsedKeyValueList $ generateRawKeyValueList $ shedBrackets $ removeSpaces json
                        (keyValueList',id) <- extractAndRemoveField "player" keyValueList
                        (keyValueList'',updateType) <- extractAndRemoveField "updateType" keyValueList' 
                        return (MkMarshalledServerUpdate updateType id keyValueList'')
@@ -150,5 +159,16 @@ parseJson : String -> Maybe ServerUpdate
 parseJson json = do marshalledJson <- marshallJson json
                     serverUpdate <- generateServerUpdate marshalledJson
                     return serverUpdate
+{-
+
+I'm getting this weird output right now in the REPL
+
+*serverupdates> parseJson "{updateType:rtest<Plug>PeepOpenlayer:321}"
+Prelude.Maybe implementation of Prelude.Monad.Monad, method >>= (with block in ServerUpdates.generateServerUpdate "rtest"
+                                                                                                                                                                                  (MkMarshalledServerUpdate "rtest" "321" []))
+                                                                                                                                                                                                                                                  (\serverUpdate => Just serverUpdate) : Maybe ServerUpdate
+                                                                                                                                                                                                                                                  Holes: ServerUpdates.parseListNat, ServerUpdates.parseListFin, ServerUpdates.getRevivePositions, ServerUpdates.getSchools, ... ( + 4 others)
 
 
+
+-}

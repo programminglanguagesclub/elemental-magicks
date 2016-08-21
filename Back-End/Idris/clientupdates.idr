@@ -53,7 +53,7 @@ marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just $ MkMarshalledClientUp
 marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
   | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
-marshallClientUpdate (Kill boardIndex playerId) id = Just $ MkMarshalledClientUpdate "kill" []
+marshallClientUpdate (Kill boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
 marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
 {-message currently 0 indexes the board-}
 marshallClientUpdate (DrawHand cardId playerId) id = Just $ augment (MkMarshalledClientUpdate "drawHandCard" [("name",getCardName cardId)]) (playerId == id)
@@ -70,7 +70,9 @@ marshallClientUpdate (SetStat stat val boardIndex playerId) id = Just $ augment 
 marshallClientUpdate (SpawnCard handIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
 serializeInfo : List (String,String) -> String
 serializeInfo [] = ""
-serializeInfo ((k,v)::[]) = k ++ ":" ++ v
-serializeInfo ((k,v)::xs) = k ++ ":" ++ v ++ "," ++ (serializeInfo xs)
-serialize : MarshalledClientUpdate -> String
-serialize marshalledClientUpdate = "{updateType:" ++ (type marshalledClientUpdate) ++ ",updateData:{" ++ (serializeInfo (info marshalledClientUpdate)) ++ "}"
+serializeInfo ((k,v)::xs) = "," ++ k ++ ":" ++ v ++ (serializeInfo xs)
+serializeMarshalled : MarshalledClientUpdate -> String
+serializeMarshalled marshalledClientUpdate = "{updateType:" ++ (type marshalledClientUpdate) ++ (serializeInfo (info marshalledClientUpdate)) ++ "}" {-player token added by ur/web-}
+serialize : ClientUpdate -> String -> Maybe String
+serialize clientUpdate playerId = do marshalledClientUpdate <- marshallClientUpdate clientUpdate playerId
+                                     return (serializeMarshalled marshalledClientUpdate)
