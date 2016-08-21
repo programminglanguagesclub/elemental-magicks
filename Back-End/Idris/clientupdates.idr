@@ -31,7 +31,8 @@ data ClientUpdate = GameLogicError
                   | SendBoardToGraveyard (Fin 9) String
                   | SetStat String String (Fin 9) String {-stat name, marshalled stat value, board index, player Id -}
                   | SpawnCard Nat String
-getCardName : Nat -> String
+public export
+getCardName : Nat -> Maybe String
 record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
  type : String
@@ -56,9 +57,13 @@ marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
 marshallClientUpdate (Kill boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
 marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
 {-message currently 0 indexes the board-}
-marshallClientUpdate (DrawHand cardId playerId) id = Just $ augment (MkMarshalledClientUpdate "drawHandCard" [("name",getCardName cardId)]) (playerId == id)
+marshallClientUpdate (DrawHand cardId playerId) id =
+  do cardName <- getCardName cardId
+     return (augment (MkMarshalledClientUpdate "drawHandCard" [("name",cardName)]) (playerId == id))
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
-marshallClientUpdate (DrawSoul cardId soulIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "drawSoulCard" [("name",getCardName cardId),("index",show $ finToNat soulIndex)]) (playerId == id)
+marshallClientUpdate (DrawSoul cardId soulIndex playerId) id =
+  do cardName <- getCardName cardId
+     return (augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id))
 marshallClientUpdate (SendSpawnToDiscard playerId) id = Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
 marshallClientUpdate (MoveUnit from to playerId) id = Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
 marshallClientUpdate (UpdateThoughts val playerId) id = Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
