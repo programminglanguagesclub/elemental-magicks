@@ -24,7 +24,7 @@ data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat String
                   | DirectAttack String
                   | Move (Fin 9) String
                   | SkillInitiation Nat String
-                  | SkillSelection (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) String
+                  | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) String {-no requirement of uniqueness at type level currently...-}
                   | Revive (Vect 9 Bool) String
                   | DrawCard Nat String {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 
@@ -40,29 +40,55 @@ getField [] _ = Nothing
 getField ((k,v)::xs) x = if (k==x) then Just v else getField xs x
 
 getSchools : String -> Maybe (Vect 6 (Bounded 0 9))
+getRevivePositions : String -> Maybe (Vect 9 Bool)
 
-
+{- parseBounded : (lower : Integer) -> (upper : Integer) -> String -> Maybe (Bounded lower upper) -}
+parseFin : (n : Nat) -> String -> Maybe (Fin n)
+parseListFin : (n : Nat) -> String -> Maybe (List (Fin n))
+parseListNat : String -> Maybe (List Nat)
 
 
 {-definitely want to use monads here-}
 generateServerUpdate : MarshalledServerUpdate -> Maybe ServerUpdate
 generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
-  | "spawnCard" = case getField (info marshalledServerUpdate) "schools" of
-                       Nothing => Nothing
-                       Just rawSchools => case getSchools rawSchools of
-                                               Nothing => Nothing
-                                               Just schools => case getField (info marshalledServerUpdate) "index" of
-                                                                    Nothing => Nothing
-                                                                    Just rawIndex => case parsePositive {a=Nat} rawIndex of
-                                                                                          Nothing => Nothing
-                                                                                          Just index => Just $ SpawnCard schools index $ player marshalledServerUpdate
-  | "skip" = ?hole
-  | "deployCard" = ?hole
-  | "attackRow" = ?hole
-  | "rest" = ?hole
-  | "directAttack" = ?hole
-  | "move" = ?hole
-  | "skillInitiation" = ?hole
-  | "skillSelection" = ?hole
-  | "revive" = ?hole
-  | "drawCard" = ?hole
+  | "spawnCard" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
+                     schools <- getSchools rawSchools
+                     rawIndex <- getField (info marshalledServerUpdate) "index"
+                     index <- parsePositive {a=Nat} rawIndex
+                     return (SpawnCard schools index $ player marshalledServerUpdate)
+  | "skip" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
+                schools <- getSchools rawSchools
+                return (Skip schools $ player marshalledServerUpdate)
+  | "deployCard" = do rawIndex <- getField (info marshalledServerUpdate) "index"
+                      index <- parseFin 9 rawIndex
+                      return (DeployCard index $ player marshalledServerUpdate)
+  | "attackRow" = do rawRow <- getField (info marshalledServerUpdate) "row"
+                     row <- parseFin 3 rawRow
+                     return (AttackRow row $ player marshalledServerUpdate)
+  | "rest" = do return (Rest $ player marshalledServerUpdate)
+  | "directAttack" = do return (DirectAttack $ player marshalledServerUpdate)
+  | "move" = do rawTo <- getField (info marshalledServerUpdate) "to"
+                to <- parseFin 9 rawTo
+                return (Move to $ player marshalledServerUpdate)
+  | "skillInitiation" = do rawIndex <- getField (info marshalledServerUpdate) "index"
+                           index <- parsePositive {a=Nat} rawIndex
+                           return (SkillInitiation index $ player marshalledServerUpdate)
+  | "skillSelection" = do rawFriendlyBoard <- getField (info marshalledServerUpdate) "friendlyBoard"
+                          friendlyBoard <- parseListFin 9 rawFriendlyBoard
+                          rawEnemyBoard <- getField (info marshalledServerUpdate) "enemyBoard"
+                          enemyBoard <- parseListFin 9 rawEnemyBoard
+                          rawFriendlyHand <- getField (info marshalledServerUpdate) "friendlyHand"
+                          friendlyHand <- parseListNat rawFriendlyHand
+                          rawEnemyHand <- getField (info marshalledServerUpdate) "enemyHand"
+                          enemyHand <- parseListNat rawEnemyHand
+                          rawFriendlyGraveyard <- getField (info marshalledServerUpdate) "friendlyGraveyard"
+                          friendlyGraveyard <- parseListNat rawFriendlyGraveyard
+                          rawEnemyGraveyard <- getField (info marshalledServerUpdate) "enemyGraveyard"
+                          enemyGraveyard <- parseListNat rawEnemyGraveyard
+                          return (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate)
+  | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
+                  positions <- getRevivePositions rawPositions
+                  return (Revive positions $ player marshalledServerUpdate)
+  | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
+                    id <- parsePositive {a=Nat} rawId
+                    return (DrawCard id $ player marshalledServerUpdate)
