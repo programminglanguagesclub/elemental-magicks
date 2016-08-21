@@ -1,8 +1,15 @@
 module Skill_dsl_logic
-
-
-
-
+import Data.Vect
+import Data.So
+import bounded
+import bounded_then_integer
+import integer_then_bounded
+import preliminaries
+import objects_basic
+import skill_dsl_data
+import skill_dsl
+import phase
+import clientupdates
 import player
 
 
@@ -15,28 +22,7 @@ I'm going to take out next for now. If I need it later I can deal with that...
 -}
 
 
-data SkillEffect = Dummy | IncrementTemporaryAttack String {-doesn't specify amount yet. that's fine-}
-
-{-data Binding = Bound Nat | Unbound String-}
-data Condition = ConditionTrue {-other options including things which might be false depending on the selection-}
-
-
 data Env = MkEnv (List (String,Nat))
-
-{-While I say Game, I think I really just mean Player and Opponent. Then the skill data structures are actually held separately from this...-}
-data Game = MkGame
-data Message = MkMessage
-
-mutual
-  data Nonautomatic : Nat -> Type where
-    TerminatedSkill : Nonautomatic 0
-    Existential : (n : Nat) -> (Vect n String) -> Condition -> Automatic -> Automatic -> Nonautomatic n
-  data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic n)
-
-data Skill = MkSkill (List SkillEffect) (Nonautomatic n)
-
-
-
 
 
 {- I'll probably need to pass in an environment into this one as well -}
