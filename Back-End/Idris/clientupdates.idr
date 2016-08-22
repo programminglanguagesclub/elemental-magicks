@@ -31,6 +31,11 @@ data ClientUpdate = GameLogicError
                   | SendBoardToGraveyard (Fin 9) String
                   | SetStat String String (Fin 9) String {-stat name, marshalled stat value, board index, player Id -}
                   | SpawnCard Nat String
+                  | PlayerTurn String
+
+
+
+{-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}
 public export
 getCardName : Nat -> Maybe String
 record MarshalledClientUpdate where
@@ -73,6 +78,7 @@ marshallClientUpdate (LoseSoulPoint playerId) id = Just $ augment (MkMarshalledC
 marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
 marshallClientUpdate (SetStat stat val boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "setStat" [("stat",stat),("val",val),("index",show $ finToNat boardIndex)]) (playerId == id)
 marshallClientUpdate (SpawnCard handIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
+marshallClientUpdate (PlayerTurn playerId) id = Just $ augment (MkMarshalledClientUpdate "playerTurn" []) (playerId == id)
 serializeInfo : List (String,String) -> String
 serializeInfo [] = ""
 serializeInfo ((k,v)::xs) = "," ++ k ++ ":" ++ v ++ (serializeInfo xs)
