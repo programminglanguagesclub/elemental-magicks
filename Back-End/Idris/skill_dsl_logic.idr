@@ -67,101 +67,21 @@ extend_env (MkEnv env) arguments selection = MkEnv (env ++ (toList (zip argument
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
 {-I can require the move to be satisfiable at the type level, but ignore that for now I guess?-}
 
-
-
-checkVectorSize : (n : Nat) -> (m : Nat) -> Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
-checkVectorSize Z Z v1 v2 = Just ([],[])
-checkVectorSize Z _ v1 v2 = Nothing
-checkVectorSize _ Z v1 v2 = Nothing
-checkVectorSize (S k1) (S k2) v1 v2 = do (x1,x2) <- checkVectorSize k1 k2 (tail v1) (tail v2)
-                                         return ((head v1) :: x1, (head v2) :: x2)
-
-
-checkVectors : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat) {-should be able to make these generic-} 
-
-
-
-
-
-
-
+alignVectors : Vect n a -> Vect m b -> Maybe (Vect n a, Vect n b)
+alignVectors [] [] = Just ([],[])
+alignVectors [] _  = Nothing
+alignVectors _ []  = Nothing
+alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
+  | Yes prf    = Just (x::xs, rewrite prf in y::ys)
+  | No  contra = Nothing
 
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
-move_interp (Existential arguments condition selected failed) selection player opponent env with (checkVectors arguments selection)
+move_interp (Existential arguments condition selected failed) selection player opponent env with (alignVectors arguments selection)
   | Nothing = (player,opponent,[],Existential arguments condition selected failed, env)
   | Just (arguments', selection')  = case satisfiedExistentialCondition arguments' selection' condition env of
                                           False => (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
                                           True => step_interp selected player opponent (extend_env env arguments' selection')
-
-
-
-
-
-
-
-
-
-{-
-
-
-
-
-
-
-
-module Tamago
-
-import public Data.Vect
-
-test : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
-test [] [] = Just ([],[])
-test [] _  = Nothing
-test _ []  = Nothing
-test {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
-  test {n=S n'} {m=S n'} (x::xs) (y::ys) | Yes Refl   = Just (x::xs, y::ys)
-  test {n=S n'} {m=S m'} (x::xs) (y::ys) | No  contra = Nothing
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-module Tamago
-
-import public Data.Vect
-
-test : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
-test [] [] = Just ([],[])
-test [] _  = Nothing
-test _ []  = Nothing
-test {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
-  | Yes prf    = Just (x::xs, rewrite prf in y::ys)
-  | No  contra = Nothing
-
-
-
-
--}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
