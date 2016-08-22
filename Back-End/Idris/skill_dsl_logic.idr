@@ -11,7 +11,7 @@ import skill_dsl
 import phase
 import clientupdates
 import player
-
+%access public export
 
 
 
@@ -59,7 +59,7 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
                                                                                   (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
-extend_env : Env -> Vect n String -> Vect m Nat -> Env
+extend_env : Env -> Vect n String -> Vect n Nat -> Env
 {-nmm,... should really do this with n == m...-}
                            {-
 extend_env (MkEnv env) arguments selection = MkEnv (env ++ (toList (zip arguments selection)))
@@ -67,13 +67,27 @@ extend_env (MkEnv env) arguments selection = MkEnv (env ++ (toList (zip argument
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
 {-I can require the move to be satisfiable at the type level, but ignore that for now I guess?-}
+
+
+
+checkVectorSize : (n : Nat) -> (m : Nat) -> Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
+checkVectorSize Z Z v1 v2 = Just ([],[])
+checkVectorSize Z _ v1 v2 = Nothing
+checkVectorSize _ Z v1 v2 = Nothing
+checkVectorSize (S k1) (S k2) v1 v2 = do (x1,x2) <- checkVectorSize k1 k2 (tail v1) (tail v2)
+                                         return ((head v1) :: x1, (head v2) :: x2)
+
+
+
+
+{-
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
-move_interp (Existential arguments condition selected failed) selection player opponent env with (satisfiedExistentialCondition arguments selection condition env)
+move_interp (Existential arguments condition selected failed) selection player opponent env with () (satisfiedExistentialCondition arguments selection condition env)
   | False = (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
   | True = step_interp selected player opponent (extend_env env arguments selection)
 
-
+-}
 
 
 
