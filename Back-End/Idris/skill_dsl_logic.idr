@@ -78,16 +78,83 @@ checkVectorSize (S k1) (S k2) v1 v2 = do (x1,x2) <- checkVectorSize k1 k2 (tail 
                                          return ((head v1) :: x1, (head v2) :: x2)
 
 
+checkVectors : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
+checkVectors 
 
 
 {-
+
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
-move_interp (Existential arguments condition selected failed) selection player opponent env with () (satisfiedExistentialCondition arguments selection condition env)
+move_interp (Existential arguments condition selected failed) selection player opponent env with (checkVectorSize WHERE DO I GET N AND M????) (satisfiedExistentialCondition arguments selection condition env)
   | False = (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
   | True = step_interp selected player opponent (extend_env env arguments selection)
 
+
+
 -}
+
+
+
+
+
+{-
+
+
+
+
+
+
+
+module Tamago
+
+import public Data.Vect
+
+test : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
+test [] [] = Just ([],[])
+test [] _  = Nothing
+test _ []  = Nothing
+test {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
+  test {n=S n'} {m=S n'} (x::xs) (y::ys) | Yes Refl   = Just (x::xs, y::ys)
+  test {n=S n'} {m=S m'} (x::xs) (y::ys) | No  contra = Nothing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module Tamago
+
+import public Data.Vect
+
+test : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
+test [] [] = Just ([],[])
+test [] _  = Nothing
+test _ []  = Nothing
+test {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
+  | Yes prf    = Just (x::xs, rewrite prf in y::ys)
+  | No  contra = Nothing
+
+
+
+
+-}
+
+
+
+
+
+
+
+
 
 
 
