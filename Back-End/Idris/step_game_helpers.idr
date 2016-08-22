@@ -124,10 +124,10 @@ public export
 removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
 removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
- | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game)) (temporaryId (player_B game))])
+ | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game))])
 removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
  | Nothing = (game, acc ++ [GameLogicError])
- | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_B game)) (temporaryId (player_A game))])
+ | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_B game))])
 public export
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
@@ -219,7 +219,7 @@ spendThoughts (game, clientUpdates) whichPlayer n =
  transformPlayer (game, clientUpdates)
                  whichPlayer
                  (\p => ((record{thoughts = (thoughts p) {- - n -}} p),
-                        clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p) (temporaryId (getPlayer game (opponent whichPlayer))) ]))
+                        clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p)]))
 
 
 
