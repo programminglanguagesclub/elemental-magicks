@@ -29,8 +29,7 @@ data Env = MkEnv (List (String,Nat))
 satisfiableExistentialCondition : Vect n String -> Condition -> Env -> Bool
 satisfiableExistentialCondition arguments condition env = True
 
-satisfiedExistentialCondition : Vect n String -> Vect m Nat -> Condition -> Env -> Bool {-this probably needs the players too as arguments...-}
-{-can first check to see if n == m-}
+satisfiedExistentialCondition : Vect n String -> Vect n Nat -> Condition -> Env -> Bool {-this probably needs the players too as arguments...-}
 
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
@@ -78,21 +77,26 @@ checkVectorSize (S k1) (S k2) v1 v2 = do (x1,x2) <- checkVectorSize k1 k2 (tail 
                                          return ((head v1) :: x1, (head v2) :: x2)
 
 
-checkVectors : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat)
-checkVectors 
+checkVectors : Vect n String -> Vect m Nat -> Maybe (Vect n String, Vect n Nat) {-should be able to make these generic-} 
 
 
-{-
+
+
+
+
+
 
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
-move_interp (Existential arguments condition selected failed) selection player opponent env with (checkVectorSize WHERE DO I GET N AND M????) (satisfiedExistentialCondition arguments selection condition env)
-  | False = (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
-  | True = step_interp selected player opponent (extend_env env arguments selection)
+move_interp (Existential arguments condition selected failed) selection player opponent env with (checkVectors arguments selection)
+  | Nothing = (player,opponent,[],Existential arguments condition selected failed, env)
+  | Just (arguments', selection')  = case satisfiedExistentialCondition arguments' selection' condition env of
+                                          False => (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
+                                          True => step_interp selected player opponent (extend_env env arguments' selection')
 
 
 
--}
+
 
 
 

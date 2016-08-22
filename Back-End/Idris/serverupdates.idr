@@ -13,8 +13,6 @@ import objects_basic
 import player
 import game
 import skill_dsl
-
-
 public export
 data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat String
                   | Skip (Vect 6 (Bounded 0 9)) String
