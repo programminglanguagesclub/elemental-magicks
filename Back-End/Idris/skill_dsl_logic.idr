@@ -37,22 +37,7 @@ getValidTargets : Player -> List Monster
 
 
 
-satisfiableExistentialCondition' : List String -> List Monster -> List Monster -> Condition -> Player -> Player -> Env -> Bool
-satisfiableExistentialCondition' [] _ _ condition player opponent env = satisfiedExistentialCondition condition player opponent env
-satisfiableExistentialCondition' (arg::args) _ [] _ _ _ _ = False
-satisfiableExistentialCondition' (arg::args) later (target::targets) condition player opponent env =
-  case satisfiedExistentialCondition args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
-       True => True
-       False => satisfiedExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
 
-
-
-
-{-eventually this might be done by trying assignments which are locations. For now we're going to get a list of monsters and use those as the valid assignments-}
-{-the assignment is assumed that it has to be unique (I STILL HAVE TO SET THIS UP FOR THE PLAYER'S CHOICE TOO>>>>>).-}
-satisfiableExistentialCondition : Vect n String -> Condition -> Player -> Player -> Env -> Bool {-for now, don't try to optimize this: just try all assignments-}
-satisfiableExistentialCondition arguments condition player opponent env =
-  satisfiableExistentialCondition' (toList arguments) [] ((getValidTargets player) ++ (getValidTargets opponent)) condition player opponent env
    
 
 
@@ -127,6 +112,30 @@ satisfiedExistentialCondition' condition player opponent env = case satisfiedExi
                                                                     Just b => b
 
 
+
+extend_env : Env -> Vect n String -> Vect n Nat -> Env
+extend_env (MkEnv env) arguments selection = MkEnv(env ++ (toList $ zip arguments selection))
+
+satisfiableExistentialCondition' : List String -> List Monster -> List Monster -> Condition -> Player -> Player -> Env -> Bool
+satisfiableExistentialCondition' [] _ _ condition player opponent env = satisfiedExistentialCondition condition player opponent env
+satisfiableExistentialCondition' (arg::args) _ [] _ _ _ _ = False
+satisfiableExistentialCondition' (arg::args) later (target::targets) condition player opponent env =
+  case satisfiedExistentialCondition args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
+       True => True
+       False => satisfiedExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
+
+
+
+
+{-eventually this might be done by trying assignments which are locations. For now we're going to get a list of monsters and use those as the valid assignments-}
+{-the assignment is assumed that it has to be unique (I STILL HAVE TO SET THIS UP FOR THE PLAYER'S CHOICE TOO>>>>>).-}
+satisfiableExistentialCondition : Vect n String -> Condition -> Player -> Player -> Env -> Bool {-for now, don't try to optimize this: just try all assignments-}
+satisfiableExistentialCondition arguments condition player opponent env =
+  satisfiableExistentialCondition' (toList arguments) [] ((getValidTargets player) ++ (getValidTargets opponent)) condition player opponent env
+
+
+
+
 updateMonster : BasicMonster -> Player -> Player -> (Player, Player) {-updates the monster where it belongs?-}
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
@@ -152,8 +161,7 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
                                                                                 (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
-extend_env : Env -> Vect n String -> Vect n Nat -> Env
-extend_env (MkEnv env) arguments selection = MkEnv(env ++ (toList $ zip arguments selection))
+
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
 {-I can require the move to be satisfiable at the type level, but ignore that for now I guess?-}
