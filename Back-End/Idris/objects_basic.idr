@@ -44,6 +44,17 @@ public export
 incrementPermanent : (t1,(Bounded lower upper),t3) -> Integer -> (t1,(Bounded lower upper),t3)
 incrementPermanent (temporary,permanent,base) x = (temporary, permanent + x, base)
 
+public export
+getTemporary : (Bounded lower upper,t2,t3) -> Bounded lower upper
+getTemporary x = fst x
+public export
+getPermanent : (t1,Bounded lower upper,t3) -> Bounded lower upper
+getPermanent x = fst $ snd x
+public export
+getBase : (t1,t2,Bounded lower upper) -> Bounded lower upper
+getBase x = snd $ snd x
+
+
 
 public export
 record BasicSpell where
