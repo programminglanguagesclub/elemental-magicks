@@ -1,2 +1,3 @@
 
-void reader();
+char * reader();
+void writer(char *message);

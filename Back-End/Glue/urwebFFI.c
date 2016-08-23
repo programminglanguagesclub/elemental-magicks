@@ -11,18 +11,14 @@
 
 int fd;
 
-//Where to store the pipe according to library
-char * myfifo = "/temp/myfifo";
 
 
 
-
-
-
-
-void reader()
+char * reader()
  {
- 
+
+     char * myfifo = "/temp/myfifo";
+
      //This section sets the size of the message, for the reader to expect
      //Set to empty
          char *sizeOfMessage;
@@ -80,30 +76,49 @@ void reader()
          close(fd);
          //unlink(myfifo);
  
-         //return message;
+         return message;
  }
 
-char * writer(char *message)
+void  writer(char *message)
 {
-	//printf("Sending %s \n", message);
 
-	//Makes the FIFO nameed pipe
-    mkfifo(myfifo, 0666);
-
+    char * myfifo = "/temp/myfifo";
     //Open FIFO pipe
     fd = open(myfifo, O_WRONLY);
 
 	//Actualy thing send (where im sending, message, size of message)
-    write(fd, message, sizeof(message));
+    //This was used for testing, default message with no size first sent
+    //write(fd, message, sizeof(message));
 
-	//Close the pipe
+    //Size of the message
+    char * sizeOfMessage;
+    itoa(message,sizeOfMessage,10);
+    write (fd, message, 128);
+    
+	
+    //Close the pipe
     close(fd);
 
-    //remove the FIFO 
-    //unlink(myfifo);
+    //Wait for response
+    
+     char *reply = (char *) malloc(128);
+     strcpy(reply, "empty");
 
-    return message;
+     while(0 == strcmp("empty", reply[0]) || 0== strcmp( "u",reply[0]))
+    {         
+        fd = open(myfifo, O_RDONLY);
+        read(fd, sizeOfMessage, 128);
 
+    }
+     close(fd);
+
+
+    //Send second message
+    fd = open(myfifo, O_WRONLY);
+    write(fd,message,sizeof(message)+4);
+
+    close(fd);
+    
 }
 
 
@@ -123,13 +138,30 @@ static int counter;
 uw_Basis_string uw_Lib_counter(uw_context ctx, uw_unit u) {
  char message[]="Hello";
  char *buf;
+ writer(message);
  //buf = (char *) malloc(1024); // memory leak
- buf = writer(message);
+ buf = reader();
  //printf("About to return counter: %s\n", buf);
  
  //uw_Basis_string s2 = uw_malloc(ctx, 6+1);
- return buf;//(&buf);
  
+ 
+ 
+ 
+ 
+ // REMOVE FOR NOW
+ //return buf;//(&buf);
+ 
+
+ return "testing literal string";
+
+
+
+
+
+
+
+
 // return "Hello";
 }
 
