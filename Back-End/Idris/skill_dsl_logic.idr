@@ -117,12 +117,14 @@ extend_env : Env -> Vect n String -> Vect n Nat -> Env
 extend_env (MkEnv env) arguments selection = MkEnv(env ++ (toList $ zip arguments selection))
 
 satisfiableExistentialCondition' : List String -> List Monster -> List Monster -> Condition -> Player -> Player -> Env -> Bool
-satisfiableExistentialCondition' [] _ _ condition player opponent env = satisfiedExistentialCondition condition player opponent env
+satisfiableExistentialCondition' [] _ _ condition player opponent env with (satisfiedExistentialCondition condition player opponent env)
+  | Just True = True
+  | _ = False
 satisfiableExistentialCondition' (arg::args) _ [] _ _ _ _ = False
 satisfiableExistentialCondition' (arg::args) later (target::targets) condition player opponent env =
-  case satisfiedExistentialCondition args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
+  case satisfiableExistentialCondition' args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
        True => True
-       False => satisfiedExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
+       False => satisfiableExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
 
 
 
