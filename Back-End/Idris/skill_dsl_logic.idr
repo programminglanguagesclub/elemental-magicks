@@ -24,19 +24,62 @@ I'm going to take out next for now. If I need it later I can deal with that...
 
 data Env = MkEnv (List (String,Nat))
 
+satisfiableExistentialCondition : Vect n String -> Condition -> Player -> Player -> Env -> Bool
+satisfiableExistentialCondition arguments condition player opponent env = True
+   
 
-{- I'll probably need to pass in an environment into this one as well -}
-satisfiableExistentialCondition : Vect n String -> Condition -> Env -> Bool
-satisfiableExistentialCondition arguments condition env = True
 
-satisfiedExistentialCondition : Vect n String -> Vect n Nat -> Condition -> Env -> Bool {-this probably needs the players too as arguments...-}
 
+lookupStat : BasicMonster -> StatR -> Integer 
+lookupStat basicMonster TemporaryAttackR = ?hole
+lookupStat basicMonster PermanentAttackR = ?hole
+lookupStat basicMonster TemporarySpeedR = ?hole
+lookupStat basicMonster PermanentSpeedR = ?hole
+
+
+lookupBasicCard : Nat -> Player -> Player -> Maybe BasicMonster {-no targetting spell cards for now!-} 
+lookupCardId : String -> Env -> Maybe Nat
+
+getValue : RInteger -> Player -> Player -> Env -> Maybe Integer
+getValue (Constant x) _ _ _ = Just x
+getValue (Variable statR var) player opponent env = ?hole
+getValue (Plus a b) player opponent env = do x <- getValue a player opponent env
+                                             y <- getValue b player opponent env
+                                             return (x+y)
+getValue (Minus a b) player opponent env = do x <- getValue a player opponent env
+                                              y <- getValue b player opponent env
+                                              return (x-y)
+
+satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool
+satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
+                                                                y <- getValue b player opponent env
+                                                                return (x < y) 
+satisfiedExistentialCondition (EQ a b) player opponent env = do x <- getValue a player opponent env
+                                                                y <- getValue b player opponent env
+                                                                return (x == y)
+satisfiedExistentialCondition (GT a b) player opponent env = do x <- getValue a player opponent env
+                                                                y <- getValue b player opponent env
+                                                                return (x > y)
+satisfiedExistentialCondition (LEQ a b) player opponent env = do x <- getValue a player opponent env
+                                                                 y <- getValue b player opponent env
+                                                                 return (x <= y)
+satisfiedExistentialCondition (GEQ a b) player opponent env = do x <- getValue a player opponent env
+                                                                 y <- getValue b player opponent env
+                                                                 return (x >= y)
+satisfiedExistentialCondition (And cond1 cond2) player opponent env = do x <- satisfiedExistentialCondition cond1 player opponent env
+                                                                         y <- satisfiedExistentialCondition cond2 player opponent env
+                                                                         return (x && y)
+satisfiedExistentialCondition (Or cond1 cond2) player opponent env = do x <- satisfiedExistentialCondition cond1 player opponent env
+                                                                        y <- satisfiedExistentialCondition cond2 player opponent env
+                                                                        return (x || y)
+
+satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool {-until I add more error handling or more type stuff, for now just treat nothing as false-}
+satisfiedExistentialCondition' condition player opponent env = case satisfiedExistentialCondition condition player opponent env of
+                                                                    Nothing => False
+                                                                    Just b => b
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
 applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
-
-
-
 
 applySkillEffects : List SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
 applySkillEffects [] player opponent env = (player, opponent, [])
@@ -52,17 +95,14 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
       case nonautomatic of
            TerminatedSkill => (player',opponent',messages,TerminatedSkill,env)
-           Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition env of
-                                                                     True => (player',opponent', messages, nonautomatic, env)
-                                                                     False => let (player'',opponent'', messages', nonautomatic',env') = step_interp selected player' opponent' env in
-                                                                                  (player'',opponent'', messages ++ messages', nonautomatic',env')
+           Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition player opponent env of
+                                                                   True => (player',opponent', messages, nonautomatic, env)
+                                                                   False => let (player'',opponent'', messages', nonautomatic',env') = step_interp selected player' opponent' env in
+                                                                                (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
 extend_env : Env -> Vect n String -> Vect n Nat -> Env
-{-nmm,... should really do this with n == m...-}
-                           {-
-extend_env (MkEnv env) arguments selection = MkEnv (env ++ (toList (zip arguments selection)))
--}
+extend_env (MkEnv env) arguments selection = MkEnv(env ++ (toList $ zip arguments selection))
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
 {-I can require the move to be satisfiable at the type level, but ignore that for now I guess?-}
@@ -79,7 +119,7 @@ move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,P
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
 move_interp (Existential arguments condition selected failed) selection player opponent env with (alignVectors arguments selection)
   | Nothing = (player,opponent,[],Existential arguments condition selected failed, env)
-  | Just (arguments', selection')  = case satisfiedExistentialCondition arguments' selection' condition env of
+  | Just (arguments', selection')  = case satisfiedExistentialCondition' condition player opponent (extend_env env arguments' selection') of
                                           False => (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
                                           True => step_interp selected player opponent (extend_env env arguments' selection')
 
