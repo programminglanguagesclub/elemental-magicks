@@ -24,21 +24,66 @@ I'm going to take out next for now. If I need it later I can deal with that...
 
 data Env = MkEnv (List (String,Nat))
 
-satisfiableExistentialCondition : Vect n String -> Condition -> Player -> Player -> Env -> Bool
-satisfiableExistentialCondition arguments condition player opponent env = True
+
+
+{-right now there is no mechanism to force a selected card to be friendly or enemy !!!!!!!!!!!!!!!!!!!!!-}
+{-also need to deal with forcing uniqueness of selection here and with the user input-}
+
+getValidTargets : Player -> List Monster
+
+
+
+
+
+
+
+satisfiableExistentialCondition' : List String -> List Monster -> List Monster -> Condition -> Player -> Player -> Env -> Bool
+satisfiableExistentialCondition' [] _ _ condition player opponent env = satisfiedExistentialCondition condition player opponent env
+satisfiableExistentialCondition' (arg::args) _ [] _ _ _ _ = False
+satisfiableExistentialCondition' (arg::args) later (target::targets) condition player opponent env =
+  case satisfiedExistentialCondition args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
+       True => True
+       False => satisfiedExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
+
+
+
+
+{-eventually this might be done by trying assignments which are locations. For now we're going to get a list of monsters and use those as the valid assignments-}
+{-the assignment is assumed that it has to be unique (I STILL HAVE TO SET THIS UP FOR THE PLAYER'S CHOICE TOO>>>>>).-}
+satisfiableExistentialCondition : Vect n String -> Condition -> Player -> Player -> Env -> Bool {-for now, don't try to optimize this: just try all assignments-}
+satisfiableExistentialCondition arguments condition player opponent env =
+  satisfiableExistentialCondition' (toList arguments) [] ((getValidTargets player) ++ (getValidTargets opponent)) condition player opponent env
    
 
 
 
 lookupStat : BasicMonster -> StatR -> Integer 
-lookupStat basicMonster TemporaryAttackR = ?hole
-lookupStat basicMonster PermanentAttackR = ?hole
-lookupStat basicMonster TemporarySpeedR = ?hole
-lookupStat basicMonster PermanentSpeedR = ?hole
+lookupStat basicMonster TemporaryAttackR = extractBounded $ getTemporary $ attack basicMonster
+lookupStat basicMonster PermanentAttackR = extractBounded $ getPermanent $ attack basicMonster
+lookupStat basicMonster TemporarySpeedR = extractBounded $ getTemporary $ speed basicMonster
+lookupStat basicMonster PermanentSpeedR = extractBounded $ getPermanent $ speed basicMonster
 
+
+correctId : Nat -> Maybe Monster -> Bool
+correctId _ Nothing = False
+correctId id (Just monster) = (temporaryId (basic monster)) == id
 
 lookupBasicCard : Nat -> Player -> Player -> Maybe BasicMonster {-no targetting spell cards for now!-} 
+lookupBasicCard temporaryId player opponent = case find (correctId temporaryId) (board player) of
+                                                   Just (Just monster) => Just (basic monster)
+                                                   Just _ => Nothing {-THIS CASE SHOULD NEVER HAPPEN...-}
+                                                   Nothing => case find (correctId temporaryId) (board opponent) of
+                                                                   Just (Just monster) => Just (basic monster)
+                                                                   Just _ => Nothing {-This case should never happen-}
+                                                                   Nothing => Nothing
+lookupCardId' : String -> List (String,Nat) -> Maybe Nat
+lookupCardId' s [] = Nothing
+lookupCardId' s ((s',n)::xs) with (s==s')
+  | False = lookupCardId' s xs
+  | True = Just n
 lookupCardId : String -> Env -> Maybe Nat
+lookupCardId s (MkEnv env) = lookupCardId' s env
+
 
 getValue : RInteger -> Player -> Player -> Env -> Maybe Integer
 getValue (Constant x) _ _ _ = Just x
@@ -50,6 +95,9 @@ getValue (Minus a b) player opponent env = do x <- getValue a player opponent en
                                               y <- getValue b player opponent env
                                               return (x-y)
 
+
+
+{-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool
 satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
@@ -77,6 +125,9 @@ satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool {-
 satisfiedExistentialCondition' condition player opponent env = case satisfiedExistentialCondition condition player opponent env of
                                                                     Nothing => False
                                                                     Just b => b
+
+
+updateMonster : BasicMonster -> Player -> Player -> (Player, Player) {-updates the monster where it belongs?-}
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
 applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
@@ -124,4 +175,4 @@ move_interp (Existential arguments condition selected failed) selection player o
                                           True => step_interp selected player opponent (extend_env env arguments' selection')
 
 
-
+{-Somewhere I also want to take into account that certain skills can't be executed from certain areas: if a card has a skill queued but the card is moved to the graveyard, that probably ends the effect-}

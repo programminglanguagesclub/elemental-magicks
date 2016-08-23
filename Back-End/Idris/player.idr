@@ -56,10 +56,11 @@ mutant_pig = basic monster 20 0 2 1 3
 
 
 
-
+{-
 public export
 Board : Type
 Board = Vect 9 (Maybe Monster)
+-}
 public export
 Spawn : Type
 Spawn = Maybe Card
@@ -90,16 +91,16 @@ transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
 public export
 record Player where
  constructor MkPlayer
- board           : Board {-Vect 9 (Maybe Monster)-}
- rowTarget       : Vect 3 (Fin 3)
- hand            : List Card
- graveyard       : List Card
- discard         : List Card
- spawn           : Spawn
- soul            : Soul
- thoughts        : Bounded 0 Preliminaries.absoluteUpperBound
- knowledge       : Vect 6 (Bounded 0 9)
- temporaryId     : String
+ board : Vect 9 (Maybe Monster)
+ rowTarget : Vect 3 (Fin 3)
+ hand : List Card
+ graveyard : List Card
+ discard : List Card
+ spawn : Spawn
+ soul : Soul
+ thoughts : Bounded 0 Preliminaries.absoluteUpperBound
+ knowledge : Vect 6 (Bounded 0 9)
+ temporaryId : String
 
 public export
 getLiving : Maybe Monster -> Bool
