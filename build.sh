@@ -10,7 +10,8 @@ urweb app
 cd ../..
 cd Back-End
 cd Glue
-gcc -g -O -c reader.c
+gcc -g -O -c idrisFFI.c
 cd ..
 cd Idris
+./clean.sh
 ./build.sh

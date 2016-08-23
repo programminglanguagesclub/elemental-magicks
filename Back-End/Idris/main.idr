@@ -18,8 +18,8 @@ import step_game
 import step_game_helpers
 
 
-%include C "../Glue/reader.h"
-%link C "../Glue/reader.o"
+%include C "../Glue/idrisFFI.h"
+%link C "../Glue/idrisFFI.o"
 
 reader : IO String
 reader = foreign FFI_C "reader" (IO String)
