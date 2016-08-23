@@ -29,8 +29,15 @@ data Env = MkEnv (List (String,Nat))
 {-right now there is no mechanism to force a selected card to be friendly or enemy !!!!!!!!!!!!!!!!!!!!!-}
 {-also need to deal with forcing uniqueness of selection here and with the user input-}
 
-getValidTargets : Player -> List Monster
 
+
+actualMonster : Maybe Monster -> Bool
+actualMonster Nothing = False
+actualMonster (Just _) = True
+
+getValidTargets : Player -> List Monster
+getValidTargets player with (filter actualMonster $ board player)
+  |(p**v) = toList v
 
 
 
