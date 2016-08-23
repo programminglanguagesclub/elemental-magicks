@@ -122,11 +122,11 @@ void  writer(char *message)
 }
 
 
-uw_Basis_string uw_Lib_hello(uw_context ctx, uw_unit u) {
+uw_Basis_string uw_UrwebFFI_hello(uw_context ctx, uw_unit u) {
   return "Hello";
 }
 
-uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
+uw_Basis_string uw_UrwebFFI_important(uw_context ctx, uw_Basis_string s) {
   uw_Basis_string s2 = uw_malloc(ctx, strlen(s)+2);
 
   sprintf(s2, "%s!", s);
@@ -135,7 +135,7 @@ uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
 
 static int counter;
 
-uw_Basis_string uw_Lib_counter(uw_context ctx, uw_unit u) {
+uw_Basis_string uw_UrwebFFI_counter(uw_context ctx, uw_unit u) {
  char message[]="Hello";
  char *buf;
  writer(message);
