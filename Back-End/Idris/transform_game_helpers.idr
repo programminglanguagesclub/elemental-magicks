@@ -92,14 +92,14 @@ revive positions player = case _revive positions (board player) (thoughts player
 
 {-For now, completely ignore the possibility of the user using skills! :D -}
 public export
-_engagementOnMove : (playerABoard : Board) -> (playerBBoard : Board) -> (initiative : WhichPlayer) -> (WhichPlayer, Fin 9)
+_engagementOnMove : (playerABoard : Vect 9 (Maybe Monster)) -> (playerBBoard : Vect 9 (Maybe Monster)) -> (initiative : WhichPlayer) -> (WhichPlayer, Fin 9)
 public export
 engagementOnMove : (game : Game) -> (player : Player) -> (opponent : Player) -> (Bool, Fin 9) {-could return a maybe nat, where nothing indicates an error, but I'll trust the ability to not have it the engagement phase if there's nothing next to move-}
 public export
 _getEnemyStuffInFront : (defenderBoard) -> (row : Fin 3) -> Nat
-_getFriendlyStuffInFront : (attackerBoard : Board) -> (attackerSquare : Fin 9) -> Nat 
+_getFriendlyStuffInFront : (attackerBoard : Vect 9 (Maybe Monster)) -> (attackerSquare : Fin 9) -> Nat 
 public export
-inRangeRow : (attackerBoard : Board) -> (defenderBoard : Board) -> (attackerSquare : Fin 9) -> (row : Fin 3) -> Maybe Bool
+inRangeRow : (attackerBoard : Vect 9 (Maybe Monster)) -> (defenderBoard : Vect 9 (Maybe Monster)) -> (attackerSquare : Fin 9) -> (row : Fin 3) -> Maybe Bool
 inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSquare attackerBoard)
  | Nothing = Nothing
  | Just monster with (aliveness (basic monster))
@@ -109,7 +109,7 @@ inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSq
    | (temporaryRange,_,_) = if gt (fromIntegerNat (extractBounded temporaryRange)) ((_getFriendlyStuffInFront attackerBoard attackerSquare) + (_getEnemyStuffInFront defenderBoard row)) then Just True else Just False
 
 public export
-moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Board) -> Board {-this actually does a swap-}
+moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Vect 9 (Maybe Monster)) -> Vect 9 (Maybe Monster) {-this actually does a swap-}
 moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 
 public export

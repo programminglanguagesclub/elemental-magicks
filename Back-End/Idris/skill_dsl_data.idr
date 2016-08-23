@@ -81,7 +81,7 @@ applyStatEffect basic (MkHpEffect mutator hpStat x) = let m = record {hp = hpTra
 {-dummy stuff for now-}
 data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR
 data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger
-data Condition = LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
+data Condition = Vacuous | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
 
 
 mutual

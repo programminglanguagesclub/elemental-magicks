@@ -137,7 +137,7 @@ _boardFull (Nothing::_) = False
 _boardFull ((Just m)::tl) = _boardFull tl
 _boardFull [] = True
 public export
-boardFull : Board -> Bool {-don't want to make players try to deploy if the board is full -}
+boardFull : Vect 9 (Maybe Monster) -> Bool {-don't want to make players try to deploy if the board is full -}
 boardFull board = _boardFull (toList board)
 public export
 _allUnitsDead : List (Maybe Monster) -> Bool

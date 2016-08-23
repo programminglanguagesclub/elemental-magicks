@@ -12,7 +12,7 @@ import phase
 import clientupdates
 import player
 %access public export
-
+%default total
 
 
 
@@ -31,13 +31,13 @@ data Env = MkEnv (List (String,Nat))
 
 
 
-actualMonster : Maybe Monster -> Bool
-actualMonster Nothing = False
-actualMonster (Just _) = True
+getValidTargets' : List (Maybe Monster) -> List Monster
+getValidTargets' [] = []
+getValidTargets' (Nothing::xs) = getValidTargets' xs
+getValidTargets' ((Just monster)::xs) = monster :: (getValidTargets' xs)
 
 getValidTargets : Player -> List Monster
-getValidTargets player with (filter actualMonster $ board player)
-  |(p**v) = toList v
+getValidTargets player = getValidTargets' $ toList $ board player
 
 
 
@@ -79,7 +79,12 @@ lookupCardId s (MkEnv env) = lookupCardId' s env
 
 getValue : RInteger -> Player -> Player -> Env -> Maybe Integer
 getValue (Constant x) _ _ _ = Just x
-getValue (Variable statR var) player opponent env = ?hole
+getValue (Variable statR var) player opponent env = do id <- lookupCardId var env
+                                                       basicMonster <- lookupBasicCard id player opponent
+                                                       return (lookupStat basicMonster statR)
+
+
+
 getValue (Plus a b) player opponent env = do x <- getValue a player opponent env
                                              y <- getValue b player opponent env
                                              return (x+y)
@@ -91,6 +96,7 @@ getValue (Minus a b) player opponent env = do x <- getValue a player opponent en
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool
+satisfiedExistentialCondition Vacuous _ _ _ = Just True
 satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
                                                                 return (x < y) 
@@ -146,6 +152,9 @@ satisfiableExistentialCondition arguments condition player opponent env =
 
 
 updateMonster : BasicMonster -> Player -> Player -> (Player, Player) {-updates the monster where it belongs?-}
+updateMonster basicMonster player opponent = ?hole
+
+
 
 applySkillEffect : SkillEffect -> Player -> Player -> Env -> (Player,Player,List ClientUpdate)
 applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
@@ -166,7 +175,8 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
            TerminatedSkill => (player',opponent',messages,TerminatedSkill,env)
            Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition player opponent env of
                                                                    True => (player',opponent', messages, nonautomatic, env)
-                                                                   False => let (player'',opponent'', messages', nonautomatic',env') = step_interp selected player' opponent' env in
+                                                                   False => let (player'',opponent'', messages', nonautomatic',env') =
+                                                                                step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
                                                                                 (player'',opponent'', messages ++ messages', nonautomatic',env')
 
 
