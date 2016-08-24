@@ -9,6 +9,8 @@ import preliminaries
 public export
 data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 1 Preliminaries.absoluteUpperBound)
 
+syntax mkHp [hp] = MkHp (( >> hp << **( >> hp << ** Oh)), >> hp << )
+
 public export
 getCurrentHp : Hp -> Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound
 getCurrentHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = currentHp

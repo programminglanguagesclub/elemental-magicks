@@ -19,7 +19,8 @@ data MonsterSchools = NoSchools
 public export
 record BasicMonster where
  constructor MkBasicMonster
- permanentId : Nat {-equivalence classes of cards. Used for revival-}
+ name : String
+ permanentId : Nat {-equivalence classes of cards. Used for revival-} {-I might want to use name instead.... and get rid of this....-}
  temporaryId : Nat {-Id of a particular card for the game-}
  schools : MonsterSchools
  hp : Hp
@@ -30,6 +31,13 @@ record BasicMonster where
  level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
  aliveness : Aliveness
+
+syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] [hp] [attack] [defense] [speed] [range] [level] [soulPoints] =
+  MkBasicMonster name permanentId temporaryId schools (mkHp hp)
+   ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
+   ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
+   Alive
+
 
 public export
 setTemporary : ((Bounded lower upper),t2,t3) -> Integer -> ((Bounded lower upper),t2,t3)

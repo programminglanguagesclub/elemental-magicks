@@ -28,12 +28,13 @@ Skill = (Automatic, Bool, Nat)
 public export
 record Monster where
  constructor MkMonster
- basic        : BasicMonster
- autoSkill    : Maybe Skill
- startSkill   : Maybe Skill
- endSkill     : Maybe Skill
- usedEnd      : Maybe Skill
- spawnSkill   : Maybe Skill
+ basic : BasicMonster
+ startSkill : Maybe Skill
+ endSkill : Maybe Skill
+ counterSkill : Maybe Skill
+ spawnSkill     : Maybe Skill
+ deathSkill      : Maybe Skill
+ autoSkill   : Maybe Skill
  actionSkills : List Skill
 
 public export
@@ -44,8 +45,8 @@ record Spell where
 
 public export data Card = SpellCard Spell | MonsterCard Monster
 
+
 {-
-syntax monster [basic] [auto] [start] [end] [spawn] [actions] = MkMonster basic auto False start False end False spawn False actions False
 syntax spell [basic] [spawn] = MkSpell basic spawn
 -}
 {-
@@ -167,5 +168,5 @@ goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
 
 
 
-syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [] [] [] Nothing (Vect.replicate 5 Nothing) (0 ** Oh) (Vect.replicate 6 (0 ** Oh)) token
+syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) token
 
