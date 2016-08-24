@@ -86,16 +86,19 @@ data Condition = Vacuous | LT RInteger RInteger | EQ RInteger RInteger | GT RInt
 
 mutual
   data Nonautomatic = TerminatedSkill | Existential (Vect n String) Condition Automatic Automatic
-  data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic)
-                               
+  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal String Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
+                 {-universal also should take a vector of strings, not just a single string, at some point-}
+
 
 done : Automatic
 done = MkAutomatic [] TerminatedSkill
 
-syntax exists unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
+syntax exists friendly unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
+syntax exists enemy unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
+
 
 foo : Nonautomatic
-foo = exists unit "x" success : done failure : done
+foo = exists friendly unit "x" success : done failure : done
 
 
 

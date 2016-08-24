@@ -30,13 +30,14 @@ record BasicMonster where
  range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
  level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
+ engagement : Bounded 0 Preliminaries.absoluteUpperBound
  aliveness : Aliveness
 
 syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
   MkBasicMonster name permanentId temporaryId schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   Alive
+   >> 0 << Alive
 
 
 public export
