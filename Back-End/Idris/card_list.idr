@@ -38,7 +38,7 @@ monsterList : List Monster
 monsterList = [
  MkMonster (mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2) Nothing Nothing Nothing Nothing Nothing Nothing [],
  MkMonster (mkBasicMonster "greater succubus" 1 0 (OneSchool 4) life: 60 atk: 0 def: 0 spe: 1 rng: 3 lvl: 3 sp: 2) Nothing Nothing Nothing Nothing Nothing Nothing []
-
+ 
 
 
 

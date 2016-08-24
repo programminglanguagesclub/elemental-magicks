@@ -89,7 +89,13 @@ mutual
   data Automatic = MkAutomatic (List SkillEffect) (Nonautomatic)
                                
 
+done : Automatic
+done = MkAutomatic [] TerminatedSkill
 
+syntax exists unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
+
+foo : Nonautomatic
+foo = exists unit "x" success : done failure : done
 
 
 
