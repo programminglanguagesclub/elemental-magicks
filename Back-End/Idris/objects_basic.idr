@@ -32,7 +32,7 @@ record BasicMonster where
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
  aliveness : Aliveness
 
-syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] [hp] [attack] [defense] [speed] [range] [level] [soulPoints] =
+syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
   MkBasicMonster name permanentId temporaryId schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
