@@ -167,6 +167,8 @@ applySkillEffects (effect::effects) player opponent env =
           (player'',opponent'',updates ++ updates')
 
 
+getValidBindings : String -> Condition -> Player -> Player -> Env -> List Nat
+getValidBindings argument condition player opponent env = ?hole
 
 step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List ClientUpdate, Nonautomatic, Env)
 step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
@@ -178,6 +180,8 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
                                                                    False => let (player'',opponent'', messages', nonautomatic',env') =
                                                                                 step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
                                                                                 (player'',opponent'', messages ++ messages', nonautomatic',env')
+step_interp (Universal argument condition skillEffects next) player opponent env = ?hole
+
 
 
 

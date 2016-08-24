@@ -61,6 +61,14 @@ getPlayer : Game -> WhichPlayer -> Player
 getPlayer game PlayerA = player_A game
 getPlayer game PlayerB = player_B game
 
+
+public export
+updatePlayer : Game -> WhichPlayer -> (Player -> (Player,List ClientUpdate)) -> (Game, List ClientUpdate)
+updatePlayer game PlayerA f = let (playerA',updates) = f $ player_A game in
+                                  (record {player_A = playerA'} game, updates)
+updatePlayer game PlayerB f = let (playerB',updates) = f $ player_B game in
+                                  (record {player_B = playerB'} game, updates)
+
 public export
 opponent : WhichPlayer -> WhichPlayer
 opponent PlayerA = PlayerB

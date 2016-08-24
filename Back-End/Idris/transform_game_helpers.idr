@@ -113,7 +113,8 @@ moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Vect 9 (Maybe Mons
 moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 
 public export
-restUnit : (location : Fin 9) -> Game -> Player {-WhichPlayer-} -> (Game,List ClientUpdate)
+restUnit : (location : Fin 9) -> Game -> WhichPlayer -> (Game,List ClientUpdate)
+
 
 public export
 _getHandCards : (hand : List Card) -> (acc : MultiTree Nat) -> MultiTree Nat
