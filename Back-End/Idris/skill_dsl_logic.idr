@@ -5,6 +5,7 @@ import bounded
 import bounded_then_integer
 import integer_then_bounded
 import preliminaries
+import hp
 import objects_basic
 import skill_dsl_data
 import skill_dsl
@@ -54,6 +55,8 @@ lookupStat basicMonster TemporaryAttackR = extractBounded $ getTemporary $ attac
 lookupStat basicMonster PermanentAttackR = extractBounded $ getPermanent $ attack basicMonster
 lookupStat basicMonster TemporarySpeedR = extractBounded $ getTemporary $ speed basicMonster
 lookupStat basicMonster PermanentSpeedR = extractBounded $ getPermanent $ speed basicMonster
+lookupStat basicMonster HpR = extractBounded $ getCurrentHp $ hp $ basicMonster
+lookupStat basicMonster MaxHpR = extractBounded $ getMaxHp $ hp $ basicMonster
 
 
 correctId : Nat -> Maybe Monster -> Bool
@@ -91,7 +94,8 @@ getValue (Plus a b) player opponent env = do x <- getValue a player opponent env
 getValue (Minus a b) player opponent env = do x <- getValue a player opponent env
                                               y <- getValue b player opponent env
                                               return (x-y)
-
+getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
+getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
 
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
