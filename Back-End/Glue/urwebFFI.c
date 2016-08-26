@@ -92,7 +92,18 @@ void  writer(char *message)
 
     //Size of the message
     char * sizeOfMessage;
-    itoa(message,sizeOfMessage,10);
+   
+
+
+
+
+
+// THIS LINE IS CAUSING A COMPILER ERROR!! REMOVED FOR NOW..
+// itoa(message,sizeOfMessage,10);
+
+
+
+
     write (fd, message, 128);
     
 	
