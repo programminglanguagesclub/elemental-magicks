@@ -26,7 +26,7 @@ selectMutator Assign Permanent = setPermanent
 selectMutator Increment Temporary = incrementTemporary
 selectMutator Increment Permanent = incrementPermanent
 data DamageEffect = MkDamageEffect Integer
-data StatEffect = MkStatEffect Stat Mutator Temporality Integer | MkHpEffect Mutator HpStat Integer
+data StatEffect = MkStatEffect Stat Mutator Temporality Integer | MkHpEffect Mutator HpStat Integer | MkEngagementEffect Mutator Integer | ReviveEffect
 data ResourceEffect = ThoughtEffect Mutator Integer | SchoolEffect (Fin 6) Mutator Integer
 data PositionEffect = PositionDummy
 data SkillEffect = SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
@@ -79,11 +79,14 @@ applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
 applyStatEffect basic (MkStatEffect stat mutator temporality x) =
   let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (getStatTypeName stat, marshall temporality $ basicStat stat m))
 applyStatEffect basic (MkHpEffect mutator hpStat x) = let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)
+applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
+applyStatEffect basic ReviveEffect = ?hole
+
 
 {-dummy stuff for now-}
 data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | HpR | MaxHpR
 data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6)
-data Condition = Vacuous | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
+data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
 
 
 mutual

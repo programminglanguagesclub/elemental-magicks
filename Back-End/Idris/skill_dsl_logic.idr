@@ -101,6 +101,12 @@ getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (kno
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool
 satisfiedExistentialCondition Vacuous _ _ _ = Just True
+satisfiedExistentialCondition (RDead var) player opponent env = do id <- lookupCardId var env
+                                                                   card <- lookupBasicCard id player opponent
+                                                                   return (case aliveness card of
+                                                                                Alive => True
+                                                                                DeadFresh => False
+                                                                                DeadStale => True)
 satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
                                                                 return (x < y) 
