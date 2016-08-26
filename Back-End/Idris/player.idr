@@ -1,5 +1,4 @@
 module Player
-
 import Data.Vect
 import Data.So
 import bounded
@@ -7,16 +6,13 @@ import bounded_then_integer
 import integer_then_bounded
 import preliminaries
 import objects_basic
-
 import skill_dsl_data
-
-
-
 import skill_dsl
 import phase
 import clientupdates
+%access public export
+%default total
 
-public export
 Skill : Type
 Skill = (Automatic, Bool, Nat)
 
@@ -25,7 +21,6 @@ Skill = (Automatic, Bool, Nat)
 
 {- used : Bool, cost : Nat -}
 
-public export
 record Monster where
  constructor MkMonster
  basic : BasicMonster
@@ -37,13 +32,12 @@ record Monster where
  autoSkill   : Maybe Skill
  actionSkills : List Skill
 
-public export
 record Spell where
  constructor MkSpell
  basic      : BasicSpell
  spawnSkill : Skill
 
-public export data Card = SpellCard Spell | MonsterCard Monster
+data Card = SpellCard Spell | MonsterCard Monster
 
 
 {-
@@ -62,16 +56,13 @@ public export
 Board : Type
 Board = Vect 9 (Maybe Monster)
 -}
-public export
 Spawn : Type
 Spawn = Maybe Card
-public export
 Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
 
 
 {- unused? -}
-public export
 Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
 
@@ -82,14 +73,6 @@ transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
 transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
 -}
 
-
-
-
-
-
-
-
-public export
 record Player where
  constructor MkPlayer
  board : Vect 9 (Maybe Monster)
@@ -103,7 +86,6 @@ record Player where
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
 
-public export
 getLiving : Maybe Monster -> Bool
 getLiving Nothing = False
 getLiving (Just m) with (aliveness (basic m))
@@ -115,9 +97,7 @@ getLiving (Just m) with (aliveness (basic m))
 
 {-getRowTarget : Player -> Fin 3 -> Maybe Nat {-This takes a player and a row, and returns the index of the next target, or nothing if there is no valid target (living monster)-}-}
 
-
-
-public export
+{-
 getRowTarget : Fin 3 -> Vect 9 (Maybe Monster) -> Fin 9 -> Fin 9 -> Fin 9 -> Maybe (Fin 9)
 getRowTarget FZ m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
  | (True,_,_) = Just a
@@ -134,13 +114,14 @@ getRowTarget (FS (FS FZ)) m a b c with ((getLiving (index a m)),(getLiving (inde
  | (True,_,False) = Just a
  | (False,True,False) = Just b
  | (False,False,False) = Nothing
-
+ -}
 
 getNextRowTarget : Fin 3 -> Fin 3
 getNextRowTarget FZ = FS FZ
 getNextRowTarget (FS FZ) = FS (FS FZ)
 getNextRowTarget (FS (FS FZ)) = FZ
-
+getNextRowTarget (FS (FS (FS FZ))) impossible
+getNextRowTarget (FS (FS (FS (FS _)))) impossible
 
 
 

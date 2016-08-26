@@ -15,18 +15,16 @@ import phase
 import clientupdates
 import card_list
 
+%access public export
+%default total
 
-
-public export
 data WhichPlayer = PlayerA | PlayerB
-public export
 data Round = FirstRound | SecondRound
 
 
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 
-public export
 record Game where
  constructor MkGame
  initiative : WhichPlayer
@@ -48,7 +46,6 @@ playerOnMove : Game -> WhichPlayer
 {-I'm using tokens to identify players. I should abstract this. It's okay if it's the same data but I should not depend on this being the case.-}
 {-This is particularly the case as I'll probably store the player identifier in skills to keep track of the owner. This means that when a player reconnects they need to still be matched even if they have a new token, etc-}
 
-public export
 record Battle where
  constructor MkBattle
  round                : Round
@@ -56,20 +53,17 @@ record Battle where
  originalPlayerBToken : String
  game                 : Game
 
-public export
 getPlayer : Game -> WhichPlayer -> Player
 getPlayer game PlayerA = player_A game
 getPlayer game PlayerB = player_B game
 
 
-public export
 updatePlayer : Game -> WhichPlayer -> (Player -> (Player,List ClientUpdate)) -> (Game, List ClientUpdate)
 updatePlayer game PlayerA f = let (playerA',updates) = f $ player_A game in
                                   (record {player_A = playerA'} game, updates)
 updatePlayer game PlayerB f = let (playerB',updates) = f $ player_B game in
                                   (record {player_B = playerB'} game, updates)
 
-public export
 opponent : WhichPlayer -> WhichPlayer
 opponent PlayerA = PlayerB
 opponent PlayerB = PlayerA

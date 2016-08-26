@@ -14,7 +14,8 @@ import clientupdates
 import transform_game_helpers
 import step_game
 import step_game_helpers
-
+%access public export
+%default total
 
 
 

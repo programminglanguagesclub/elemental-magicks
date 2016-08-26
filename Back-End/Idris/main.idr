@@ -17,6 +17,8 @@ import transform_game_helpers
 import step_game
 import step_game_helpers
 
+%access public export
+%default total
 
 %include C "../Glue/idrisFFI.h"
 %link C "../Glue/idrisFFI.o"
@@ -54,6 +56,7 @@ Need to get opponent to call transformGame
 
 
 
+{-NEED TO SAY THIS IS PARTIAL-}
 
 main : IO ()
 main = do {

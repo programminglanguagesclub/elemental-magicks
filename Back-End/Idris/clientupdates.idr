@@ -6,7 +6,8 @@ import objects_basic
 import bounded
 import bounded_then_integer
 import integer_then_bounded
-public export
+%access public export
+%default total
 data ClientUpdate = GameLogicError
                   | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
                   | DrawPhaseToSpawnPhase
@@ -36,7 +37,6 @@ data ClientUpdate = GameLogicError
 
 
 {-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}
-public export
 getCardName : Nat -> Maybe String
 record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 

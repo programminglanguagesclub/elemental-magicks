@@ -9,6 +9,7 @@ import hp
 import preliminaries
 import objects_basic
 %access public export
+%default total
 data Stat = Attack | Defense | Speed | Range | Level
 data Mutator = Increment | Assign
 data Temporality = Temporary | Permanent

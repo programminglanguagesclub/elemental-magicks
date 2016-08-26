@@ -1,26 +1,23 @@
 module hp
 
 import Data.So
+import Data.Primitives.Views
 import bounded
 import bounded_then_integer
 import preliminaries
-
+%access public export
+%default total
 {-if I made this a GADT with a single constructor, then I can't pattern match on it apparently. This seems like a bug, although it doesn't matter-}
-public export
 data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 1 Preliminaries.absoluteUpperBound)
 
 syntax mkHp [hp] = MkHp (( >> hp << **( >> hp << ** Oh)), >> hp << )
 
-public export
 getCurrentHp : Hp -> Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound
 getCurrentHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = currentHp
-public export
 getMaxHp : Hp -> Bounded 0 Preliminaries.absoluteUpperBound
 getMaxHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = maxHp
-public export
 getBaseHp : Hp -> Bounded 1 Preliminaries.absoluteUpperBound
 getBaseHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = baseHp
-public export
 transformHp : (Integer -> Integer) -> Hp -> Hp
 transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
 {- let m = f x in
@@ -39,16 +36,14 @@ transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
      Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
      -}
 
-public export
 transformMaxHp : (Integer -> Integer) -> Hp -> Hp
 transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
 
 {-I feel I should be doing something monadic here, but it's perhaps a bit more complicated-}
-public export
-rest : Hp -> Hp
-rest (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => extractBounded ((div maxHp 4) + x)) (MkHp((currentHp**(maxHp**prf)),baseHp))
 
-public export
+rest : Hp -> Hp
+rest (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => (div4 $ extractBounded maxHp) + x) (MkHp((currentHp**(maxHp**prf)),baseHp))
+
 pierce : Integer {-should this take an integer or a bounded?-} -> Hp -> Hp
 pierce val (MkHp((currentHp**(maxHp**prf)),baseHp)) = transformHp (\x => x - val) (MkHp((currentHp**(maxHp**prf)),baseHp))
 

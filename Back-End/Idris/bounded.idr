@@ -3,8 +3,10 @@ module Bounded
 import Data.Vect
 import Data.Fin
 import Data.So
+import public utility
+%access public export
+%default total
 
-public export
 data Bounded : Integer -> Integer -> Type where
   MkBounded : (n ** (So(lower <= n),So(n <= upper),So(lower <= upper))) -> Bounded lower upper
 
@@ -13,7 +15,6 @@ syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh,Oh))
 foo12 : Bounded 0 31
 foo12 = >> 21 <<
 
-public export
 integerToBounded : Integer -> (lower : Integer) -> (upper : Integer) -> Maybe (Bounded lower upper)
 integerToBounded m lower upper = case (choose (m <= upper)) of
                                       Left proofUpperBounded => case (choose (lower <= m)) of
@@ -26,10 +27,9 @@ integerToBounded m lower upper = case (choose (m <= upper)) of
 
 
 {-not going to make Num instances yet for now-}
-public export
+
 Eq (Bounded lower upper) where
   (MkBounded(n1 ** _)) == (MkBounded(n2 ** _)) = (n1 == n2)
-public export
 Ord (Bounded lower upper) where
   compare (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = compare n1 n2
   (MkBounded(n1 ** _)) < (MkBounded(n2 ** _)) = n1 < n2
@@ -39,23 +39,17 @@ Ord (Bounded lower upper) where
   {-max (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = max n1 n2{-max not done: shouldn't return Integer-}-} {-also do min-}
 {-these only work if lower and upper are the same for each argument, otherwise use the functions below:-}
 
-public export
 lt : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 lt (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 < n2
-public export
 leq : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 leq (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 <= n2
-public export
 gt : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 gt (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 > n2
-public export
 geq : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 geq (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 >= n2
-public export
 eq : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 eq (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 == n2
 
-public export
 transformBounded : (Integer -> Integer) -> Bounded a b -> Bounded a b
 transformBounded {a = lower} {b = upper}  f (MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval))) =
   let m = f x in

@@ -16,7 +16,8 @@ import game
 import serverupdates
 import clientupdates
 import step_game_helpers
-
+%access public export
+%default total
 
 
 {-THERE'S A HUGE BUG HERE!!!
@@ -33,7 +34,7 @@ I can achieve this by pushing both of the spawn skills onto the queue/head/whate
 
 -}
 
-public export
+
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
   | _ = ?hole {-again, going to have to change to checking if the skillHead is terminated or not, rather than being nothing or just...-}

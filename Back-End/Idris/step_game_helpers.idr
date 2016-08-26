@@ -14,19 +14,13 @@ import player
 import game
 import serverupdates
 import clientupdates
+%access public export
+%default total
 
-
-
-public export
 damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
 
-
-public export
 reviveCard : Monster -> Monster
 
-
-
-public export
 updatePlayer : Game -> Player -> (Player -> Player) -> Game {-applies update to player_A or player_B, as appropriate-}
 
 {-
@@ -46,44 +40,44 @@ HA HB HB HA HB HA HA HB HA HB SB SA
 
 
 -}
-public export
+{-
 data CardDraw = AHand | BHand | ASoul | BSoul
-public export
+
 swapDrawCommand : CardDraw -> CardDraw
 swapDrawCommand AHand = BHand
 swapDrawCommand BHand = AHand
 swapDrawCommand ASoul = BSoul
 swapDrawCommand BSoul = ASoul
-public export
+
 maybeSwapDrawCommand : Maybe CardDraw -> Maybe CardDraw
 maybeSwapDrawCommand (Just AHand) = Just BHand
 maybeSwapDrawCommand (Just BHand) = Just AHand
 maybeSwapDrawCommand (Just ASoul) = Just BSoul
 maybeSwapDrawCommand (Just BSoul) = Just ASoul
 maybeSwapDrawCommand Nothing = Nothing
-public export
+
 __getNextTurnDraw : Nat -> Nat -> Maybe CardDraw
 __getNextTurnDraw x y = let (a,b) = ((toIntegerNat x),(toIntegerNat y)) in
  if (a == 0 && b == 0) then Just AHand
  else Nothing
-public export
+
 _getNextTurnDraw : Game -> Player -> Player -> Maybe CardDraw {-ignoring error case currently-}
 _getNextTurnDraw game playerA playerB =
  let (a,b) = (length (hand playerA),length (hand playerB)) in
- let x = __getNextTurnDraw (modNat a 6) (modNat b 6) in
+ let x = __getNextTurnDraw (mod6 a) (mod6 b) in
  let y = modNat (modNat (a+b) 12) 2 in
  if      y == 0
   then x
  else if y == 1
   then maybeSwapDrawCommand x
   else Nothing
-public export
+
 getNextTurnDraw : Game -> Maybe CardDraw
 getNextTurnDraw game = _getNextTurnDraw game (player_A game) (player_B game)
-
+-}
 
 {-I think some places I used Bounded 0 25 for hand index. Should change that if I did-}
-public export
+
 Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b (Fin 9), Vect h (Fin 25), Vect g (Fin 25)) -> (Game, List ClientUpdate)
 Selection game (board, hand, graveyard) with (skillHead game)
   | _ = ?hole
@@ -91,20 +85,15 @@ Selection game (board, hand, graveyard) with (skillHead game)
  | skill = ?hole
  -}
 
-
-
-
-public export
 foo7312016 : Maybe Monster -> Integer
 foo7312016 Nothing = 0
 foo7312016 (Just m) with (soulPoints ( basic(m) ))
   | (MkBounded (current ** _),_) = current
 
-public export
 getPointsFromSoul : Soul -> Integer
 getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
 
-public export
+
 getSoulPoints : Player -> Integer
 getSoulPoints player = getPointsFromSoul(soul player)
 
@@ -112,15 +101,15 @@ getSoulPoints player = getPointsFromSoul(soul player)
 FooDrawCard : Player n m -> Card -> Player (S n) m
 FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (temporaryId player)
 -}
-public export
+
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
-public export
+
 executeSkillEffects : Game -> List SkillEffect -> (Game, List ClientUpdate)
 executeSkillEffects g a = ?hole
-public export
+
 skillSelectionPossible : Game -> Condition -> Bool
 skillSelectionPossible game condition = ?hole
-public export
+
 removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
 removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
@@ -128,18 +117,18 @@ removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
 removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
  | Nothing = (game, acc ++ [GameLogicError])
  | Just card = (record {player_B -> discard = (discard (player_B game)) ++ [card], player_B -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_B game))])
-public export
+
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
-public export
+
 _boardFull : List (Maybe Monster) -> Bool
 _boardFull (Nothing::_) = False
 _boardFull ((Just m)::tl) = _boardFull tl
 _boardFull [] = True
-public export
+
 boardFull : Vect 9 (Maybe Monster) -> Bool {-don't want to make players try to deploy if the board is full -}
 boardFull board = _boardFull (toList board)
-public export
+
 _allUnitsDead : List (Maybe Monster) -> Bool
 _allUnitsDead (Nothing::tl) = _allUnitsDead tl
 _allUnitsDead ((Just m)::tl) with (aliveness (basic m))
@@ -147,7 +136,7 @@ _allUnitsDead ((Just m)::tl) with (aliveness (basic m))
  | DeadFresh = _allUnitsDead tl
  | DeadStale = _allUnitsDead tl
 _allUnitsDead [] = True
-public export
+
 allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
 
@@ -159,7 +148,7 @@ resetAllSkills : Game -> Game {-Resets start skills, end skills, and counter ski
 possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
 
 {-Might actually want to be stepping round here, not game.-}
-public export
+
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 goToNextPhase (game,acc) =
  let (retPhase, phaseUpdate) = nextPhase (phase game) in
@@ -190,12 +179,9 @@ Also have to possibly decrement soul points depending on what turn it is.
 
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
 
-public export
 getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
 
 
-
-public export
 transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
 transformPlayer (game,updateAcc) PlayerA transform =
  let (player,updates) = transform (player_A game) in
@@ -213,7 +199,7 @@ transformPlayer (game,updateAcc) PlayerB transform =
 
 
 {-This needs to be fixed, but probably should just get numeric typeclasses working first... -}
-public export
+
 spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
 spendThoughts (game, clientUpdates) whichPlayer n =
  transformPlayer (game, clientUpdates)
@@ -224,11 +210,9 @@ spendThoughts (game, clientUpdates) whichPlayer n =
 
 
 
-public export
+
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
 
-
-public export
 handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
-public export
+
 getMonsterField : Player -> Player -> Nat -> Maybe (Player,(Fin 9),Monster)
