@@ -1,3 +1,3 @@
 PATH=$PATH:~/.cabal/bin
 export path
-idris --log 0 --build elementalmagicks.ipkg
+idris +RTS -K256000000 -RTS --log 0 --build elementalmagicks.ipkg

@@ -36,6 +36,8 @@ getReviveCost : (toRevive : List Monster) -> Nat
 getReviveCost toRevive = foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
 
 
+
+{-
 {-I might want to move these to the graceyard rather than simply removing them from the hand-}
 
 _removeMonsterFromHandByPermanentId : (acc : List Card) -> (hand : List Card) -> (id : Nat) -> (Maybe Monster, List Card)
@@ -48,11 +50,16 @@ removeMonsterFromHandByPermanentId : (hand : List Card) -> (id : Nat) -> (Maybe 
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 
 
+
+
+
+
 moveMonsterFromHandToGraveyardByPermanentId : (hand : List Card) -> (graveyard : List Card) -> (id : Nat) -> Maybe (List Card, List Card)
 moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
  case removeMonsterFromHandByPermanentId hand id of
       (Nothing, hand') => Nothing
       (Just m, hand') => Just (hand', (graveyard ++ [MonsterCard m]))
+
 
 
 reviveMonster : Monster -> Monster
@@ -82,7 +89,7 @@ revive positions player = case _revive positions (board player) (thoughts player
                                Nothing => Nothing
                                Just (board', thoughts', hand', graveyard') => Just (record {board = board', thoughts = thoughts', hand = hand', graveyard = graveyard'} player)
 
-
+-}
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 

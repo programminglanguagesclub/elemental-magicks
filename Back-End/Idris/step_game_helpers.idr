@@ -148,12 +148,15 @@ resetAllSkills : Game -> Game {-Resets start skills, end skills, and counter ski
 possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
 
 {-Might actually want to be stepping round here, not game.-}
-
+{-THIS IS WHERE I NEED TO BE LOADING THE SPAWN SKILLS!!!!-}
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 goToNextPhase (game,acc) =
  let (retPhase, phaseUpdate) = nextPhase (phase game) in
  let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
  case retPhase of
+  DrawPhase => (game', acc')
+
+  {-am I sending the ++ turnNumber and += 2 thoughts updates???-}
   SpawnPhase => (record {player_A->thoughts = transformBounded (\x => x + 2) (thoughts (player_A game')),
                          player_B->thoughts = transformBounded (\x => x + 2) (thoughts (player_B game')),
                          turnNumber = S (turnNumber game)}

@@ -56,8 +56,8 @@ Need to get opponent to call transformGame
 
 
 
-{-NEED TO SAY THIS IS PARTIAL-}
 
+partial
 main : IO ()
 main = do {
 x <- reader;
