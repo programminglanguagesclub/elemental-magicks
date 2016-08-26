@@ -1,4 +1,0 @@
-ffi urwebFFI
-include urwebFFI.h
-link urwebFFI.o
-effectful UrwebFFI.counter
