@@ -218,3 +218,5 @@ move_interp (Existential arguments condition selected failed) selection player o
 
 
 {-Somewhere I also want to take into account that certain skills can't be executed from certain areas: if a card has a skill queued but the card is moved to the graveyard, that probably ends the effect-}
+{-Also need to keep track of the evoker of skills. Note I need to both know that certain skills can't be used from certain areas AND certain skills can't be used ON cards in certain areas...-}
+
