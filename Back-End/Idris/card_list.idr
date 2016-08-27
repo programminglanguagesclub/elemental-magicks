@@ -8,7 +8,7 @@ import hp
 import preliminaries
 import objects_basic
 import skill_dsl_data
-import skill_dsl
+import skill_dsl_syntax
 import phase
 import clientupdates
 import player

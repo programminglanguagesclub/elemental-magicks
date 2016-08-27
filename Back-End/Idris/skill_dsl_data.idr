@@ -94,24 +94,10 @@ mutual
   data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition {-no requirement that the condition must reference the bound variable currently-}
   data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
 
-
+{-ALSO HAVE TO ADD NOT TO CONDITION!-}
 mutual
   data Nonautomatic = TerminatedSkill | Existential (Vect n (String,Set)) Condition Automatic Automatic
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal String Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
-
-
-done : Automatic
-done = MkAutomatic [] TerminatedSkill
-
-syntax exists friendly unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
-syntax exists enemy unit [x] success ":" [sel] failure ":" [fail] = Existential [] Vacuous sel fail
-
-
-foo : Nonautomatic
-foo = exists friendly unit "x" success : done failure : done
-
-
-
 
 
