@@ -97,7 +97,7 @@ mutual
 {-ALSO HAVE TO ADD NOT TO CONDITION!-}
 mutual
   data Nonautomatic = TerminatedSkill | Existential (Vect n (String,Set)) Condition Automatic Automatic
-  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal String Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
+  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal (String,Set) Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 
 
