@@ -33,6 +33,10 @@ getSet : Side -> RelativeSet -> Set
 friendly : Side
 friendly = Friendly
 
+enemy : Side
+enemy = Enemy
+
+
 board : RelativeSet
 board = RelativeBoard
 
@@ -49,6 +53,23 @@ discard : RelativeSet
 discard = RelativeDiscard
 
 
+{-
+permanent : Temporality
+permanent = Permanent
+
+temporary : Temporality
+temporary = Temporary
+-}
+
+
+range : Stat
+range = Range
+
+speed : Stat
+speed = Speed
+
+
+
 
 x : String
 x = "x"
@@ -60,9 +81,28 @@ z = "z"
 
 
 
+
+{-
+
+
+
+
+
+
+scouting : Skill
+scouting = soul;
+ all monster x in enemy board
+   permanent range x -= 1
+
+
+-}
+
+
 syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = Existential [(var,getSet side relativeSet)] cond sel fail
 
 syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond effects next
+
+syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous effects next
 
 {-
 syntax hp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
@@ -74,10 +114,15 @@ hp var mutator val = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) va
 maxHp : String -> Mutator -> Integer -> SkillEffect
 maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
 
+permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
+permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent val) var
 
 
 
-
+{-
+syntax ";" [effect] [effects] = effect::effects
+syntax "do" [effect] [effects] = effect::effects
+-}
 
 
 foo : Nonautomatic
@@ -88,15 +133,40 @@ foo2 = all x in friendly board where Vacuous do
   []
   done
 
+
+
+
+
 infixr 4 += {-shouuld not have to write the fixity and associativity and precedence of constants!!-}
 (+=) : Mutator
 (+=) = Increment
 
+{-
+syntax "(-=)" [val] = Increment (val * (-1))
+-}
+
+{-
+(-=) : Integer -> Mutator
+(-=) x = 
+  -}
+
 
 healing_rain : Automatic
 healing_rain =
-  all x in friendly board where Vacuous do
+  all x in friendly board do
     [hp x (+=) 40]
+    done
+
+scouting : Automatic
+scouting =
+  all x in enemy board do
+    [permanent range x (+=) (-1)]
+    done
+
+eye_of_clairvoyance : Automatic
+eye_of_clairvoyance =
+  all x in enemy board do
+    [permanent speed x (+=) (-1)]
     done
 
 
