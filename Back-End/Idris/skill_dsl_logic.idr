@@ -82,7 +82,7 @@ lookupCardId s (MkEnv env) = lookupCardId' s env
 
 getValue : RInteger -> Player -> Player -> Env -> Maybe Integer
 getValue (Constant x) _ _ _ = Just x
-getValue (Variable statR var) player opponent env = do id <- lookupCardId var env
+getValue (Variable statR var) player opponent env = do id <- lookupCardId var env {-THIS IS CURRENTLY ONLY SET UP TO LOOK FOR THINGS IN THE FRIENDLY AND ENEMY BOARDS!!!!-}
                                                        basicMonster <- lookupBasicCard id player opponent
                                                        return (lookupStat basicMonster statR)
 
@@ -185,10 +185,10 @@ step_interp (MkAutomatic skillEffects nonautomatic) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
       case nonautomatic of
            TerminatedSkill => (player',opponent',messages,TerminatedSkill,env)
-           Existential arguments condition selected failed => case satisfiableExistentialCondition arguments condition player opponent env of
-                                                                   True => (player',opponent', messages, nonautomatic, env)
-                                                                   False => let (player'',opponent'', messages', nonautomatic',env') =
-                                                                                step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
+           Existential arguments condition selected failed => let (variables,sets) = unzip arguments in case satisfiableExistentialCondition variables condition player opponent env of
+                                                                                                             True => (player',opponent', messages, nonautomatic, env)
+                                                                                                             False => let (player'',opponent'', messages', nonautomatic',env') =
+                                                                                                                          step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
                                                                                 (player'',opponent'', messages ++ messages', nonautomatic',env')
 step_interp (Universal argument condition skillEffects next) player opponent env = ?hole
 
@@ -211,9 +211,10 @@ move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,P
 move_interp TerminatedSkill _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
 move_interp (Existential arguments condition selected failed) selection player opponent env with (alignVectors arguments selection)
   | Nothing = (player,opponent,[],Existential arguments condition selected failed, env)
-  | Just (arguments', selection')  = case satisfiedExistentialCondition' condition player opponent (extend_env env arguments' selection') of
-                                          False => (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
-                                          True => step_interp selected player opponent (extend_env env arguments' selection')
+  | Just (arguments', selection') =
+     let (variables',sets') = unzip arguments' in case satisfiedExistentialCondition' condition player opponent (extend_env env variables' selection') of
+                                                        False => (player,opponent, [], Existential arguments condition selected failed,env) {-could add a "failed selection" message-}
+                                                        True => step_interp selected player opponent (extend_env env variables' selection')
 
 
 {-Somewhere I also want to take into account that certain skills can't be executed from certain areas: if a card has a skill queued but the card is moved to the graveyard, that probably ends the effect-}

@@ -83,6 +83,9 @@ applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
 applyStatEffect basic ReviveEffect = ?hole
 
 
+{-SOMEWHERE CARD SKILLS NEED TO KEEP A REFERENCE TO THEIR OWN CARDS-}
+
+
 data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHand | EnemyHand | FriendlyGraveyard | EnemyGraveyard | FriendlyDiscard | EnemyDiscard | Union Set Set
 
 {-dummy stuff for now-}
@@ -93,7 +96,7 @@ mutual
 
 
 mutual
-  data Nonautomatic = TerminatedSkill | Existential (Vect n String) Condition Automatic Automatic
+  data Nonautomatic = TerminatedSkill | Existential (Vect n (String,Set)) Condition Automatic Automatic
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal String Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 
