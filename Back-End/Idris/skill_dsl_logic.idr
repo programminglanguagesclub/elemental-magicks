@@ -96,7 +96,7 @@ getValue (Minus a b) player opponent env = do x <- getValue a player opponent en
                                               return (x-y)
 getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
 getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
-
+getValue (Cardinality var set condition) player opponent env = ?hole
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool

@@ -83,10 +83,13 @@ applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
 applyStatEffect basic ReviveEffect = ?hole
 
 
+data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHand | EnemyHand | FriendlyGraveyard | EnemyGraveyard | FriendlyDiscard | EnemyDiscard | Union Set Set
+
 {-dummy stuff for now-}
 data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | HpR | MaxHpR
-data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6)
-data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
+mutual
+  data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition {-no requirement that the condition must reference the bound variable currently-}
+  data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
 
 
 mutual
