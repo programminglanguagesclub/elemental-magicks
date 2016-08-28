@@ -140,6 +140,13 @@ foo2 = all x in friendly board where Vacuous do
 infixr 4 += {-shouuld not have to write the fixity and associativity and precedence of constants!!-}
 (+=) : Mutator
 (+=) = Increment
+infixr 4 -=
+(-=) : Mutator
+(-=) = Decrement
+infixr 4 :=
+(:=) : Mutator
+(:=) = Assign
+
 
 {-
 syntax "(-=)" [val] = Increment (val * (-1))
@@ -149,6 +156,10 @@ syntax "(-=)" [val] = Increment (val * (-1))
 (-=) : Integer -> Mutator
 (-=) x = 
   -}
+
+syntax "-=" = (-=)
+syntax "+=" = (+=)
+syntax ":=" = (:=)
 
 
 healing_rain : Automatic
@@ -160,13 +171,13 @@ healing_rain =
 scouting : Automatic
 scouting =
   all x in enemy board do
-    [permanent range x (+=) (-1)]
+    [permanent range x -= 1]
     done
 
 eye_of_clairvoyance : Automatic
 eye_of_clairvoyance =
   all x in enemy board do
-    [permanent speed x (+=) (-1)]
+    [permanent speed x -= 1]
     done
 
 

@@ -11,7 +11,7 @@ import objects_basic
 %access public export
 %default total
 data Stat = Attack | Defense | Speed | Range | Level
-data Mutator = Increment | Assign
+data Mutator = Increment | Decrement | Assign
 data Temporality = Temporary | Permanent
 data HpStat = CurrentHp | MaxHp
 marshall : Temporality -> (Bounded lower upper, Bounded lower upper, t3) -> String
