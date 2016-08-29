@@ -31,6 +31,9 @@ record Monster where
  deathSkill      : Maybe Skill
  autoSkill   : Maybe Skill
  actionSkills : List Skill
+ 
+ soulSkill : Maybe Skill
+
 
 record Spell where
  constructor MkSpell

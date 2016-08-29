@@ -27,27 +27,49 @@ import player
 
 {-not giving mutant pig a skill quite yet-}
 
-
-
+namespace justSkill
+  skills : Skill -> Maybe Skill
+  skills s = Just s
+namespace oneSkill
+  skills : Skill -> Skill
+  skills = id
+namespace manySkills
+  skills : Skill -> List Skill
+  skills s = [s]
+namespace zeroCostJustSkill
+  skills : Automatic -> Maybe Skill
+  skills a = Just (a,False,0)
 
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
-syntax startSkill ":" [startSkill] = \x => record {startSkill = Just (startSkill, False, 0)} x
-syntax endSkill ":" [endSkill] = \x => record {endSkill = Just (endSkill, False, 0)} x
-syntax counterSkill ":" [counterSkill] = \x => record {counterSkill = Just (counterSkill, False, 0)} x
-syntax spawnSkill ":" [spawnSkill] = \x => record {spawnSkill = Just (spawnSkill, False, 0)} x
-syntax deathSkill ":" [deathSkill] = \x => record {deathSkill = Just (deathSkill, False, 0)} x
-syntax autoSkill ":" [autoSkill] = \x => record {autoSkill = Just (autoSkill, False, 0)} x
-syntax actionSkills ":" [actionSkills] = \x => record {actionSkills = actionSkills} x {-going to have to deal with cost and used somewhere else here....-}
+syntax startSkill ":" [startSkill] = \x => record {startSkill = skills startSkill} x
+syntax endSkill ":" [endSkill] = \x => record {endSkill = skills endSkill} x
+syntax counterSkill ":" [counterSkill] = \x => record {counterSkill = skills counterSkill} x
+syntax spawnSkill ":" [spawnSkill] = \x => record {spawnSkill = skills spawnSkill} x
+syntax deathSkill ":" [deathSkill] = \x => record {deathSkill = skills deathSkill} x
+syntax autoSkill ":" [autoSkill] = \x => record {autoSkill = skills autoSkill} x
+syntax actions ":" [actions] = \x => record {actionSkills = actions} x {-going to have to deal with cost and used somewhere else here....-}
+syntax action ":" [action] = \x => record {actionSkills = [action]} x
+syntax soulSkill ":" [soulSkill] = \x => record {soulSkill = skills soulSkill} x
+
+
 
 {-syntax actionSkill ":" [actionSkill] = \x => record {actionSkills = [actionSkill]} x-}
 
 
+{-
+action : Skill -> Monster -> Monster
+action s m = record {actionSkills = [s]} m
+-}
+
+{-
 namespace oneAction
   action : Automatic -> Nat -> List Skill
   action automatic cost = [(automatic, False, cost)]
 namespace manyActions
   action : Automatic -> Nat -> Skill
   action automatic cost = (automatic, False, cost)
+-}
+
 
 composeSkillAdditions : List (Monster -> Monster) -> Monster -> Monster
 composeSkillAdditions [] = \m => m
@@ -59,7 +81,7 @@ syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk
   composeSkillAdditions skill_list (MkMonster (MkBasicMonster unit_name 0 0 schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [])
+   >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [] Nothing)
 
 
 
@@ -122,11 +144,16 @@ spirit_void = TwoSchools 4 5
 {-can make exists a named function and use namespaces to allow starting with automatic or non-automatic and avoid the need for "begin"-}
 
 
+
+syntax [val] thoughts "->" [skill] = skills (skill, False, val)
+{-currently have to use the plural form even for 1 thought..-}
+
+
 monsterList : List Monster
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
   "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
-  "Rogue Assassin" <- [actionSkills : action select x in enemy board then hp x := 0 ; 2] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+  "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board then hp x := 0 ;, soulSkill : 2 thoughts -> select x in enemy board then hp x := 0 ; ] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
 ]
 
 

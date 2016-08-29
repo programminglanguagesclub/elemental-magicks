@@ -8,6 +8,7 @@ import integer_then_bounded
 import hp
 import preliminaries
 import objects_basic
+import player
 import skill_dsl_data
 %access public export
 %default total
@@ -104,6 +105,12 @@ namespace skipAutomatic
 namespace doNotSkipAutomatic
   begin : Nonautomatic -> Nonautomatic
   begin = \x => x
+namespace skill_start
+  begin : Nonautomatic -> Nat -> Skill
+  begin nonautomatic cost = (MkAutomatic [] nonautomatic, False, cost)
+namespace skill_start_list
+  begin : Nonautomatic -> Nat -> List Skill
+  begin nonautomatic cost = [(MkAutomatic [] nonautomatic, False, cost)]
 
 
 namespace finishWithList
