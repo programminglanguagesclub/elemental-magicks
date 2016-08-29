@@ -126,7 +126,7 @@ monsterList : List Monster
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
   "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
-  "Rogue Assassin" <- [actionSkills : action (begin (exists x in enemy board success : finishWith (hp x := 0) ;)) 2] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+  "Rogue Assassin" <- [actionSkills : action select x in enemy board then hp x := 0 ; 2] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
 ]
 
 

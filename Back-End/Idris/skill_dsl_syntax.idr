@@ -112,7 +112,9 @@ namespace finishWithList
 namespace finishWithSingle
   finishWith : SkillEffect -> Automatic
   finishWith skillEffect = MkAutomatic [skillEffect] done
-
+namespace doNotFinishWith
+  finishWith : Automatic -> Automatic
+  finishWith = \x => x
 
 
 
@@ -139,18 +141,18 @@ syntax success ":" [sel] =
 
 
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond sel fail)
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done fail)
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond sel done)
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) done)
 
 
-syntax exists [var] "in" [side] [relativeSet] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel fail)
+syntax exists [var] "in" [side] [relativeSet] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done fail)
+syntax exists [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous sel done)
+syntax exists [var] "in" [side] [relativeSet] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
 
 
 
@@ -163,6 +165,10 @@ syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (va
 syntax hp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
 syntax maxHp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
 -}
+
+
+
+
 
 hp : String -> Mutator -> Integer -> SkillEffect
 hp var mutator val = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
