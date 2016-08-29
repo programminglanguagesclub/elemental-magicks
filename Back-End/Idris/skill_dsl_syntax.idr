@@ -106,9 +106,13 @@ namespace doNotSkipAutomatic
   begin = \x => x
 
 
-finishWith : List SkillEffect -> Automatic
-finishWith skillEffects = MkAutomatic skillEffects done
- 
+namespace finishWithList
+  finishWith : List SkillEffect -> Automatic
+  finishWith skillEffects = MkAutomatic skillEffects done
+namespace finishWithSingle
+  finishWith : SkillEffect -> Automatic
+  finishWith skillEffect = MkAutomatic [skillEffect] done
+
 
 
 

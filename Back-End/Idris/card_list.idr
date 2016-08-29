@@ -121,7 +121,7 @@ testEffect : SkillEffect
 testEffect = hp x := 0
 
 testSkill1 : Nonautomatic
-testSkill1 = exists x in enemy board where Vacuous success : MkAutomatic [testEffect] done failure : done
+testSkill1 = exists x in enemy board where Vacuous success : finishWith [testEffect] failure : done
 
 
 
@@ -140,14 +140,14 @@ bar = action (MkAutomatic [] exists x in enemy board where Vacuous success : MkA
 baz : Skill
 baz = action (begin (exists x in enemy board success : MkAutomatic [testEffect] done failure : done)) 2
 
-{-
+
 monsterList : List Monster
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
   "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
-  "Rogue Assassin" <- [actionSkills : [action (MkAutomatic [] exists x in enemy board do [hp x := 0] done) 2]] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+  "Rogue Assassin" <- [actionSkills : [action (begin (exists x in enemy board success : finishWith (hp x := 0) failure : done)) 2]] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
 ]
--}
+
 
 {-
 
