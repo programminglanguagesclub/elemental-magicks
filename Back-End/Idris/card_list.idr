@@ -123,8 +123,19 @@ testEffect = hp x := 0
 testSkill1 : Nonautomatic
 testSkill1 = exists x in enemy board where Vacuous success : MkAutomatic [testEffect] done failure : done
 
+
 testSkill : Skill
-testSkill = action (MkAutomatic [] testSkill1) 2
+testSkill = action (exists x in enemy board success : MkAutomatic [testEffect] done failure : done) 2
+
+{-
+bar : Skill
+bar = action (MkAutomatic [] exists x in enemy board where Vacuous success : MkAutomatic [hp x := 0] done failure : done)
+-}
+
+{-can make exists a named function and use namespaces to allow starting with automatic or non-automatic and avoid the need for "begin"-}
+
+baz : Skill
+baz = action (begin (exists x in enemy board success : MkAutomatic [testEffect] done failure : done)) 2
 
 {-
 monsterList : List Monster
