@@ -124,8 +124,11 @@ testSkill1 : Nonautomatic
 testSkill1 = exists x in enemy board where Vacuous success : MkAutomatic [testEffect] done failure : done
 
 
+
+{-again, can use namespaces to allow either a list of not (in the case of action skills too maybe-}
+
 testSkill : Skill
-testSkill = action (exists x in enemy board success : MkAutomatic [testEffect] done failure : done) 2
+testSkill = action (exists x in enemy board success : finishWith [testEffect] _) 2
 
 {-
 bar : Skill

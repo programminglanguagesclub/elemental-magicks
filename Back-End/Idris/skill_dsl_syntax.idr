@@ -105,9 +105,31 @@ namespace doNotSkipAutomatic
   begin : Nonautomatic -> Nonautomatic
   begin = \x => x
 
+
+finishWith : List SkillEffect -> Automatic
+finishWith skillEffects = MkAutomatic skillEffects done
+ 
+
+
+
+
+
+
+{-
+syntax exists [var] "in" [side] [relativeSet] success ":" [sel] "_" = (Existential [(var, getSet side relativeSet)] Vacuous sel done)
+
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] "_" = begin (Existential [(var, getSet side relativeSet)] cond sel done)
+-}
+
+
+
 syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond sel fail)
 
 syntax exists [var] "in" [side] [relativeSet] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel fail)
+
+
+
+
 
 syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond effects next
 
