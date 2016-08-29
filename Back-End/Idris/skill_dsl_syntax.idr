@@ -141,18 +141,18 @@ syntax success ":" [sel] =
 
 
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) done)
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) done)
 
 
-syntax exists [var] "in" [side] [relativeSet] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
 
-syntax exists [var] "in" [side] [relativeSet] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
+syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
 
 
 
@@ -185,7 +185,7 @@ syntax ";" [effect] [effects] = effect::effects
 syntax "do" [effect] [effects] = effect::effects
 -}
 
-
+{-
 foo : Nonautomatic
 foo = exists x in friendly board where Vacuous success : done failure : done
 
@@ -196,7 +196,7 @@ foo2 = all x in friendly board where Vacuous do
 
 
 
-
+-}
 
 infixr 4 += {-shouuld not have to write the fixity and associativity and precedence of constants!!-}
 (+=) : Mutator
