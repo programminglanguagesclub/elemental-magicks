@@ -102,11 +102,11 @@ syntax schools ":" [school_1] [school_2] = TwoSchools school_1 school_2
 syntax school  ":" [school_1] = OneSchool school_1
 syntax school ":" none = NoSchools 
 
-syntax [unit_name] "<-" skills ":" [skill_list] [_schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
-  MkBasicMonster unit_name 0 0 _schools (mkHp hp)
+syntax [unit_name] "<-" [skill_list] [_schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
+  composeSkillAdditions skill_list (MkMonster (MkBasicMonster unit_name 0 0 _schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive
+   >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [])
 
 
 
@@ -178,10 +178,10 @@ spirit_void = TwoSchools 4 5
 
 
 
-monsterList : List BasicMonster
+monsterList : List Monster
 monsterList = [
 
-  "mutant pig" <- skills : [] spirit_void life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2
+  "mutant pig" <- [] spirit_void life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2
 
 
 {-{-monster (mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2)
