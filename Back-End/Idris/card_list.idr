@@ -27,36 +27,7 @@ import player
 
 {-not giving mutant pig a skill quite yet-}
 
-{-
-t : BasicMonster
-t = mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) (60) (30) (0) (2) (1) (3) sp 2
--}
 
-
-
-{-
-
-syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
-  MkBasicMonster name permanentId temporaryId schools (mkHp hp)
-   ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
-   ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive
-
-
-
-
-startSkill : Maybe Skill
- endSkill : Maybe Skill
- counterSkill : Maybe Skill
- spawnSkill     : Maybe Skill
- deathSkill      : Maybe Skill
- autoSkill   : Maybe Skill
- actionSkills : List Skill
-
--}
-{-
-syntax monster [basicMonster] startSkill ":" [startSkill] endSkill ":" [endSkill] counterSkill ":" [counterSkill] spawnSkill ":" [spawnSkill] deathSkill ":" [deathSkill] autoSkill ":" [autoSkill] actionSkills ":" [actionSkills] = MkMonster basicMonster startSkill autoSkill counterSkill spawnSkill deathSkill autoSkill actionSkills
--}
 
 
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
@@ -68,42 +39,22 @@ syntax deathSkill ":" [deathSkill] = \x => record {deathSkill = Just (deathSkill
 syntax autoSkill ":" [autoSkill] = \x => record {autoSkill = Just (autoSkill, False, 0)} x
 syntax actionSkills ":" [actionSkills] = \x => record {actionSkills = actionSkills} x {-going to have to deal with cost and used somewhere else here....-}
 
+action : Automatic -> Nat -> Skill
+action automatic cost = (automatic, False, cost)
 
 {-
-namespace startSkill
-  monster : BasicMonster -> Automatic -> Monster
-  monster basicMonster automatic = MkMonster 
--}
-
 syntax unit [basic] = MkMonster basic Nothing Nothing Nothing Nothing Nothing Nothing []
-
-
-
-{-
-syntax monster [basic] startSkill ":" [startSkill] = MkMonster basic startSkill Nothing Nothing Nothing Nothing Nothing []
- 
-
-m : Monster
-m = monster (mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2)
-t : Monster
-t = monster (mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2) startSkill : done
 -}
 
 
 composeSkillAdditions : List (Monster -> Monster) -> Monster -> Monster
 composeSkillAdditions [] = \m => m
 composeSkillAdditions (x::xs) = \m => x $ composeSkillAdditions xs m
-{-
-syntax skills [skill_list] = composeSkillAdditions skill_list
--}
 
 
-syntax schools ":" [school_1] [school_2] = TwoSchools school_1 school_2
-syntax school  ":" [school_1] = OneSchool school_1
-syntax school ":" none = NoSchools 
 
-syntax [unit_name] "<-" [skill_list] [_schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
-  composeSkillAdditions skill_list (MkMonster (MkBasicMonster unit_name 0 0 _schools (mkHp hp)
+syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  composeSkillAdditions skill_list (MkMonster (MkBasicMonster unit_name 0 0 schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
    >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [])
@@ -115,15 +66,6 @@ syntax [unit_name] "<-" [skill_list] [_schools] life ":" [hp] atk ":" [attack] d
 
 Let's ditch permanent ID and just use name.
 for now I'll put 0 for all the permanent IDS. Also temporary ID shouldn't be addressed here, but I'll put 0 for now for all of them as well.
-
-syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
-  MkBasicMonster name permanentId temporaryId schools (mkHp hp)
-   ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
-   ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive
-
-
-schools : 4 5
 
 -}
 
@@ -175,31 +117,29 @@ spirit_void : MonsterSchools
 spirit_void = TwoSchools 4 5
 
 
+testEffect : SkillEffect
+testEffect = hp x := 0
 
+testSkill1 : Nonautomatic
+testSkill1 = exists x in enemy board where Vacuous success : MkAutomatic [testEffect] done failure : done
 
+testSkill : Skill
+testSkill = action (MkAutomatic [] testSkill1) 2
 
+{-
 monsterList : List Monster
 monsterList = [
-
-  "mutant pig" <- [] spirit_void life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2
-
-
-{-{-monster (mkBasicMonster "mutant pig" 0 0 (TwoSchools 4 5) life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2)
-  startSkill : Nothing
-  endSkill : Nothing
-  counterSkill : Nothing
-  spawnSkill : Nothing
-  deathSkill : Nothing
-  autoSkill : Nothing
-  actionSkills :[],-}
-  (startSkill : done) (unit (mkBasicMonster "greater succubus" 1 0 (OneSchool 4) life: 60 atk: 0 def: 0 spe: 1 rng: 3 lvl: 3 sp: 2))
- 
+  "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
+  "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
+  "Rogue Assassin" <- [actionSkills : [action (MkAutomatic [] exists x in enemy board do [hp x := 0] done) 2]] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+]
 -}
 
+{-
 
 
+ "mutant pig" <- [] spirit_void life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2,
+  "greater succubus" <- [] spirit life: 60 atk: 0 def: 0 spe: 1 rng: 3 lvl: 3 sp: 2
 
 
-
-
-]
+-}
