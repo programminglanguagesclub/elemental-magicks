@@ -39,13 +39,15 @@ syntax deathSkill ":" [deathSkill] = \x => record {deathSkill = Just (deathSkill
 syntax autoSkill ":" [autoSkill] = \x => record {autoSkill = Just (autoSkill, False, 0)} x
 syntax actionSkills ":" [actionSkills] = \x => record {actionSkills = actionSkills} x {-going to have to deal with cost and used somewhere else here....-}
 
-action : Automatic -> Nat -> Skill
-action automatic cost = (automatic, False, cost)
+{-syntax actionSkill ":" [actionSkill] = \x => record {actionSkills = [actionSkill]} x-}
 
-{-
-syntax unit [basic] = MkMonster basic Nothing Nothing Nothing Nothing Nothing Nothing []
--}
 
+namespace oneAction
+  action : Automatic -> Nat -> List Skill
+  action automatic cost = [(automatic, False, cost)]
+namespace manyActions
+  action : Automatic -> Nat -> Skill
+  action automatic cost = (automatic, False, cost)
 
 composeSkillAdditions : List (Monster -> Monster) -> Monster -> Monster
 composeSkillAdditions [] = \m => m
@@ -116,36 +118,15 @@ air_void = TwoSchools 3 5
 spirit_void : MonsterSchools
 spirit_void = TwoSchools 4 5
 
-
-testEffect : SkillEffect
-testEffect = hp x := 0
-
-testSkill1 : Nonautomatic
-testSkill1 = exists x in enemy board where Vacuous success : finishWith [testEffect] failure : done
-
-
-
 {-again, can use namespaces to allow either a list of not (in the case of action skills too maybe-}
-
-testSkill : Skill
-testSkill = action (exists x in enemy board success : finishWith [testEffect] failure : done) 2
-
-{-
-bar : Skill
-bar = action (MkAutomatic [] exists x in enemy board where Vacuous success : MkAutomatic [hp x := 0] done failure : done)
--}
-
 {-can make exists a named function and use namespaces to allow starting with automatic or non-automatic and avoid the need for "begin"-}
-
-baz : Skill
-baz = action (begin (exists x in enemy board success : MkAutomatic [testEffect] done failure : done)) 2
 
 
 monsterList : List Monster
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
   "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
-  "Rogue Assassin" <- [actionSkills : [action (begin (exists x in enemy board success : finishWith (hp x := 0) failure : done)) 2]] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+  "Rogue Assassin" <- [actionSkills : action (begin (exists x in enemy board success : finishWith (hp x := 0) ;)) 2] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
 ]
 
 

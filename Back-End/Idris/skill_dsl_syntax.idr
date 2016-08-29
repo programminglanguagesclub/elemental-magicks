@@ -125,12 +125,32 @@ syntax exists [var] "in" [side] [relativeSet] success ":" [sel] "_" = (Existenti
 syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] "_" = begin (Existential [(var, getSet side relativeSet)] cond sel done)
 -}
 
+{--}
+replaceSuccess : Automatic -> Nonautomatic -> Nonautomatic
+replaceSuccess success (Existential args cond sel fail) = Existential args cond success fail
+replaceSuccess _ TerminatedSkill = TerminatedSkill
+replaceFailure : Automatic -> Nonautomatic -> Nonautomatic
+replaceFailure failure (Existential args cond sel fail) = Existential args cond sel failure
+replaceFailure _ TerminatedSkill = TerminatedSkill
+
+{-
+syntax success ":" [sel] =
+-}
+
 
 
 syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond sel fail)
 
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done fail)
+
+syntax exists [var] "in" [side] [relativeSet] "where" [cond] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond sel done)
+
+
 syntax exists [var] "in" [side] [relativeSet] success ":" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel fail)
 
+syntax exists [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done fail)
+
+syntax exists [var] "in" [side] [relativeSet] success ":" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous sel done)
 
 
 
