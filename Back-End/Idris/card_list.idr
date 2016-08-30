@@ -184,9 +184,13 @@ monsterList = [
    "Tank" <- [soulSkill : all x in friendly board where not dead x do [permanent defense x += 10] done]
              no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2,
    "Treant Watchman" <- [counterSkill : done, soulSkill : done] {-NEED TO CODE THIS; make mass exhaustion target friendly field as well -}
-                        earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2 {-,
-    "Forest Druid" <- []-}
+                        earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
+    "Forest Druid" <- [action : 1 thoughts -> select x in friendly board where not dead x then [maxHp x := $ (SchoolR True 0) * 10, hp x := (maxHp x)] ;]
+                      earth lvl : 2 life : 30 atk : 20 def : 0 spe : 1 rng : 2 sp : 2
 ]
+
+{-I need to move more things to syntax extensions so that I can ditch some of these $s -}
+
 
 
 {-

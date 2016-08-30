@@ -285,6 +285,20 @@ infixr 4 -=
 infixr 4 :=
 (:=) : Mutator
 (:=) = Assign
+namespace RR
+  infixl 9 *
+  (*) : RInteger -> RInteger -> RInteger
+  (*) a b = Mult a b
+namespace RI
+  infixl 9 *
+  (*) : RInteger -> Integer -> RInteger
+  (*) a b = Mult a (Constant b)
+namespace IR
+  infixl 9 *
+  (*) : Integer -> RInteger -> RInteger
+  (*) a b = Mult (Constant a) b
+  
+
 
 
 {-
