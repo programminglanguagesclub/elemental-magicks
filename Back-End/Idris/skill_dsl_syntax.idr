@@ -237,6 +237,8 @@ namespace rinteger
   maxHp : String -> Mutator -> RInteger -> SkillEffect
   maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
 
+  temporary : Stat -> String -> Mutator -> RInteger -> SkillEffect
+  temporary stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Temporary val) var
   permanent : Stat -> String -> Mutator -> RInteger -> SkillEffect
   permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent val) var
 
