@@ -105,4 +105,4 @@ mutual
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal (String,Set) Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 
-
+{-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!-}

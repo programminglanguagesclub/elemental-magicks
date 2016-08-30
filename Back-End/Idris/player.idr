@@ -15,7 +15,11 @@ import clientupdates
 
 Skill : Type
 Skill = (Automatic, Bool, Nat)
+{-THIS IS WHERE I CAN REPRESENT EVOKER!
+I need to distinguish between abstract skills and skills that have been bound to a particular card.
 
+That is, I want to be able to write skills for cards, and then when I create a card, have the other fields filled.
+-}
 
 {- does a skill exist, and has it been used? This way I can also easily make it so that spell cards don't disappear as soon as they are used and monsters don't become engaged as they use their action skills-}
 
