@@ -63,22 +63,36 @@ temporary = Temporary
 -}
 
 
-range : Stat
-range = Range
+namespace statL
+  range : Stat
+  range = Range
 
-speed : Stat
-speed = Speed
+  speed : Stat
+  speed = Speed
 
-defense : Stat
-defense = Defense
+  defense : Stat
+  defense = Defense
 
-attack : Stat
-attack = Attack
+  attack : Stat
+  attack = Attack
 
-level : Stat
-level = Level
-
-
+  level : Stat
+  level = Level
+{-
+namespace statR
+  range : StatR
+  range = RangeR
+  speed : StatR
+  speed = SpeedR
+  defense : StatR
+  defense = DefenseR
+  attack : StatR
+  attack = AttackR
+  level : StatR
+  level = LevelR
+  hp : StatR
+  maxHp : StatR
+-}
 
 
 x : String
@@ -193,17 +207,49 @@ syntax maxHp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator M
 
 
 
-hp : String -> Mutator -> Integer -> SkillEffect
-hp var mutator val = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
-maxHp : String -> Mutator -> Integer -> SkillEffect
-maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
+namespace getInteger
+  hp : String -> RInteger
+  hp var = Variable HpR var
+  maxHp : String -> RInteger
+  maxHp var = Variable MaxHpR var
+  
+{-eventually might want to use Stat for this, but then need it to not bake in temporality-}
 
-permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
-permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent val) var
+
+  permanent : Stat -> String -> RInteger
+  permanent Attack var = Variable PermanentAttackR var
+  permanent Defense var = Variable PermanentDefenseR var
+  permanent Speed var = Variable PermanentSpeedR var
+  permanent Range var = Variable PermanentRangeR var
+  permanent Level var = Variable PermanentLevelR var
+  temporary : Stat -> String -> RInteger
+  temporary Attack var = Variable TemporaryAttackR var
+  temporary Defense var = Variable TemporaryDefenseR var
+  temporary Speed var = Variable TemporarySpeedR var
+  temporary Range var = Variable TemporaryRangeR var
+  temporary Level var = Variable TemporaryLevelR var
+
+
+
+namespace rinteger
+  hp : String -> Mutator -> RInteger -> SkillEffect
+  hp var mutator val = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
+  maxHp : String -> Mutator -> RInteger -> SkillEffect
+  maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
+
+  permanent : Stat -> String -> Mutator -> RInteger -> SkillEffect
+  permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent val) var
 
 revive : String -> SkillEffect
 revive var = SkillEffectStatEffect ReviveEffect var
+namespace cinteger
+  hp : String -> Mutator -> Integer -> SkillEffect
+  hp var mutator val = SkillEffectStatEffect (MkHpEffect mutator CurrentHp (Constant val)) var
+  maxHp : String -> Mutator -> Integer -> SkillEffect
+  maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp (Constant val)) var
 
+  permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
+  permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent (Constant val)) var
 
 syntax not [cond] = Not cond
 
@@ -258,19 +304,19 @@ syntax ":=" = (:=)
 healing_rain : Automatic
 healing_rain =
   all x in friendly board do
-    [hp x (+=) 40]
+    [hp x (+=) (Constant 40)]
     done
 
 scouting : Automatic
 scouting =
   all x in enemy board do
-    [permanent range x -= 1]
+    [permanent range x -= (Constant 1)]
     done
 
 eye_of_clairvoyance : Automatic
 eye_of_clairvoyance =
   all x in enemy board do
-    [permanent speed x -= 1]
+    [permanent speed x -= (Constant 1)]
     done
 
 

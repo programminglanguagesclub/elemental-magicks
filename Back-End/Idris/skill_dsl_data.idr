@@ -25,11 +25,7 @@ selectMutator Assign Temporary = setTemporary
 selectMutator Assign Permanent = setPermanent
 selectMutator Increment Temporary = incrementTemporary
 selectMutator Increment Permanent = incrementPermanent
-data DamageEffect = MkDamageEffect Integer
-data StatEffect = MkStatEffect Stat Mutator Temporality Integer | MkHpEffect Mutator HpStat Integer | MkEngagementEffect Mutator Integer | ReviveEffect
-data ResourceEffect = ThoughtEffect Mutator Integer | SchoolEffect (Fin 6) Mutator Integer
-data PositionEffect = PositionDummy
-data SkillEffect = SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
+
 statTypeLower : Stat -> Integer
 statTypeLower Speed = Preliminaries.absoluteLowerBound
 statTypeLower _ = 0
@@ -60,6 +56,9 @@ basicStatSetter Defense = set_defense
 basicStatSetter Speed = set_speed
 basicStatSetter Range = set_range
 basicStatSetter Level = set_level
+
+
+
 hpTransformType : HpStat -> (Integer -> Integer) -> Hp -> Hp
 hpTransformType CurrentHp = transformHp
 hpTransformType MaxHp = transformMaxHp
@@ -75,12 +74,7 @@ getStatTypeName Level = "level"
 getHpTypeName : HpStat -> String
 getHpTypeName CurrentHp = "hp"
 getHpTypeName MaxHp = "max hp"
-applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
-applyStatEffect basic (MkStatEffect stat mutator temporality x) =
-  let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (getStatTypeName stat, marshall temporality $ basicStat stat m))
-applyStatEffect basic (MkHpEffect mutator hpStat x) = let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)
-applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
-applyStatEffect basic ReviveEffect = ?hole
+
 
 
 {-SOMEWHERE CARD SKILLS NEED TO KEEP A REFERENCE TO THEIR OWN CARDS-}
@@ -89,10 +83,22 @@ applyStatEffect basic ReviveEffect = ?hole
 data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHand | EnemyHand | FriendlyGraveyard | EnemyGraveyard | FriendlyDiscard | EnemyDiscard | Union Set Set
 
 {-dummy stuff for now-}
-data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | HpR | MaxHpR
+data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | TemporaryDefenseR | PermanentDefenseR | TemporaryRangeR | PermanentRangeR | TemporaryLevelR | PermanentLevelR | HpR | MaxHpR
 mutual
+  data DamageEffect = MkDamageEffect RInteger
+  data StatEffect = MkStatEffect Stat Mutator Temporality RInteger | MkHpEffect Mutator HpStat RInteger | MkEngagementEffect Mutator RInteger | ReviveEffect
+  data ResourceEffect = ThoughtEffect Mutator RInteger | SchoolEffect (Fin 6) Mutator RInteger
+  data PositionEffect = PositionDummy
+  data SkillEffect = SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
   data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition {-no requirement that the condition must reference the bound variable currently-}
   data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition | Not Condition
+
+applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
+applyStatEffect basic (MkStatEffect stat mutator temporality x) =
+  {-let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (getStatTypeName stat, marshall temporality $ basicStat stat m))-} ?hole
+applyStatEffect basic (MkHpEffect mutator hpStat x) = {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
+applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
+applyStatEffect basic ReviveEffect = ?hole
 
 mutual
   data Nonautomatic = TerminatedSkill | Existential (Vect n (String,Set)) Condition Automatic Automatic
