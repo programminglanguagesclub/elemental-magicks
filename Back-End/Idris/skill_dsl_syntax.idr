@@ -69,6 +69,15 @@ range = Range
 speed : Stat
 speed = Speed
 
+defense : Stat
+defense = Defense
+
+attack : Stat
+attack = Attack
+
+level : Stat
+level = Level
+
 
 
 
@@ -171,9 +180,9 @@ syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existent
 
 
 
-syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] next [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
+syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
 
-syntax all [var] "in" [side] [relativeSet] "do" [effects] next [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
+syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
 
 {-
 syntax hp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var

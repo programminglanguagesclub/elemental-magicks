@@ -152,11 +152,24 @@ syntax [val] thoughts "->" [skill] = skills (skill, False, val)
 
 
 
-
+{-
 foo : Automatic
-foo = all x in friendly board where dead x do [revive x] next done
+foo = all x in friendly board where dead x do [revive x] done
+-}
 
 
+{-
+foo : Automatic
+foo = all x in friendly board where not dead x do [permanent defense x += 10] done
+-}
+{-
+bar : Stat
+bar = defense
+-}
+
+{-
+permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
+-}
 
 monsterList : List Monster
 monsterList = [
@@ -166,9 +179,13 @@ monsterList = [
                        soulSkill : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ; ]
                       no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2,
   "Guardian Angel" <- [spawnSkill : select x in friendly board where dead x then revive x ;,
-                       soulSkill : all x in friendly board where dead x do [revive x] next done]
-                      no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1
-
+                       soulSkill : all x in friendly board where dead x do [revive x] done]
+                      no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1,
+   "Tank" <- [soulSkill : all x in friendly board where not dead x do [permanent defense x += 10] done]
+             no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2,
+   "Treant Watchman" <- [counterSkill : done, soulSkill : done] {-NEED TO CODE THIS; make mass exhaustion target friendly field as well -}
+                        earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2 {-,
+    "Forest Druid" <- []-}
 ]
 
 
