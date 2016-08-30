@@ -92,9 +92,8 @@ data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHan
 data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | HpR | MaxHpR
 mutual
   data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition {-no requirement that the condition must reference the bound variable currently-}
-  data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition
+  data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition | Not Condition
 
-{-ALSO HAVE TO ADD NOT TO CONDITION!-}
 mutual
   data Nonautomatic = TerminatedSkill | Existential (Vect n (String,Set)) Condition Automatic Automatic
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic | Universal (String,Set) Condition (List SkillEffect) Nonautomatic {-haven't added all of the code for universal yet...-}

@@ -148,12 +148,27 @@ spirit_void = TwoSchools 4 5
 syntax [val] thoughts "->" [skill] = skills (skill, False, val)
 {-currently have to use the plural form even for 1 thought..-}
 
+{- eventually I can make the game automatically add "not dead", etc, based on the effects (so you would have to pick a non-dead unit if you wanted to modify stats other than by reviving)-}
+
+
+
+
+foo : Automatic
+foo = all x in friendly board where dead x do [revive x] next done
+
+
 
 monsterList : List Monster
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
   "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
-  "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board then hp x := 0 ;, soulSkill : 2 thoughts -> select x in enemy board then hp x := 0 ; ] no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+  "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ;,
+                       soulSkill : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ; ]
+                      no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2,
+  "Guardian Angel" <- [spawnSkill : select x in friendly board where dead x then revive x ;,
+                       soulSkill : all x in friendly board where dead x do [revive x] next done]
+                      no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1
+
 ]
 
 

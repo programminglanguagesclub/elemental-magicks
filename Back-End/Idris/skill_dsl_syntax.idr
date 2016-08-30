@@ -125,6 +125,13 @@ namespace doNotFinishWith
 
 
 
+namespace universalEffects
+  eff : List SkillEffect -> List SkillEffect
+  eff = id
+namespace universalEffects2
+  eff : SkillEffect -> List SkillEffect
+  eff s = [s]
+
 
 
 
@@ -164,9 +171,9 @@ syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existent
 
 
 
-syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond effects next
+syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] next [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
 
-syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous effects next
+syntax all [var] "in" [side] [relativeSet] "do" [effects] next [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
 
 {-
 syntax hp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
@@ -184,6 +191,15 @@ maxHp var mutator val = SkillEffectStatEffect (MkHpEffect mutator MaxHp val) var
 
 permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
 permanent stat var mutator val = SkillEffectStatEffect (MkStatEffect stat mutator Permanent val) var
+
+revive : String -> SkillEffect
+revive var = SkillEffectStatEffect ReviveEffect var
+
+
+syntax not [cond] = Not cond
+
+dead : String -> Condition
+dead var = RDead var
 
 
 
