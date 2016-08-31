@@ -13,8 +13,20 @@ import clientupdates
 %access public export
 %default total
 
+
+
+
+
+SkillFactory : Type
+SkillFactory = (Automatic, Bool, Nat, Nat) {-automatic, used, cost, and id of evoker-}
+
+
+
 Skill : Type
 Skill = (Automatic, Bool, Nat)
+
+
+
 {-THIS IS WHERE I CAN REPRESENT EVOKER!
 I need to distinguish between abstract skills and skills that have been bound to a particular card.
 
@@ -25,9 +37,12 @@ That is, I want to be able to write skills for cards, and then when I create a c
 
 {- used : Bool, cost : Nat -}
 
-record Monster where
+
+
+
+record MonsterFactory where
  constructor MkMonster
- basic : BasicMonster
+ basic : BasicMonsterFactory
  startSkill : Maybe Skill
  endSkill : Maybe Skill
  counterSkill : Maybe Skill
@@ -39,10 +54,14 @@ record Monster where
  soulSkill : Maybe Skill
 
 
-record Spell where
- constructor MkSpell
- basic      : BasicSpell
+record SpellFactory where
+ constructor MkSpellFactory
+ basic      : BasicSpellFactory
  spawnSkill : Skill
+
+
+
+
 
 data Card = SpellCard Spell | MonsterCard Monster
 
