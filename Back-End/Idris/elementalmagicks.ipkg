@@ -1,6 +1,6 @@
 package elementalmagicks
 
-modules = utility,bounded,bounded_then_integer,integer_then_bounded,preliminaries, hp, phase, objects_basic, skill_dsl_data, skill_dsl_syntax, skill_data_logic, player, card_list, game, serverupdates, clientupdates, step_game_helpers, step_game, transform_game_helpers, transform_game, main 
+modules = utility,bounded,bounded_then_integer,integer_then_bounded,preliminaries, hp, phase, objects_basic, skill_dsl_data, skill_dsl_syntax, skill_data_logic,card, player, card_list, game, serverupdates, clientupdates, step_game_helpers, step_game, transform_game_helpers, transform_game, main 
 opts = "-p effects" 
 
 executable = elementalmagicks
