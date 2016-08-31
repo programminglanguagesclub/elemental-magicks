@@ -15,27 +15,13 @@ import card
 %default total
 
 
-{-
-public export
-Board : Type
-Board = Vect 9 (Maybe Monster)
--}
 Spawn : Type
 Spawn = Maybe Card
 Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
 
-
-{- unused? -}
 Thoughts : Type
 Thoughts = Bounded 0 absoluteUpperBound
-
-{-this might go in preliminaries-}
-{-
-public export
-transformThoughts : (Integer -> Integer) -> Thoughts -> Thoughts
-transformThoughts = transformBounded 0 absoluteUpperBound Oh Oh
--}
 
 record Player where
  constructor MkPlayer
