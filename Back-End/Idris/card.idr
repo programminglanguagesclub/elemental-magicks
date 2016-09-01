@@ -41,7 +41,7 @@ That is, I want to be able to write skills for cards, and then when I create a c
 
 
 record MonsterFactory where
- constructor MkMonster
+ constructor MkMonsterFactory
  basic : BasicMonsterFactory
  startSkill : Maybe Skill
  endSkill : Maybe Skill
@@ -51,7 +51,7 @@ record MonsterFactory where
  autoSkill   : Maybe Skill
  actionSkills : List Skill
  
- soulSkill : Maybe Skill
+ soulSkill : Skill
 
 
 record SpellFactory where
@@ -59,6 +59,23 @@ record SpellFactory where
  basic      : BasicSpellFactory
  spawnSkill : Skill
 
+record Spell where
+ constructor MkSpell
+ basic : BasicSpell
+ spawnSkill : Skill
+
+
+record Monster where
+ constructor MkMonster
+ basic : BasicMonster
+ startSkill : Maybe Skill
+ endSkill : Maybe Skill
+ counterSkill : Maybe Skill
+ spawnSkill : Maybe Skill
+ deathSkill : Maybe Skill
+ autoSkill : Maybe Skill
+ actionSkills : List Skill
+ soulSkill : Skill
 
 
 

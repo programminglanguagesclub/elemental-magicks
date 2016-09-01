@@ -79,3 +79,30 @@ foo = MkBounded (3 ** (Oh,Oh,Oh))
 bar : Bounded 1 9
 bar = transformBounded (\x => x) foo
 
+
+
+
+
+
+extendLowerBound : Bounded a b -> So(a' <= a) -> Bounded a' b
+{-
+extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_a'_a = MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))
+-}
+{-
+extendUpperBound : Bounded a b -> So(b
+
+extendBounds : .....
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+

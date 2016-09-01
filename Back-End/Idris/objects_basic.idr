@@ -18,12 +18,23 @@ data MonsterSchools = NoSchools
                     | OneSchool (Fin 6)
                     | TwoSchools (Fin 6) (Fin 6)
 
-{-Shouldn't TemporaryPermanentBase be lower case??-}
+record BasicMonsterFactory where
+ constructor MkBasicMonsterFactory
+ name : String
+ schools : MonsterSchools
+ hp : Bounded 1 Preliminaries.absoluteUpperBound
+ attack : Bounded 0 Preliminaries.absoluteUpperBound
+ defense : Bounded 0 Preliminaries.absoluteUpperBound
+ speed : Bounded 1 5
+ range : Bounded 1 5
+ level : Bounded 1 9
+ soulPoints : Bounded 1 2
+
+
 record BasicMonster where
  constructor MkBasicMonster
  name : String
- permanentId : Nat {-equivalence classes of cards. Used for revival-} {-I might want to use name instead.... and get rid of this....-}
- temporaryId : Nat {-Id of a particular card for the game-}
+ id : Nat
  schools : MonsterSchools
  hp : Hp
  attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
@@ -34,6 +45,25 @@ record BasicMonster where
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
  engagement : Bounded 0 Preliminaries.absoluteUpperBound
  aliveness : Aliveness
+
+triple : t -> (t,t,t)
+triple t = (t,t,t)
+
+instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
+instantiateBasicMonster basicMonsterFactory cardId =
+ MkBasicMonster (name basicMonsterFactory)
+                cardId
+                (schools basicMonsterFactory)
+                (mkHp (extractBounded $ hp basicMonsterFactory))
+                (triple $ attack basicMonsterFactory)
+                (triple $ defense basicMonsterFactory)
+                (>> (extractBounded $ speed basicMonsterFactory) << , >> (extractBounded $ speed basicMonsterFactory) <<, speed basicMonsterFactory) 
+                (>> (extractBounded $ range basicMonsterFactory) << , >> (extractBounded $ range basicMonsterFactory) <<, range basicMonsterFactory)
+                (>> (extractBounded $ level basicMonsterFactory) << , >> (extractBounded $ level basicMonsterFactory) <<, level basicMonsterFactory)
+                (>> (extractBounded $ soulPoints basicMonsterFactory) <<, soulPoints basicMonsterFactory)
+                >> 0 <<
+                Alive   
+
 
 syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
   MkBasicMonster name permanentId temporaryId schools (mkHp hp)
