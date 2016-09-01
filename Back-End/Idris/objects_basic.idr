@@ -53,6 +53,10 @@ triple t = (t,t,t)
 
 {-I should be able to use auto or something (or at least syntax extensions?) to avoid having to write Oh everywhere.-}
 instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
+{-
+
+{- temporarily disabled! -}
+
 instantiateBasicMonster basicMonsterFactory cardId =
  MkBasicMonster (name basicMonsterFactory)
                 cardId
@@ -66,6 +70,13 @@ instantiateBasicMonster basicMonsterFactory cardId =
                 (extendLowerBound (soulPoints basicMonsterFactory) Oh, soulPoints basicMonsterFactory)
                 >> 0 <<
                 Alive   
+
+
+
+
+
+-}
+
 
 {-
 
@@ -107,9 +118,15 @@ record BasicSpell where
  school : Fin 6 {-Spells must have exactly one school-}
  level : Bounded 1 9
 
-instantiateBasicSpell
-instantiate
+instantiateBasicSpell : BasicSpellFactory -> BasicSpell
+instantiateBasicSpell basicSpellFactory = ?hole
 
 
 
 data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicMonster
+
+
+
+
+
+
