@@ -329,10 +329,10 @@ namespace nonauto_nonauto
 
 
 
-
+{-
 
 syntax select [var] "in" [side] [relativeSet] = addStatements (var,side,relativeSet)
-
+-}
 
 {-need to add more arguments to represent the data in var, side, and relative set-}
 
@@ -639,7 +639,7 @@ foo = exists friendly unit "x" success : done failure : done
 foo : thenStatement
 foo = then { (hp x := 3) }-}
 
-
+{-
 
 foo : ThenStatement
 foo = then { MkAutomatic [] done }
@@ -655,6 +655,44 @@ foobar44 = bar44 foo
 foobar22 : Nonautomatic
 foobar22 = (select x in friendly board) (then {MkAutomatic [] done})
 
+-}
 
 
+
+
+
+
+
+
+
+
+
+{-
+
+
+This works, but it has semicolons to make the syntax extension prefix-free.
+
+-}
+
+
+
+
+
+
+
+
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = 423 
+syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = 22
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = 21
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 33 
+syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 334
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = 32
+
+
+
+foo : Integer
+foo = select x in friendly board then { MkAutomatic [] select y in friendly board then {MkAutomatic [] done};};
+
+barfoobar : Integer
+barfoobar = select x in friendly board then {MkAutomatic [] done } else { MkAutomatic [] done} ;
 
