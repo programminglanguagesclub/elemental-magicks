@@ -209,20 +209,20 @@ namespace storeNonautomatic
  storeSkill : Nonautomatic -> Automatic
  storeSkill nonautomatic = MkAutomatic [] nonautomatic
 
-
+{-
 data ThenStatement = MkThenStatement Automatic
 data ElseStatement = MkElseStatement Automatic
 data NextStatement = MkNextStatement Automatic         
-
-
+-}
+{-
 syntax "then" "{" [sel] "}" = MkThenStatement (storeSkill sel)
 syntax "else" "{" [fail] "}" = MkElseStatement (storeSkill fail)
 syntax next "{" [next] "}" = MkNextStatement (storeSkill next)
-
+-}
 
 
 {-For now single argument, not argument list-}
-
+{-
 namespace statement_then_else_next_nonautomatic
  addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> NextStatement -> Nonautomatic
  addStatements = ?hole
@@ -267,7 +267,7 @@ namespace statement_else_automatic
 
 
 
-
+-}
 
 {-
 namespace auto_nonauto
@@ -349,50 +349,6 @@ foo = select x in friendly board where Vacuous then { done } else { done } next 
 foo : thenStatement
 foo = then {hp x := 3}
 -}
-
-
-{-
-
-
-
-REDOING THIS!!!
-
-
-
-
-
-
-
-
-syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
-
-syntax select [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
-
-syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) done)
-
-
-syntax select [var] "in" [side] [relativeSet] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
-
-syntax select [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
-
-syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
-
-
-
-
-syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
-
-syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
-
-
-
-
-
-
-
-
--}
-
 
 
 
@@ -678,21 +634,61 @@ This works, but it has semicolons to make the syntax extension prefix-free.
 
 
 
+{-
+REDOING THIS!!!
+
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) done)
+syntax select [var] "in" [side] [relativeSet] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
+syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existential [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
+syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
+syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
+-}
+
+
+{-if I have to use semicolons, then i can just require writing a next and use done for that.-}
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = begin (Existential [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) done) 
+syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = begin (Existential [(var, getSet side relativeSet)] Vacuous done (finishWith elseSkill)) 
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (Existential [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) (finishWith elseSkill))
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+
+{-also have to have the versions with "where"-}
+
+
+{-this also needs to be wrapped in something like begin or finishWith so it can be either automatic or not..-}
+syntax every [var] "in" [side] [relativeSet] [effects] [next] = Universal (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
+{-every is another place where I would like to be able to leave off the done at the end...-}
+
+syntax gaa [a] {-faa [b]-} = MkAutomatic a done {-a b-}
 
 
 
-syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = 423 
-syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = 22
-syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = 21
-syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 33 
-syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 334
-syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = 32
+garg : Automatic
+garg = gaa [hp x := 0] {-faa (select x in enemy board then [hp x := 0] ;)-}
+
+
+{- ah, what goes in the then cause right now can't just be a list of effects, but rather a whole automatic skill.
+I should allow skill effect list (with namespaces.. think I actually did this...) to work....
+-}
+
+{-garg = gaa [friendly thoughts := 0] faa (select x in enemy board then [hp x := 0] ;)-}
 
 
 
-foo : Integer
+foobarbarbar : Automatic
+foobarbarbar = every x in friendly board [hp x := 1] done
+
+foo : Automatic
 foo = select x in friendly board then { MkAutomatic [] select y in friendly board then {MkAutomatic [] done};};
 
-barfoobar : Integer
+barfoobar : Automatic
 barfoobar = select x in friendly board then {MkAutomatic [] done } else { MkAutomatic [] done} ;
+
+
+
+
 
