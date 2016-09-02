@@ -1,4 +1,4 @@
-module skill_dsl_syntax
+module skill_dsl_syntax2
 import Data.Vect
 import Data.Fin
 import Data.So
@@ -8,10 +8,16 @@ import integer_then_bounded
 import hp
 import preliminaries
 import objects_basic
+
+import card {-STILL HAVE TO IMPORT THIS IN SYNTAX1-}
 import player
 import skill_dsl_data
 %access public export
 %default total
+
+
+main : IO ()
+main = return ()
 
 
 namespace automatic
@@ -178,6 +184,186 @@ syntax success ":" [sel] =
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+{-for now just have single variable selections. I'll allow multiple very soon -}
+{-
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [sel] "}" "else" "{" [fail] "}" next "{" [next] "}" = 4
+-}
+
+
+
+namespace storeAutomatic
+ storeSkill : Automatic -> Automatic
+ storeSkill = id
+namespace storeNonautomatic
+ storeSkill : Nonautomatic -> Automatic
+ storeSkill nonautomatic = MkAutomatic [] nonautomatic
+
+
+data ThenStatement = MkThenStatement Automatic
+data ElseStatement = MkElseStatement Automatic
+data NextStatement = MkNextStatement Automatic         
+
+
+syntax "then" "{" [sel] "}" = MkThenStatement (storeSkill sel)
+syntax "else" "{" [fail] "}" = MkElseStatement (storeSkill fail)
+syntax next "{" [next] "}" = MkNextStatement (storeSkill next)
+
+
+
+{-For now single argument, not argument list-}
+
+namespace statement_then_else_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_else_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_else_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_else_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> Nonautomatic
+ addStatements = ?hole
+
+
+
+
+
+namespace statement_then_else_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> NextStatement -> Automatic
+ addStatements = ?hole
+namespace statement_then_else_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> Automatic
+ addStatements = ?hole
+namespace statement_then_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> NextStatement -> Automatic
+ addStatements = ?hole
+namespace statement_else_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> NextStatement -> Automatic
+ addStatements = ?hole
+namespace statement_then_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> Automatic
+ addStatements = ?hole
+namespace statement_else_automatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> Automatic
+ addStatements = ?hole
+
+
+
+
+
+{-
+namespace auto_nonauto
+namespace auto_auto
+ castSkill : Automatic -> Automatic
+ castSkill = id
+namespace nonauto_auto
+
+namespace nonauto_nonauto
+ castSkill : Nonautomatic -> Nonautomatic
+ castSkill = id
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+syntax select [var] "in" [side] [relativeSet] = addStatements (var,side,relativeSet)
+-}
+
+{-need to add more arguments to represent the data in var, side, and relative set-}
+
+
+
+
+
+{-
+foo : Integer
+foo = select x in friendly board where Vacuous then { done } else { done } next { done }
+                                       -}
+{-
+
+foo : thenStatement
+foo = then {hp x := 3}
+-}
+
+
+{-
+
+
+
+REDOING THIS!!!
+
+
+
+
+
+
+
+
 syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
 
 syntax select [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (Existential [(var,getSet side relativeSet)] cond done (finishWith fail))
@@ -197,6 +383,33 @@ syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (Existent
 syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
 
 syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
+
+
+
+
+
+
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 {-
 syntax hp [var] [mutator] [val] = SkillEffectStatEffect (MkHpEffect mutator CurrentHp val) var
@@ -317,6 +530,14 @@ syntax "+=" = (+=)
 syntax ":=" = (:=)
 
 
+
+
+
+{-
+
+THEREFORE ALSO REDOING THIS
+
+
 healing_rain : Automatic
 healing_rain =
   all x in friendly board do
@@ -334,6 +555,13 @@ eye_of_clairvoyance =
   all x in enemy board do
     [permanent speed x -= (Constant 1)]
     done
+
+
+
+
+
+-}
+
 
 
 {-test-}
@@ -407,5 +635,64 @@ foo : Nonautomatic
 foo = exists friendly unit "x" success : done failure : done
 
 -}
+{-
+foo : thenStatement
+foo = then { (hp x := 3) }-}
 
+{-
+
+foo : ThenStatement
+foo = then { MkAutomatic [] done }
+
+bar44 : ThenStatement -> Nonautomatic
+bar44 = select x in friendly board
+
+foobar44 : Nonautomatic
+foobar44 = bar44 foo
+
+{-GOING TO HAVE TO REDO THIS BECAUSE I CAN'T WRITE THE BELOW WITHOUT PARENS-}
+
+foobar22 : Nonautomatic
+foobar22 = (select x in friendly board) (then {MkAutomatic [] done})
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+This works, but it has semicolons to make the syntax extension prefix-free.
+
+-}
+
+
+
+
+
+
+
+
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = 423 
+syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = 22
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = 21
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 33 
+syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = 334
+syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = 32
+
+
+
+foo : Integer
+foo = select x in friendly board then { MkAutomatic [] select y in friendly board then {MkAutomatic [] done};};
+
+barfoobar : Integer
+barfoobar = select x in friendly board then {MkAutomatic [] done } else { MkAutomatic [] done} ;
 
