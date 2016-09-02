@@ -221,28 +221,120 @@ syntax next "{" [next] "}" = MkNextStatement (storeSkill next)
 
 
 
+{-For now single argument, not argument list-}
+
+namespace statement_then_else_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_else_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_else_next_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> NextStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_then_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> Nonautomatic
+ addStatements = ?hole
+namespace statement_else_nonautomatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> Nonautomatic
+ addStatements = ?hole
 
 
-namespace statement_then_else_next
- addStatements : ThenStatement -> ElseStatement -> NextStatement -> Nonautomatic
+
+
+
+namespace statement_then_else_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> NextStatement -> Automatic
  addStatements = ?hole
-namespace statement_then_else
- addStatements : ThenStatement -> ElseStatement -> Nonautomatic
+namespace statement_then_else_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> ElseStatement -> Automatic
  addStatements = ?hole
-namespace statement_then_next
- addStatements : ThenStatement -> NextStatement -> Nonautomatic
+namespace statement_then_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> NextStatement -> Automatic
  addStatements = ?hole
-namespace statement_else_next
- addStatements : ElseStatement -> NextStatement -> Nonautomatic
+namespace statement_else_next_automatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> NextStatement -> Automatic
  addStatements = ?hole
-namespace statement_then
- addStatements : ThenStatement -> Nonautomatic
+namespace statement_then_automatic
+ addStatements : (String,Side,RelativeSet) -> ThenStatement -> Automatic
  addStatements = ?hole
-namespace statement_else
- addStatements : ElseStatement -> Nonautomatic
+namespace statement_else_automatic
+ addStatements : (String,Side,RelativeSet) -> ElseStatement -> Automatic
  addStatements = ?hole
 
-syntax select [var] "in" [side] [relativeSet] = addStatements {-need to add more arguments to represent the data in var, side, and relative set-}
+
+
+
+
+{-
+namespace auto_nonauto
+namespace auto_auto
+ castSkill : Automatic -> Automatic
+ castSkill = id
+namespace nonauto_auto
+
+namespace nonauto_nonauto
+ castSkill : Nonautomatic -> Nonautomatic
+ castSkill = id
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+syntax select [var] "in" [side] [relativeSet] = addStatements (var,side,relativeSet)
+
+
+{-need to add more arguments to represent the data in var, side, and relative set-}
 
 
 
@@ -551,3 +643,18 @@ foo = then { (hp x := 3) }-}
 
 foo : ThenStatement
 foo = then { MkAutomatic [] done }
+
+bar44 : ThenStatement -> Nonautomatic
+bar44 = select x in friendly board
+
+foobar44 : Nonautomatic
+foobar44 = bar44 foo
+
+{-GOING TO HAVE TO REDO THIS BECAUSE I CAN'T WRITE THE BELOW WITHOUT PARENS-}
+
+foobar22 : Nonautomatic
+foobar22 = (select x in friendly board) (then {MkAutomatic [] done})
+
+
+
+
