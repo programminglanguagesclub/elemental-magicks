@@ -8,19 +8,25 @@ import public utility
 %default total
 
 data Bounded : Integer -> Integer -> Type where
-  MkBounded : (n ** (So(lower <= n),So(n <= upper),So(lower <= upper))) -> Bounded lower upper
+  MkBounded : (n ** (So(lower <= n),So(n <= upper))) -> Bounded lower upper
 
-syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh,Oh))
+syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh))
 
 foo12 : Bounded 0 31
 foo12 = >> 21 <<
 
+
+
+my_lte_transitive : {a,b,c : Integer} -> So(a<=b) -> So(b<=c) -> So(a<=c)
+my_lte_transitive _ _ = believe_me Oh
+
+my_lte_reflexive : (a : Integer) -> So(a<=a)
+my_lte_reflexive a = believe_me Oh
+
 integerToBounded : Integer -> (lower : Integer) -> (upper : Integer) -> Maybe (Bounded lower upper)
 integerToBounded m lower upper = case (choose (m <= upper)) of
                                       Left proofUpperBounded => case (choose (lower <= m)) of
-                                                                     Left proofLowerBounded => case (choose (lower <= upper)) of
-                                                                                                    Left proofInhabitedInterval => Just $ MkBounded (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
-                                                                                                    Right _ => Nothing
+                                                                     Left proofLowerBounded => Just $ MkBounded (m ** (proofLowerBounded,proofUpperBounded))
                                                                      Right _ => Nothing
                                       Right _ => Nothing
 
@@ -51,21 +57,15 @@ eq : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Bool
 eq (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = n1 == n2
 
 transformBounded : (Integer -> Integer) -> Bounded a b -> Bounded a b
-transformBounded {a = lower} {b = upper}  f (MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval))) =
+transformBounded {a = lower} {b = upper}  f (MkBounded (x ** (proofLower,proofUpper))) =
   let m = f x in
    case (choose (m <= upper)) of
     Left proofUpperBounded =>
      case (choose (lower <= m)) of
       Left proofLowerBounded =>
-       MkBounded (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
-      Right _ =>
-       case (choose (lower <= lower)) of
-       Left top => MkBounded (lower ** (top,proofInhabitedInterval,proofInhabitedInterval))
-       Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-this is an impossible case...-}   {-(lower ** (absurd bot,proofInhabitedInterval,proofInhabitedInterval))-}
-    Right _ =>
-     case (choose (upper <= upper)) of
-     Left top =>  MkBounded (upper ** (proofInhabitedInterval,top,proofInhabitedInterval))
-     Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
+       MkBounded (m ** (proofLowerBounded,proofUpperBounded))
+      Right _ => MkBounded (lower ** (my_lte_reflexive lower,my_lte_transitive proofLower proofUpper))
+    Right _ => MkBounded (upper ** (my_lte_transitive proofLower proofUpper,my_lte_reflexive upper))
 {-
 max : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Integer
 max (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = max n1 n2
@@ -74,32 +74,32 @@ min (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = min n1 n2
 -}
 
 foo : Bounded 1 9
-foo = MkBounded (3 ** (Oh,Oh,Oh))
+foo = MkBounded (3 ** (Oh,Oh))
 
 bar : Bounded 1 9
 bar = transformBounded (\x => x) foo
 
+{-
+postulate extendOkay : {a,b,c : Integer} -> So(a <= b) -> So(b <= c) -> So(a <= c)
 
+I don't know if I like this because I want to be able to pattern match with Oh probably.....
 
+I'm not sure this does that.
 
+-}
 
-
+{-
 extendLowerBound : Bounded a b -> So(a' <= a) -> Bounded a' b
-{-
-extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_a'_a = MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))
+extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_extend = MkBounded (n ** ((extendOkay prf_extend prf_lower_n),prf_n_upper,(extendOkay prf_extend prf_lower_upper )))
+
+extendUpperBound : Bounded a b -> So(b <= b') -> Bounded a b'
+extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_extend = MkBounded (n ** ( prf_lower_n ,(extendOkay prf_n_upper prf_extend) ,(extendOkay prf_lower_upper prf_extend)))
+
+this last function is broken somehow...
+
+extendBounds : Bounded a b - So(a' <= a) -> So(b <= b') -> Bounded a' b'
+extendBounds (MkBounded (n ** prf_lower_n, prf_n_upper, prf_lower_upper)) prf_extend_lower prf_extend_upper = MkBounded (n ** ( (extendOkay prf_extend_lower prf_lower_n) ,(extendOkay prf_n_upper prf_extend_upper) ,( ?hole )  )    )
 -}
-{-
-extendUpperBound : Bounded a b -> So(b
-
-extendBounds : .....
--}
-
-
-
-
-
-
-
 
 
 
