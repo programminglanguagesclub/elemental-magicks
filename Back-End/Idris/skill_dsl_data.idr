@@ -75,22 +75,20 @@ getHpTypeName : HpStat -> String
 getHpTypeName CurrentHp = "hp"
 getHpTypeName MaxHp = "max hp"
 
-
-
-{-SOMEWHERE CARD SKILLS NEED TO KEEP A REFERENCE TO THEIR OWN CARDS-}
-
-
 data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHand | EnemyHand | FriendlyGraveyard | EnemyGraveyard | FriendlyDiscard | EnemyDiscard | Union Set Set
 
-{-dummy stuff for now-}
 data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | TemporaryDefenseR | PermanentDefenseR | TemporaryRangeR | PermanentRangeR | TemporaryLevelR | PermanentLevelR | HpR | MaxHpR
 mutual
   data DamageEffect = MkDamageEffect RInteger
   data StatEffect = MkStatEffect Stat Mutator Temporality RInteger | MkHpEffect Mutator HpStat RInteger | MkEngagementEffect Mutator RInteger | ReviveEffect
   data ResourceEffect = ThoughtEffect Mutator RInteger | SchoolEffect (Fin 6) Mutator RInteger
   data PositionEffect = PositionDummy
-  data SkillEffect = SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
-  data RInteger = Constant Integer | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | Mult RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition {-no requirement that the condition must reference the bound variable currently-}
+  data SkillEffect = EvokerSkillEffectStatEffect StatEffect | SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
+  data RInteger = Constant Integer | Evoker StatR | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | Mult RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition
+                
+                {-no requirement that the condition must reference the bound variable currently-}
+  
+  
   data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition | Not Condition
 
 applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))

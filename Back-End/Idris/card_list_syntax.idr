@@ -17,15 +17,6 @@ import card
 %default total
 
 
-{-temporary ids really make absolutely no sense here at all.
- that needs to be removed from this...
- the cards in the game need to be this plus a temporary id I guess...
- for now I'm just making all of the temporaryIds 0.
--}
-
-{-I should make the syntax require saying the name of the stat before its value...-}
-
-
 {-not giving mutant pig a skill quite yet-}
 
 namespace justSkill
@@ -52,47 +43,16 @@ syntax actions ":" [actions] = \x => record {actionSkills = actions} x {-going t
 syntax action ":" [action] = \x => record {actionSkills = [action]} x
 syntax soulSkill ":" [soulSkill] = \x => record {soulSkill = skills soulSkill} x
 
-
-
-{-syntax actionSkill ":" [actionSkill] = \x => record {actionSkills = [actionSkill]} x-}
-
-
-{-
-action : Skill -> Monster -> Monster
-action s m = record {actionSkills = [s]} m
--}
-
-{-
-namespace oneAction
-  action : Automatic -> Nat -> List Skill
-  action automatic cost = [(automatic, False, cost)]
-namespace manyActions
-  action : Automatic -> Nat -> Skill
-  action automatic cost = (automatic, False, cost)
--}
-
-
-composeSkillAdditions : List (Monster -> Monster) -> Monster -> Monster
+composeSkillAdditions : List (MonsterFactory -> MonsterFactory) -> MonsterFactory -> MonsterFactory
 composeSkillAdditions [] = \m => m
 composeSkillAdditions (x::xs) = \m => x $ composeSkillAdditions xs m
 
 
-
 syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
-  composeSkillAdditions skill_list (MkMonster (MkBasicMonster unit_name 0 0 schools (mkHp hp)
+  composeSkillAdditions skill_list (MkMonsterFactory (MkBasicMonsterFactory unit_name schools (mkHp hp)
    ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
    ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
    >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [] Nothing)
-
-
-
-
-{-
-
-Let's ditch permanent ID and just use name.
-for now I'll put 0 for all the permanent IDS. Also temporary ID shouldn't be addressed here, but I'll put 0 for now for all of them as well.
-
--}
 
 no_schools : MonsterSchools
 no_schools = NoSchools
@@ -150,27 +110,6 @@ syntax [val] thoughts "->" [skill] = skills (skill, False, val)
 {-currently have to use the plural form even for 1 thought..-}
 
 {- eventually I can make the game automatically add "not dead", etc, based on the effects (so you would have to pick a non-dead unit if you wanted to modify stats other than by reviving)-}
-
-
-
-{-
-foo : Automatic
-foo = all x in friendly board where dead x do [revive x] done
--}
-
-
-{-
-foo : Automatic
-foo = all x in friendly board where not dead x do [permanent defense x += 10] done
--}
-{-
-bar : Stat
-bar = defense
--}
-
-{-
-permanent : Stat -> String -> Mutator -> Integer -> SkillEffect
--}
 
 
 

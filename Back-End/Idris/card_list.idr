@@ -17,10 +17,10 @@ import card_list_syntax
 %access public export
 %default total
 
-monsterList : List Monster
+monsterList : List MonsterFactory
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
-  "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1,
+  "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1{-,
   "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ;,
                        soulSkill : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ; ]
                       no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2,
@@ -37,7 +37,7 @@ monsterList = [
                      soulSkill : all x in friendly board where not dead x do [temporary attack x += $ (hp x)] done]
                     earth lvl : 2 life : 20 atk : 10 def : 0 spe : 5 rng : 3 sp : 2,
   "Fox Musician" <- [action : 0 thoughts -> all x in friendly board where not dead x do [permanent attack x += $ (Constant 5)] done]
-                    earth lvl : 2 life : 30 atk : 10 def : 0 spe : 2 rng : 3 sp : 2
+                                                                          earth lvl : 2 life : 30 atk : 10 def : 0 spe : 2 rng : 3 sp : 2-}
 ]
 
 {-I need to move more things to syntax extensions so that I can ditch some of these $s -}
