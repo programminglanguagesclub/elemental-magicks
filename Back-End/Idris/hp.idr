@@ -34,6 +34,12 @@ eq_hp : So(m <= m) -> Bounded a b
 -}
 
 
+leq_hp_maxhp : (currentHp : Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound) -> (maxHp : Bounded 0 Preliminaries.absoluteUpperBound) -> So((extractBounded currentHp) <= (extractBounded maxHp)) -> So(leq currentHp maxHp)
+leq_hp_maxhp currentHp maxHp _ = believe_me Oh
+
+
+{-the above is very hard to use...-}
+
 
 getCurrentHp : Hp -> Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound
 getCurrentHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = currentHp
@@ -46,46 +52,16 @@ transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
   let m = transformBounded f currentHp in
       case (choose (leq m maxHp)) of
            Left proofUpperBound => MkHp ((m ** (maxHp ** proofUpperBound)),baseHp)
-           Right _ => MkHp (((extendLowerBound maxHp Oh) ** (maxHp ** (believe_me Oh))),baseHp)
-
-
-
-      
-      
-      
-      
-      {-
-      case (choose (m <= maxHp)) of
-           Left proofUpperBounded => 
-                                    -}
-  
-  {-
-  
-  ?hole
-
-
-
--}
-
-
-{- let m = f x in
-   case (choose (m <= maxHp)) of
-    Left proofUpperBounded =>
-     case (choose ( <= m)) of
-      Left proofLowerBounded =>
-       MkBounded (m ** (proofLowerBounded,proofUpperBounded,proofInhabitedInterval))
-      Right _ =>
-       case (choose (lower <= lower)) of
-       Left top => MkBounded (lower ** (top,proofInhabitedInterval,proofInhabitedInterval))
-       Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-this is an impossible case...-}   {-(lower ** (absurd bot,proofInhabitedInterval,proofInhabitedInterval))-}
-    Right _ =>
-     case (choose (upper <= upper)) of
-     Left top =>  MkBounded (upper ** (proofInhabitedInterval,top,proofInhabitedInterval))
-     Right bot => MkBounded (x ** (proofLower,proofUpper,proofInhabitedInterval)) {-again, impossible case-}
-     -}
+           Right _ => let c = extendLowerBound maxHp Oh in
+                          MkHp ((c ** (maxHp ** (leq_hp_maxhp c maxHp (   ?hole   )))),baseHp)
 
 transformMaxHp : (Integer -> Integer) -> Hp -> Hp
-transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) = ?hole
+transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
+  let m = transformBounded f maxHp in
+      case (choose (leq currentHp m)) of
+           Left proofUpperBound => MkHp ((currentHp ** (m ** proofUpperBound)),baseHp)
+           Right _ => let c = extendLowerBound m Oh in
+                          MkHp ((c ** (m ** (leq_hp_maxhp c m ( ?hole )))), baseHp)
 
 {-I feel I should be doing something monadic here, but it's perhaps a bit more complicated-}
 
