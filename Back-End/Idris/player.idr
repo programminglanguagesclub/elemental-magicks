@@ -20,9 +20,6 @@ Spawn = Maybe Card
 Soul : Type
 Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
 
-Thoughts : Type
-Thoughts = Bounded 0 absoluteUpperBound
-
 record Player where
  constructor MkPlayer
  board : Vect 9 (Maybe Monster)

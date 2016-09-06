@@ -29,16 +29,16 @@ import card
 {-not giving mutant pig a skill quite yet-}
 
 namespace justSkill
-  skills : Skill -> Maybe Skill
+  skills : SkillFactory -> Maybe SkillFactory
   skills s = Just s
 namespace oneSkill
-  skills : Skill -> Skill
+  skills : SkillFactory -> SkillFactory
   skills = id
 namespace manySkills
-  skills : Skill -> List Skill
+  skills : SkillFactory -> List SkillFactory
   skills s = [s]
 namespace zeroCostJustSkill
-  skills : Automatic -> Maybe Skill
+  skills : Automatic -> Maybe SkillFactory
   skills a = Just (a,False,0)
 
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}

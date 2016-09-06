@@ -135,10 +135,10 @@ namespace doNotSkipAutomatic
   begin : Nonautomatic -> Nonautomatic
   begin = \x => x
 namespace skill_start
-  begin : Nonautomatic -> Nat -> Skill
+  begin : Nonautomatic -> Nat -> SkillFactory
   begin nonautomatic cost = (MkAutomatic [] nonautomatic, False, cost)
 namespace skill_start_list
-  begin : Nonautomatic -> Nat -> List Skill
+  begin : Nonautomatic -> Nat -> List SkillFactory
   begin nonautomatic cost = [(MkAutomatic [] nonautomatic, False, cost)]
 
 
