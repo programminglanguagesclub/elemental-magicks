@@ -66,12 +66,11 @@ transformBounded {a = lower} {b = upper}  f (MkBounded (x ** (proofLower,proofUp
        MkBounded (m ** (proofLowerBounded,proofUpperBounded))
       Right _ => MkBounded (lower ** (my_lte_reflexive lower,my_lte_transitive proofLower proofUpper))
     Right _ => MkBounded (upper ** (my_lte_transitive proofLower proofUpper,my_lte_reflexive upper))
-{-
-max : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Integer
+
+max : Bounded lower upper -> Bounded lower upper -> Integer
 max (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = max n1 n2
 min : Bounded lower1 upper1 -> Bounded lower2 upper2 -> Integer
 min (MkBounded(n1 ** _)) (MkBounded(n2 ** _)) = min n1 n2
--}
 
 foo : Bounded 1 9
 foo = MkBounded (3 ** (Oh,Oh))

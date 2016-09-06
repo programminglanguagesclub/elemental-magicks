@@ -12,6 +12,7 @@ import skill_dsl_syntax
 import phase
 import clientupdates
 import player
+import card
 import card_list_syntax
 %access public export
 %default total
