@@ -12,36 +12,8 @@ absoluteLowerBound = -1000
 absoluteUpperBound : Integer
 absoluteUpperBound = 1000
 
-
-{-
-public export
-extractBoundedNat : Bounded 0 upperBound -> Nat {-have to use the proof terms to reject the cases where the number is negative? Or could just project to Nat...-}
-
-public export Range : Type
-Range = Bounded 0 5
-public export Speed : Type
-Speed = Bounded absoluteLowerBound absoluteUpperBound
-public export Defense : Type
-Defense = Bounded 0 absoluteUpperBound
-public export Attack : Type
-Attack = Bounded 0 absoluteUpperBound
-
--}
-
-
-
-{-
-
-public export Level : Type
-Level = (Bounded 0 9,Bounded 0 9, Bounded 1 9)
-
-public export School : Type
-School = Fin 6
-public export Schools : Type
-Schools = Vect 6 (Bounded 0 9)
--}
 maxSchool : Bounded 0 9
-maxSchool = (MkBounded (9 ** (Oh,Oh,Oh)))
+maxSchool = >> 9 <<
 maxSchools : Vect 6 (Bounded 0 9)
 maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
 temporaryPermanentBase : Type -> Type
@@ -49,15 +21,6 @@ temporaryPermanentBase t = (t,t,t)
 
 extractBounded : Bounded lower upper -> Integer
 extractBounded (MkBounded (n ** _)) = n
-{-
-public export BoardIndex : Type
-BoardIndex = Fin 9
-public export HandIndex : Type
-HandIndex = Fin 25
-public export GraveyardIndex : Type
-GraveyardIndex = Fin 25
--}
-
 
 {-these could maybe be better. I don't have anything at the type level that forces them to be valid hand or graveyard indices... I can fix this later-}
 

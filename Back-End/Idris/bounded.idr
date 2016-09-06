@@ -88,18 +88,17 @@ I'm not sure this does that.
 
 -}
 
-{-
+
 extendLowerBound : Bounded a b -> So(a' <= a) -> Bounded a' b
-extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_extend = MkBounded (n ** ((extendOkay prf_extend prf_lower_n),prf_n_upper,(extendOkay prf_extend prf_lower_upper )))
+extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend = MkBounded (n ** ((my_lte_transitive prf_extend prf_lower_n),prf_n_upper))
 
 extendUpperBound : Bounded a b -> So(b <= b') -> Bounded a b'
-extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper, prf_lower_upper))) prf_extend = MkBounded (n ** ( prf_lower_n ,(extendOkay prf_n_upper prf_extend) ,(extendOkay prf_lower_upper prf_extend)))
+extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend = MkBounded (n ** (prf_lower_n,(my_lte_transitive prf_n_upper prf_extend)))
 
-this last function is broken somehow...
 
-extendBounds : Bounded a b - So(a' <= a) -> So(b <= b') -> Bounded a' b'
-extendBounds (MkBounded (n ** prf_lower_n, prf_n_upper, prf_lower_upper)) prf_extend_lower prf_extend_upper = MkBounded (n ** ( (extendOkay prf_extend_lower prf_lower_n) ,(extendOkay prf_n_upper prf_extend_upper) ,( ?hole )  )    )
--}
+extendBounds : Bounded a b -> So(a' <= a) -> So(b <= b') -> Bounded a' b'
+extendBounds (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend_lower prf_extend_upper = MkBounded (n ** ((my_lte_transitive prf_extend_lower prf_lower_n),(my_lte_transitive prf_n_upper prf_extend_upper)))
+
 
 
 
