@@ -30,7 +30,6 @@ record BasicMonsterFactory where
  level : Bounded 1 9
  soulPoints : Bounded 1 2
 
-
 record BasicMonster where
  constructor MkBasicMonster
  name : String
@@ -49,45 +48,30 @@ record BasicMonster where
 triple : t -> (t,t,t)
 triple t = (t,t,t)
 
-
-
-{-I should be able to use auto or something (or at least syntax extensions?) to avoid having to write Oh everywhere.-}
-instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
 {-
+syntax mkBasicMonsterFactory [name] [schools] [hp] [attack] [defense] [speed] [range] [level] [soulPoints] =
+  MkBasicMonsterFactory name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)
 
-{- temporarily disabled! -}
+test_basic_monster_factory : BasicMonsterFactory
+test_basic_monster_factory = mkBasicMonsterFactory "Mutant Pig" (TwoSchools 0 1) 10 10 10 2 2 3 2
+-}
+
+
+instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
 
 instantiateBasicMonster basicMonsterFactory cardId =
  MkBasicMonster (name basicMonsterFactory)
                 cardId
                 (schools basicMonsterFactory)
-                (mkHp (extractBounded $ hp basicMonsterFactory))
+                (generateHp $ hp basicMonsterFactory)
                 (triple $ attack basicMonsterFactory)
                 (triple $ defense basicMonsterFactory)
-                (extendBounds (speed basicMonsterFactory) Oh Oh , extendBounds (speed basicMonsterFactory) Oh Oh, extractBounds (speed basicMonsterFactory) Oh Oh) 
-                (extendBounds (range basicMonsterFactory) Oh Oh , extendBounds (range basicMonsterFactory) Oh Oh, extractBounds (range basicMonsterFactory) Oh Oh)
-                (extendLowerBound (level basicMonsterFactory) Oh, extendLowerBound (level basicMonsterFactor) Oh, level basicMonsterFactory)
+                (extendBounds (speed basicMonsterFactory) Oh Oh , extendBounds (speed basicMonsterFactory) Oh Oh, extendBounds (speed basicMonsterFactory) Oh Oh) 
+                (extendBounds (range basicMonsterFactory) Oh Oh , extendBounds (range basicMonsterFactory) Oh Oh, extendBounds (range basicMonsterFactory) Oh Oh)
+                (extendLowerBound (level basicMonsterFactory) Oh, extendLowerBound (level basicMonsterFactory) Oh, level basicMonsterFactory)
                 (extendLowerBound (soulPoints basicMonsterFactory) Oh, soulPoints basicMonsterFactory)
                 >> 0 <<
                 Alive   
-
-
-
-
-
--}
-
-
-{-
-
-Can do something like this for BasicMonsterFactory
-
-syntax mkBasicMonster [name] [permanentId] [temporaryId] [schools] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] lvl ":" [level] sp ":" [soulPoints] =
-  MkBasicMonster name permanentId temporaryId schools (mkHp hp)
-   ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
-   ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive
-   -}
 
 setTemporary : ((Bounded lower upper),t2,t3) -> Integer -> ((Bounded lower upper),t2,t3)
 setTemporary (temporary,permanent,base) x = (temporary := x, permanent, base)
@@ -105,7 +89,6 @@ getPermanent x = fst $ snd x
 getBase : (t1,t2,Bounded lower upper) -> Bounded lower upper
 getBase x = snd $ snd x
 
-
 record BasicSpellFactory where
  constructor MkBasicSpellFactory
  name : String
@@ -114,19 +97,18 @@ record BasicSpellFactory where
 
 record BasicSpell where
  constructor MkBasicSpell
+ name : String
  id : Nat
  school : Fin 6 {-Spells must have exactly one school-}
  level : Bounded 1 9
 
-instantiateBasicSpell : BasicSpellFactory -> BasicSpell
-instantiateBasicSpell basicSpellFactory = ?hole
-
-
+instantiateBasicSpell : BasicSpellFactory -> Nat -> BasicSpell
+instantiateBasicSpell basicSpellFactory id =
+  MkBasicSpell (name basicSpellFactory)
+               id
+               (school basicSpellFactory)
+               (level basicSpellFactory)
 
 data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicMonster
-
-
-
-
 
 

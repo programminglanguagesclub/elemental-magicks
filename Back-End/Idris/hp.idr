@@ -10,7 +10,20 @@ import preliminaries
 {-if I made this a GADT with a single constructor, then I can't pattern match on it apparently. This seems like a bug, although it doesn't matter-}
 data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 1 Preliminaries.absoluteUpperBound)
 
+
+generateHp : Bounded 1 Preliminaries.absoluteUpperBound -> Hp
+             
+             
+             
+            {- ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),Bounded 1 Preliminaries.absoluteUpperBound)-}
+
 syntax mkHp [hp] = MkHp (( >> hp << **( >> hp << ** Oh)), >> hp << )
+
+testHp : Hp
+testHp = mkHp 20
+
+
+
 
 {-
 eqLeq : (m : Bounded a b) -> So(leq m m)
