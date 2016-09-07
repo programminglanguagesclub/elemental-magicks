@@ -14,6 +14,7 @@ import player
 import game
 import serverupdates
 import clientupdates
+import card
 %access public export
 %default total
 
@@ -150,25 +151,25 @@ possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might hav
 {-Might actually want to be stepping round here, not game.-}
 {-THIS IS WHERE I NEED TO BE LOADING THE SPAWN SKILLS!!!!-}
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
-goToNextPhase (game,acc) =
- let (retPhase, phaseUpdate) = nextPhase (phase game) in
- let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
- case retPhase of
-  DrawPhase => (game', acc')
+goToNextPhase (game,acc) = ?hole
+ {- let (retPhase, phaseUpdate) = nextPhase (phase game) in
+    let (game', acc') = (record {phase = retPhase} game, acc ++ [phaseUpdate]) in
+      case retPhase of
+           DrawPhase => (game', acc')
 
   {-am I sending the ++ turnNumber and += 2 thoughts updates???-}
-  SpawnPhase => (record {player_A->thoughts = transformBounded (\x => x + 2) (thoughts (player_A game')),
+           SpawnPhase => (record {player_A->thoughts = transformBounded (\x => x + 2) (thoughts (player_A game')),
                          player_B->thoughts = transformBounded (\x => x + 2) (thoughts (player_B game')),
                          turnNumber = S (turnNumber game)}
                         game', acc' ++ [phaseUpdate])
-  SpellPhase => (game', acc')
-  RemovalPhase => (game', acc')
-  StartPhase => (resetAllSkills game', acc')
-  EngagementPhase => (game', acc')
-  EndPhase => (game', acc')
-  RevivalPhase => (game', acc')
-  DeploymentPhase => (game', acc')
-
+           SpellPhase => (game', acc')
+           RemovalPhase => (game', acc')
+           StartPhase => (resetAllSkills game', acc')
+           EngagementPhase => (game', acc')
+           EndPhase => (game', acc')
+           RevivalPhase => (game', acc')
+           DeploymentPhase => (game', acc')
+           -}
 
 {-
 
@@ -204,12 +205,12 @@ transformPlayer (game,updateAcc) PlayerB transform =
 {-This needs to be fixed, but probably should just get numeric typeclasses working first... -}
 
 spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
-spendThoughts (game, clientUpdates) whichPlayer n =
- transformPlayer (game, clientUpdates)
+spendThoughts (game, clientUpdates) whichPlayer n = ?hole
+{- transformPlayer (game, clientUpdates)
                  whichPlayer
                  (\p => ((record{thoughts = (thoughts p) {- - n -}} p),
                         clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p)]))
-
+                        -}
 
 
 

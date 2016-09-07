@@ -17,6 +17,31 @@ import card_list_syntax
 %access public export
 %default total
 
+
+
+
+{-
+{- reimaging this how I want it to be, assuming the syntax extensions work correctly
+ I still have the superfluous specifications on whether the card can be dead.
+ This will be fixed later.
+-}
+
+monsterList : List MonsterFactory
+monsterList = [
+  "Axeman" <- no_schools level : 3 life : 50 attack : 30 defense : 0 speed : 2 range : 1 sp : 2,
+              soulSkill : "Brutal Strike" 2 thoughts select x in enemy board where not dead x then damage x 50
+  "Goblin Berserker" <- .......
+  
+  
+  ]
+
+
+
+
+-}
+
+
+
 monsterList : List MonsterFactory
 monsterList = [
   "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,

@@ -12,6 +12,7 @@ import skill_dsl
 import phase
 import clientupdates
 import player
+import card
 %access public export
 %default total
 
@@ -61,7 +62,7 @@ lookupStat basicMonster MaxHpR = extractBounded $ getMaxHp $ hp $ basicMonster
 
 correctId : Nat -> Maybe Monster -> Bool
 correctId _ Nothing = False
-correctId id (Just monster) = (temporaryId (basic monster)) == id
+correctId id' (Just monster) = (id (basic monster)) == id'
 
 lookupBasicCard : Nat -> Player -> Player -> Maybe BasicMonster {-no targetting spell cards for now!-} 
 lookupBasicCard temporaryId player opponent = case find (correctId temporaryId) (board player) of
@@ -84,16 +85,16 @@ getValue : RInteger -> Player -> Player -> Env -> Maybe Integer
 getValue (Constant x) _ _ _ = Just x
 getValue (Variable statR var) player opponent env = do id <- lookupCardId var env {-THIS IS CURRENTLY ONLY SET UP TO LOOK FOR THINGS IN THE FRIENDLY AND ENEMY BOARDS!!!!-}
                                                        basicMonster <- lookupBasicCard id player opponent
-                                                       return (lookupStat basicMonster statR)
+                                                       pure (lookupStat basicMonster statR)
 
 
 
 getValue (Plus a b) player opponent env = do x <- getValue a player opponent env
                                              y <- getValue b player opponent env
-                                             return (x+y)
+                                             pure (x+y)
 getValue (Minus a b) player opponent env = do x <- getValue a player opponent env
                                               y <- getValue b player opponent env
-                                              return (x-y)
+                                              pure (x-y)
 getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
 getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
 getValue (Cardinality var set condition) player opponent env = ?hole
@@ -103,31 +104,31 @@ satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bo
 satisfiedExistentialCondition Vacuous _ _ _ = Just True
 satisfiedExistentialCondition (RDead var) player opponent env = do id <- lookupCardId var env
                                                                    card <- lookupBasicCard id player opponent
-                                                                   return (case aliveness card of
+                                                                   pure (case aliveness card of
                                                                                 Alive => True
                                                                                 DeadFresh => False
                                                                                 DeadStale => True)
 satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
-                                                                return (x < y) 
+                                                                pure (x < y) 
 satisfiedExistentialCondition (EQ a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
-                                                                return (x == y)
+                                                                pure (x == y)
 satisfiedExistentialCondition (GT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
-                                                                return (x > y)
+                                                                pure (x > y)
 satisfiedExistentialCondition (LEQ a b) player opponent env = do x <- getValue a player opponent env
                                                                  y <- getValue b player opponent env
-                                                                 return (x <= y)
+                                                                 pure (x <= y)
 satisfiedExistentialCondition (GEQ a b) player opponent env = do x <- getValue a player opponent env
                                                                  y <- getValue b player opponent env
-                                                                 return (x >= y)
+                                                                 pure (x >= y)
 satisfiedExistentialCondition (And cond1 cond2) player opponent env = do x <- satisfiedExistentialCondition cond1 player opponent env
                                                                          y <- satisfiedExistentialCondition cond2 player opponent env
-                                                                         return (x && y)
+                                                                         pure (x && y)
 satisfiedExistentialCondition (Or cond1 cond2) player opponent env = do x <- satisfiedExistentialCondition cond1 player opponent env
                                                                         y <- satisfiedExistentialCondition cond2 player opponent env
-                                                                        return (x || y)
+                                                                        pure (x || y)
 
 satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool {-until I add more error handling or more type stuff, for now just treat nothing as false-}
 satisfiedExistentialCondition' condition player opponent env = case satisfiedExistentialCondition condition player opponent env of
@@ -145,7 +146,7 @@ satisfiableExistentialCondition' [] _ _ condition player opponent env with (sati
   | _ = False
 satisfiableExistentialCondition' (arg::args) _ [] _ _ _ _ = False
 satisfiableExistentialCondition' (arg::args) later (target::targets) condition player opponent env =
-  case satisfiableExistentialCondition' args [] (later ++ targets) condition player opponent (extend_env env [arg] [temporaryId $ basic target]) of
+  case satisfiableExistentialCondition' args [] (later ++ targets) condition player opponent (extend_env env [arg] [id $ basic target]) of
        True => True
        False => satisfiableExistentialCondition' (arg::args) (target::later) targets condition player opponent env 
 

@@ -64,11 +64,11 @@ marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMar
 {-message currently 0 indexes the board-}
 marshallClientUpdate (DrawHand cardId playerId) id =
   do cardName <- getCardName cardId
-     return (augment (MkMarshalledClientUpdate "drawHandCard" [("name",cardName)]) (playerId == id))
+     pure (augment (MkMarshalledClientUpdate "drawHandCard" [("name",cardName)]) (playerId == id))
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
 marshallClientUpdate (DrawSoul cardId soulIndex playerId) id =
   do cardName <- getCardName cardId
-     return (augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id))
+     pure (augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id))
 marshallClientUpdate (SendSpawnToDiscard playerId) id = Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
 marshallClientUpdate (MoveUnit from to playerId) id = Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
 marshallClientUpdate (UpdateThoughts val playerId) id = Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
@@ -86,4 +86,4 @@ serializeMarshalled : MarshalledClientUpdate -> String
 serializeMarshalled marshalledClientUpdate = "{updateType:" ++ (type marshalledClientUpdate) ++ (serializeInfo (info marshalledClientUpdate)) ++ "}" {-player token added by ur/web-}
 serialize : ClientUpdate -> String -> Maybe String
 serialize clientUpdate playerId = do marshalledClientUpdate <- marshallClientUpdate clientUpdate playerId
-                                     return (serializeMarshalled marshalledClientUpdate)
+                                     pure (serializeMarshalled marshalledClientUpdate)

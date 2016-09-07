@@ -16,10 +16,6 @@ import skill_dsl_data
 %default total
 
 
-main : IO ()
-main = return ()
-
-
 namespace automatic
   done : Automatic
   done = MkAutomatic [] TerminatedSkill

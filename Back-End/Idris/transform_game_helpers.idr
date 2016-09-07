@@ -11,6 +11,7 @@ import phase
 import objects_basic
 import skill_dsl
 import player
+import card
 import game
 import serverupdates
 import clientupdates
@@ -115,7 +116,7 @@ restUnit : (location : Fin 9) -> Game -> WhichPlayer -> (Game,List ClientUpdate)
 _getHandCards : (hand : List Card) -> (acc : MultiTree Nat) -> MultiTree Nat
 _getHandCards [] acc = acc
 _getHandCards (card::cards) acc with (card)
- |MonsterCard m      = _getHandCards cards (insert acc (permanentId (basic m)))
+ |MonsterCard m      = _getHandCards cards (insert acc (id (basic m)))
  |SpellCard s        = _getHandCards cards acc
 getHandCards : (hand : List Card) -> MultiTree Nat
 getHandCards hand = _getHandCards hand Leaf

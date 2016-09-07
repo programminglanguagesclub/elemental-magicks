@@ -49,10 +49,9 @@ composeSkillAdditions (x::xs) = \m => x $ composeSkillAdditions xs m
 
 
 syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
-  composeSkillAdditions skill_list (MkMonsterFactory (MkBasicMonsterFactory unit_name schools (mkHp hp)
-   ( >> attack << , >> attack << , >> attack << ) ( >> defense << , >> defense << , >> defense << )
-   ( >> speed << , >> speed << , >> speed << ) ( >> range << , >> range << , >> range << ) ( >> level << , >> level << , >> level << ) ( >> soulPoints << , >> soulPoints << )
-   >> 0 << Alive) Nothing Nothing Nothing Nothing Nothing Nothing [] Nothing)
+  composeSkillAdditions skill_list (MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<)
+   (>> attack <<) (>> defense <<)
+   (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] (done,False,0))
 
 no_schools : MonsterSchools
 no_schools = NoSchools

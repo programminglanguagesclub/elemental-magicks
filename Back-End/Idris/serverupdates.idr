@@ -48,14 +48,14 @@ removeCharacter c s with (strHead s == c)
 getSchool : String -> Maybe (Bounded 0 9)
 getSchool s = do parsedInteger <- parseInteger s
                  parsedBounded <- integerToBounded parsedInteger 0 9
-                 return parsedBounded
+                 pure parsedBounded
 
 
 getSchools'' : List String -> Maybe (List (Bounded 0 9))
 getSchools'' [] = Just []
 getSchools'' (x::xs) = do s <- getSchool x
                           ss <- getSchools'' xs
-                          return (s :: ss)
+                          pure (s :: ss)
 
 getSchools' : String -> Maybe (List (Bounded 0 9))
 getSchools' s = getSchools'' $ split (==',') $ removeCharacter '[' $ removeCharacter ']' s
@@ -63,7 +63,7 @@ getSchools' s = getSchools'' $ split (==',') $ removeCharacter '[' $ removeChara
 getSchools : String -> Maybe (Vect 6 (Bounded 0 9))
 getSchools s = do l <- getSchools' s
                   v <- exactLength 6 (fromList l)
-                  return v
+                  pure v
 
 
 getRevivePosition : String -> Maybe Bool
@@ -77,7 +77,7 @@ getRevivePositions'' : List String -> Maybe (List Bool)
 getRevivePositions'' [] = Just []
 getRevivePositions'' (x::xs) = do p <- getRevivePosition x
                                   ps <- getRevivePositions'' xs
-                                  return (p :: ps)
+                                  pure (p :: ps)
 
 getRevivePositions' : String -> Maybe (List Bool)
 getRevivePositions' s = getRevivePositions'' $ split (==',') $ removeCharacter '[' $ removeCharacter ']' s
@@ -85,7 +85,7 @@ getRevivePositions' s = getRevivePositions'' $ split (==',') $ removeCharacter '
 getRevivePositions : String -> Maybe (Vect 9 Bool)
 getRevivePositions s = do l <- getRevivePositions' s
                           v <- exactLength 9 (fromList l)
-                          return v
+                          pure v
 
 
 
@@ -97,12 +97,12 @@ getRevivePositions s = do l <- getRevivePositions' s
 parseFin : (n : Nat) -> String -> Maybe (Fin n)
 parseFin n s = do nat <- parsePositive {a=Nat} s
                   fin <- natToFin nat n
-                  return fin
+                  pure fin
 parseEachNat : List String -> Maybe (List Nat)
 parseEachNat [] = Just []
 parseEachNat (x::xs) = do parseFirst <- parsePositive x
                           parseRest <- parseEachNat xs
-                          return (parseFirst :: parseRest)
+                          pure (parseFirst :: parseRest)
 
 parseListNat : String -> Maybe (List Nat)
 parseListNat s = let numbers = split (==',') $ removeCharacter '[' $ removeCharacter ']' s in
@@ -113,7 +113,7 @@ parseEachFin _ [] = Just []
 parseEachFin n (x::xs) = do nat <- parsePositive x
                             fin <- natToFin nat n
                             theRest <- parseEachFin n xs
-                            return (fin :: theRest)
+                            pure (fin :: theRest)
 
 
 parseListFin : (n : Nat) -> String -> Maybe (List (Fin n))
@@ -128,24 +128,24 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                      schools <- getSchools rawSchools
                      rawIndex <- getField (info marshalledServerUpdate) "index"
                      index <- parsePositive {a=Nat} rawIndex
-                     return (SpawnCard schools index $ player marshalledServerUpdate)
+                     pure (SpawnCard schools index $ player marshalledServerUpdate)
   | "skip" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
                 schools <- getSchools rawSchools
-                return (Skip schools $ player marshalledServerUpdate)
+                pure (Skip schools $ player marshalledServerUpdate)
   | "deployCard" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                       index <- parseFin 9 rawIndex
-                      return (DeployCard index $ player marshalledServerUpdate)
+                      pure (DeployCard index $ player marshalledServerUpdate)
   | "attackRow" = do rawRow <- getField (info marshalledServerUpdate) "row"
                      row <- parseFin 3 rawRow
-                     return (AttackRow row $ player marshalledServerUpdate)
-  | "rest" = do return (Rest $ player marshalledServerUpdate)
-  | "directAttack" = do return (DirectAttack $ player marshalledServerUpdate)
+                     pure (AttackRow row $ player marshalledServerUpdate)
+  | "rest" = do pure (Rest $ player marshalledServerUpdate)
+  | "directAttack" = do pure (DirectAttack $ player marshalledServerUpdate)
   | "move" = do rawTo <- getField (info marshalledServerUpdate) "to"
                 to <- parseFin 9 rawTo
-                return (Move to $ player marshalledServerUpdate)
+                pure (Move to $ player marshalledServerUpdate)
   | "skillInitiation" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                            index <- parsePositive {a=Nat} rawIndex
-                           return (SkillInitiation index $ player marshalledServerUpdate)
+                           pure (SkillInitiation index $ player marshalledServerUpdate)
   | "skillSelection" = do rawFriendlyBoard <- getField (info marshalledServerUpdate) "friendlyBoard"
                           friendlyBoard <- parseListFin 9 rawFriendlyBoard
                           rawEnemyBoard <- getField (info marshalledServerUpdate) "enemyBoard"
@@ -158,13 +158,13 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                           friendlyGraveyard <- parseListNat rawFriendlyGraveyard
                           rawEnemyGraveyard <- getField (info marshalledServerUpdate) "enemyGraveyard"
                           enemyGraveyard <- parseListNat rawEnemyGraveyard
-                          return (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate)
+                          pure (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate)
   | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
                   positions <- getRevivePositions rawPositions
-                  return (Revive positions $ player marshalledServerUpdate)
+                  pure (Revive positions $ player marshalledServerUpdate)
   | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
                     id <- parsePositive {a=Nat} rawId
-                    return (DrawCard id $ player marshalledServerUpdate)
+                    pure (DrawCard id $ player marshalledServerUpdate)
   | _ = Nothing
 
 
@@ -190,7 +190,7 @@ generateParsedKeyValueList : List String -> Maybe (List (String,String))
 generateParsedKeyValueList [] = Just []
 generateParsedKeyValueList (x::xs) = do firstParsed <- generateParsedKeyValue x
                                         remainingParsed <- generateParsedKeyValueList xs
-                                        return (firstParsed :: remainingParsed)
+                                        pure (firstParsed :: remainingParsed)
 
 extractField : String -> List (String,String) -> Maybe String
 extractField _ [] = Nothing
@@ -206,18 +206,18 @@ removeField name ((key,value)::xs) with (name == key)
 
 extractAndRemoveField : String -> List (String,String) -> Maybe (List (String,String), String)
 extractAndRemoveField name pairs = do val <- extractField name pairs
-                                      return (removeField name pairs, val)
+                                      pure (removeField name pairs, val)
 
 
 marshallJson : String -> Maybe MarshalledServerUpdate
 marshallJson json = do keyValueList <- generateParsedKeyValueList $ generateRawKeyValueList $ shedBrackets $ removeSpaces json
                        (keyValueList',id) <- extractAndRemoveField "player" keyValueList
                        (keyValueList'',updateType) <- extractAndRemoveField "updateType" keyValueList' 
-                       return (MkMarshalledServerUpdate updateType id keyValueList'')
+                       pure (MkMarshalledServerUpdate updateType id keyValueList'')
 
 
 parseJson : String -> Maybe ServerUpdate
 parseJson json = do marshalledJson <- marshallJson json
                     serverUpdate <- generateServerUpdate marshalledJson
-                    return serverUpdate
+                    pure serverUpdate
 
