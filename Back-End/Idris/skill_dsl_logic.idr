@@ -56,8 +56,15 @@ lookupStat basicMonster TemporaryAttackR = extractBounded $ getTemporary $ attac
 lookupStat basicMonster PermanentAttackR = extractBounded $ getPermanent $ attack basicMonster
 lookupStat basicMonster TemporarySpeedR = extractBounded $ getTemporary $ speed basicMonster
 lookupStat basicMonster PermanentSpeedR = extractBounded $ getPermanent $ speed basicMonster
+lookupStat basicMonster TemporaryDefenseR = extractBounded $ getTemporary $ defense basicMonster
+lookupStat basicMonster PermanentDefenseR = extractBounded $ getPermanent $ defense basicMonster
+lookupStat basicMonster TemporaryRangeR = extractBounded $ getTemporary $ range basicMonster
+lookupStat basicMonster PermanentRangeR = extractBounded $ getPermanent $ range basicMonster
+lookupStat basicMonster TemporaryLevelR = extractBounded $ getTemporary $ level basicMonster
+lookupStat basicMonster PermanentLevelR = extractBounded $ getPermanent $ level basicMonster
 lookupStat basicMonster HpR = extractBounded $ getCurrentHp $ hp $ basicMonster
 lookupStat basicMonster MaxHpR = extractBounded $ getMaxHp $ hp $ basicMonster
+{-I also need to be able to access the base stats....-}
 
 
 correctId : Nat -> Maybe Monster -> Bool
@@ -98,6 +105,9 @@ getValue (Minus a b) player opponent env = do x <- getValue a player opponent en
 getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
 getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
 getValue (Cardinality var set condition) player opponent env = ?hole
+getValue (Evoker statR) player opponent env = ?hole {- In addition the env, I should probably keep the id of the current evoker,
+         which can be loaded when the skill is first put onto the head -}
+
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool

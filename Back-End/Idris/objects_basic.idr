@@ -81,6 +81,10 @@ incrementTemporary : ((Bounded lower upper),t2,t3) -> Integer -> ((Bounded lower
 incrementTemporary (temporary,permanent,base) x = (temporary + x, permanent, base)
 incrementPermanent : (t1,(Bounded lower upper),t3) -> Integer -> (t1,(Bounded lower upper),t3)
 incrementPermanent (temporary,permanent,base) x = (temporary, permanent + x, base)
+decrementTemporary : ((Bounded lower upper),t2,t3) -> Integer -> ((Bounded lower upper),t2,t3)
+decrementTemporary b v = incrementTemporary b (-v)
+decrementPermanent : (t1,(Bounded lower upper),t3) -> Integer -> (t1,(Bounded lower upper),t3)
+decrementPermanent b v = incrementPermanent b (-v)
 
 getTemporary : (Bounded lower upper,t2,t3) -> Bounded lower upper
 getTemporary x = fst x

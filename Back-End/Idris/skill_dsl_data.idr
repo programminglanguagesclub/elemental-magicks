@@ -23,6 +23,8 @@ marshallHp MaxHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = show $ extractBounde
 selectMutator : Mutator -> Temporality -> (Bounded lower upper, Bounded lower upper, base) -> Integer -> (Bounded lower upper, Bounded lower upper, base)
 selectMutator Assign Temporary = setTemporary
 selectMutator Assign Permanent = setPermanent
+selectMutator Decrement Temporary = decrementTemporary
+selectMutator Decrement Permanent = decrementPermanent
 selectMutator Increment Temporary = incrementTemporary
 selectMutator Increment Permanent = incrementPermanent
 
@@ -64,6 +66,7 @@ hpTransformType CurrentHp = transformHp
 hpTransformType MaxHp = transformMaxHp
 hpTransformMutator : Mutator -> Integer -> Integer -> Integer
 hpTransformMutator Increment x h = h + x
+hpTransformMutator Decrement x h = h - x
 hpTransformMutator Assign x h = x
 getStatTypeName : Stat -> String
 getStatTypeName Attack = "attack"
