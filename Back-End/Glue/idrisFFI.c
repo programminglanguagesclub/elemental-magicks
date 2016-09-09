@@ -9,40 +9,28 @@
 
 
 #define MAX_BUF 1024
-int fd;
+//int fd;
 //Where to store the pip according to the library
-char * myfifo;
+//char * myfifo;
 
+/*
 void initializePipe()
 {
     myfifo = "/tmp/myfifo/";
     mkfifo(myfifo, 0666);
 }
-
-void  writer(char *message)
-{
-    //printf("Sending %s \n", message);
-   
-    //Open FIFO pipe
-    fd = open(myfifo, O_WRONLY);
-   
-    //Actualy thing send (where im sending, message, size of message)
-    write(fd, message, sizeof(message));
-   
-    //Close the pipe
-    close(fd);
-   
-    //remove the FIFO 
-    //unlink(myfifo);
-   
-}
+*/
 
 char * reader()
 {
-		
+    perror("I started reader idiris");
+int fd;
+   int fd2;
+    char * myfifo = "/tmp/myfifo";
+
     //This section sets the size of the message, for the reader to expect
  	//Set to empty
-        char * sizeOfMessage = (char *) malloc(128);
+        char * sizeOfMessage = (char *) malloc(1024);
         
     //Initialize the character array
 	    strcpy(sizeOfMessage, "empty");
@@ -55,58 +43,99 @@ char * reader()
                 //Check in FIFO folder for a open pipe
                 fd = open(myfifo, O_RDONLY);
                 //Read the pipe (location, message, size of message)
-                read(fd, sizeOfMessage, 128);
+                read(fd, sizeOfMessage, 1024);
         }
 
-    close(fd);
+        perror( " I finished reader idiris ");
+   
+        perror(sizeOfMessage);
+
+        close(fd);
+ 
     //For the first message might want something to check there is not garbage in the pipe
 
     //This section takes the incomming message size and allocates that on the heap
    
 
+    perror("I ran response idiris");
+    //
+    char * myfifo2 = "/tmp/myfifo2";
+   // mkfifo(myfifo2, 0666);
+    //printf("Sending %s \n", message);
+   
+    //Open FIFO pipe
+    fd2 = open(myfifo2, O_WRONLY);
+   
+    //Actualy thing send (where im sending, message, size of message)
+    write(fd2, "u got message", 1024);
+   
+   // write(fd, "testing" , 56);
+    //Close the pipe
+    //close(fd2);
 
+    perror("Finished response idiris");
+
+/*
+
+ 	//Set to empty
+        char * message = (char *) malloc(1024);
         
-    //Character array to hold the message
-    char *message;
-
-    //sizeOfMessage++; //Move pointer over one to ignore where it came from letter
-
-    //Turn string into a int
-    int sizeOfNewMessage = atoi(sizeOfMessage);
-    
-    //int sizeOfNewMessage = 1024;
-
-    //Allocate memery for incomming message
-    message = (char *) malloc(sizeOfNewMessage);
-    
-
-
-    //Send reply
-    fd=open(myfifo, O_WRONLY);
-
-
-
-    //Initialize the message
-	strcpy(message, "empty");
+    //Initialize the character array
+	    strcpy(message, "empty");
 	
+
+        perror(" Idiris start to get actual message");
+
+    // open, read, and display the message from FIFO 
+    //Keep pipe open untill it gets a message
         while(0 == strcmp("empty", message))
         {
                 //Check in FIFO folder for a open pipe
                 fd = open(myfifo, O_RDONLY);
-
                 //Read the pipe (location, message, size of message)
-                read(fd, message, sizeOfNewMessage);
+                read(fd, message, 1024);
         }
-        
-        //Print the message
-        //printf("Received: %s\n", sizeOfMessage);
-        //printf("Received: %s\n", message);
+
+        perror ("Idiris done " );
+
+   // close(fd);
 
 
 
-        close(fd);
-        //unlink(myfifo);
+    //unlink(myfifo);
 
-        return message;
+
+    //    return message;
+   //unlink(myfifo);
+   //perror("I ran reader");
+  */  
+    return sizeOfMessage;
 }
+
+
+
+void  writer(char *message)
+{
+
+    //perror("I ran writer");
+    int fd;
+    char * myfifo2 = "/tmp/myfifo2";
+//    mkfifo(myfifo2, 0666);
+    //printf("Sending %s \n", message);
+   
+    //Open FIFO pipe
+    fd = open(myfifo2, O_WRONLY);
+   
+    //Actualy thing send (where im sending, message, size of message)
+    write(fd, message, strlen(message));
+   
+   // write(fd, "testing" , 56);
+    //Close the pipe
+    close(fd);
+  
+    //remove the FIFO 
+    unlink(myfifo2);
+  
+}
+
 

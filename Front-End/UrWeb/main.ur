@@ -30,7 +30,7 @@ fun counter () =
  (* n2 <- UrwebFFI.counter ();*)
   return <xml><body>
    (* {[n1]}, {[n2]}*)
-(*    {[n1]} *) "really broken"
+   {[n1]} (* "really broken" *)
   </body></xml>
 
 

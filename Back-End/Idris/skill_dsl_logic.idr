@@ -102,11 +102,19 @@ getValue (Plus a b) player opponent env = do x <- getValue a player opponent env
 getValue (Minus a b) player opponent env = do x <- getValue a player opponent env
                                               y <- getValue b player opponent env
                                               pure (x-y)
+
+getValue (Mult a b) player opponent env = do x <- getValue a player opponent env
+                                             y <- getValue b player opponent env
+                                             pure (x*y)
 getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
 getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
 getValue (Cardinality var set condition) player opponent env = ?hole
 getValue (Evoker statR) player opponent env = ?hole {- In addition the env, I should probably keep the id of the current evoker,
          which can be loaded when the skill is first put onto the head -}
+
+
+
+
 
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
@@ -140,10 +148,15 @@ satisfiedExistentialCondition (Or cond1 cond2) player opponent env = do x <- sat
                                                                         y <- satisfiedExistentialCondition cond2 player opponent env
                                                                         pure (x || y)
 
+satisfiedExistentialCondition (Not cond) player opponent env = do x <- satisfiedExistentialCondition cond player opponent env
+                                                                  pure (not x)
+
 satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool {-until I add more error handling or more type stuff, for now just treat nothing as false-}
 satisfiedExistentialCondition' condition player opponent env = case satisfiedExistentialCondition condition player opponent env of
                                                                     Nothing => False
                                                                     Just b => b
+
+
 
 
 

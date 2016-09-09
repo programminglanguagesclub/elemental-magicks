@@ -12,12 +12,92 @@
 int fd;
 
 
+char *itoa(long i, char* s, int dummy_radix) {
+        sprintf(s, "%ld", i);
+            return s;
+}
+
+
+void  writer(char *message)
+{
+
+    int fd;
+    int fd2;
+
+    char * myfifo = "/tmp/myfifo";
+    mkfifo(myfifo,0666);
+   char * myfifo2 = "/tmp/myfifo2";
+   mkfifo(myfifo2, 0666);
+    //Open FIFO pipe
+    fd = open(myfifo, O_WRONLY);
+
+	//Actualy thing send (where im sending, message, size of message)
+    //This was used for testing, default message with no size first sent
+
+    //Size of the message
+    char * sizeOfMessage = (char *) malloc(strlen(message)+1);
+
+
+    perror("Urweb sending message size");
+   //snprintf(sizeOfMessage,"%d",sizeof(message) +4);
+    strcpy(sizeOfMessage,message);
+    write (fd, sizeOfMessage, sizeof(sizeOfMessage));
+    perror("Urweb sent message size");
+	
+    //Close the pipe
+    //close(fd);
+   
+
+/////*
+  //call reader.... once reader returns continue....
+    
+    char * myfifo2 = "/tmp/myfifo2";
+
+    char *reply = (char *) malloc(128);
+     strcpy(reply, "empty");
+
+     perror("ur web messaged reader " );
+     
+     long x = 10000000L;
+     while(0 == strcmp("empty", reply))
+    {         
+        fd2 = open(myfifo2, O_RDONLY);
+        read(fd2, reply, 1024);
+
+        if(x-- < 0)
+                {
+                    strcpy(reply, "Failed getting reply");
+                    break;
+                }
+
+
+    }
+     perror("The message i got was: ");
+     perror(reply);
+    
+/////*/
+/*
+    //Send message
+    fd = open(myfifo, O_WRONLY);
+    int i;
+
+    perror("Sending message urweb " );
+    write(fd,message, sscanf(sizeOfMessage, "%d", &i));
+
+    perror("Message sent ur web");
+  
+    
+    //close(fd);
+    */
+    unlink(myfifo);
+
+}
 
 
 char * reader()
  {
-
-     char * myfifo = "/temp/myfifo";
+int fd;
+     char * myfifo2 = "/tmp/myfifo2";
 
      //This section sets the size of the message, for the reader to expect
      //Set to empty
@@ -27,111 +107,30 @@ char * reader()
      //Initialize the character array
          strcpy(sizeOfMessage, "empty");
  
- 
+
+         long x = 1000000000L;
      // open, read, and display the message from FIFO 
      //Keep pipe open untill it gets a message
-         while(0 == strcmp("empty", sizeOfMessage))
+         while(0 == strcmp("empty", sizeOfMessage) )
          {
                  //Check in FIFO folder for a open pipe
-                 fd = open(myfifo, O_RDONLY);
+                 fd = open(myfifo2, O_RDONLY);
  
                  //Read the pipe (location, message, size of message)
-                 read(fd, sizeOfMessage, 128);
+                read(fd, sizeOfMessage, 128);
+                if(x-- < 0)
+                {
+                    strcpy(sizeOfMessage, "failed");
+                    break;
+                }
          }
      //For the first message might want something to check there is not garbage in the pipe
  
  
- 
-     //This section takes the incomming message size and allocates that on the heap
- 
-     //Character array to hold the message
-     char *message;
- 
-     sizeOfMessage++; //Move pointer over one to ignore where it came from letter
- 
-     //Turn string into a int
-     int sizeOfNewMessage = atoi(sizeOfMessage);
- 
-     //Allocate memery for incomming message
-     message = (char *) malloc(sizeOfNewMessage);
- 
-     //Initialize the message
-     strcpy(message, "empty");
- 
- /*        while(0 == strcmp("empty", message))
-         {
-                 //Check in FIFO folder for a open pipe
-                 fd = open(myfifo, O_RDONLY);
- 
-                 //Read the pipe (location, message, size of message)
-                 read(fd, message, sizeOfNewMessage);
-         }
-         
-         //Print the message
-         printf("Received: %s\n", sizeOfMessage);
-         printf("Received: %s\n", message);
- */
- 
- 
-         close(fd);
-         //unlink(myfifo);
- 
-         return message;
+        close(fd);
+        //unlink(myfifo2);
+         return sizeOfMessage;
  }
-
-void  writer(char *message)
-{
-
-    char * myfifo = "/temp/myfifo";
-    //Open FIFO pipe
-    fd = open(myfifo, O_WRONLY);
-
-	//Actualy thing send (where im sending, message, size of message)
-    //This was used for testing, default message with no size first sent
-    //write(fd, message, sizeof(message));
-
-    //Size of the message
-    char * sizeOfMessage;
-   
-
-
-
-
-
-// THIS LINE IS CAUSING A COMPILER ERROR!! REMOVED FOR NOW..
-// itoa(message,sizeOfMessage,10);
-
-
-
-
-    write (fd, message, 128);
-    
-	
-    //Close the pipe
-    close(fd);
-
-    //Wait for response
-    
-     char *reply = (char *) malloc(128);
-     strcpy(reply, "empty");
-
-     while(0 == strcmp("empty", reply[0]) || 0== strcmp( "u",reply[0]))
-    {         
-        fd = open(myfifo, O_RDONLY);
-        read(fd, sizeOfMessage, 128);
-
-    }
-     close(fd);
-
-
-    //Send second message
-    fd = open(myfifo, O_WRONLY);
-    write(fd,message,sizeof(message)+4);
-
-    close(fd);
-    
-}
-
 
 uw_Basis_string uw_UrwebFFI_hello(uw_context ctx, uw_unit u) {
   return "Hello";
@@ -158,50 +157,14 @@ uw_Basis_string uw_UrwebFFI_counter(uw_context ctx, uw_unit u) {
  
  
  
- 
- 
  // REMOVE FOR NOW
- //return buf;//(&buf);
+ return buf;//(&buf);
  
 
- return "testing literal string";
-
-
-
-
-
-
-
+// return "testing literal string";
 
 // return "Hello";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
