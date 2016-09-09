@@ -74,7 +74,8 @@ int fd;
     //close(fd2);
 
     perror("Finished response idiris");
-
+    
+    close(fd);
 /*
 
  	//Set to empty

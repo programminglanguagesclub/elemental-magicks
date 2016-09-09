@@ -45,14 +45,15 @@ void  writer(char *message)
     perror("Urweb sent message size");
 	
     //Close the pipe
-    //close(fd);
+    close(fd);
    
 
 /////*
   //call reader.... once reader returns continue....
+   
+    //The error comes from te open FD 
     
-    char * myfifo2 = "/tmp/myfifo2";
-
+//http://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html#Creating-a-Pipe
     char *reply = (char *) malloc(128);
      strcpy(reply, "empty");
 
@@ -74,6 +75,7 @@ void  writer(char *message)
     }
      perror("The message i got was: ");
      perror(reply);
+     close(fd2);
     
 /////*/
 /*
