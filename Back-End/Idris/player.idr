@@ -22,7 +22,8 @@ Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
 
 record Player where
  constructor MkPlayer
- board : Vect 9 (Maybe Monster)
+ {- board : Vect 9 (Maybe Monster)-}
+ board : Vect 3 (Vect 3 (Maybe Monster))
  rowTarget : Vect 3 (Fin 3)
  hand : List Card
  graveyard : List Card
@@ -63,13 +64,22 @@ getRowTarget (FS (FS FZ)) m a b c with ((getLiving (index a m)),(getLiving (inde
  | (False,False,False) = Nothing
  -}
 
-getNextRowTarget : Fin 3 -> Fin 3
-getNextRowTarget FZ = FS FZ
-getNextRowTarget (FS FZ) = FS (FS FZ)
-getNextRowTarget (FS (FS FZ)) = FZ
-getNextRowTarget (FS (FS (FS FZ))) impossible
-getNextRowTarget (FS (FS (FS (FS _)))) impossible
+incrementRowTarget : Fin 3 -> Fin 3
+incrementRowTarget FZ = FS FZ
+incrementRowTarget (FS FZ) = FS (FS FZ)
+incrementRowTarget (FS (FS FZ)) = FZ
+incrementRowTarget (FS (FS (FS FZ))) impossible
+incrementRowTarget (FS (FS (FS (FS _)))) impossible
 
+getRowTarget : Fin 3 -> Player -> Maybe (Fin 3)
+getRowTarget row player = ?hole
+
+
+
+damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
+
+applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
+applyAttack atk row defendingPlayer = ?hole
 
 
 
@@ -96,5 +106,5 @@ goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
 
 
 
-syntax "new" "player" [token] = MkPlayer (Vect.replicate 9 Nothing) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) token
+syntax "new" "player" [token] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) token
 
