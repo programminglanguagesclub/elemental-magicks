@@ -84,10 +84,20 @@ getRowTarget row player =
 
 plusOneSucc' : (right : Nat) -> S right = right + 1
 plusOneSucc' n = rewrite plusCommutative n 1 in Refl
-
+{-
 foobar : (n : Nat) -> Fin n -> Vect n a -> Vect n a
 foobar _ FZ x = x
 foobar (S k') (FS k) (x::xs) = rewrite plusOneSucc' k' in ((foobar k' k xs) ++ [x])
+-}
+
+
+foobar : Fin n -> Vect n a -> Vect n a
+foobar FZ x = x
+foobar {n = S k'} (FS k) (x::xs) = foobar (weaken k) (rewrite plusOneSucc' k' in (xs ++ [x]))
+
+
+
+
 
 {-this is reversing the front of the list, so I'll probably need an accumulator (meaning the proof above will probably need to be redone)-}
 
