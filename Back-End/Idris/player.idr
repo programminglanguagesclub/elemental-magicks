@@ -99,7 +99,86 @@ foobar {n = S k'} (FS k) (x::xs) = foobar (weaken k) (rewrite plusOneSucc' k' in
 
 
 
-{-this is reversing the front of the list, so I'll probably need an accumulator (meaning the proof above will probably need to be redone)-}
+
+{-
+barfoo : Fin n -> Vect (n + m) -> Vect n a
+barfoo FZ x = x
+barfoo {n = S k'} (FS k) (x::xs) = barfoo (weaken k) (rewrite plusOneSucc' k in (xs ++ [x]))
+-}
+
+
+{-edwinb code :D-}
+splitVect : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
+splitVect FZ xs = []
+splitVect {n = S p} {m} (FS k) (x :: xs) = x :: splitVect {n = p} {m} k xs
+
+splitVect2 : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect m a
+splitVect2 FZ xs = xs
+splitVect2 {n = S p} {m} (FS k) (x :: xs) = splitVect2 {n = p} {m} k xs
+
+
+
+
+
+
+
+
+{-
+splitVect : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
+splitVect FZ xs = []
+splitVect {n = S n} {m} (FS k) (x :: xs) = x :: splitVect {n} {m} k xs
+-}
+
+{-
+myprf : plus 0 0 = 0
+myprf = Refl
+
+splitVect : {n : Nat} -> Fin (S n) -> Vect (n + m) a -> Vect n a
+splitVect {n = Z} {m = Z} FZ [] = the (Vect (n + m) a) []
+-}
+
+{-
+splitVect : Fin (S n) -> Vect (n + m) a -> (Vect n a, Vect m a)
+splitVect {n = Z} FZ v = ([],v)
+-}
+
+
+
+{-
+natMinusFin : (n : Nat) -> Fin n -> Nat
+natMinusFin {n = S k'} (S k') FZ = S k'
+natMinusFin {n = S k'} (S k') (FS k) = natMinusFin k' k
+-}
+
+
+
+{-
+splitBefore : (k : Fin n) -> Vect n a -> Vect (natMinusFin n k) a
+splitBefore FZ x
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
