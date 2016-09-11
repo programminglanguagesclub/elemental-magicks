@@ -89,6 +89,8 @@ foobar : (n : Nat) -> Fin n -> Vect n a -> Vect n a
 foobar _ FZ x = x
 foobar (S k') (FS k) (x::xs) = rewrite plusOneSucc' k' in ((foobar k' k xs) ++ [x])
 
+{-this is reversing the front of the list, so I'll probably need an accumulator (meaning the proof above will probably need to be redone)-}
+
 
 
 {-
