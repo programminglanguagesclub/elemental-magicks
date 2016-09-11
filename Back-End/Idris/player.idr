@@ -71,10 +71,30 @@ incrementRowTarget (FS (FS FZ)) = FZ
 incrementRowTarget (FS (FS (FS FZ))) impossible
 incrementRowTarget (FS (FS (FS (FS _)))) impossible
 
+
 getRowTarget : Fin 3 -> Player -> Maybe (Fin 3)
-getRowTarget row player = ?hole
+getRowTarget row player =
+  let playerRow = index row (board player) in
+      let target = index row (rowTarget player) in
+          case index target playerRow of
+               Nothing => Nothing
+               Just _ => Just row
 
 
+
+plusOneSucc' : (right : Nat) -> S right = right + 1
+plusOneSucc' n = rewrite plusCommutative n 1 in Refl
+
+foobar : (n : Nat) -> Fin n -> Vect n a -> Vect n a
+foobar _ FZ x = x
+foobar (S k') (FS k) (x::xs) = rewrite plusOneSucc' k' in ((foobar k' k xs) ++ [x])
+
+
+
+{-
+par : Fin 3 -> Vect 3 Integer -> (Vect a Integer, Vect b Integer)
+par i v = splitAt (finToNat i) v
+-}
 
 damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
 
