@@ -126,16 +126,19 @@ findJust vect = findIndex isJust vect
 pullOutSucc : (m : Nat) -> (k : Nat) -> S (plus k m) = plus m (S k)
 pullOutSucc m k = ?hole
 
-
 {-
-     plus m (S k)
-             and
-                             S (plus k m)
-                             -}
-
-
+{- this might have to be Fin (S n), etc... -}
 finFun : {n : Nat} -> {m : Nat} -> Fin n -> Fin m -> Fin (n + m)
-finFun {n = S k} {m=m} FZ fin = rewrite pullOutSucc m k in (weakenN (S k) fin)
+finFun {n = S k} {m=m} FZ fin = rewrite pullOutSucc m k in (weakenN (S k) fin) {- this is off by 1, since FZ is still the first element -}
+
+I actually do not need this: Either the value is in the left vector (and can be weakened) or it is in the right and can be shifted.
+
+-}
+
+
+
+
+
 
 
 {- more cases .... the above case maybe needs more too? implicits seem suspect -}
@@ -159,6 +162,19 @@ jj n k = ?hole
 shiftFin : Fin n -> (m : Nat) -> Fin (n + m)
 shiftFin {n=n} fin Z = rewrite plusZeroRightNeutral n in fin
 shiftFin {n=n} fin (S k) = rewrite jj n k in (shiftFin (FS fin) k)
+
+
+
+myFindJust : Vect n (Maybe a) -> Vect m (Maybe a) -> Maybe (Fin (n + m))
+myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
+                              Just i => rewrite plusCommutative n m in (Just (shiftFin i n))
+                              Nothing => case findIndex isJust vect1 of
+                                              Just i => Just (weakenN m i)
+                                              Nothing => Nothing
+
+
+
+
 
 
 
