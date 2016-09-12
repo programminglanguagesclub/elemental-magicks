@@ -123,13 +123,19 @@ split fin vect = (front fin vect, back fin vect)
 findJust : Vect n (Maybe a) -> Maybe (Fin n)
 findJust vect = findIndex isJust vect
 
-pullOutSucc : (m : Nat) -> (k : Nat) -> plus (S k) m = S (plus k m)
+pullOutSucc : (m : Nat) -> (k : Nat) -> S (plus k m) = plus m (S k)
 pullOutSucc m k = ?hole
 
 
+{-
+     plus m (S k)
+             and
+                             S (plus k m)
+                             -}
+
 
 finFun : {n : Nat} -> {m : Nat} -> Fin n -> Fin m -> Fin (n + m)
-finFun {n = S k} {m=m} FZ fin = (weakenN (S k) fin)
+finFun {n = S k} {m=m} FZ fin = rewrite pullOutSucc m k in (weakenN (S k) fin)
 
 
 {- more cases .... the above case maybe needs more too? implicits seem suspect -}
