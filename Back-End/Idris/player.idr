@@ -108,17 +108,51 @@ barfoo {n = S k'} (FS k) (x::xs) = barfoo (weaken k) (rewrite plusOneSucc' k in 
 
 
 {-edwinb code :D-}
-splitVect : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
-splitVect FZ xs = []
-splitVect {n = S p} {m} (FS k) (x :: xs) = x :: splitVect {n = p} {m} k xs
+front : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
+front FZ xs = []
+front {n = S p} {m} (FS k) (x :: xs) = x :: front {n = p} {m} k xs
 
-splitVect2 : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect m a
-splitVect2 FZ xs = xs
-splitVect2 {n = S p} {m} (FS k) (x :: xs) = splitVect2 {n = p} {m} k xs
+back : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect m a
+back FZ xs = xs
+back {n = S p} {m} (FS k) (x :: xs) = back {n = p} {m} k xs
+
+split : (i : Fin (S n)) -> Vect (finToNat i + m) a -> (Vect (finToNat i) a, Vect m a)
+split fin vect = (front fin vect, back fin vect)
+
+
+findJust : Vect n (Maybe a) -> Maybe (Fin n)
+findJust vect = findIndex isJust vect
+
+pullOutSucc : (m : Nat) -> (k : Nat) -> plus (S k) m = S (plus k m)
+pullOutSucc m k = ?hole
+
+
+
+finFun : {n : Nat} -> {m : Nat} -> Fin n -> Fin m -> Fin (n + m)
+finFun {n = S k} {m=m} FZ fin = (weakenN (S k) fin)
+
+
+{- more cases .... the above case maybe needs more too? implicits seem suspect -}
 
 
 
 
+
+{-
+
+myFindJust : Vect n (Maybe a) -> Vect m (Maybe a) -> Maybe (Fin (n + m))
+myFindJust vect1 vect2 = case findIndex isJust vect2 of
+                              Just f -> 
+
+
+-}
+
+jj : (n : Nat) -> (k : Nat) -> plus n (S k) = plus (S n) k
+jj n k = ?hole
+
+shiftFin : Fin n -> (m : Nat) -> Fin (n + m)
+shiftFin {n=n} fin Z = rewrite plusZeroRightNeutral n in fin
+shiftFin {n=n} fin (S k) = rewrite jj n k in (shiftFin (FS fin) k)
 
 
 
