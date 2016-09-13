@@ -108,6 +108,20 @@ barfoo {n = S k'} (FS k) (x::xs) = barfoo (weaken k) (rewrite plusOneSucc' k in 
 
 
 {-edwinb code :D-}
+
+{-Okay, I know this is Edwin code, but if I can't give this a better type I don't think anything else is going to work...-}
+
+fff : (i : Fin n) -> Vect n a -> Vect (finToNat i) a
+fff FZ _ = []
+fff (FS k) (x :: xs) = x :: (fff k xs)
+
+
+{-ideally I should use (-) here instead of minus, as minus does not require finToNat i to be LTE n-}
+bbb : (i : Fin n) -> Vect n a -> Vect (minus n (finToNat i)) a
+bbb FZ xs = xs
+bbb (FS k) (x :: xs) = bbb k xs
+
+
 front : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
 front FZ xs = []
 front {n = S p} {m} (FS k) (x :: xs) = x :: front {n = p} {m} k xs
@@ -171,6 +185,27 @@ myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
                               Nothing => case findIndex isJust vect1 of
                                               Just i => Just (weakenN m i)
                                               Nothing => Nothing
+
+
+{-
+
+myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
+myFindJust1 {n = S k} fin vect = rewrite (0=0) in (let (v1,v2) = split fin vect in ?hole)
+                           {-                           myFindJust v1 v2-}
+
+
+
+-}
+
+
+{-
+
+
+ (i : Fin (S n)) -> Vect (finToNat i + m) a -> (Vect (finToNat i) a, Vect m a)
+
+
+ -}
+
 
 
 
