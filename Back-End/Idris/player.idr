@@ -111,17 +111,17 @@ barfoo {n = S k'} (FS k) (x::xs) = barfoo (weaken k) (rewrite plusOneSucc' k in 
 
 {-Okay, I know this is Edwin code, but if I can't give this a better type I don't think anything else is going to work...-}
 
-fff : (i : Fin n) -> Vect n a -> Vect (finToNat i) a
-fff FZ _ = []
-fff (FS k) (x :: xs) = x :: (fff k xs)
+front : (i : Fin n) -> Vect n a -> Vect (finToNat i) a
+front FZ _ = []
+front (FS k) (x :: xs) = x :: (front k xs)
 
 
 {-ideally I should use (-) here instead of minus, as minus does not require finToNat i to be LTE n-}
-bbb : (i : Fin n) -> Vect n a -> Vect (minus n (finToNat i)) a
-bbb FZ xs = xs
-bbb (FS k) (x :: xs) = bbb k xs
+back : (i : Fin n) -> Vect n a -> Vect (minus n (finToNat i)) a
+back FZ xs = xs
+back (FS k) (x :: xs) = back k xs
 
-
+{-
 front : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect (finToNat i) a
 front FZ xs = []
 front {n = S p} {m} (FS k) (x :: xs) = x :: front {n = p} {m} k xs
@@ -129,8 +129,10 @@ front {n = S p} {m} (FS k) (x :: xs) = x :: front {n = p} {m} k xs
 back : (i : Fin (S n)) -> Vect (finToNat i + m) a -> Vect m a
 back FZ xs = xs
 back {n = S p} {m} (FS k) (x :: xs) = back {n = p} {m} k xs
+-}
 
-split : (i : Fin (S n)) -> Vect (finToNat i + m) a -> (Vect (finToNat i) a, Vect m a)
+{-split : (i : Fin (S n)) -> Vect (finToNat i + m) a -> (Vect (finToNat i) a, Vect m a)-}
+split : (i : Fin n) -> Vect n a -> (Vect (finToNat i) a, Vect (minus n (finToNat i)) a) {-again, (-) would be better than minus-}
 split fin vect = (front fin vect, back fin vect)
 
 
@@ -187,15 +189,62 @@ myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
                                               Nothing => Nothing
 
 
-{-
+
 
 myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
-myFindJust1 {n = S k} fin vect = rewrite (0=0) in (let (v1,v2) = split fin vect in ?hole)
-                           {-                           myFindJust v1 v2-}
+myFindJust1 {n = n} fin vect = let (v1,v2) = split fin vect in myFindJust v1 v2
+
+
+
+
+{-
+
+The problem here again seems to be linked to knowing LTE (finToNat fin) n
+
+player.idr:195:38:
+When checking right hand side of Player.case block in myFindJust1 at player.idr:195:38 with expected type
+        Maybe (Fin (S k))
+
+Type mismatch between
+        Maybe (Fin (finToNat fin + minus (S k) (finToNat fin))) (Type of myFindJust v1 v2)
+and
+        Maybe (Fin (S k)) (Expected type)
+
+Specifically:
+        Type mismatch between
+                plus (finToNat fin) (minus (S k) (finToNat fin))
+        and
+                S k
+
+
 
 
 
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 {-
