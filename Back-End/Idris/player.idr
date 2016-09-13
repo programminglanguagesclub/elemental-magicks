@@ -82,6 +82,14 @@ getRowTarget row player =
 
 
 
+
+
+
+proveLTE : (n : Nat) -> (i : Fin n) -> LTE (finToNat i) n
+proveLTE _ FZ = LTEZero
+proveLTE (S k) (FS fk) = LTESucc (proveLTE k fk)
+
+
 plusOneSucc' : (right : Nat) -> S right = right + 1
 plusOneSucc' n = rewrite plusCommutative n 1 in Refl
 {-
@@ -117,7 +125,7 @@ front (FS k) (x :: xs) = x :: (front k xs)
 
 
 {-ideally I should use (-) here instead of minus, as minus does not require finToNat i to be LTE n-}
-back : (i : Fin n) -> Vect n a -> Vect (minus n (finToNat i)) a
+back : (i : Fin n) -> Vect n a -> Vect ((-) n (finToNat i) {smaller = proveLTE n i}) a
 back FZ xs = xs
 back (FS k) (x :: xs) = back k xs
 
@@ -132,7 +140,7 @@ back {n = S p} {m} (FS k) (x :: xs) = back {n = p} {m} k xs
 -}
 
 {-split : (i : Fin (S n)) -> Vect (finToNat i + m) a -> (Vect (finToNat i) a, Vect m a)-}
-split : (i : Fin n) -> Vect n a -> (Vect (finToNat i) a, Vect (minus n (finToNat i)) a) {-again, (-) would be better than minus-}
+split : (i : Fin n) -> Vect n a -> (Vect (finToNat i) a, Vect ((-)  n (finToNat i) {smaller = proveLTE n i}) a) {-again, (-) would be better than minus-}
 split fin vect = (front fin vect, back fin vect)
 
 
@@ -191,34 +199,50 @@ myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
 
 
 
-myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
-myFindJust1 {n = n} fin vect = let (v1,v2) = split fin vect in myFindJust v1 v2
 
+
+
+cancelMinus : (n : Nat) -> (i : Nat) -> {auto smaller : LTE i n} -> i + (n - i) = n
+cancelMinus n i = ?hole
+
+myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
+myFindJust1 {n = n} fin vect = rewrite cancelMinus n (finToNat fin) {smaller = proveLTE n fin} in (let (v1,v2) = split fin vect in myFindJust v1 v2)
+
+
+{- still working here!! -}
 
 
 
 {-
 
-The problem here again seems to be linked to knowing LTE (finToNat fin) n
 
+ Type mismatch between
+                 plus (finToNat fin) (n - finToNat fin)
+                         and
+                                         n
+
+
+
+-}
+
+
+
+
+
+{-
+The problem here again seems to be linked to knowing LTE (finToNat fin) n
 player.idr:195:38:
 When checking right hand side of Player.case block in myFindJust1 at player.idr:195:38 with expected type
         Maybe (Fin (S k))
-
 Type mismatch between
         Maybe (Fin (finToNat fin + minus (S k) (finToNat fin))) (Type of myFindJust v1 v2)
 and
         Maybe (Fin (S k)) (Expected type)
-
 Specifically:
         Type mismatch between
                 plus (finToNat fin) (minus (S k) (finToNat fin))
         and
                 S k
-
-
-
-
 
 -}
 
