@@ -80,36 +80,30 @@ getRowTarget row player =
                Nothing => Nothing
                Just _ => Just row
 
-proveLTE : (n : Nat) -> (i : Fin n) -> LTE (finToNat i) n
-proveLTE _ FZ = LTEZero
-proveLTE (S k) (FS fk) = LTESucc (proveLTE k fk)
+indexLTECardinality : (n : Nat) -> (i : Fin n) -> LTE (finToNat i) n
+indexLTECardinality _ FZ = LTEZero
+indexLTECardinality (S k) (FS fk) = LTESucc (indexLTECardinality k fk)
 
-
+{-
 plusOneSucc' : (right : Nat) -> S right = right + 1
 plusOneSucc' n = rewrite plusCommutative n 1 in Refl
-
-
 
 foobar : Fin n -> Vect n a -> Vect n a
 foobar FZ x = x
 foobar {n = S k'} (FS k) (x::xs) = foobar (weaken k) (rewrite plusOneSucc' k' in (xs ++ [x]))
+-}
 
-front : (i : Fin n) -> Vect n a -> Vect (finToNat i) a
-front FZ _ = []
-front (FS k) (x :: xs) = x :: (front k xs)
 
-back : (i : Fin n) -> Vect n a -> Vect ((-) n (finToNat i) {smaller = proveLTE n i}) a
-back FZ xs = xs
-back (FS k) (x :: xs) = back k xs
+leftVect : (i : Fin n) -> Vect n a -> Vect (finToNat i) a
+leftVect FZ _ = []
+leftVect (FS k) (x :: xs) = x :: (leftVect k xs)
 
-split : (i : Fin n) -> Vect n a -> (Vect (finToNat i) a, Vect ((-)  n (finToNat i) {smaller = proveLTE n i}) a)
-split fin vect = (front fin vect, back fin vect)
+rightVect : (i : Fin n) -> Vect n a -> Vect ((-) n (finToNat i) {smaller = indexLTECardinality n i}) a
+rightVect FZ xs = xs
+rightVect (FS k) (x :: xs) = rightVect k xs
 
-findJust : Vect n (Maybe a) -> Maybe (Fin n)
-findJust vect = findIndex isJust vect
-
-pullOutSucc : (m : Nat) -> (k : Nat) -> S (plus k m) = plus m (S k)
-pullOutSucc m k = ?hole
+split : (i : Fin n) -> Vect n a -> (Vect (finToNat i) a, Vect ((-)  n (finToNat i) {smaller = indexLTECardinality n i}) a)
+split fin vect = (leftVect fin vect, rightVect fin vect)
 
 swapSuccessor : (n : Nat) -> (k : Nat) -> plus n (S k) = plus (S n) k
 swapSuccessor Z k = Refl
@@ -119,20 +113,15 @@ shiftFin : Fin n -> (m : Nat) -> Fin (n + m)
 shiftFin {n=n} fin Z = rewrite plusZeroRightNeutral n in fin
 shiftFin {n=n} fin (S k) = rewrite swapSuccessor n k in (shiftFin (FS fin) k)
 
-
-
-myFindJust : Vect n (Maybe a) -> Vect m (Maybe a) -> Maybe (Fin (n + m))
-myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
+findIndexFromRightThenLeft : (a -> Bool) -> Vect n a -> Vect m a -> Maybe (Fin (n + m))
+findIndexFromRightThenLeft {n=n} {m=m} f leftVect rightVect = case findIndex f rightVect of
                               Just i => rewrite plusCommutative n m in (Just (shiftFin i n))
-                              Nothing => case findIndex isJust vect1 of
+                              Nothing => case findIndex f leftVect of
                                               Just i => Just (weakenN m i)
                                               Nothing => Nothing
 
-
-
 myFindJust2 : (Vect n (Maybe a), Vect m (Maybe a)) -> Maybe (Fin (n + m))
-myFindJust2 (v1,v2) = myFindJust v1 v2
-
+myFindJust2 (v1,v2) = findIndexFromRightThenLeft isJust v1 v2
 
 cancelMinus : (n : Nat) -> (i : Nat) -> {auto smaller : LTE i n} -> i + (n - i) = n
 cancelMinus n i = ?hole
@@ -140,15 +129,74 @@ cancelMinus n i = ?hole
 realCancelMinus : (fin : Fin n) -> (n : Nat) -> {auto smaller : LTE (finToNat fin) n} -> n = (finToNat fin) + (n - (finToNat fin))
 realCancelMinus fin n = ?hole
 
-
 myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
-myFindJust1 {n=n} fin vect = rewrite realCancelMinus fin n {smaller = proveLTE n fin} in (myFindJust2 (split fin vect))
+myFindJust1 {n=n} fin vect = rewrite realCancelMinus fin n {smaller = indexLTECardinality n fin} in (myFindJust2 (split fin vect))
 
 
+{- written by the mighty Melvar -}
+findIndexFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
+findIndexFrom p FZ xs = findIndex p xs
+findIndexFrom p (FS k) (x :: xs) = FS <$> findIndexFrom p k xs
+
+{- written by the mighty Melvar -}
+findIndexPreferentiallyFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
+findIndexPreferentiallyFrom p FZ xs =  findIndex p xs
+findIndexPreferentiallyFrom p (FS k) (x :: xs) = if p x then FS <$> findIndexFrom p k xs <|> Just FZ else FS <$>                findIndexPreferentiallyFrom p k xs
+
+
+actualAlive : Maybe Monster -> Bool
+actualAlive Nothing = False
+actualAlive (Just monster) with (aliveness $ basic monster)
+  | DeadFresh = False
+  | DeadStale = False
+  | Alive = True
+
+findNextLivingMonster : Fin n -> Vect n (Maybe Monster) -> Maybe (Fin n)
+findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
 findIndexFrom : Fin n -> (a -> Bool) -> Vect n a -> Maybe (Fin n)
 
-
 findIndexFromWrap : Fin n -> (a -> Bool) -> Vect n a -> Maybe (Fin n)
+-}
+
+
+
+
+
+
 
 
 
