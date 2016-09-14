@@ -198,16 +198,24 @@ myFindJust {n=n} {m=m} vect1 vect2 = case findIndex isJust vect2 of
 
 
 
-
-
+myFindJust2 : (Vect n (Maybe a), Vect m (Maybe a)) -> Maybe (Fin (n + m))
+myFindJust2 (v1,v2) = myFindJust v1 v2
 
 
 cancelMinus : (n : Nat) -> (i : Nat) -> {auto smaller : LTE i n} -> i + (n - i) = n
 cancelMinus n i = ?hole
 
-myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
-myFindJust1 {n = n} fin vect = rewrite cancelMinus n (finToNat fin) {smaller = proveLTE n fin} in (let (v1,v2) = split fin vect in myFindJust v1 v2)
+realCancelMinus : (fin : Fin n) -> (n : Nat) -> {auto smaller : LTE (finToNat fin) n} -> n = (finToNat fin) + (n - (finToNat fin))
+realCancelMinus fin n = ?hole
 
+
+myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
+myFindJust1 {n=n} fin vect = rewrite realCancelMinus fin n {smaller = proveLTE n fin} in (myFindJust2 (split fin vect))
+
+
+{-
+myFindJust1 {n = n} fin vect = {-rewrite cancelMinus n (finToNat fin) {smaller = proveLTE n fin} in-}  (let (v1,v2) = split fin vect in ({-rewrite cancelMinus n (finToNat fin) {smaller = proveLTE n fin} in-} (myFindJust v1 v2)))
+-}
 
 {- still working here!! -}
 
