@@ -39,9 +39,14 @@ getValidTargets' (Nothing::xs) = getValidTargets' xs
 getValidTargets' ((Just monster)::xs) = monster :: (getValidTargets' xs)
 
 getValidTargets : Player -> List Monster
-getValidTargets player = getValidTargets' $ toList $ board player
+getValidTargets player = ?hole {-getValidTargets' $ toList $ board player-}
 
+{-
+getValidTargets : Player -> List Monster
+getValidTargets player = ?hole
+-}
 
+{-this probably should have a function for what is valid... -}
 
 
 
@@ -72,13 +77,21 @@ correctId _ Nothing = False
 correctId id' (Just monster) = (id (basic monster)) == id'
 
 lookupBasicCard : Nat -> Player -> Player -> Maybe BasicMonster {-no targetting spell cards for now!-} 
-lookupBasicCard temporaryId player opponent = case find (correctId temporaryId) (board player) of
+lookupBasicCard temporaryId player opponent = ?hole {- case find (correctId temporaryId) (board player) of
                                                    Just (Just monster) => Just (basic monster)
                                                    Just _ => Nothing {-THIS CASE SHOULD NEVER HAPPEN...-}
                                                    Nothing => case find (correctId temporaryId) (board opponent) of
                                                                    Just (Just monster) => Just (basic monster)
                                                                    Just _ => Nothing {-This case should never happen-}
-                                                                   Nothing => Nothing
+                                                                   Nothing => Nothing -}
+
+
+
+
+
+
+
+
 lookupCardId' : String -> List (String,Nat) -> Maybe Nat
 lookupCardId' s [] = Nothing
 lookupCardId' s ((s',n)::xs) with (s==s')

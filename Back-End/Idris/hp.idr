@@ -60,13 +60,59 @@ getMaxHp : Hp -> Bounded 0 Preliminaries.absoluteUpperBound
 getMaxHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = maxHp
 getBaseHp : Hp -> Bounded 1 Preliminaries.absoluteUpperBound
 getBaseHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = baseHp
+
+{-
+leqProof : (i : Integer) -> leq (the (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound) (MkBounded ( i ** _))) (the (Bounded 0 Preliminaries.absoluteUpperBound) (MkBounded ( i ** _))) = True
+-}
+
+{-
 transformHp : (Integer -> Integer) -> Hp -> Hp
+transformHp f (MkHp (((MkBounded (currentHp ** prfCurrentHpBounded)) ** ((MkBounded (maxHp ** prfMaxHpBounded)) ** prf)),baseHp)) =
+  let m = transformBounded f (MkBounded (currentHp ** prfCurrentHpBounded)) in
+      case (choose (leq m (MkBounded (maxHp ** prfMaxHpBounded)))) of
+           Left proofUpperBound => MkHp ((m ** ((MkBounded (maxHp ** prfMaxHpBounded))) ** proofUpperBound), baseHp)
+           Right _ => MkHp(((extendLowerBound (MkBounded (maxHp ** prfMaxHpBounded)) (rewrite leqProof maxHp in Oh)) ** ((MkBounded (maxHp ** prfMaxHpBounded))) ** Oh),baseHp)
+
+-}
+
+
+{-assumes that Preliminaries.absoluteLowerBound will never be strictly positive.-}
+maxHpLEQmaxHp : (maxHp : Bounded 0 Preliminaries.absoluteUpperBound) -> So(leq (the (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound) (extendLowerBound maxHp Oh)) maxhp)
+maxHpLEQmaxHp maxHp = believe_me Oh
+
+transformHp : (Integer -> Integer) -> Hp -> Hp
+transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
+ let m = transformBounded f currentHp in
+     case (choose (leq m maxHp)) of
+          Left proofUpperBound => MkHp ((m ** (maxHp ** proofUpperBound)),baseHp)
+          Right _ => MkHp (((extendLowerBound maxHp Oh) ** (maxHp ** (maxHpLEQmaxHp maxHp))),baseHp)
+
+
+{-
+
+True
+                and
+leq (extendLowerBound (MkBounded (maxHp ** prfMaxHpBounded)) Oh) (MkBounded (maxHp ** prfMaxHpBounded))
+
+
+
+
+-}
+
+
+
+{-
+
 transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
   let m = transformBounded f currentHp in
       case (choose (leq m maxHp)) of
            Left proofUpperBound => MkHp ((m ** (maxHp ** proofUpperBound)),baseHp)
            Right _ => let c = extendLowerBound maxHp Oh in
                           MkHp ((c ** (maxHp ** (leq_hp_maxhp c maxHp (   ?hole   )))),baseHp)
+
+-}
+
+
 
 transformMaxHp : (Integer -> Integer) -> Hp -> Hp
 transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
@@ -75,6 +121,14 @@ transformMaxHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
            Left proofUpperBound => MkHp ((currentHp ** (m ** proofUpperBound)),baseHp)
            Right _ => let c = extendLowerBound m Oh in
                           MkHp ((c ** (m ** (leq_hp_maxhp c m ( ?hole )))), baseHp)
+
+
+
+
+
+
+
+
 
 {-I feel I should be doing something monadic here, but it's perhaps a bit more complicated-}
 
