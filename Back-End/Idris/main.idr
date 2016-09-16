@@ -55,14 +55,23 @@ Need to get opponent to call transformGame
 {-I also need a mechanism for creating games. Ur/Web can handle this and just tell Idris when it has happened...-}
 
 
-{-
-createNewGame : -}
+
+createNewGame : List Game -> String -> String -> List Game
+createNewGame games originalPlayerA originalPlayerB = ?hole {-this actually can be a special case of processserverupdate....??-}
+
 
 processServerUpdate : List Game -> ServerUpdate -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
-{-processServerUpdate-}
+processServerUpdate games serverUpdate = ?hole {- find game in list of games, then transformGame -}
+
 
 
 processMessage : List Game -> String -> (List Game, String)
+processMessage games message =
+  case parseJson message of
+       InvalidRequest => (games, ?hole) {- should maybe handle the message for this in client updates -}
+       NewGameMessage playerId opponentId => (createNewGame games playerId opponentId, ?hole) {-similarly probably want a game started client update-}
+       ServerUpdateMessage serverUpdate => processServerUpdate games serverUpdate
+
 
 
 partial

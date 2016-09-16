@@ -87,7 +87,7 @@ serializeMarshalled marshalledClientUpdate = "{updateType:" ++ (type marshalledC
 serialize : ClientUpdate -> String -> Maybe String
 serialize clientUpdate playerId = do marshalledClientUpdate <- marshallClientUpdate clientUpdate playerId
                                      pure (serializeMarshalled marshalledClientUpdate)
-{-
-payload : ClientUpdate -> String -> String -> Maybe String {- PLAYER TOKEN CANNOT BE ADDED BY URWEB AS SAIDA BOVE AS I HAVE TO PASS BOTH MESSAGES HERE...-}
-payload clientUpdate playerId1 playerId2 = do 
--}
+payload : ClientUpdate -> String -> String -> Maybe String
+payload clientUpdate playerId opponentId = do playerMessage <- serialize clientUpdate playerId
+                                              opponentMessage <- serialize clientUpdate opponentId
+                                              pure (playerMessage ++ "~" ++ opponentMessage)

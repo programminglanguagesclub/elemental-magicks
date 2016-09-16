@@ -13,6 +13,10 @@ import objects_basic
 import player
 import game
 import skill_dsl
+
+%access public export
+%default total
+
 public export
 data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat String
                   | Skip (Vect 6 (Bounded 0 9)) String
@@ -25,6 +29,10 @@ data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat String
                   | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) String {-no requirement of uniqueness at type level currently...-}
                   | Revive (Vect 9 Bool) String
                   | DrawCard Nat String {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
+
+data ServerMessage = NewGameMessage String String
+                   | ServerUpdateMessage ServerUpdate
+                   | InvalidRequest
 
 record MarshalledServerUpdate where
   constructor MkMarshalledServerUpdate
@@ -122,30 +130,30 @@ parseListFin n s = let numbers = split (==',') $ removeCharacter '[' $ removeCha
 
 
 {-definitely want to use monads here-}
-generateServerUpdate : MarshalledServerUpdate -> Maybe ServerUpdate
+generateServerUpdate : MarshalledServerUpdate -> Maybe ServerMessage
 generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
   | "spawnCard" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
                      schools <- getSchools rawSchools
                      rawIndex <- getField (info marshalledServerUpdate) "index"
                      index <- parsePositive {a=Nat} rawIndex
-                     pure (SpawnCard schools index $ player marshalledServerUpdate)
+                     pure (ServerUpdateMessage (SpawnCard schools index $ player marshalledServerUpdate))
   | "skip" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
                 schools <- getSchools rawSchools
-                pure (Skip schools $ player marshalledServerUpdate)
+                pure (ServerUpdateMessage (Skip schools $ player marshalledServerUpdate))
   | "deployCard" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                       index <- parseFin 9 rawIndex
-                      pure (DeployCard index $ player marshalledServerUpdate)
+                      pure (ServerUpdateMessage (DeployCard index $ player marshalledServerUpdate))
   | "attackRow" = do rawRow <- getField (info marshalledServerUpdate) "row"
                      row <- parseFin 3 rawRow
-                     pure (AttackRow row $ player marshalledServerUpdate)
-  | "rest" = do pure (Rest $ player marshalledServerUpdate)
-  | "directAttack" = do pure (DirectAttack $ player marshalledServerUpdate)
+                     pure (ServerUpdateMessage (AttackRow row $ player marshalledServerUpdate))
+  | "rest" = do pure (ServerUpdateMessage (Rest $ player marshalledServerUpdate))
+  | "directAttack" = do pure (ServerUpdateMessage (DirectAttack $ player marshalledServerUpdate))
   | "move" = do rawTo <- getField (info marshalledServerUpdate) "to"
                 to <- parseFin 9 rawTo
-                pure (Move to $ player marshalledServerUpdate)
+                pure (ServerUpdateMessage (Move to $ player marshalledServerUpdate))
   | "skillInitiation" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                            index <- parsePositive {a=Nat} rawIndex
-                           pure (SkillInitiation index $ player marshalledServerUpdate)
+                           pure (ServerUpdateMessage (SkillInitiation index $ player marshalledServerUpdate))
   | "skillSelection" = do rawFriendlyBoard <- getField (info marshalledServerUpdate) "friendlyBoard"
                           friendlyBoard <- parseListFin 9 rawFriendlyBoard
                           rawEnemyBoard <- getField (info marshalledServerUpdate) "enemyBoard"
@@ -158,13 +166,14 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                           friendlyGraveyard <- parseListNat rawFriendlyGraveyard
                           rawEnemyGraveyard <- getField (info marshalledServerUpdate) "enemyGraveyard"
                           enemyGraveyard <- parseListNat rawEnemyGraveyard
-                          pure (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate)
+                          pure (ServerUpdateMessage (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate))
   | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
                   positions <- getRevivePositions rawPositions
-                  pure (Revive positions $ player marshalledServerUpdate)
+                  pure (ServerUpdateMessage (Revive positions $ player marshalledServerUpdate))
   | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
                     id <- parsePositive {a=Nat} rawId
-                    pure (DrawCard id $ player marshalledServerUpdate)
+                    pure (ServerUpdateMessage (DrawCard id $ player marshalledServerUpdate))
+  | "newGame" = ?hole
   | _ = Nothing
 
 
@@ -216,8 +225,16 @@ marshallJson json = do keyValueList <- generateParsedKeyValueList $ generateRawK
                        pure (MkMarshalledServerUpdate updateType id keyValueList'')
 
 
-parseJson : String -> Maybe ServerUpdate
-parseJson json = do marshalledJson <- marshallJson json
-                    serverUpdate <- generateServerUpdate marshalledJson
-                    pure serverUpdate
+parseServerMessage : String -> Maybe ServerMessage
+parseServerMessage json = do marshalledJson <- marshallJson json
+                             serverMessage <- generateServerUpdate marshalledJson
+                             pure serverMessage
+parseJson : String -> ServerMessage
+parseJson json = case parseServerMessage json of
+                      Just x => x
+                      Nothing => InvalidRequest
+
+
+
+
 
