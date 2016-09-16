@@ -61,7 +61,10 @@ createNewGame games originalPlayerA originalPlayerB = ?hole {-this actually can 
 
 
 processServerUpdate : List Game -> ServerUpdate -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
-processServerUpdate games serverUpdate = ?hole {- find game in list of games, then transformGame -}
+{-processServerUpdate games serverUpdate = ?hole {- find game in list of games, then transformGame -}-}
+processServerUpdate [] _ = ([],?hole) {- need a client update for not in any game -}
+processServerUpdate (game::games) serverUpdate = ?hole {- create function for getting player id out of server update? Perhaps should be server update wrapper and not server update? -}
+
 
 
 
