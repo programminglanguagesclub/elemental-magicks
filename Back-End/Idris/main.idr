@@ -76,7 +76,7 @@ processMessage games message =
 
 partial
 statefulBackend : List Game -> IO ()
-statefulBackend games = reader >>= (\serverUpdate => let (games',clientPayloads) = processMessage games serverUpdate in (writer clientPayloads) >>= (\_ => statefulBackend games'))
+statefulBackend games = reader >>= (\rawServerMessage => let (games',clientPayloads) = processMessage games rawServerMessage in (writer clientPayloads) >>= (\_ => statefulBackend games'))
 
 partial
 main' : IO () {- switch to this when I'm ready... -}
