@@ -7,10 +7,14 @@ import bounded_then_integer
 import integer_then_bounded
 %access public export
 %default total
+
 absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 absoluteUpperBound : Integer
 absoluteUpperBound = 1000
+
+
+
 
 maxSchool : Bounded 0 9
 maxSchool = >> 9 <<

@@ -55,7 +55,23 @@ Need to get opponent to call transformGame
 {-I also need a mechanism for creating games. Ur/Web can handle this and just tell Idris when it has happened...-}
 
 
+{-
+createNewGame : -}
 
+processServerUpdate : List Game -> ServerUpdate -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
+{-processServerUpdate-}
+
+
+processMessage : List Game -> String -> (List Game, String)
+
+
+partial
+statefulBackend : List Game -> IO ()
+statefulBackend games = reader >>= (\serverUpdate => let (games',clientPayloads) = processMessage games serverUpdate in (writer clientPayloads) >>= (\_ => statefulBackend games'))
+
+partial
+main' : IO () {- switch to this when I'm ready... -}
+main' = statefulBackend []
 
 partial
 main : IO ()
@@ -64,6 +80,21 @@ x <- reader;
 writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
 main;
 }
+
+{-
+just trying...
+
+
+foo : IO ()
+foo = reader >>= (\x =>
+      writer x >>= (\_ =>
+      foo))
+
+-}
+
+
+
+
 
 
 
