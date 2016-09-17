@@ -141,7 +141,7 @@ findIndexFrom p (FS k) (x :: xs) = FS <$> findIndexFrom p k xs
 {- written by the mighty Melvar -}
 findIndexPreferentiallyFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
 findIndexPreferentiallyFrom p FZ xs =  findIndex p xs
-findIndexPreferentiallyFrom p (FS k) (x :: xs) = if p x then FS <$> findIndexFrom p k xs <|> Just FZ else FS <$>                findIndexPreferentiallyFrom p k xs
+findIndexPreferentiallyFrom p (FS k) (x :: xs) = if p x then FS <$> findIndexFrom p k xs <|> Just FZ else FS <$> findIndexPreferentiallyFrom p k xs
 
 
 actualAlive : Maybe Monster -> Bool
