@@ -137,9 +137,11 @@ transformPlayer (game,updateAcc) PlayerB transform =
 
 
 
+spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
+spendThoughts player val = (record{thoughts $= (\t => t - val)} player, [UpdateThoughts (thoughts player) (id player)])
 
-{-This needs to be fixed, but probably should just get numeric typeclasses working first... -}
 
+{-
 spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
 spendThoughts (game, clientUpdates) whichPlayer n = ?hole
 {- transformPlayer (game, clientUpdates)
@@ -148,7 +150,7 @@ spendThoughts (game, clientUpdates) whichPlayer n = ?hole
                         clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p)]))
                         -}
 
-
+-}
 
 
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
