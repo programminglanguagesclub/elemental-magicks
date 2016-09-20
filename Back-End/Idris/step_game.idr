@@ -16,6 +16,15 @@ import player
 import game
 import serverupdates
 import clientupdates
+import draw_phase
+import spawn_phase
+import spell_phase
+import removal_phase
+import start_phase
+import engagement_phase
+import end_phase
+import revival_phase
+import deployment_phase
 import step_game_helpers
 %access public export
 %default total

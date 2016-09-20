@@ -11,6 +11,15 @@ import player
 import game
 import serverupdates
 import clientupdates
+import draw_phase
+import spawn_phase
+import spell_phase
+import removal_phase
+import start_phase
+import engagement_phase
+import end_phase
+import revival_phase
+import deployment_phase
 import transform_game_helpers
 import step_game
 import step_game_helpers
