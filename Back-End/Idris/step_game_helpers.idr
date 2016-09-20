@@ -29,7 +29,7 @@ import deployment_phase
 
 damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
 
-reviveCard : Monster -> Monster
+
 
 updatePlayer : Game -> Player -> (Player -> Player) -> Game {-applies update to player_A or player_B, as appropriate-}
 
@@ -63,12 +63,6 @@ FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (ha
 
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
 
-executeSkillEffects : Game -> List SkillEffect -> (Game, List ClientUpdate)
-executeSkillEffects g a = ?hole
-
-skillSelectionPossible : Game -> Condition -> Bool
-skillSelectionPossible game condition = ?hole
-
 removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
 removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
@@ -80,24 +74,8 @@ removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
 
-_boardFull : List (Maybe Monster) -> Bool
-_boardFull (Nothing::_) = False
-_boardFull ((Just m)::tl) = _boardFull tl
-_boardFull [] = True
 
-boardFull : Vect 9 (Maybe Monster) -> Bool {-don't want to make players try to deploy if the board is full -}
-boardFull board = _boardFull (toList board)
 
-_allUnitsDead : List (Maybe Monster) -> Bool
-_allUnitsDead (Nothing::tl) = _allUnitsDead tl
-_allUnitsDead ((Just m)::tl) with (aliveness (basic m))
- | Alive = False
- | DeadFresh = _allUnitsDead tl
- | DeadStale = _allUnitsDead tl
-_allUnitsDead [] = True
-
-allUnitsDead : Vect n (Maybe Monster) -> Bool
-allUnitsDead board = _allUnitsDead (toList board)
 
 
 
