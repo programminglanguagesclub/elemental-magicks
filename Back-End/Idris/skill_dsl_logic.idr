@@ -119,7 +119,7 @@ getValue (Minus a b) player opponent env = do x <- getValue a player opponent en
 getValue (Mult a b) player opponent env = do x <- getValue a player opponent env
                                              y <- getValue b player opponent env
                                              pure (x*y)
-getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughts (if b then player else opponent))
+getValue (ThoughtsR b) player opponent env = Just (extractBounded $ thoughtsResource (if b then player else opponent))
 getValue (SchoolR b s) player opponent env = Just (extractBounded $ index s (knowledge (if b then player else opponent)))
 getValue (Cardinality var set condition) player opponent env = ?hole
 getValue (Evoker statR) player opponent env = ?hole {- In addition the env, I should probably keep the id of the current evoker,

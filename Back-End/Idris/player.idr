@@ -30,7 +30,7 @@ record Player where
  discard : List Card
  spawn : Spawn
  soul : Soul
- thoughts : Bounded 0 Preliminaries.absoluteUpperBound
+ thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
 

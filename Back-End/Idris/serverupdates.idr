@@ -45,12 +45,23 @@ getField : List(String,String) -> String -> Maybe String
 getField [] _ = Nothing
 getField ((k,v)::xs) x = if (k==x) then Just v else getField xs x
 
-
+{-
 removeCharacter : Char -> String -> String {-does not remove all whitespace-}
 removeCharacter _ "" = ""
 removeCharacter c s with (strHead s == c)
   | True  = removeCharacter c (strTail s)
   | False = (singleton (strHead s)) ++ (removeCharacter c (strTail s))
+-}
+
+removeCharacter' : Char -> List Char -> List Char
+removeCharacter' c [] = []
+removeCharacter' c (x::xs) with (x == c)
+  | True = removeCharacter' c xs
+  | False = x :: (removeCharacter' c xs)
+removeCharacter : Char -> String -> String
+removeCharacter c s = pack (removeCharacter' c (unpack s))
+
+
 
 
 getSchool : String -> Maybe (Bounded 0 9)

@@ -138,7 +138,9 @@ transformPlayer (game,updateAcc) PlayerB transform =
 
 
 spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
-spendThoughts player val = (record {thoughts $= (\t => t - val)} player, [UpdateThoughts (thoughts player) (id player)])
+spendThoughts player val = ((record {thoughtsResource = {- (\t => t - val) -} ( >> 0 << ) {-(thoughts player)-} } player), [{-UpdateThoughts (thoughts player) (temporaryId player)-}])
+
+
 
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
 
