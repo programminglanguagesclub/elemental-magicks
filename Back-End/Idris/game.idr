@@ -29,13 +29,18 @@ record Game where
  constructor MkGame
  initiative : WhichPlayer
  turnNumber : Nat
- skillHead  : Nonautomatic 
+ skillHead : Nonautomatic {-
+ currentEvoker : Nat {-this would be better in skillHead but that is somewhat invasive when I create skills..-}
+Actually I'm going to put this in them..
+-}
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
- player_A   : Player
- player_B   : Player
- phase      : Phase
+ player_A : Player
+ player_B : Player
+ phase : Phase
  
+
+
 syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
 
 {-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}

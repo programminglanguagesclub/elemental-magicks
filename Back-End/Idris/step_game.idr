@@ -44,7 +44,40 @@ I can achieve this by pushing both of the spawn skills onto the queue/head/whate
                                            let continue = stepGame (fst effectsApplied, []) in (fst continue, acc ++ (snd effectsApplied) ++ (snd continue))-}
                                            
 
+
+
+
+
+
+{-
+transform can have valid : phase -> update -> bool?
+                        -}
+
+
+
+
+stepGameNoSkills : (Game, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
+stepGameNoSkills (g,acc) with (phase g)
+  | DrawPhase = ?hole
+  | SpawnPhase = ?hole
+  | SpellPhase = ?hole
+  | RemovalPhase = ?hole
+  | StartPhase = ?hole
+  | EngagementPhase = ?hole
+  | EndPhase = ?hole
+  | RevivalPhase = ?hole
+  | DeploymentPhase = ?hole
+
+
+
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
+stepGame (g,acc) with (skillHead g, skillQueue g)
+  | (TerminatedSkillComponent, []) = stepGameNoSkills (g,acc)
+  | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) {-wrong type... need to execute head first... -}
+  | _ = ?hole 
+
+
+{-
 stepGame (g,acc) with (skillHead g, skillQueue g)
  | (Nothing, (SkillComponent_ (skillEffects, next) playerTemporaryId)::skillQueue) =
    let effectsApplied = executeSkillEffects (record {skillHead = next, skillQueue = skillQueue} g) skillEffects in
@@ -63,6 +96,63 @@ stepGame (g,acc) with (skillHead g, skillQueue g)
   
   | (initiative,turnNumber,player_A,player_B,SpellPhase,asp,bsp) with (spawn player_A, spawn player_B)
    | _ = ?hole   
+  
+  
+  
+  
+-}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   {-
    | (Just (MonsterCard cardA),Just (MonsterCard cardB)) with (spawnSkill cardA, spawnSkill cardB)
     | _ = ?hole
