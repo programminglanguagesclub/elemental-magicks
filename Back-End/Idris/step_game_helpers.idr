@@ -138,23 +138,10 @@ transformPlayer (game,updateAcc) PlayerB transform =
 
 
 spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
-spendThoughts player val = (record{thoughts $= (\t => t - val)} player, [UpdateThoughts (thoughts player) (id player)])
-
-
-{-
-spendThoughts : (Game,List ClientUpdate) -> WhichPlayer -> Nat -> (Game,List ClientUpdate)
-spendThoughts (game, clientUpdates) whichPlayer n = ?hole
-{- transformPlayer (game, clientUpdates)
-                 whichPlayer
-                 (\p => ((record{thoughts = (thoughts p) {- - n -}} p),
-                        clientUpdates ++ [UpdateThoughts (transformBounded (\t => t {- - n -}) (thoughts p)) (temporaryId p)]))
-                        -}
-
--}
-
+spendThoughts player val = (record {thoughts $= (\t => t - val)} player, [UpdateThoughts (thoughts player) (id player)])
 
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
 
 handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
 
-getMonsterField : Player -> Player -> Nat -> Maybe (Player,(Fin 9),Monster)
+
