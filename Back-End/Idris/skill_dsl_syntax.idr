@@ -656,7 +656,7 @@ syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" 
 
 
 {-this also needs to be wrapped in something like begin or finishWith so it can be either AutomaticFactory or not..-}
-syntax every [var] "in" [side] [relativeSet] [effects] [next] = Universal (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
+syntax every [var] "in" [side] [relativeSet] [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
 {-every is another place where I would like to be able to leave off the done at the end...-}
 
 syntax gaa [a] {-faa [b]-} = MkAutomaticFactory a done {-a b-}

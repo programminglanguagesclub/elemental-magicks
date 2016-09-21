@@ -18,15 +18,15 @@ import clientupdates
 
 
 SkillFactory : Type
-SkillFactory = (Automatic, Bool, Nat)
+SkillFactory = (AutomaticFactory, Bool, Nat)
 
 
-{-automatic, used, cost, and id of evoker-}
+{-automatic, used, cost-}
 Skill : Type
-Skill = (Automatic, Bool, Nat, Nat)
+Skill = (Automatic, Bool, Nat)
 
 instantiateSkill : Nat -> SkillFactory -> Skill
-instantiateSkill id (automatic,bool,cost) = (automatic,bool,cost,id)
+instantiateSkill id (automatic,bool,cost) = (instantiateAutomatic automatic id,bool,cost)
 
 
 {-THIS IS WHERE I CAN REPRESENT EVOKER!
