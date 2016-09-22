@@ -218,15 +218,15 @@ getValidBindings : String -> Condition -> Player -> Player -> Env -> List Nat
 getValidBindings argument condition player opponent env = ?hole
 
 step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List ClientUpdate, Nonautomatic, Env)
-step_interp (MkAutomatic skillEffects nonautomatic id) player opponent env =
+step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
       case nonautomatic of
-           TerminatedSkill id => (player',opponent',messages,TerminatedSkill id ,env)
-           Existential arguments condition selected failed id => let (variables,sets) = unzip arguments in case satisfiableExistentialCondition variables condition player opponent env of
-                                                                                                                True => (player',opponent', messages, nonautomatic, env)
-                                                                                                                False => let (player'',opponent'', messages', nonautomatic',env') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
-                                                                                                                             (player'',opponent'', messages ++ messages', nonautomatic',env')
-step_interp (Universal argument condition skillEffects next id) player opponent env = ?hole
+           TerminatedSkill cardId' playerId' => (player',opponent',messages,TerminatedSkill cardId' playerId' ,env)
+           Existential arguments condition selected failed cardId' playerId' => let (variables,sets) = unzip arguments in case satisfiableExistentialCondition variables condition player opponent env of
+                                                                                                                               True => (player',opponent', messages, nonautomatic, env)
+                                                                                                                               False => let (player'',opponent'', messages', nonautomatic',env') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
+                                                                                                                                            (player'',opponent'', messages ++ messages', nonautomatic',env')
+step_interp (Universal argument condition skillEffects next cardId playerId) player opponent env = ?hole
 
 
 
@@ -244,12 +244,12 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
   | No  contra = Nothing
 
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
-move_interp (TerminatedSkill id) _ player opponent env = (player,opponent,[],TerminatedSkill,env) {-error case?-}
-move_interp (Existential arguments condition selected failed id) selection player opponent env with (alignVectors arguments selection)
-  | Nothing = (player,opponent,[],Existential arguments condition selected failed, env)
+move_interp (TerminatedSkill cardId playerId) _ player opponent env = (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
+move_interp (Existential arguments condition selected failed cardId playerId) selection player opponent env with (alignVectors arguments selection)
+  | Nothing = (player,opponent,[],Existential arguments condition selected failed cardId playerId, env)
   | Just (arguments', selection') =
      let (variables',sets') = unzip arguments' in case satisfiedExistentialCondition' condition player opponent (extend_env env variables' selection') of
-                                                        False => (player,opponent, [], Existential arguments condition selected failed id,env) {-could add a "failed selection" message-}
+                                                        False => (player,opponent, [], Existential arguments condition selected failed cardId playerId,env) {-could add a "failed selection" message-}
                                                         True => step_interp selected player opponent (extend_env env variables' selection')
 
 
