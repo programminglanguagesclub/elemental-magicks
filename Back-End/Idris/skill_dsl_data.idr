@@ -105,6 +105,9 @@ mutual
   data NonautomaticFactory = TerminatedSkillFactory | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
   data AutomaticFactory = MkAutomaticFactory (List SkillEffect) NonautomaticFactory | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
 
+
+{- HERE I have a NAT, which represents the id of the card, but I should have another identifier which identifies the player (probably another Nat). This is because skills can target both the evoker and the players. From a single id for the player with the card, I can recreate the opponent as well-}
+
 mutual
   data Nonautomatic = TerminatedSkill Nat | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat {-haven't added all of the code for universal yet...-}
