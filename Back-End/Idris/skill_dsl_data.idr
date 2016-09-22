@@ -109,16 +109,16 @@ mutual
 {- HERE I have a NAT, which represents the id of the card, but I should have another identifier which identifies the player (probably another Nat). This is because skills can target both the evoker and the players. From a single id for the player with the card, I can recreate the opponent as well-}
 
 mutual
-  data Nonautomatic = TerminatedSkill Nat | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat
-  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat {-haven't added all of the code for universal yet...-}
+  data Nonautomatic = TerminatedSkill Nat String | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
+  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat String | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 mutual
-  instantiateNonautomatic : NonautomaticFactory -> Nat -> Nonautomatic
-  instantiateNonautomatic TerminatedSkillFactory id = TerminatedSkill id
-  instantiateNonautomatic (ExistentialFactory arguments condition success failure) id = Existential arguments condition (instantiateAutomatic success id) (instantiateAutomatic failure id) id
+  instantiateNonautomatic : NonautomaticFactory -> Nat -> String -> Nonautomatic
+  instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill cardId playerId
+  instantiateNonautomatic (ExistentialFactory arguments condition success failure) cardId playerId = Existential arguments condition (instantiateAutomatic success cardId playerId) (instantiateAutomatic failure cardId playerId) cardId playerId
 
-  instantiateAutomatic : AutomaticFactory -> Nat -> Automatic
-  instantiateAutomatic (MkAutomaticFactory effects next) id = MkAutomatic effects (instantiateNonautomatic next id) id
-  instantiateAutomatic (UniversalFactory argument condition effects next) id = Universal argument condition effects (instantiateNonautomatic next id) id
+  instantiateAutomatic : AutomaticFactory -> Nat -> String -> Automatic
+  instantiateAutomatic (MkAutomaticFactory effects next) cardId playerId = MkAutomatic effects (instantiateNonautomatic next cardId playerId) cardId playerId
+  instantiateAutomatic (UniversalFactory argument condition effects next) cardId playerId = Universal argument condition effects (instantiateNonautomatic next cardId playerId) cardId playerId
 
 {-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!-}

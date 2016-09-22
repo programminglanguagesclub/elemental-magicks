@@ -25,8 +25,8 @@ SkillFactory = (AutomaticFactory, Bool, Nat)
 Skill : Type
 Skill = (Automatic, Bool, Nat)
 
-instantiateSkill : Nat -> SkillFactory -> Skill
-instantiateSkill id (automatic,bool,cost) = (instantiateAutomatic automatic id,bool,cost)
+instantiateSkill : Nat -> String -> SkillFactory -> Skill
+instantiateSkill cardId playerId (automatic,bool,cost) = (instantiateAutomatic automatic cardId playerId,bool,cost)
 
 
 {-THIS IS WHERE I CAN REPRESENT EVOKER!
@@ -80,22 +80,22 @@ record Monster where
 
 
 {-should make id come first in the other instantiate functions as well for consistency-}
-instantiateMonster : Nat -> MonsterFactory -> Monster
-instantiateMonster id monsterFactory =
-  MkMonster (instantiateBasicMonster (basic monsterFactory) id)
-            ((instantiateSkill id) <$> (startSkill monsterFactory))
-            ((instantiateSkill id) <$> (endSkill monsterFactory))
-            ((instantiateSkill id) <$> (counterSkill monsterFactory))
-            ((instantiateSkill id) <$> (spawnSkill monsterFactory))
-            ((instantiateSkill id) <$> (deathSkill monsterFactory))
-            ((instantiateSkill id) <$> (autoSkill monsterFactory))
-            ((instantiateSkill id) <$> (actionSkills monsterFactory))
-            (instantiateSkill id (soulSkill monsterFactory))
+instantiateMonster : Nat -> String -> MonsterFactory -> Monster
+instantiateMonster cardId playerId monsterFactory =
+  MkMonster (instantiateBasicMonster (basic monsterFactory) cardId)
+            ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory))
+            ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory))
+            (instantiateSkill cardId playerId (soulSkill monsterFactory))
 
-instantiateSpell : Nat -> SpellFactory -> Spell
-instantiateSpell id spellFactory =
-  MkSpell (instantiateBasicSpell (basic spellFactory) id)
-          (instantiateSkill id (spawnSkill spellFactory))
+instantiateSpell : Nat -> String -> SpellFactory -> Spell
+instantiateSpell cardId playerId spellFactory =
+  MkSpell (instantiateBasicSpell (basic spellFactory) cardId)
+          (instantiateSkill cardId playerId (spawnSkill spellFactory))
 
 
 data Card = SpellCard Spell | MonsterCard Monster
