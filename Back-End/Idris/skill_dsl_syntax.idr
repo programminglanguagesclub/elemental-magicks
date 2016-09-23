@@ -27,12 +27,6 @@ namespace NonautomaticFactory
 {-for now, in the DSL, I am not supporting syntax for unions. This will come later!-}
 
 
-{-I should maybe just be defining everything in terms of these two datatypes... for now let me just use this to marshall to Set. Maybe later things will be changed-}
-data Side = Friendly | Enemy
-data RelativeSet = RelativeBoard | RelativeSpawn | RelativeHand | RelativeGraveyard | RelativeDiscard
-getSet : Side -> RelativeSet -> Set
-
-
 friendly : Side
 friendly = Friendly
 

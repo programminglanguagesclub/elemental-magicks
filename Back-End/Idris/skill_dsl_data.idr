@@ -78,21 +78,79 @@ getHpTypeName : HpStat -> String
 getHpTypeName CurrentHp = "hp"
 getHpTypeName MaxHp = "max hp"
 
-data Set = FriendlyBoard | EnemyBoard | FriendlySpawn | EnemySpawn | FriendlyHand | EnemyHand | FriendlyGraveyard | EnemyGraveyard | FriendlyDiscard | EnemyDiscard | Union Set Set
+data Set = FriendlyBoard 
+         | EnemyBoard 
+         | FriendlySpawn 
+         | EnemySpawn 
+         | FriendlyHand 
+         | EnemyHand 
+         | FriendlyGraveyard 
+         | EnemyGraveyard 
+         | FriendlyDiscard 
+         | EnemyDiscard 
+         | Union Set Set
 
-data StatR = TemporaryAttackR | PermanentAttackR | TemporarySpeedR | PermanentSpeedR | TemporaryDefenseR | PermanentDefenseR | TemporaryRangeR | PermanentRangeR | TemporaryLevelR | PermanentLevelR | HpR | MaxHpR
+data Side = Friendly 
+          | Enemy
+data RelativeSet = RelativeBoard 
+                 | RelativeSpawn 
+                 | RelativeHand 
+                 | RelativeGraveyard 
+                 | RelativeDiscard {- call discard banished -}
+getSet : Side -> RelativeSet -> Set
+
+data StatR = TemporaryAttackR 
+           | PermanentAttackR 
+           | TemporarySpeedR 
+           | PermanentSpeedR 
+           | TemporaryDefenseR 
+           | PermanentDefenseR 
+           | TemporaryRangeR 
+           | PermanentRangeR 
+           | TemporaryLevelR 
+           | PermanentLevelR 
+           | HpR 
+           | MaxHpR
 mutual
   data DamageEffect = MkDamageEffect RInteger
-  data StatEffect = MkStatEffect Stat Mutator Temporality RInteger | MkHpEffect Mutator HpStat RInteger | MkEngagementEffect Mutator RInteger | ReviveEffect
-  data ResourceEffect = ThoughtEffect Mutator RInteger | SchoolEffect (Fin 6) Mutator RInteger
-  data PositionEffect = PositionDummy
-  data SkillEffect = EvokerSkillEffectStatEffect StatEffect | SkillEffectStatEffect StatEffect String | SkillEffectResourceEffect ResourceEffect {- | SkillEffectPositionEffect PositionEffect not sure exactly what arguments..-}
-  data RInteger = Constant Integer | Evoker StatR | Variable StatR String | Plus RInteger RInteger | Minus RInteger RInteger | Mult RInteger RInteger | ThoughtsR Bool | SchoolR Bool (Fin 6) | Cardinality String Set Condition
+  data StatEffect = MkStatEffect Stat Mutator Temporality RInteger 
+                  | MkHpEffect Mutator HpStat RInteger 
+                  | MkEngagementEffect Mutator RInteger 
+                  | ReviveEffect
+  data ResourceEffect = ThoughtEffect Mutator RInteger 
+                      | SchoolEffect (Fin 6) Mutator RInteger
+  data PositionEffect = SwapPositions (RelativeSet, Integer) (RelativeSet, Integer) 
+                      | MoveFromTo (RelativeSet, Integer) (RelativeSet, Integer)
+  data SkillEffect = EvokerSkillEffectStatEffect StatEffect 
+                   | SkillEffectStatEffect StatEffect String 
+                   | SkillEffectResourceEffect ResourceEffect 
+                   | SkillEffectPositionEffect PositionEffect 
+                   | SkillEffectConditional Condition SkillEffect SkillEffect 
+                   | SkillEffectRowEffect Side String SkillEffect {- does effect to all units in row of unit bound to string -} 
+                   | SkillEffectColumnEffect Side String SkillEffect {- does effect to all units in column of unit bound to string -}
+                   | SkillEffectBoardPositions Side (List (Bounded 1 9)) {- no requirement that elements be unique yet....-}
+  
+  data RInteger = Constant Integer 
+                | Evoker StatR 
+                | Variable StatR String 
+                | Plus RInteger RInteger 
+                | Minus RInteger RInteger 
+                | Mult RInteger RInteger 
+                | ThoughtsR Bool 
+                | SchoolR Bool (Fin 6) 
+                | Cardinality String Set Condition 
                 
                 {-no requirement that the condition must reference the bound variable currently-}
-  
-  
-  data Condition = Vacuous | RDead String | LT RInteger RInteger | EQ RInteger RInteger | GT RInteger RInteger | LEQ RInteger RInteger | GEQ RInteger RInteger | And Condition Condition | Or Condition Condition | Not Condition
+  data Condition = Vacuous 
+                 | RDead String 
+                 | LT RInteger RInteger 
+                 | EQ RInteger RInteger 
+                 | GT RInteger RInteger 
+                 | LEQ RInteger RInteger 
+                 | GEQ RInteger RInteger 
+                 | And Condition Condition 
+                 | Or Condition Condition 
+                 | Not Condition
 
 applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
 applyStatEffect basic (MkStatEffect stat mutator temporality x) =
@@ -102,15 +160,15 @@ applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
 applyStatEffect basic ReviveEffect = ?hole
 
 mutual
-  data NonautomaticFactory = TerminatedSkillFactory | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
-  data AutomaticFactory = MkAutomaticFactory (List SkillEffect) NonautomaticFactory | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
-
-
-{- HERE I have a NAT, which represents the id of the card, but I should have another identifier which identifies the player (probably another Nat). This is because skills can target both the evoker and the players. From a single id for the player with the card, I can recreate the opponent as well-}
-
+  data NonautomaticFactory = TerminatedSkillFactory 
+                           | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
+  data AutomaticFactory = MkAutomaticFactory (List SkillEffect) NonautomaticFactory 
+                        | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
 mutual
-  data Nonautomatic = TerminatedSkill Nat String | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
-  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat String | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String {-haven't added all of the code for universal yet...-}
+  data Nonautomatic = TerminatedSkill Nat String 
+                    | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
+  data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
+                 | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 mutual
   instantiateNonautomatic : NonautomaticFactory -> Nat -> String -> Nonautomatic
