@@ -126,9 +126,9 @@ mutual
                    | SkillEffectResourceEffect ResourceEffect 
                    | SkillEffectPositionEffect PositionEffect 
                    | SkillEffectConditional Condition SkillEffect SkillEffect 
-                   | SkillEffectRowEffect Side String SkillEffect {- does effect to all units in row of unit bound to string -} 
-                   | SkillEffectColumnEffect Side String SkillEffect {- does effect to all units in column of unit bound to string -}
-                   | SkillEffectBoardPositions Side (List (Bounded 1 9)) {- no requirement that elements be unique yet....-}
+                   | SkillEffectRowEffect Side String SkillEffect String {- does effect to all units in row of unit bound to string; the last string binds the respective units in the row for use in SkillEffect -} 
+                   | SkillEffectColumnEffect Side String SkillEffect String {- does effect to all units in column of unit bound to string; the last string binds the respective units in the column for use in SkillEffect -}
+                   | SkillEffectBoardPositions Side (List (Bounded 1 9)) SkillEffect String {- no requirement that elements be unique yet....; the last string binds the respective units for use in SkillEffect -}
   
   data RInteger = Constant Integer 
                 | Evoker StatR 
