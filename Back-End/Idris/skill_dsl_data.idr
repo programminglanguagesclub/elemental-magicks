@@ -128,8 +128,12 @@ mutual
                    | SkillEffectConditional Condition SkillEffect SkillEffect 
                    | SkillEffectRowEffect Side String SkillEffect String {- does effect to all units in row of unit bound to string; the last string binds the respective units in the row for use in SkillEffect -} 
                    | SkillEffectColumnEffect Side String SkillEffect String {- does effect to all units in column of unit bound to string; the last string binds the respective units in the column for use in SkillEffect -}
+                   | SkillEffectBehind Side String SkillEffect String
+                   | SkillEffectInFront Side String SkillEffect String
+                   | SkillEffectRightOf Side String SkillEffect String
+                   | SkillEffectLeftOf Side String SkillEffect String
                    | SkillEffectBoardPositions Side (List (Bounded 1 9)) SkillEffect String {- no requirement that elements be unique yet....; the last string binds the respective units for use in SkillEffect -}
-  
+                
   data RInteger = Constant Integer 
                 | Evoker StatR 
                 | Variable StatR String 
@@ -143,6 +147,7 @@ mutual
                 {-no requirement that the condition must reference the bound variable currently-}
   data Condition = Vacuous 
                  | RDead String 
+                 | NotX String String {-used for implementing skills that are not allowed to target the evoker-}
                  | LT RInteger RInteger 
                  | EQ RInteger RInteger 
                  | GT RInteger RInteger 
