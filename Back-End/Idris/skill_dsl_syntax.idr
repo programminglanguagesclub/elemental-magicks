@@ -126,10 +126,10 @@ namespace doNotSkipAutomatic
   begin = \x => x
 namespace skill_start
   begin : NonautomaticFactory -> Nat -> SkillFactory
-  begin NonautomaticFactory cost = (MkAutomaticFactory [] NonautomaticFactory, False, cost)
+  begin NonautomaticFactory cost = (MkAutomaticFactory [] NonautomaticFactory, False, cost, Vacuous)
 namespace skill_start_list
   begin : NonautomaticFactory -> Nat -> List SkillFactory
-  begin NonautomaticFactory cost = [(MkAutomaticFactory [] NonautomaticFactory, False, cost)]
+  begin NonautomaticFactory cost = [(MkAutomaticFactory [] NonautomaticFactory, False, cost, Vacuous)]
 
 
 namespace finishWithList

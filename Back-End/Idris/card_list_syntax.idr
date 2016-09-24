@@ -30,7 +30,7 @@ namespace manySkills
   skills s = [s]
 namespace zeroCostJustSkill
   skills : AutomaticFactory -> Maybe SkillFactory
-  skills a = Just (a,False,0)
+  skills a = Just (a,False,0,Vacuous)
 
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
 syntax startSkill ":" [startSkill] = \x => record {startSkill = skills startSkill} x
