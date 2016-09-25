@@ -9,7 +9,7 @@ import hp
 import preliminaries
 import objects_basic
 
-import card {-STILL HAVE TO IMPORT THIS IN SYNTAX1-}
+import card
 import player
 import skill_dsl_data
 %access public export
@@ -220,7 +220,6 @@ namespace non_constant_non_constant
   (==) : RInteger -> RInteger -> Condition
   (==) x y = EQ x y
 {-Still have to cover the existence of spell cards and empty squares that could be selected. For now ignore this.-}
-
 {-
 This works, but it has semicolons to make the syntax extension prefix-free.
 -}
@@ -239,47 +238,24 @@ syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] 
 syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
 -}
 
-
-{-if I have to use semicolons, then i can just require writing a next and use done for that.-}
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) done) 
-syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Vacuous done (finishWith elseSkill)) 
+{-syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Never done (finishWith elseSkill)) -} {- not supporting else without if. -}
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) (finishWith elseSkill))
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
-syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+{-syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole-} {-again, not supporting else without if-}
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] cond (finishWith thenSkill) done)
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] cond (finishWith thenSkill) (finishWith elseSkill))
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+
+
 
 {-also have to have the versions with "where"-}
 
-
 {-this also needs to be wrapped in something like begin or finishWith so it can be either AutomaticFactory or not..-}
 syntax every [var] "in" [side] [relativeSet] [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
-{-every is another place where I would like to be able to leave off the done at the end...-}
-
-syntax gaa [a] {-faa [b]-} = MkAutomaticFactory a done {-a b-}
-
-
-
-garg : AutomaticFactory
-garg = gaa [hp x := 0] {-faa (select x in enemy board then [hp x := 0] ;)-}
-
-
-{- ah, what goes in the then cause right now can't just be a list of effects, but rather a whole AutomaticFactory skill.
-I should allow skill effect list (with namespaces.. think I actually did this...) to work....
--}
-
-{-garg = gaa [friendly thoughts := 0] faa (select x in enemy board then [hp x := 0] ;)-}
-
-
-
-foobarbarbar : AutomaticFactory
-foobarbarbar = every x in friendly board [hp x := 1] done
-
-foo : AutomaticFactory
-foo = select x in friendly board then { MkAutomaticFactory [] select y in friendly board then {MkAutomaticFactory [] done};};
-
-barfoobar : AutomaticFactory
-barfoobar = select x in friendly board then {MkAutomaticFactory [] done } else { MkAutomaticFactory [] done} ;
-
 
 
 

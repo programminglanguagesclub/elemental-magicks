@@ -7,7 +7,6 @@ import integer_then_bounded
 import preliminaries
 import objects_basic
 import skill_dsl_data
-import skill_dsl
 import phase
 import clientupdates
 %access public export
@@ -19,6 +18,8 @@ SkillFactory = (AutomaticFactory, Bool, Nat, Condition)
 {-automatic, used, cost-}
 Skill : Type
 Skill = (Automatic, Bool, Nat, Condition) {-HAVE NOT YET DEALT WITH NAT, CONDITION, AND HOW TO BUILD AND OPERATE THE ACTUAL SKILL FROM THIS....-}
+
+{- condition is presumably in Automatic already.... I don't need this here as well.... -}
 
 instantiateSkill : Nat -> String -> SkillFactory -> Skill
 instantiateSkill cardId playerId (automatic,bool,cost,condition) = (instantiateAutomatic automatic cardId playerId,bool,cost,condition)

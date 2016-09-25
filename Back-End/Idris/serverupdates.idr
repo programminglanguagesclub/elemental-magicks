@@ -12,7 +12,6 @@ import phase
 import objects_basic
 import player
 import game
-import skill_dsl
 
 %access public export
 %default total

@@ -146,6 +146,7 @@ mutual
                 
                 {-no requirement that the condition must reference the bound variable currently-}
   data Condition = Vacuous 
+                 | Never
                  | RDead String 
                  | NotX String String {-used for implementing skills that are not allowed to target the evoker-}
                  | LT RInteger RInteger 
@@ -156,6 +157,12 @@ mutual
                  | And Condition Condition 
                  | Or Condition Condition 
                  | Not Condition
+                 | Exists String Condition {-at some level, this shouldn't have string, instead a fresh string (that won't be shadowed) should be given... but for now it has a string built in (same for All) -}
+                 | All String Condition
+
+addCondition : Condition -> Condition -> Condition
+addCondition Vacuous additional = additional
+addCondition otherwise additional = And otherwise additional
 
 applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
 applyStatEffect basic (MkStatEffect stat mutator temporality x) =

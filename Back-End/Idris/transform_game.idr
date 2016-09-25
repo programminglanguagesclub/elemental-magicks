@@ -5,7 +5,6 @@ import Data.So
 import preliminaries
 import phase
 import objects_basic
-import skill_dsl
 import skill_dsl_data
 import player
 import game
