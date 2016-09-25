@@ -1,0 +1,145 @@
+<head>
+<link rel = "stylesheet" type = "text/css" href = "css.css">
+		<script src="three.min.js"></script>
+
+</head>
+<body id = "active2" style = "display: block; overflow: hidden" onload ="init()">
+<div style = "position:relative; height:98%;">
+<div style = "object-fit: contain; height:100%; width:100%">
+  <span class = "wrapper">
+  <svg width = "12000px" height = "12000px" class = "image"></svg>
+<div class = "positioner">
+<div style = "padding-top: 100%;">
+<div class = "content-box" id="canvasContainer" style="background-color:white;"></div>
+</div>
+  </div>
+  </span>
+</div>
+</div>
+		<script>
+			var scene = new THREE.Scene();
+			// set to 100.5 to scale
+			var camera = new THREE.PerspectiveCamera( 102, document.getElementById("canvasContainer").offsetWidth / document.getElementById("canvasContainer").offsetHeight, 0.1, 1000 );
+			
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setClearColor(0xdddddd, 1);
+			renderer.setSize( document.getElementById("canvasContainer").offsetWidth, document.getElementById("canvasContainer").offsetHeight );
+			document.getElementById("canvasContainer").appendChild( renderer.domElement );
+			
+			var axis = new THREE.AxisHelper(20);
+			
+			var raycaster = new THREE.Raycaster();
+			var mouse = new THREE.Vector2(), INTERSECTED;
+			
+			var gridHelper = new THREE.GridHelper( 60, 1, 0xFF0000, 0x00FF00 );
+			gridHelper.position = 0;
+			gridHelper.rotation.x = 90*(Math.PI/180);
+			gridHelper.name = "gridHelper";
+			//scene.add(axis);
+			loader = new THREE.JSONLoader();
+			loader.load('./newTorus.json', callbackFunctionWithANameThatIsNotLongAtAllJKItIsTotallyLong);
+			var clickable = {"cardArea":1,"scoreArea":1};
+			function callbackFunctionWithANameThatIsNotLongAtAllJKItIsTotallyLong(geo, matNotMattMaterial){
+				var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+				model = new THREE.Mesh(geo, material);
+				model.scale.set(5, 5, 5);
+				model.position.set(0, 0, 10);
+				model.rotation.x = 30*(Math.PI/180);
+				model.rotation.y = 45*(Math.PI/180);
+				scene.add(model);
+				
+			}
+			
+			var geometry = new THREE.PlaneGeometry(40,100 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
+			var plane = new THREE.Mesh( geometry, material );
+			plane.translateX(-40);
+			plane.translateY(0);
+			plane.name = "cardArea";
+			scene.add( plane );
+			function onDocumentMouseMove( event ) {
+				event.preventDefault();
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+			}
+			function onDocumentMouseClick( event ) {
+				event.preventDefault();
+				if(INTERSECTED != null){
+					console.log(INTERSECTED.name);
+				}
+			}
+
+			geometry = new THREE.PlaneGeometry(40,100 );
+			material = new THREE.MeshBasicMaterial( {color: 0x00ff00, side: THREE.DoubleSide} );
+			plane = new THREE.Mesh( geometry, material );
+			plane.translateX(0);
+			plane.translateY(0);
+			plane.name = "scoreArea";
+			scene.add( plane );
+			
+			geometry = new THREE.PlaneGeometry(40,100 );
+			material = new THREE.MeshBasicMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
+			plane = new THREE.Mesh( geometry, material );
+			plane.translateX(40);
+			plane.translateY(0);
+			plane.name = "messageArea";
+			scene.add( plane );
+	
+			scene.add( gridHelper );
+			camera.position.x = 0;
+			camera.position.y = 0;
+			camera.position.z = 50;
+			camera.up = new THREE.Vector3(0, 1, 0);
+			camera.lookAt( scene.position );
+
+			window.addEventListener( 'resize', init, false );
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.addEventListener( 'click', onDocumentMouseClick, false );
+
+			function init(){
+
+				camera.aspect = document.getElementById("canvasContainer").offsetWidth / document.getElementById("canvasContainer").offsetHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( document.getElementById("canvasContainer").offsetWidth, document.getElementById("canvasContainer").offsetHeight );
+
+			}
+
+			function render() {	
+				requestAnimationFrame( render );
+				raycaster.setFromCamera( mouse, camera );
+				//console.log(mouse.x);
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				if ( intersects.length > 0 ) {
+					//for(k in intersects){
+					//    console.log(intersects[k].object.name);
+					//}
+					if ( INTERSECTED != intersects[ intersects.length - 1 ].object ) {
+						if ( INTERSECTED ) {
+							//INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+						    //console.log(intersects[0].object.name);
+						}
+						INTERSECTED = intersects[intersects.length - 1].object;
+						console.log(intersects.length);
+						//for(objIndex in intersects){
+						//	console.log(intersects[objIndex].object.name);
+						//}
+						//INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+						//INTERSECTED.material.emissive.setHex( 0xff0000 );
+					}
+				}
+				else {
+					if ( INTERSECTED ) {
+					    console.log("there");
+					    //INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+					}
+					INTERSECTED = null;
+				}
+				
+				renderer.render( scene, camera );
+			}
+			render();
+			
+		</script>
+</body>
