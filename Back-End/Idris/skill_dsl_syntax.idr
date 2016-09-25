@@ -1,4 +1,4 @@
-module skill_dsl_syntax2
+module skill_dsl_syntax
 import Data.Vect
 import Data.Fin
 import Data.So
@@ -220,29 +220,11 @@ namespace non_constant_non_constant
   (==) : RInteger -> RInteger -> Condition
   (==) x y = EQ x y
 {-Still have to cover the existence of spell cards and empty squares that could be selected. For now ignore this.-}
-{-
-This works, but it has semicolons to make the syntax extension prefix-free.
--}
-
-
-{-
-REDOING THIS!!!
-
-syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] failure ":" [fail] = begin (ExistentialFactory [(var,getSet side relativeSet)] cond (finishWith sel) (finishWith fail))
-syntax select [var] "in" [side] [relativeSet] "where" [cond] failure ":" [fail] = begin (ExistentialFactory [(var,getSet side relativeSet)] cond done (finishWith fail))
-syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" [sel] ";" = begin (ExistentialFactory [(var,getSet side relativeSet)] cond (finishWith sel) done)
-syntax select [var] "in" [side] [relativeSet] "then" [sel] failure ":" [fail] = begin (ExistentialFactory [(var,getSet side relativeSet)] Vacuous sel (finishWith fail))
-syntax select [var] "in" [side] [relativeSet] failure ":" [fail] = begin (ExistentialFactory [(var,getSet side relativeSet)] Vacuous done (finishWith fail))
-syntax select [var] "in" [side] [relativeSet] "then" [sel] ";" = begin (ExistentialFactory [(var,getSet side relativeSet)] Vacuous (finishWith sel) done)
-syntax all [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] [next] = Universal (var, getSet side relativeSet) cond (eff effects) next
-syntax all [var] "in" [side] [relativeSet] "do" [effects] [next] = Universal (var, getSet side relativeSet) Vacuous (eff effects) next
--}
+{-This works, but it has semicolons to make the syntax extension prefix-free.-}
 
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) done) 
-{-syntax select [var] "in" [side] [relativeSet] "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Never done (finishWith elseSkill)) -} {- not supporting else without if. -}
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] Vacuous (finishWith thenSkill) (finishWith elseSkill))
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
-{-syntax select [var] "in" [side] [relativeSet] "else" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole-} {-again, not supporting else without if-}
 syntax select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
 
 syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] cond (finishWith thenSkill) done)
@@ -251,12 +233,24 @@ syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSki
 syntax select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
 
 
+{-I will probably have to redo this when I add more strict rules to what goes in a condition (then I will probably want two separate conditions...). Same goes for the "every" case.-}
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] if_cond (finishWith thenSkill) done)
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] if_cond (finishWith thenSkill) (finishWith elseSkill))
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+     
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] (And cond if_cond) (finishWith thenSkill) done)
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" ";" = begin (ExistentialFactory [(var, getSet side relativeSet)] (And cond if_cond) (finishWith thenSkill) (finishWith elseSkill))
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "then" "{" [thenSkill] "}" "else" "{" [elseSkill] "}" "next" "{" [nextSkill] "}" ";" = ?hole
+
 
 {-also have to have the versions with "where"-}
-
 {-this also needs to be wrapped in something like begin or finishWith so it can be either AutomaticFactory or not..-}
-syntax every [var] "in" [side] [relativeSet] [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
+syntax every [var] "in" [side] [relativeSet] "do" [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
+syntax every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) cond effects next
 
-
+syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "do" [effects] [next] = UniversalFactory (var, getSet side relativeSet) if_cond effects next {-single effects might not be simple, so I might require brackets always..-} 
+syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) (And cond if_cond)
 
 

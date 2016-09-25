@@ -16,9 +16,6 @@ import card
 %access public export
 %default total
 
-
-{-not giving mutant pig a skill quite yet-}
-
 namespace justSkill
   skills : SkillFactory -> Maybe SkillFactory
   skills s = Just s
@@ -32,6 +29,7 @@ namespace zeroCostJustSkill
   skills : AutomaticFactory -> Maybe SkillFactory
   skills a = Just (a,False,0,Vacuous)
 
+{-
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
 syntax startSkill ":" [startSkill] = \x => record {startSkill = skills startSkill} x
 syntax endSkill ":" [endSkill] = \x => record {endSkill = skills endSkill} x
@@ -52,6 +50,56 @@ syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk
   composeSkillAdditions skill_list (MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<)
    (>> attack <<) (>> defense <<)
    (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] (done,False,0))
+
+-}
+
+{- this is a huge code smell, but what can be done? -}
+
+syntax [unit_name] "<-" soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] end ":" [endSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [] soulSkill 
+
+syntax [unit_name] "<-" start ":" [startSkill] counter ":" [counterSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] death ":" [deathSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] "action" ":" [actionSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" start ":" [startSkill] "actions" ":" [actionSkills] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing actionSkills soulSkill
+
+syntax [unit_name] "<-" end ":" [endSkill] soul ":" [soulSkill] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
+  MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [] soulSkill
+
+
+{- I need to figure out what I want to do about this condition attached to skill factories... -}
+
+
+{-Used should NOT be in SkillFactory.... It is always false ... -}
+
+
+{-
+foo : MonsterFactory
+foo = "test card" <- NoSchools lvl : 3 life : 50 atk : 20 def : 0 spe : 3 rng : 2 sp : 2
+                     soul : (done,False,0,Vacuous)
+                     -}
+
+
+
 
 no_schools : MonsterSchools
 no_schools = NoSchools
