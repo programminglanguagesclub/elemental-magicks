@@ -74,7 +74,8 @@ prefixAndSuffix : Vect 5 Bool -> Bool -> PossibleActions -> (String,String)
 prefixAndSuffix v True act = ((?hole),((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "(Just autoSkill) " ++ (stringifyAction act) ++ " soulSkill"))
 
 
-
+allPossiblePrefixAndSuffix : List (String,String)
+allPossiblePrefixAndSuffix = map (\x => prefixAndSuffix x False NoActions) allPossible5
 
 allStrings : List String
 allStrings = ?hole
