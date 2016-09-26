@@ -65,6 +65,20 @@ allPossibleSuffix : List String
 allPossibleSuffix = (map (\x => suffix x True NoActions) allPossible5) ++ (map (\x => suffix x True OneAction) allPossible5) ++ (map (\x => suffix x True ManyActions) allPossible5) ++ (map (\x => suffix x False NoActions) allPossible5) ++ (map (\x => suffix x False OneAction) allPossible5) ++ (map (\x => suffix x False ManyActions) allPossible5)
 
 
+qq : Bool -> String -> (String,String)
+qq True s = (s ++ " \":\" [" ++ s ++ "Skill]","(Just " ++ s ++ ") ")
+qq False s = ("","")
+
+
+prefixAndSuffix : Vect 5 Bool -> Bool -> PossibleActions -> (String,String)
+prefixAndSuffix v True act = ((?hole),((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "(Just autoSkill) " ++ (stringifyAction act) ++ " soulSkill"))
+
+
+
+
+allStrings : List String
+allStrings = ?hole
+
 
 printAll : List String -> IO ()
 printAll [] = pure ()
