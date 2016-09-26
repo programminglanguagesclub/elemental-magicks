@@ -57,7 +57,14 @@ syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk
 
 
 
-data SkillTypes = SoulSkill SkillFactory | StartSkill SkillFactory
+data SkillTypes = StartSkill SkillFactory
+                | EndSkill SkillFactory
+                | CounterSkill SkillFactory
+                | SpawnSkill SkillFactory
+                | DeathSkill SkillFactory
+                | AutoSkill SkillFactory
+                | ActionSkills (List SkillFactory)
+                | SoulSkill SkillFactory
 
 SkillBundle : Type
 SkillBundle = (Maybe SkillFactory, Maybe SkillFactory, Maybe SkillFactory, Maybe SkillFactory, Maybe SkillFactory, Maybe SkillFactory, List SkillFactory, SkillFactory)
@@ -87,14 +94,39 @@ foo = "test card" <- NoSchools lvl : 3 life : 50 atk : 20 def : 0 spe : 3 rng : 
                      soul : (done,False,0,Vacuous)
 
 
-syntax barfoo [hh] "[[" = the (List Nat) [hh]
-syntax barbar "[" [gg] "," [numbers] = gg :: numbers
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+syntax [hh] "[[" = the (List Nat) [hh]
+syntax "[" [gg] "," [numbers] = gg :: numbers
 
 jj : List Nat
 jj = [ 3 , 1 [[
+     -}
 
 
-syntax soul 
+{-
+syntax soul ":" [soulSkill] = 
+  -}
+
+
+
 
 
 {-
