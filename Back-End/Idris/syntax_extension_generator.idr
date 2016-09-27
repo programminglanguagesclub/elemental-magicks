@@ -28,7 +28,7 @@ suffix v False act = (foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ 
 
 
 g : String -> String
-g s = s ++ " \":\" [" ++ s ++ "Skill]"
+g s = s ++ " \":\" [" ++ s ++ "Skill] "
 
 h : Bool -> String -> String
 h True s = g s
@@ -63,6 +63,9 @@ theSuffixPart v True act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills
 theSuffixPart v False act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ (stringifyAction act) ++ " soulSkill")
 
 thePrefixPart : Vect 5 Bool -> Bool -> PossibleActions -> String
+thePrefixPart v b act = (foldr (++) "" (zipWith h v skills)) {-haven't dealt with b or act yet... stkill working-}
+
+
 
 prefixAndSuffix : Vect 5 Bool -> Bool -> PossibleActions -> (String,String)
 prefixAndSuffix v b act = (thePrefixPart v b act,theSuffixPart v b act)
