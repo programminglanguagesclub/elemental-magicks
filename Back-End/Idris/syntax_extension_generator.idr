@@ -8,22 +8,10 @@ stats = "syntax [unit_name] \"<-\" [schools] lvl \":\" [level] life \":\" [hp] a
 skills : Vect 5 String
 skills = ["start","end","counter","spawn","death"] -- does not include auto, soul, or action(s)
 
-{-
-prefixes : List String -> String -> List String {-possible skills that could be added -> string so far -> all possible strings-}
-prefixes [] s = s
-prefixes (x::xs) s = 
--}
 
 f : Bool -> String -> String
 f True s = "(Just " ++ s ++ ") "
 f False _ = "Nothing "
-
-
-{-
-bar : Vect 5 Bool -> String
-bar v = zipWith f v skills
--}
-
 
 data PossibleActions = NoActions | OneAction | ManyActions
 
@@ -47,7 +35,6 @@ h True s = g s
 h False _ = ""
 
 
-{- STILL WORKING HERE!! -}
 baz : Vect 5 Bool -> Bool -> PossibleActions -> String
 baz v True act = (foldr (++) "" (zipWith h v skills)) ++ " \"auto\" \":\" [autoSkill] " ++ (stringifyAction act)
 baz v False act = (foldr (++) "" (zipWith h v skills)) ++ (stringifyAction act)
@@ -70,8 +57,17 @@ qq True s = (s ++ " \":\" [" ++ s ++ "Skill]","(Just " ++ s ++ ") ")
 qq False s = ("","")
 
 
+
+theSuffixPart : Vect 5 Bool -> Bool -> PossibleActions -> String
+theSuffixPart v True act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "(Just autoSkill) " ++ (stringifyAction act) ++ " soulSkill")
+theSuffixPart v False act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ (stringifyAction act) ++ " soulSkill")
+
+thePrefixPart : Vect 5 Bool -> Bool -> PossibleActions -> String
+
 prefixAndSuffix : Vect 5 Bool -> Bool -> PossibleActions -> (String,String)
-prefixAndSuffix v True act = ((?hole),((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "(Just autoSkill) " ++ (stringifyAction act) ++ " soulSkill"))
+prefixAndSuffix v b act = (thePrefixPart v b act,theSuffixPart v b act)
+
+
 
 
 allPossiblePrefixAndSuffix : List (String,String)
