@@ -68,8 +68,15 @@ allPossible5 : List (Vect 5 Bool)
 allPossible5 = [[x1,x2,x3,x4,x5] | x1 <- lb, x2 <- lb, x3 <- lb, x4 <- lb, x5 <- lb]
 
 
+
+
+
+{- STILL WORKING HERE!! -}
+
+
 {- this can be improved... -}
 allPossibleSuffix : List String
+allPossibleSuffix = (map () ([NoActions, OneAction, TwoActions, ThreeActions, FourActions])) ++ (map () ([NoActions, OneAction, TwoActions, ThreeActions, FourActions]))
 allPossibleSuffix = (map (\x => suffix x True NoActions) allPossible5) ++ (map (\x => suffix x True OneAction) allPossible5) ++ (map (\x => suffix x True ManyActions) allPossible5) ++ (map (\x => suffix x False NoActions) allPossible5) ++ (map (\x => suffix x False OneAction) allPossible5) ++ (map (\x => suffix x False ManyActions) allPossible5)
 
 
@@ -107,22 +114,6 @@ printAll (x::xs) = putStrLn x >>= (\_ => printAll xs)
 
 main : IO ()
 main = printAll (map (\x => (fst x) ++ "|" ++ (snd x)) allPossiblePrefixAndSuffix)
-
-
-
-{-
-
-main = printAll allPossibleSuffix
-
-
--}
-
-{-
-main = putStrLn (show allPossibleSuffix)
--}
-{-
-main = putStrLn (suffix [True,False,False,True,True] True NoActions)
--}
 
 
 
