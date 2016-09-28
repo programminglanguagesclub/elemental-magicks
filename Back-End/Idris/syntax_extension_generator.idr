@@ -58,12 +58,15 @@ qq False s = ("","")
 
 
 
+
+
+
 theSuffixPart : Vect 5 Bool -> Bool -> PossibleActions -> String
 theSuffixPart v True act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "(Just autoSkill) " ++ (stringifyAction act) ++ " soulSkill")
-theSuffixPart v False act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ (stringifyAction act) ++ " soulSkill")
+theSuffixPart v False act = ((foldr (++) "" (zipWith f v (map (++ "Skill") skills))) ++ "Nothing " ++ (stringifyAction act) ++ " soulSkill")
 
 thePrefixPart : Vect 5 Bool -> Bool -> PossibleActions -> String
-thePrefixPart v b act = (foldr (++) "" (zipWith h v skills)) {-haven't dealt with b or act yet... stkill working-}
+thePrefixPart v b act = (foldr (++) "" (zipWith h v skills)) ++ (if b then "\"auto\" \":\" [autoSkill]") ++ () ++ " soul \":\" [soulSkill]" {-haven't dealt with b or act yet... stkill working-}
 
 
 
@@ -74,7 +77,18 @@ prefixAndSuffix v b act = (thePrefixPart v b act,theSuffixPart v b act)
 
 
 allPossiblePrefixAndSuffix : List (String,String)
-allPossiblePrefixAndSuffix = map (\x => prefixAndSuffix x False NoActions) allPossible5
+allPossiblePrefixAndSuffix = {-(map (\x => prefixAndSuffix x False NoActions) allPossible5) ++
+                             (map (\x => prefixAndSuffix x False OneAction) allPossible5) ++
+                             (map (\x => prefixAndSuffix x False ManyActions) allPossible5) ++
+                             (map (\x => prefixAndSuffix x True NoActions) allPossible5) ++
+                             (map (\x => prefixAndSuffix x True OneAction) allPossible5) ++
+                                        -}
+                             (map (\x => prefixAndSuffix x True ManyActions) allPossible5)
+
+
+
+
+
 
 allStrings : List String
 allStrings = ?hole
