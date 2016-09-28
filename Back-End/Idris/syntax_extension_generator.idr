@@ -13,12 +13,33 @@ f : Bool -> String -> String
 f True s = "(Just " ++ s ++ ") "
 f False _ = "Nothing "
 
-data PossibleActions = NoActions | OneAction | ManyActions
+data PossibleActions = NoActions
+                     | OneAction
+                     | TwoActions
+                     | ThreeActions
+                     | FourActions
 
+{- I should probably also bake into the types that there are at most 4 action skills. -}
+
+
+{- note that this generator is a reasonable place (for now at least) to include a requirement on the maximum total number of skills (5 seems good) -}
+{- can also use a Nat for this.. -}
 stringifyAction : PossibleActions -> String
 stringifyAction NoActions = "[]"
 stringifyAction OneAction = "[actionSkill]"
-stringifyAction ManyActions = "actionSkills"
+stringifyAction TwoActions = "[actionSkill1, actionSkill2]"
+stringifyAction ThreeActions = "[actionSkill1, actionSkill2, actionSkill3]"
+stringifyAction FourActions = "[actionSkill1, actionSkill2, actionSkill3, actionSkill4]"
+
+
+{- can use repeat.. -}
+stringifyActionPrefix : PossibleActions -> String
+stringifyActionPrefix NoActions = ""
+stringifyActionPrefix OneAction = "action \":\" [actionSkill] "
+stringifyActionPrefix TwoActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] "
+stringifyActionPrefix ThreeActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] " ++ "action \":\" [actionSkill3] "
+stringifyActionPrefix FourActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] " ++ "action \":\" [actionSkill3] " ++ "action \":\" [actionSkill4] "
+
 
 
 suffix : Vect 5 Bool -> Bool -> PossibleActions -> String
@@ -47,8 +68,15 @@ allPossible5 : List (Vect 5 Bool)
 allPossible5 = [[x1,x2,x3,x4,x5] | x1 <- lb, x2 <- lb, x3 <- lb, x4 <- lb, x5 <- lb]
 
 
+
+
+
+{- STILL WORKING HERE!! -}
+
+
 {- this can be improved... -}
 allPossibleSuffix : List String
+allPossibleSuffix = (map () ([NoActions, OneAction, TwoActions, ThreeActions, FourActions])) ++ (map () ([NoActions, OneAction, TwoActions, ThreeActions, FourActions]))
 allPossibleSuffix = (map (\x => suffix x True NoActions) allPossible5) ++ (map (\x => suffix x True OneAction) allPossible5) ++ (map (\x => suffix x True ManyActions) allPossible5) ++ (map (\x => suffix x False NoActions) allPossible5) ++ (map (\x => suffix x False OneAction) allPossible5) ++ (map (\x => suffix x False ManyActions) allPossible5)
 
 
@@ -100,22 +128,6 @@ printAll (x::xs) = putStrLn x >>= (\_ => printAll xs)
 
 main : IO ()
 main = printAll (map (\x => (fst x) ++ "|" ++ (snd x)) allPossiblePrefixAndSuffix)
-
-
-
-{-
-
-main = printAll allPossibleSuffix
-
-
--}
-
-{-
-main = putStrLn (show allPossibleSuffix)
--}
-{-
-main = putStrLn (suffix [True,False,False,True,True] True NoActions)
--}
 
 
 
