@@ -86,7 +86,16 @@ printAll [] = pure ()
 printAll (x::xs) = putStrLn x >>= (\_ => printAll xs)
 
 main : IO ()
+main = putStrLn (show (allPossiblePrefixAndSuffix))
+
+
+
+{-
+
 main = printAll allPossibleSuffix
+
+
+-}
 
 {-
 main = putStrLn (show allPossibleSuffix)
