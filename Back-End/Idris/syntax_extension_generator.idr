@@ -13,12 +13,33 @@ f : Bool -> String -> String
 f True s = "(Just " ++ s ++ ") "
 f False _ = "Nothing "
 
-data PossibleActions = NoActions | OneAction | ManyActions
+data PossibleActions = NoActions
+                     | OneAction
+                     | TwoActions
+                     | ThreeActions
+                     | FourActions
 
+{- I should probably also bake into the types that there are at most 4 action skills. -}
+
+
+{- note that this generator is a reasonable place (for now at least) to include a requirement on the maximum total number of skills (5 seems good) -}
+{- can also use a Nat for this.. -}
 stringifyAction : PossibleActions -> String
 stringifyAction NoActions = "[]"
 stringifyAction OneAction = "[actionSkill]"
-stringifyAction ManyActions = "actionSkills"
+stringifyAction TwoActions = "[actionSkill1, actionSkill2]"
+stringifyAction ThreeActions = "[actionSkill1, actionSkill2, actionSkill3]"
+stringifyAction FourActions = "[actionSkill1, actionSkill2, actionSkill3, actionSkill4]"
+
+
+{- can use repeat.. -}
+stringifyActionPrefix : PossibleActions -> String
+stringifyActionPrefix NoActions = ""
+stringifyActionPrefix OneAction = "action \":\" [actionSkill] "
+stringifyActionPrefix TwoActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] "
+stringifyActionPrefix ThreeActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] " ++ "action \":\" [actionSkill3] "
+stringifyActionPrefix FourActions = "action \":\" [actionSkill1] " ++ "action \":\" [actionSkill2] " ++ "action \":\" [actionSkill3] " ++ "action \":\" [actionSkill4] "
+
 
 
 suffix : Vect 5 Bool -> Bool -> PossibleActions -> String
