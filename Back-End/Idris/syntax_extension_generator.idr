@@ -80,7 +80,7 @@ printAll [] = pure ()
 printAll (x::xs) = putStrLn (x ++ "\n") >>= (\_ => printAll xs)
 
 main : IO ()
-main = printAll (map (\x => (fst x) ++ "|" ++ (snd x)) allPossiblePrefixAndSuffix)
+main = printAll (map (\x => stats ++ x) (map (\x => (fst x) ++ " =\n" ++ "MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) " ++ (snd x)) allPossiblePrefixAndSuffix))
 
 
 

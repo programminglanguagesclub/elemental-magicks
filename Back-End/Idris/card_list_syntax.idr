@@ -82,7 +82,7 @@ SkillBundle = (Maybe SkillFactory, Maybe SkillFactory, Maybe SkillFactory, Maybe
 
 generateMonsterFactory : Nat {- for now -} -> SkillBundle -> MonsterFactory
 generateMonsterFactory = ?hole
-
+{-
 syntax [unit_name] "<-" [stats] ";" [skills] = generateMonsterFactory stats skills
 
 syntax [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] = {- statBundle, etc -} 302
@@ -93,7 +93,7 @@ foo : MonsterFactory
 foo = "test card" <- NoSchools lvl : 3 life : 50 atk : 20 def : 0 spe : 3 rng : 2 sp : 2 ;
                      soul : (done,False,0,Vacuous)
 
-
+-}
 
 
 
@@ -240,6 +240,27 @@ syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack]
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {- I need to figure out what I want to do about this condition attached to skill factories... -}
 
 
@@ -314,3 +335,1364 @@ syntax [val] thoughts "->" [skill] = skills (skill, False, val)
 {-I THINK INCREASING PERMANENT STATS DOES NOT YET INCREASE THE TEMPORARY ONES.
  OTHER THAN THE CASE OF HIT POINTS, IT SHOULD.
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] "auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+"auto" ":" [autoSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing (Just autoSkill) [] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+"auto" ":" [autoSkill] action ":" [actionSkill] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+"auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+"auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+start ":" [startSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) (Just startSkill) Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+end ":" [endSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing (Just endSkill) Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+counter ":" [counterSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing (Just counterSkill) Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+spawn ":" [spawnSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing (Just spawnSkill) Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+death ":" [deathSkill] "auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing (Just deathSkill) (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+syntax [unit_name] "<-" [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints]
+"auto" ":" [autoSkill] action ":" [actionSkill1] action ":" [actionSkill2] action ":" [actionSkill3] action ":" [actionSkill4] soul ":" [soulSkill] =
+MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing (Just autoSkill) [actionSkill1, actionSkill2, actionSkill3, actionSkill4] soulSkill
+
+
+
+
+
+
+
+
+
+
+
+
+
