@@ -53,7 +53,7 @@ getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
 
 
 getSoulPoints : Player -> Integer
-getSoulPoints player = getPointsFromSoul(soul player)
+getSoulPoints player = getPointsFromSoul(soulCards player)
 
 {-
 FooDrawCard : Player n m -> Card -> Player (S n) m
@@ -61,9 +61,9 @@ FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (ha
 -}
 
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
-
+{-
 removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
-removeSpawnFromGame (game, acc) PlayerA  with (spawn (player_A game))
+removeSpawnFromGame (game, acc) PlayerA with (spawnCard (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
  | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game))])
 removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
@@ -72,7 +72,7 @@ removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
 
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
-
+-}
 
 
 

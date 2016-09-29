@@ -27,8 +27,8 @@ record Player where
  hand : List Card
  graveyard : List Card
  discard : List Card
- spawn : Spawn
- soul : Soul
+ spawnCard : Spawn
+ soulCards : Soul
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
