@@ -43,9 +43,15 @@ monsterList = [
 
 
 mon : MonsterFactory
-mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, False, 0, Vacuous)
+mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous)
 
 
+testMonsterList : List MonsterFactory
+testMonsterList = [
+  "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
+  "Rogue Assassin" <- NoSchools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2 soul : (done, 0, Vacuous)  
+  {-soul : ((select x in enemy board where not dead x then hp x := 0), 0, Vacuous))-}
+]
 
 monsterList : List MonsterFactory
 monsterList = [

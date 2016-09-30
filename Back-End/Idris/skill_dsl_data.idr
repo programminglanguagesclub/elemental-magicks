@@ -117,8 +117,9 @@ mutual
                   | MkHpEffect Mutator HpStat RInteger 
                   | MkEngagementEffect Mutator RInteger 
                   | ReviveEffect
-  data ResourceEffect = ThoughtEffect Mutator RInteger 
+  data ResourceEffect = ThoughtEffect Mutator RInteger {- Do I have side information for these? -} 
                       | SchoolEffect (Fin 6) Mutator RInteger
+                      | DecrementLP RInteger
   data PositionEffect = SwapPositions (RelativeSet, Integer) (RelativeSet, Integer) 
                       | MoveFromTo (RelativeSet, Integer) (RelativeSet, Integer)
   data SkillEffect = EvokerSkillEffectStatEffect StatEffect 

@@ -27,7 +27,7 @@ namespace manySkills
   skills s = [s]
 namespace zeroCostJustSkill
   skills : AutomaticFactory -> Maybe SkillFactory
-  skills a = Just (a,False,0,Vacuous)
+  skills a = Just (a,0,Vacuous)
 
 {-
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
@@ -49,7 +49,7 @@ composeSkillAdditions (x::xs) = \m => x $ composeSkillAdditions xs m
 syntax [unit_name] "<-" [skill_list] [schools] lvl ":" [level] life ":" [hp] atk ":" [attack] def ":" [defense] spe ":" [speed] rng ":" [range] sp ":" [soulPoints] =
   composeSkillAdditions skill_list (MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<)
    (>> attack <<) (>> defense <<)
-   (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] (done,False,0))
+   (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)) Nothing Nothing Nothing Nothing Nothing Nothing [] (done,0, Vacuous))
 
 -}
 

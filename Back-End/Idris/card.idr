@@ -13,7 +13,7 @@ import clientupdates
 %default total
 
 SkillFactory : Type
-SkillFactory = (AutomaticFactory, Bool, Nat, Condition)
+SkillFactory = (AutomaticFactory, Nat, Condition)
 
 {-automatic, used, cost-}
 Skill : Type
@@ -22,7 +22,7 @@ Skill = (Automatic, Bool, Nat, Condition) {-HAVE NOT YET DEALT WITH NAT, CONDITI
 {- condition is presumably in Automatic already.... I don't need this here as well.... -}
 
 instantiateSkill : Nat -> String -> SkillFactory -> Skill
-instantiateSkill cardId playerId (automatic,bool,cost,condition) = (instantiateAutomatic automatic cardId playerId,bool,cost,condition)
+instantiateSkill cardId playerId (automatic,cost,condition) = (instantiateAutomatic automatic cardId playerId,False,cost,condition)
 
 record MonsterFactory where
  constructor MkMonsterFactory
