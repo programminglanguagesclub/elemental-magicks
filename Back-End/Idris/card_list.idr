@@ -46,11 +46,21 @@ mon : MonsterFactory
 mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous)
 
 
+
+ttt : AutomaticFactory
+ttt = select x in enemy board where not dead x then { hp x := 0 } ;
+
+
 testMonsterList : List MonsterFactory
 testMonsterList = [
-  "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
-  "Rogue Assassin" <- NoSchools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2 soul : (done, 0, Vacuous)  
-  {-soul : ((select x in enemy board where not dead x then hp x := 0), 0, Vacuous))-}
+  "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
+  "Rogue Assassin" <- no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
+                      action : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
+                      soul : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
+  "Guardian Angel" <- no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1 
+                      spawnSkill : (select x in friendly board where dead x then { revive x } ;,0, Vacuous)
+                      soulSkill : (every x in friendly board where dead x do [revive x] next done, 0, Vacuous)
+
 ]
 
 monsterList : List MonsterFactory

@@ -247,6 +247,10 @@ syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "the
 
 {-also have to have the versions with "where"-}
 {-this also needs to be wrapped in something like begin or finishWith so it can be either AutomaticFactory or not..-}
+
+
+{- THIS IS ALL MESSED UP!! -}
+
 syntax every [var] "in" [side] [relativeSet] "do" [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
 syntax every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) cond effects next
 
