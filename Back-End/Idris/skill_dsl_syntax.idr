@@ -252,9 +252,9 @@ syntax "if" [if_cond] select [var] "in" [side] [relativeSet] "where" [cond] "the
 {- THIS IS ALL MESSED UP!! -}
 
 syntax every [var] "in" [side] [relativeSet] "do" [effects] [next] = UniversalFactory (var, getSet side relativeSet) Vacuous effects next {-single effects might not be simple, so I might require brackets always..-} 
-syntax every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) cond effects next
+syntax every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) cond effects nextSkill
 
-syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "do" [effects] [next] = UniversalFactory (var, getSet side relativeSet) if_cond effects next {-single effects might not be simple, so I might require brackets always..-} 
+syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "do" [effects] [nextSkill] = UniversalFactory (var, getSet side relativeSet) if_cond effects nextSkill {-single effects might not be simple, so I might require brackets always..-} 
 syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) (And cond if_cond)
 
 

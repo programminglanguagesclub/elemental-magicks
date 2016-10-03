@@ -56,11 +56,15 @@ testMonsterList = [
   "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
   "Rogue Assassin" <- no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
                       action : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
-                      soul : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
+                      soul : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous),
   "Guardian Angel" <- no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1 
-                      spawnSkill : (select x in friendly board where dead x then { revive x } ;,0, Vacuous)
-                      soulSkill : (every x in friendly board where dead x do [revive x] next done, 0, Vacuous)
-
+                      spawn : (select x in friendly board where dead x then { revive x } ;,0, Vacuous)
+                      soul : (done,0,Vacuous) {-(every x in friendly board where dead x do [revive x] next done, 0, Vacuous)-}{-,
+   "Tank" <- no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2
+             soul : (every x in friendly board where not dead x do [permanenet defense x += 10] next done, 0, Vacuous),
+   "Treant Watchman" <- earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
+                        counter : (done, 0, Vacuous) {- have to code this still -}
+                        soul : (done, 0, Vacuous) {- have to code this still -}   -}
 ]
 
 monsterList : List MonsterFactory

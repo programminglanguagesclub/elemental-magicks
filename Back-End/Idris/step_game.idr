@@ -81,7 +81,7 @@ stepGameNoSkills (g,acc) with (phase g)
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
   | (TerminatedSkillComponent, []) = stepGameNoSkills (g,acc)
-  | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) {-wrong type... need to execute head first... -}
+  | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
   | _ = ?hole 
 
 
