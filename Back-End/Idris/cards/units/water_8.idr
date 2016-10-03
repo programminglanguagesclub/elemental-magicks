@@ -1,4 +1,4 @@
-module Card_list_water_8
+module Water_8
 import Data.Vect
 import Data.So
 import bounded
