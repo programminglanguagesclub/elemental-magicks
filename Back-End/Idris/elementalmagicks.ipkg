@@ -1,0 +1,40 @@
+package elementalmagicks
+
+modules =
+ Base.Utility,
+ Base.Bounded,
+ Base.Bounded_then_integer,
+ Base.Integer_then_bounded,
+ Base.Preliminaries, 
+ Base.Hp,
+ Base.Phase,
+ Base.Objects_basic,
+ Base.Skill_dsl_data,
+ Base.Skill_dsl_syntax,
+ Base.Skill_data_logic,
+ Base.Card,
+ Base.Player,
+ 
+ Cards.Card_list,
+ Main.Game, 
+ Main.Serverupdates,
+ Main.Clientupdates,
+ Main.Draw_phase,
+ Main.Spawn_phase,
+ Main.Spell_phase,
+ Main.Removal_phase,
+ Main.Start_phase,
+ Main.Engagement_phase,
+ Main.End_phase,
+ Main.Revival_phase,
+ Main.Deployment_phase,
+ Main.step_game_helpers,
+ Main.step_game,
+ Main.transform_game_helpers,
+ Main.transform_game,
+ Main.Main 
+
+opts = "-p effects" 
+
+executable = elementalmagicks
+main = Main.Main
