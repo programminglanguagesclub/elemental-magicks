@@ -1,5 +1,5 @@
-module Phase
-import clientupdates
+module Base.Phase
+import Base.Clientupdates
 
 public export
 data Phase = DrawPhase

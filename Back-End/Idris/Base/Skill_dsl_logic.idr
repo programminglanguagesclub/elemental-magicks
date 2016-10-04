@@ -1,17 +1,17 @@
-module Skill_dsl_logic
+module Base.Skill_dsl_logic
 import Data.Vect
 import Data.So
-import bounded
-import bounded_then_integer
-import integer_then_bounded
-import preliminaries
-import hp
-import objects_basic
-import skill_dsl_data
-import phase
-import clientupdates
-import player
-import card
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Integer_then_bounded
+import Base.Preliminaries
+import Base.Hp
+import Base.Objects_basic
+import Base.Skill_dsl_data
+import Base.Phase
+import Base.Clientupdates
+import Base.Player
+import Base.Card
 %access public export
 %default total
 
@@ -131,6 +131,7 @@ getValue (Evoker statR) player opponent env = ?hole {- In addition the env, I sh
 
 {-SOMEWHERE I HAVE OT MAKE SURE THAT WITH EACH SELECTION MADE THE CARDS ARE UNIQUE??!!-}
 satisfiedExistentialCondition : Condition -> Player -> Player -> Env -> Maybe Bool
+satisfiedExistentialCondition Never _ _ _ = Just False
 satisfiedExistentialCondition Vacuous _ _ _ = Just True
 satisfiedExistentialCondition (RDead var) player opponent env = do id <- lookupCardId var env
                                                                    card <- lookupBasicCard id player opponent
@@ -138,6 +139,7 @@ satisfiedExistentialCondition (RDead var) player opponent env = do id <- lookupC
                                                                                 Alive => True
                                                                                 DeadFresh => False
                                                                                 DeadStale => True)
+satisfiedExistentialCondition (NotX evokerId arg) player opponent env = ?hole
 satisfiedExistentialCondition (LT a b) player opponent env = do x <- getValue a player opponent env
                                                                 y <- getValue b player opponent env
                                                                 pure (x < y) 
@@ -162,6 +164,12 @@ satisfiedExistentialCondition (Or cond1 cond2) player opponent env = do x <- sat
 
 satisfiedExistentialCondition (Not cond) player opponent env = do x <- satisfiedExistentialCondition cond player opponent env
                                                                   pure (not x)
+
+{- these need a relative set and side as well -}
+satisfiedExistentialCondition (Exists var cond) player opponent env = ?hole
+satisfiedExistentialCondition (All var cond) player opponent env = ?hole
+
+
 
 satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool {-until I add more error handling or more type stuff, for now just treat nothing as false-}
 satisfiedExistentialCondition' condition player opponent env = case satisfiedExistentialCondition condition player opponent env of
@@ -216,6 +224,11 @@ applySkillEffects (effect::effects) player opponent env =
 getValidBindings : String -> Condition -> Player -> Player -> Env -> List Nat
 getValidBindings argument condition player opponent env = ?hole
 
+
+
+
+
+partial {- FIX THIS TO BE TOTAL -}
 step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List ClientUpdate, Nonautomatic, Env)
 step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
@@ -242,6 +255,10 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
   | Yes prf    = Just (x::xs, rewrite prf in y::ys)
   | No  contra = Nothing
 
+
+
+
+partial {- FIX THIS TO BE TOTAL -}
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp (TerminatedSkill cardId playerId) _ player opponent env = (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
 move_interp (Existential arguments condition selected failed cardId playerId) selection player opponent env with (alignVectors arguments selection)

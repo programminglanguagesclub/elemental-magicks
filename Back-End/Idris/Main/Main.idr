@@ -1,10 +1,10 @@
-module Main
+module Main.Main
 
 import Prelude.Nat
 import Data.Vect
 import Data.Fin
 import Data.So
-import preliminaries
+import Base.Preliminaries
 import phase
 import objects_basic
 import player

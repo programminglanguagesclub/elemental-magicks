@@ -1,13 +1,13 @@
-module Skill_dsl_data
+module Base.Skill_dsl_data
 import Data.Vect
 import Data.Fin
 import Data.So
-import bounded
-import bounded_then_integer
-import integer_then_bounded
-import hp
-import preliminaries
-import objects_basic
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Integer_then_bounded
+import Base.Hp
+import Base.Preliminaries
+import Base.Objects_basic
 %access public export
 %default total
 data Stat = Attack | Defense | Speed | Range | Level

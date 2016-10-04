@@ -1,4 +1,4 @@
-module Utility
+module Base.Utility
 
 import Data.Primitives.Views
 

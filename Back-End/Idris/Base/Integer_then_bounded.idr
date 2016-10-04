@@ -1,7 +1,7 @@
-module integer_then_bounded
+module Base.Integer_then_bounded
 
 import Data.So
-import bounded
+import Base.Bounded
 
 %access public export
 %default total
