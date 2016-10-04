@@ -1,19 +1,19 @@
 module Card_list
 import Data.Vect
 import Data.So
-import bounded
-import bounded_then_integer
-import integer_then_bounded
-import hp
-import preliminaries
-import objects_basic
-import skill_dsl_data
-import skill_dsl_syntax
-import phase
-import clientupdates
-import player
-import card
-import card_list_syntax
+import base.bounded
+import base.bounded_then_integer
+import base.integer_then_bounded
+import base.hp
+import base.preliminaries
+import base.objects_basic
+import base.skill_dsl_data
+import base.skill_dsl_syntax
+import base.phase
+import base.clientupdates
+import base.player
+import base.card
+import base.card_list_syntax
 
 
 
