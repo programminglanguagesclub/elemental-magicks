@@ -228,7 +228,6 @@ getValidBindings argument condition player opponent env = ?hole
 
 
 
-partial {- FIX THIS TO BE TOTAL -}
 step_interp : Automatic -> Player -> Player -> Env -> (Player,Player, List ClientUpdate, Nonautomatic, Env)
 step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player opponent env =
   let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
@@ -236,7 +235,7 @@ step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player oppon
            TerminatedSkill cardId' playerId' => (player',opponent',messages,TerminatedSkill cardId' playerId' ,env)
            Existential arguments condition selected failed cardId' playerId' => let (variables,sets) = unzip arguments in case satisfiableExistentialCondition variables condition player opponent env of
                                                                                                                                True => (player',opponent', messages, nonautomatic, env)
-                                                                                                                               False => let (player'',opponent'', messages', nonautomatic',env') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic) failed) player' opponent' env in
+                                                                                                                               False => let (player'',opponent'', messages', nonautomatic',env') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic cardId playerId) failed) player' opponent' env in
                                                                                                                                             (player'',opponent'', messages ++ messages', nonautomatic',env')
 step_interp (Universal argument condition skillEffects next cardId playerId) player opponent env = ?hole
 
@@ -256,9 +255,6 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
   | No  contra = Nothing
 
 
-
-
-partial {- FIX THIS TO BE TOTAL -}
 move_interp : Nonautomatic -> Vect n Nat -> Player -> Player -> Env -> (Player,Player, List ClientUpdate,Nonautomatic,Env)
 move_interp (TerminatedSkill cardId playerId) _ player opponent env = (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
 move_interp (Existential arguments condition selected failed cardId playerId) selection player opponent env with (alignVectors arguments selection)
