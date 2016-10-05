@@ -28,10 +28,10 @@ modules =
  Main.End_phase,
  Main.Revival_phase,
  Main.Deployment_phase,
- Main.step_game_helpers,
- Main.step_game,
- Main.transform_game_helpers,
- Main.transform_game,
+ Main.Step_game_helpers,
+ Main.Step_game,
+ Main.Transform_game_helpers,
+ Main.Transform_game,
  Main.Main 
 
 opts = "-p effects" 
