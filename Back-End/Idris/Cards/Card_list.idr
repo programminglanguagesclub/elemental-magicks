@@ -1,4 +1,4 @@
-module Card_list
+module Cards.Card_list
 import Data.Vect
 import Data.So
 import Base.Bounded

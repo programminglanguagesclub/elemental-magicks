@@ -1,18 +1,18 @@
-module Game
+module Main.Game
 
 import Data.Vect
 import Data.So
-import bounded
-import bounded_then_integer
-import integer_then_bounded
-import preliminaries
-import objects_basic
-import skill_dsl_data
-import player
-import skill_dsl_logic
-import phase
-import clientupdates
-import card_list
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Integer_then_bounded
+import Base.Preliminaries
+import Base.Objects_basic
+import Base.Skill_dsl_data
+import Base.Player
+import Base.Skill_dsl_logic
+import Base.Phase
+import Base.Clientupdates
+import Cards.Card_list
 
 %access public export
 %default total

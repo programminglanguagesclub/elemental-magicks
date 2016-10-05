@@ -2,9 +2,9 @@ module Base.Hp
 
 import Data.So
 import Data.Primitives.Views
-import Bounded
-import Bounded_then_integer
-import Preliminaries
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Preliminaries
 %access public export
 %default total
 {-if I made this a GADT with a single constructor, then I can't pattern match on it apparently. This seems like a bug, although it doesn't matter-}

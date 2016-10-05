@@ -1,17 +1,17 @@
-module ServerUpdates
+module Main.ServerUpdates
 
 import Data.Vect
 import Data.Fin
 import Data.So
 import Data.String
-import bounded
-import bounded_then_integer
-import integer_then_bounded
-import preliminaries
-import phase
-import objects_basic
-import player
-import game
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Integer_then_bounded
+import Base.Preliminaries
+import Base.Phase
+import Base.Objects_basic
+import Base.Player
+import Main.Game
 
 %access public export
 %default total
