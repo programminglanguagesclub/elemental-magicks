@@ -1,5 +1,5 @@
 module Main.Transform_game
-
+{-
 import Data.Vect
 import Data.So
 import Base.Preliminaries
@@ -22,6 +22,7 @@ import Main.Deployment_phase
 import Main.Transform_game_helpers
 import Main.Step_game
 import Main.Step_game_helpers
+-}
 %access public export
 %default total
 

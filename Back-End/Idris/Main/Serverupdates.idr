@@ -1,18 +1,7 @@
 module Main.ServerUpdates
-
 import Data.Vect
-import Data.Fin
-import Data.So
 import Data.String
 import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
-import Base.Preliminaries
-import Base.Phase
-import Base.Objects_basic
-import Base.Player
-import Main.Game
-
 %access public export
 %default total
 

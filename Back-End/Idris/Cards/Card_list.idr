@@ -1,5 +1,7 @@
 module Cards.Card_list
-import Data.Vect
+
+{- not sure what imports are used here -}
+{-import Data.Vect
 import Data.So
 import Base.Bounded
 import Base.Bounded_then_integer
@@ -13,6 +15,7 @@ import Base.Phase
 import Base.Clientupdates
 import Base.Player
 import Base.Card
+-}
 import Base.Card_list_syntax
 
 

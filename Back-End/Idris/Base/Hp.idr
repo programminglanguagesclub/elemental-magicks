@@ -1,9 +1,7 @@
 module Base.Hp
-
 import Data.So
-import Data.Primitives.Views
+import Base.Utility
 import Base.Bounded
-import Base.Bounded_then_integer
 import Base.Preliminaries
 %access public export
 %default total

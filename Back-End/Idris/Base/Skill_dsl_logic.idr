@@ -1,21 +1,16 @@
 module Base.Skill_dsl_logic
+
 import Data.Vect
-import Data.So
-import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
 import Base.Preliminaries
+import Base.Bounded
 import Base.Hp
-import Base.Objects_basic
-import Base.Skill_dsl_data
-import Base.Phase
 import Base.Clientupdates
 import Base.Player
 import Base.Card
+import Base.Objects_basic
+import Base.Skill_dsl_data
 %access public export
 %default total
-
-
 
 
 {-Right now I'm completely ignoring next. Env for that is somewhat more complicated, since I need to remember previous environments...

@@ -1,14 +1,7 @@
 module Base.Card
 import Data.Vect
-import Data.So
-import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
-import Base.Preliminaries
 import Base.Objects_basic
 import Base.Skill_dsl_data
-import Base.Phase
-import Base.Clientupdates
 %access public export
 %default total
 

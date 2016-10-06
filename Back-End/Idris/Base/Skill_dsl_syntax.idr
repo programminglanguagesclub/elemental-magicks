@@ -1,15 +1,5 @@
 module Base.Skill_dsl_syntax
-import Data.Vect
-import Data.Fin
-import Data.So
-import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
-import Base.Hp
-import Base.Preliminaries
-import Base.Objects_basic
 import Base.Card
-import Base.Player
 import Base.Skill_dsl_data
 %access public export
 %default total

@@ -1,10 +1,10 @@
 module Base.Preliminaries
 import Data.Vect
-import Data.Fin
 import Data.So
 import Base.Bounded
 import Base.Bounded_then_integer
 import Base.Integer_then_bounded
+
 %access public export
 %default total
 

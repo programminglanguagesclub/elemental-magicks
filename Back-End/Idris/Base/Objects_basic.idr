@@ -1,11 +1,9 @@
 module Base.Objects_basic
-
 import Data.Vect
 import Data.So
 import Base.Preliminaries
 import Base.Bounded
 import Base.Bounded_then_integer
-import Base.Integer_then_bounded
 import Base.Hp
 
 %access public export

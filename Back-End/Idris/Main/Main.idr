@@ -1,30 +1,7 @@
 module Main.Main
-
-import Prelude.Nat
-import Data.Vect
-import Data.Fin
-import Data.So
-import Base.Preliminaries
-import Base.Phase
-import Base.Objects_basic
 import Base.Player
-import Main.Game
 import Main.Serverupdates
-import Base.Clientupdates
-import Main.Draw_phase
-import Main.Spawn_phase
-import Main.Spell_phase
-import Main.Removal_phase
-import Main.Start_phase
-import Main.Engagement_phase
-import Main.End_phase
-import Main.Revival_phase
-import Main.Deployment_phase
-import Main.Transform_game
-import Main.Transform_game_helpers
-import Main.Step_game
-import Main.Step_game_helpers
-
+import Main.Game
 %access public export
 %default total
 

@@ -1,11 +1,7 @@
 module Base.Clientupdates
-import Data.Fin
 import Data.Vect
 import Base.Preliminaries
-import Base.Objects_basic
 import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
 %access public export
 %default total
 data ClientUpdate = GameLogicError

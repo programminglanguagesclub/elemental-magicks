@@ -1,25 +1,12 @@
 module Main.Game
-
-import Data.Vect
-import Data.So
-import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
-import Base.Preliminaries
-import Base.Objects_basic
 import Base.Skill_dsl_data
 import Base.Player
-import Base.Skill_dsl_logic
 import Base.Phase
 import Base.Clientupdates
-import Cards.Card_list
-
 %access public export
 %default total
-
 data WhichPlayer = PlayerA | PlayerB
 data Round = FirstRound | SecondRound
-
 
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 

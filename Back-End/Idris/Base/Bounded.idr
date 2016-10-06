@@ -1,9 +1,10 @@
 module Base.Bounded
 
 import Data.Vect
-import Data.Fin
 import Data.So
+{-
 import public Base.Utility
+-}
 %access public export
 %default total
 
