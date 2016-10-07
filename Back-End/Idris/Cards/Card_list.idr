@@ -1,26 +1,13 @@
 module Cards.Card_list
-
-{- not sure what imports are used here -}
-{-import Data.Vect
+import Data.Vect
 import Data.So
 import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
-import Base.Hp
 import Base.Preliminaries
-import Base.Objects_basic
 import Base.Skill_dsl_data
+import Base.Objects_basic
 import Base.Skill_dsl_syntax
-import Base.Phase
-import Base.Clientupdates
-import Base.Player
 import Base.Card
--}
 import Base.Card_list_syntax
-
-
-
-
 
 {-import water_8-}
 
@@ -62,7 +49,7 @@ monsterList = [
 -}
 
 
-
+{-
 mon : MonsterFactory
 mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous)
 
@@ -70,7 +57,7 @@ mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 s
 
 ttt : AutomaticFactory
 ttt = select x in enemy board where not dead x then { hp x := 0 } ;
-
+                                    -}
 
 testMonsterList : List MonsterFactory
 testMonsterList = [
@@ -87,7 +74,7 @@ testMonsterList = [
                         counter : (done, 0, Vacuous) {- have to code this still -}
                         soul : (done, 0, Vacuous) {- have to code this still -}   -}
 ]
-
+{-
 monsterList : List MonsterFactory
 monsterList = [
    mon  {-,-} {-do 50 damage to x... eventually actually do this.-}
@@ -120,7 +107,7 @@ monsterList = [
 
 
 
-
+-}
 
 
 

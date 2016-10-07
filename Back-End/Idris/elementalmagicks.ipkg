@@ -1,9 +1,8 @@
 package elementalmagicks
 
-pkgs = base
+pkgs = base,cards
 
 modules =
- Cards.Card_list,
  Main.Game, 
  Main.Serverupdates,
  Main.Clientupdates,
