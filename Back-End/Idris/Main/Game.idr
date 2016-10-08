@@ -26,8 +26,8 @@ Actually I'm going to put this in them..
  phase : Phase
  
 
-
-syntax "new" "game" [tokenA] [tokenB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player tokenA) (new player tokenB) DrawPhase
+{- This is out of date... -}
+syntax "new" "game" [playerAId] [playerIdB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player playerIdA) (new player playerIdB) DrawPhase
 
 {-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}
 

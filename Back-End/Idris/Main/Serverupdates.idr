@@ -5,22 +5,27 @@ import Base.Bounded
 %access public export
 %default total
 
-public export
-data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat String
-                  | Skip (Vect 6 (Bounded 0 9)) String
-                  | DeployCard (Fin 9) String
-                  | AttackRow (Fin 3) String
-                  | Rest String
-                  | DirectAttack String
-                  | Move (Fin 9) String
-                  | SkillInitiation Nat String
-                  | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) String {-no requirement of uniqueness at type level currently...-}
-                  | Revive (Vect 9 Bool) String
-                  | DrawCard Nat String {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
 
+data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat
+                  | Skip (Vect 6 (Bounded 0 9))
+                  | DeployCard (Fin 9)
+                  | AttackRow (Fin 3)
+                  | Rest
+                  | DirectAttack
+                  | Move (Fin 9)
+                  | SkillInitiation Nat
+                  | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
+                  | Revive (Vect 9 Bool)
+                  | DrawCard Nat {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
+
+
+data ServerUpdateWrapper = MkServerUpdateWrapper ServerUpdate String
 data ServerMessage = NewGameMessage String String
-                   | ServerUpdateMessage ServerUpdate
+                   | ServerUpdateMessage ServerUpdateWrapper
                    | InvalidRequest
+
+
+
 
 record MarshalledServerUpdate where
   constructor MkMarshalledServerUpdate
@@ -129,30 +134,33 @@ parseListFin n s = let numbers = split (==',') $ removeCharacter '[' $ removeCha
 
 
 {-definitely want to use monads here-}
+
+
+{- THIS WAS CHANGED TO SERVERMESSAGEWRAPPER FROM SERVERMESSAGE. MUST RETEST EVERYTHING-}
 generateServerUpdate : MarshalledServerUpdate -> Maybe ServerMessage
 generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
   | "spawnCard" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
                      schools <- getSchools rawSchools
                      rawIndex <- getField (info marshalledServerUpdate) "index"
                      index <- parsePositive {a=Nat} rawIndex
-                     pure (ServerUpdateMessage (SpawnCard schools index $ player marshalledServerUpdate))
+                     pure (ServerUpdateMessage (MkServerUpdateWrapper (SpawnCard schools index) (player marshalledServerUpdate)))
   | "skip" = do rawSchools <- getField (info marshalledServerUpdate) "schools"
                 schools <- getSchools rawSchools
-                pure (ServerUpdateMessage (Skip schools $ player marshalledServerUpdate))
+                pure (ServerUpdateMessage (MkServerUpdateWrapper (Skip schools) (player marshalledServerUpdate)))
   | "deployCard" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                       index <- parseFin 9 rawIndex
-                      pure (ServerUpdateMessage (DeployCard index $ player marshalledServerUpdate))
+                      pure (ServerUpdateMessage (MkServerUpdateWrapper (DeployCard index) (player marshalledServerUpdate)))
   | "attackRow" = do rawRow <- getField (info marshalledServerUpdate) "row"
                      row <- parseFin 3 rawRow
-                     pure (ServerUpdateMessage (AttackRow row $ player marshalledServerUpdate))
-  | "rest" = do pure (ServerUpdateMessage (Rest $ player marshalledServerUpdate))
-  | "directAttack" = do pure (ServerUpdateMessage (DirectAttack $ player marshalledServerUpdate))
+                     pure (ServerUpdateMessage (MkServerUpdateWrapper (AttackRow row) (player marshalledServerUpdate)))
+  | "rest" = do pure (ServerUpdateMessage (MkServerUpdateWrapper Rest (player marshalledServerUpdate)))
+  | "directAttack" = do pure (ServerUpdateMessage (MkServerUpdateWrapper DirectAttack (player marshalledServerUpdate)))
   | "move" = do rawTo <- getField (info marshalledServerUpdate) "to"
                 to <- parseFin 9 rawTo
-                pure (ServerUpdateMessage (Move to $ player marshalledServerUpdate))
+                pure (ServerUpdateMessage (MkServerUpdateWrapper (Move to) (player marshalledServerUpdate)))
   | "skillInitiation" = do rawIndex <- getField (info marshalledServerUpdate) "index"
                            index <- parsePositive {a=Nat} rawIndex
-                           pure (ServerUpdateMessage (SkillInitiation index $ player marshalledServerUpdate))
+                           pure (ServerUpdateMessage (MkServerUpdateWrapper (SkillInitiation index) (player marshalledServerUpdate)))
   | "skillSelection" = do rawFriendlyBoard <- getField (info marshalledServerUpdate) "friendlyBoard"
                           friendlyBoard <- parseListFin 9 rawFriendlyBoard
                           rawEnemyBoard <- getField (info marshalledServerUpdate) "enemyBoard"
@@ -165,13 +173,13 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                           friendlyGraveyard <- parseListNat rawFriendlyGraveyard
                           rawEnemyGraveyard <- getField (info marshalledServerUpdate) "enemyGraveyard"
                           enemyGraveyard <- parseListNat rawEnemyGraveyard
-                          pure (ServerUpdateMessage (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard $ player marshalledServerUpdate))
+                          pure (ServerUpdateMessage (MkServerUpdateWrapper (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard) (player marshalledServerUpdate)))
   | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
                   positions <- getRevivePositions rawPositions
-                  pure (ServerUpdateMessage (Revive positions $ player marshalledServerUpdate))
+                  pure (ServerUpdateMessage (MkServerUpdateWrapper (Revive positions) (player marshalledServerUpdate)))
   | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
                     id <- parsePositive {a=Nat} rawId
-                    pure (ServerUpdateMessage (DrawCard id $ player marshalledServerUpdate))
+                    pure (ServerUpdateMessage (MkServerUpdateWrapper (DrawCard id) (player marshalledServerUpdate)))
   | "newGame" = ?hole
   | _ = Nothing
 

@@ -16,6 +16,7 @@ data ClientUpdate = GameLogicError
                   | RevivalPhaseToDeploymentPhase
                   | DeploymentPhaseToSpawnPhase
                   | InvalidMove String String {-error message ; player id-}
+                  {- | NotInAnyGame String -}
                   | Kill (Fin 9) String {-board index, player id-}
                   | DeployCard (Fin 9) String
                   | DrawHand Nat String
