@@ -17,6 +17,7 @@ data ClientUpdate = GameLogicError
                   | DeploymentPhaseToSpawnPhase
                   | InvalidMove String String {-error message ; player id-}
                   {- | NotInAnyGame String -}
+                  | Revive (Fin 9) String
                   | Kill (Fin 9) String {-board index, player id-}
                   | DeployCard (Fin 9) String
                   | DrawHand Nat String
@@ -35,6 +36,8 @@ data ClientUpdate = GameLogicError
 
 {-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}
 getCardName : Nat -> Maybe String
+getCardName permanentId = ?hole {- index the list of all cards -}
+
 record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
  type : String
@@ -56,6 +59,7 @@ marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just $ MkMarshalledClientUp
 marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
   | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
+marshallClientUpdate (Revive boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "revive" [("index", show $ finToNat boardIndex)]) (playerId == id)
 marshallClientUpdate (Kill boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
 marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
 {-message currently 0 indexes the board-}

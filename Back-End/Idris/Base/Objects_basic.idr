@@ -43,6 +43,30 @@ record BasicMonster where
  engagement : Bounded 0 Preliminaries.absoluteUpperBound
  aliveness : Aliveness
 
+
+resetHp : Hp -> Hp
+resetHp (MkHp (_,base)) = generateHp base
+resetAttack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) -> temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+resetAttack (temporary, permanent, base) = (temporary, permanent, base)
+resetDefense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) -> temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+resetDefense = resetAttack
+resetSpeed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5) ->
+             (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
+resetSpeed (temporary, permanent, base) = (extendBounds base Oh Oh, extendBounds base Oh Oh, base)
+resetRange : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5) ->
+             (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
+resetRange (temporary, permanent, base) = (extendBounds base Oh Oh, extendBounds base Oh Oh, base)
+resetLevel : (Bounded 0 9, Bounded 0 9, Bounded 1 9) -> (Bounded 0 9, Bounded 0 9, Bounded 1 9)
+resetLevel (temporary, permanent, base) = (extendLowerBound base Oh, extendLowerBound base Oh, base)
+resetEngagement : Bounded 0 Preliminaries.absoluteUpperBound -> Bounded 0 Preliminaries.absoluteUpperBound
+resetEngagement _ = >> 0 <<
+
+
+revive : BasicMonster -> BasicMonster
+revive basic =
+  record {hp $= resetHp, attack $= resetAttack, defense $= resetDefense, speed $= resetSpeed, range $= resetRange, level $= resetLevel, engagement $= resetEngagement, aliveness = Alive} basic
+
+
 triple : t -> (t,t,t)
 triple t = (t,t,t)
 

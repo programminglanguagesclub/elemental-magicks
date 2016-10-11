@@ -5,6 +5,7 @@ import Base.Bounded
 import Base.Hp
 import Base.Preliminaries
 import Base.Objects_basic
+import Base.Clientupdates
 %access public export
 %default total
 data Stat = Attack | Defense | Speed | Range | Level
@@ -58,6 +59,8 @@ basicStatSetter Level = set_level
 
 
 
+
+
 hpTransformType : HpStat -> (Integer -> Integer) -> Hp -> Hp
 hpTransformType CurrentHp = transformHp
 hpTransformType MaxHp = transformMaxHp
@@ -71,9 +74,12 @@ getStatTypeName Defense = "defense"
 getStatTypeName Speed = "speed"
 getStatTypeName Range = "range"
 getStatTypeName Level = "level"
+getTemporalityName : Temporality -> String
+getTemporalityName Temporary = "Temporary"
+getTemporalityName Permanent = "Permanent"
 getHpTypeName : HpStat -> String
 getHpTypeName CurrentHp = "hp"
-getHpTypeName MaxHp = "max hp"
+getHpTypeName MaxHp = "maxHp"
 
 data Set = FriendlyBoard 
          | EnemyBoard 
@@ -94,7 +100,18 @@ data RelativeSet = RelativeBoard
                  | RelativeHand 
                  | RelativeGraveyard 
                  | RelativeDiscard {- call discard banished -}
+                 {- instead of having set, I should have pairs of side and relative set. This should play nicely with union, which is just a list of these -}
 getSet : Side -> RelativeSet -> Set
+getSet Friendly RelativeBoard = FriendlyBoard
+getSet Friendly RelativeSpawn = FriendlySpawn
+getSet Friendly RelativeHand = FriendlyHand
+getSet Friendly RelativeGraveyard = FriendlyGraveyard
+getSet Friendly RelativeDiscard = FriendlyDiscard
+getSet Enemy RelativeBoard = EnemyBoard
+getSet Enemy RelativeSpawn = EnemySpawn
+getSet Enemy RelativeHand = EnemyHand
+getSet Enemy RelativeGraveyard = EnemyGraveyard
+getSet Enemy RelativeDiscard = EnemyDiscard
 
 data StatR = TemporaryAttackR 
            | PermanentAttackR 
@@ -108,6 +125,9 @@ data StatR = TemporaryAttackR
            | PermanentLevelR 
            | HpR 
            | MaxHpR
+
+{- this actually makes sense assuming LValues (though can be RValues as well) ... -}
+
 mutual
   data DamageEffect = MkDamageEffect RInteger
   data StatEffect = MkStatEffect Stat Mutator Temporality RInteger 
@@ -162,12 +182,18 @@ addCondition : Condition -> Condition -> Condition
 addCondition Vacuous additional = additional
 addCondition otherwise additional = And otherwise additional
 
-applyStatEffect : BasicMonster -> StatEffect -> (BasicMonster, (String,String))
-applyStatEffect basic (MkStatEffect stat mutator temporality x) =
-  {-let m = basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) x) basic in (m, (getStatTypeName stat, marshall temporality $ basicStat stat m))-} ?hole
-applyStatEffect basic (MkHpEffect mutator hpStat x) = {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
-applyStatEffect basic (MkEngagementEffect mutator x) = ?hole
-applyStatEffect basic ReviveEffect = ?hole
+
+data FixedStatEffect = MkFixedStatEffect Stat Mutator Temporality Integer
+                     | MkFixedHpEffect Mutator HpStat Integer
+                     | MkFixedEngagementEffect Mutator Integer
+                     | FixedReviveEffect
+
+applyFixedStatEffect : (Fin 9) -> String -> BasicMonster -> FixedStatEffect -> (BasicMonster, ClientUpdate)
+applyFixedStatEffect monsterIndex playerId basic (MkFixedStatEffect stat mutator temporality value) = (basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) value) basic, ?hole)
+applyFixedStatEffect monsterIndex playerId basic (MkFixedHpEffect mutator hpStat x) = {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
+applyFixedStatEffect monsterIndex playerId basic (MkFixedEngagementEffect mutator x) = (record {engagement $= (\e => 0 + (hpTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})
+applyFixedStatEffect monsterIndex playerId basic FixedReviveEffect = (revive basic, Revive monsterIndex playerId)
+
 
 mutual
   data NonautomaticFactory = TerminatedSkillFactory 
@@ -175,14 +201,14 @@ mutual
   data AutomaticFactory = MkAutomaticFactory (List SkillEffect) NonautomaticFactory 
                         | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
 mutual
-  data Nonautomatic = TerminatedSkill Nat String 
+  data Nonautomatic = TerminatedSkill 
                     | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
   data Automatic = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
                  | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String {-haven't added all of the code for universal yet...-}
                  {-universal also should take a vector of strings, not just a single string, at some point-}
 mutual
   instantiateNonautomatic : NonautomaticFactory -> Nat -> String -> Nonautomatic
-  instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill cardId playerId
+  instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill
   instantiateNonautomatic (ExistentialFactory arguments condition success failure) cardId playerId = Existential arguments condition (instantiateAutomatic success cardId playerId) (instantiateAutomatic failure cardId playerId) cardId playerId
 
   instantiateAutomatic : AutomaticFactory -> Nat -> String -> Automatic

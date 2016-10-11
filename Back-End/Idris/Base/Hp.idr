@@ -8,19 +8,7 @@ import Base.Preliminaries
 {-if I made this a GADT with a single constructor, then I can't pattern match on it apparently. This seems like a bug, although it doesn't matter-}
 data Hp = MkHp ((currentHp:Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound**(maxHp:Bounded 0 Preliminaries.absoluteUpperBound**So(leq currentHp maxHp))),{-baseHp:-}Bounded 1 Preliminaries.absoluteUpperBound)
 
-
-generateHp : Bounded 1 Preliminaries.absoluteUpperBound -> Hp
-
 syntax mkHp [hp] = MkHp (( >> hp << **( >> hp << ** Oh)), >> hp << )
-
-testHp : Hp
-testHp = mkHp 20
-
-leq_hp_maxhp : (currentHp : Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound) -> (maxHp : Bounded 0 Preliminaries.absoluteUpperBound) -> So((extractBounded currentHp) <= (extractBounded maxHp)) -> So(leq currentHp maxHp)
-leq_hp_maxhp currentHp maxHp _ = believe_me Oh
-
-
-{-the above is very hard to use...-}
 
 getCurrentHp : Hp -> Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound
 getCurrentHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = currentHp
@@ -30,6 +18,11 @@ getBaseHp : Hp -> Bounded 1 Preliminaries.absoluteUpperBound
 getBaseHp (MkHp((currentHp**(maxHp**prf)),baseHp)) = baseHp
 maxHpLEQmaxHp : (maxHp : Bounded 0 Preliminaries.absoluteUpperBound) -> So(leq (the (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound) (extendLowerBound maxHp Oh)) maxhp)
 maxHpLEQmaxHp maxHp = believe_me Oh {-assumes that Preliminaries.absoluteLowerBound will never be strictly positive.-}
+
+generateHp : Bounded 1 Preliminaries.absoluteUpperBound -> Hp
+generateHp baseHp = let maxHp = the (Bounded 0 Preliminaries.absoluteUpperBound) (extendLowerBound baseHp Oh) in
+                        MkHp (((extendLowerBound maxHp Oh) ** (maxHp ** (maxHpLEQmaxHp maxHp))), baseHp)
+
 transformHp : (Integer -> Integer) -> Hp -> Hp
 transformHp f (MkHp ((currentHp**(maxHp**prf)),baseHp)) =
  let m = transformBounded f currentHp in

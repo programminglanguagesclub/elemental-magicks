@@ -27,7 +27,7 @@ Actually I'm going to put this in them..
  
 
 {- This is out of date... -}
-syntax "new" "game" [playerAId] [playerIdB] = MkGame PlayerA 0 (Vect.Nil,Vect.Nil,Vect.Nil) Nothing [] [] (new player playerIdA) (new player playerIdB) DrawPhase
+syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [] [] (new player playerAId) (new player playerBId) DrawPhase
 
 {-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}
 

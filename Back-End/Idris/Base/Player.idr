@@ -28,12 +28,34 @@ record Player where
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
 
+flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
+flattenBoard [row0, row1, row2] = row0 ++ row1 ++ row2
+
+unflattenBoard : Vect 9 (Maybe Monster) -> Vect 3 (Vect 3 (Maybe Monster))
+unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] = [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
+
+idMatches : Nat -> Maybe Monster -> Bool
+idMatches monsterId Nothing = False
+idMatches monsterId (Just monster) = (id $ basic monster) == monsterId
+
+findBoardMonsterIndex : Nat -> Vect 3 (Vect 3 (Maybe Monster)) -> Maybe (Fin 9)
+findBoardMonsterIndex monsterId board = findIndex (idMatches monsterId) (flattenBoard board)
+
+findBoardMonster : Nat -> Vect 3 (Vect 3 (Maybe Monster)) -> Maybe Monster
+findBoardMonster monsterId board = case findBoardMonsterIndex monsterId board of
+                                        Nothing => Nothing
+                                        Just monsterIndex => index monsterIndex (flattenBoard board)
+
 getLiving : Maybe Monster -> Bool
 getLiving Nothing = False
 getLiving (Just m) with (aliveness (basic m))
  | Alive = True
  | DeadFresh = False
  | DeadStale = False
+
+
+
+
 
 
 
@@ -149,51 +171,6 @@ findNextLivingMonster : Fin n -> Vect n (Maybe Monster) -> Maybe (Fin n)
 findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-
-findIndexFrom : Fin n -> (a -> Bool) -> Vect n a -> Maybe (Fin n)
-
-findIndexFromWrap : Fin n -> (a -> Bool) -> Vect n a -> Maybe (Fin n)
--}
-
-
-
-
-
-
-
-
-
 damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
 
 applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
@@ -201,9 +178,7 @@ applyAttack atk row defendingPlayer = ?hole
 
 
 
-{-
-This doesn't quite work. I need to move to the next position AFTER the next card....
--}
+{-This doesn't quite work. I need to move to the next position AFTER the next card....-}
 
 {-
 
@@ -220,8 +195,6 @@ goToNextRowTarget player n = case n of
 goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
  | _ = player
 -}
-
-
 
 
 syntax "new" "player" [playerId] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) playerId
