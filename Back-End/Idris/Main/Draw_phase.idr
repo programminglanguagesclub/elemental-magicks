@@ -55,3 +55,6 @@ _getNextTurnDraw game playerA playerB =
 getNextTurnDraw : Game -> Maybe CardDraw
 getNextTurnDraw game = _getNextTurnDraw game (player_A game) (player_B game)
 -}
+
+stepDrawPhase : WhichPlayer -> Player -> Player -> (Game, List ClientUpdate)
+stepDrawPhase initiative player_A player_B = ?hole
