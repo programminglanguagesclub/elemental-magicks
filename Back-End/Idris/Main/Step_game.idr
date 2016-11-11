@@ -46,10 +46,12 @@ transform can have valid : phase -> update -> bool?
 
 
 
-
+{- need to modify signature to not take a game but take the components other than the skills, as those are assumed
+ to be empty or whatever.
+-}
 stepGameNoSkills : (Game, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
 stepGameNoSkills (g,acc) with (phase g)
-  | DrawPhase = ?hole
+  | DrawPhase = stepDrawPhase (initiative g) (player_A g) (player_B g)
   | SpawnPhase = ?hole
   | SpellPhase = ?hole
   | RemovalPhase = ?hole
