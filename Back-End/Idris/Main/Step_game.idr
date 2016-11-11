@@ -52,14 +52,30 @@ transform can have valid : phase -> update -> bool?
 stepGameNoSkills : (Game, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
 stepGameNoSkills (g,acc) with (phase g)
   | DrawPhase = stepDrawPhase (initiative g) (player_A g) (player_B g)
-  | SpawnPhase = ?hole
-  | SpellPhase = ?hole
+  | SpawnPhase = stepSpawnPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
+  | SpellPhase = stepSpellPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
   | RemovalPhase = ?hole
   | StartPhase = ?hole
   | EngagementPhase = ?hole
   | EndPhase = ?hole
   | RevivalPhase = ?hole
   | DeploymentPhase = ?hole
+
+{-
+
+record Game where
+ constructor MkGame
+ initiative : WhichPlayer
+ turnNumber : Nat
+ skillHead : Nonautomatic 
+ skillQueue : List Automatic
+ deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ player_A : Player
+ player_B : Player
+ phase : Phase
+
+
+-}
 
 
 
