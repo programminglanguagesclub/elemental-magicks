@@ -49,17 +49,31 @@ transform can have valid : phase -> update -> bool?
 {- need to modify signature to not take a game but take the components other than the skills, as those are assumed
  to be empty or whatever.
 -}
+
+
+{-This can cause skills to be pushed onto the skill queues, so this needs to be declared mutually with
+stepGame.
+
+in stepGameNoSkills, after the delegated call... if there is anything on the queues, stepGame needs to be called.
+otherwise, we're done.
+
+-}
+
+
+{-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
 stepGameNoSkills : (Game, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
 stepGameNoSkills (g,acc) with (phase g)
   | DrawPhase = stepDrawPhase (initiative g) (player_A g) (player_B g)
   | SpawnPhase = stepSpawnPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
   | SpellPhase = stepSpellPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
-  | RemovalPhase = ?hole
-  | StartPhase = ?hole
-  | EngagementPhase = ?hole
-  | EndPhase = ?hole
-  | RevivalPhase = ?hole
-  | DeploymentPhase = ?hole
+  | RemovalPhase = stepRemovalPhase (deathQueue g) (player_A g) (player_B g)
+  | StartPhase = stepStartPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
+  | EngagementPhase = stepEngagementPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
+  | EndPhase = stepEndPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
+  | RevivalPhase = stepRevivalPhase (player_A g) (player_B g)
+  | DeploymentPhase = stepDeploymentPhase (player_A g) (player_B g)
+
+{- on some of these, I might not have to do anything at all... -}
 
 {-
 
