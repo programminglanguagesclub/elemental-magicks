@@ -61,17 +61,17 @@ otherwise, we're done.
 
 
 {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
-stepGameNoSkills : (Game, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
-stepGameNoSkills (g,acc) with (phase g)
-  | DrawPhase = stepDrawPhase (initiative g) (player_A g) (player_B g)
-  | SpawnPhase = stepSpawnPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
-  | SpellPhase = stepSpellPhase (initiative g) {-?(turnNumber g)-} (deathQueue g) (player_A g) (player_B g)
-  | RemovalPhase = stepRemovalPhase (deathQueue g) (player_A g) (player_B g)
-  | StartPhase = stepStartPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
-  | EngagementPhase = stepEngagementPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
-  | EndPhase = stepEndPhase (initiative g) (deathQueue g) (player_A g) (player_B g)
-  | RevivalPhase = stepRevivalPhase (player_A g) (player_B g)
-  | DeploymentPhase = stepDeploymentPhase (player_A g) (player_B g)
+stepGameNoSkills : (WhichPlayer, Nat, Nonautomatic, List Automatic, List Nat, Player, Player, Phase, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
+stepGameNoSkills (initiative, turnNumber, skillHead, skillQueue, deathQueue, player_A, player_B, phase,acc) with phase
+  | DrawPhase = stepDrawPhase initiative player_A player_B
+  | SpawnPhase = stepSpawnPhase initiative {-?(turnNumber g)-} deathQueue player_A player_B
+  | SpellPhase = stepSpellPhase initiative {-?(turnNumber g)-} deathQueue player_A player_B
+  | RemovalPhase = stepRemovalPhase deathQueue player_A player_B
+  | StartPhase = stepStartPhase initiative deathQueue player_A player_B
+  | EngagementPhase = stepEngagementPhase initiative deathQueue player_A player_B
+  | EndPhase = stepEndPhase initiative deathQueue player_A player_B
+  | RevivalPhase = stepRevivalPhase player_A player_B
+  | DeploymentPhase = stepDeploymentPhase player_A player_B
 
 {- on some of these, I might not have to do anything at all... -}
 
