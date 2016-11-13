@@ -1,4 +1,7 @@
 module Main.Draw_phase
+import Main.Game
+import Base.Player
+import Base.Clientupdates
 %access public export
 %default total
 

@@ -1,6 +1,7 @@
 module Main.Step_game
 import Base.Phase
 import Base.Skill_dsl_data
+import Base.Player
 import Main.Game
 import Base.Clientupdates
 import Main.Draw_phase
@@ -62,7 +63,7 @@ otherwise, we're done.
 
 {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
 stepGameNoSkills : (WhichPlayer, Nat, Nonautomatic, List Automatic, List Nat, Player, Player, Phase, List ClientUpdate) -> (Game, List ClientUpdate) {- assumes that skillHead g and skillQueue g are empty -}
-stepGameNoSkills (initiative, turnNumber, skillHead, skillQueue, deathQueue, player_A, player_B, phase,acc) with phase
+stepGameNoSkills (initiative, turnNumber, skillHead, skillQueue, deathQueue, player_A, player_B, phase,acc) with (phase)
   | DrawPhase = stepDrawPhase initiative player_A player_B
   | SpawnPhase = stepSpawnPhase initiative {-?(turnNumber g)-} deathQueue player_A player_B
   | SpellPhase = stepSpellPhase initiative {-?(turnNumber g)-} deathQueue player_A player_B
@@ -95,7 +96,7 @@ record Game where
 
 stepGame : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
 stepGame (g,acc) with (skillHead g, skillQueue g)
-  | (TerminatedSkillComponent, []) = stepGameNoSkills (g,acc)
+  | (TerminatedSkillComponent, []) = stepGameNoSkills ?hole {-(g,acc)-}
   | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
   | _ = ?hole 
 
