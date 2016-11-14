@@ -15,3 +15,8 @@ _allUnitsDead [] = True
 
 allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
+
+
+
+stepEngagementPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate)
+stepEngagementPhase initiative deathQueue player opponent = ?hole
