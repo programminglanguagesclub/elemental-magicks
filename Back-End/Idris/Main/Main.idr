@@ -10,6 +10,7 @@ import Main.Game
 import Main.Transform_game
 import Base.Skill_dsl_data
 import Base.Phase
+import Base.Clientupdates
 
 %access public export
 %default total
@@ -38,7 +39,7 @@ processServerUpdateOnGame = transformGame
 
 processServerUpdate : List Game -> ServerUpdateWrapper -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
-processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = transformGame ?hole ?hole ?hole ?hole
+processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = let x = transformGame ?hole ?hole ?hole ?hole ?hole in ?hole
 
 {- THE ABOVE IS JUST TO TRIGGER TRANSFORM GAME TO BE TYPECHECKED. STILL NEED CORRECT CODE FOR TRAVERSING THIS. -}
 
