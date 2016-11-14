@@ -11,3 +11,7 @@ _boardFull [] = True
 
 boardFull : Vect 9 (Maybe Monster) -> Bool {-don't want to make players try to deploy if the board is full -}
 boardFull board = _boardFull (toList board)
+
+
+stepDeploymentPhase : Player -> Player -> (Game, List ClientUpdate)
+stepDeploymentPhase player opponent = ?hole
