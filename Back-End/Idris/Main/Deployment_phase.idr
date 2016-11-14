@@ -1,6 +1,9 @@
 module Main.Deployment_phase
 import Data.Vect
 import Base.Card
+import Base.Player
+import Main.Game
+import Base.Clientupdates
 %access public export
 %default total
 
