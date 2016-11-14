@@ -2,6 +2,9 @@ module Main.Engagement_phase
 import Data.Vect
 import Base.Objects_basic
 import Base.Card
+import Base.Player
+import Main.Game
+import Base.Clientupdates
 %access public export
 %default total
 
