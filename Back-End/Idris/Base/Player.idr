@@ -171,7 +171,28 @@ findNextLivingMonster : Fin n -> Vect n (Maybe Monster) -> Maybe (Fin n)
 findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
 
 
+
+
+
+
+
+usedDeathSkill : Monster -> Bool
+usedCounterSkill : Monster -> Bool
+
+damageCard' : Integer -> Monster -> Monster
+
+indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe Monster
 damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
+damageCard val row column player with (indexMonster row column player)
+  | Nothing = ([], player)
+  | Just monster = let damagedMonster = damageCard' val monster in ?hole {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill.
+
+{-This requires loading skills onto the skillQueue, so it really needs more than just a player as input...
+ This should be changed to have Game and WhichPlayer as input.
+-}
+
+
+
 
 applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
 applyAttack atk row defendingPlayer = ?hole
