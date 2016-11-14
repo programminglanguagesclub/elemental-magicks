@@ -72,3 +72,18 @@ revive positions player = case _revive positions (board player) (thoughts player
 -}
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
+
+
+
+
+
+
+
+
+stepRevivalPhase : Player -> Player -> (Game, List ClientUpdate)
+stepRevivalPhase player opponent = ?hole
+
+
+
+
+
