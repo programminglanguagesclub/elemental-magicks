@@ -1,11 +1,12 @@
 module Main.Transform_game
-{-
-import Data.Vect
+
+{-import Data.Vect
 import Data.So
 import Base.Preliminaries
+-}
 import Base.Phase
-import Base.Objects_basic
-import Base.Skill_dsl_data
+{-import Base.Objects_basic
+import Base.Skill_dsl_data-}
 import Base.Player
 import Main.Game
 import Main.Serverupdates
@@ -21,8 +22,8 @@ import Main.Revival_phase
 import Main.Deployment_phase
 import Main.Transform_game_helpers
 import Main.Step_game
-import Main.Step_game_helpers
--}
+
+
 %access public export
 %default total
 
@@ -34,7 +35,7 @@ import Main.Step_game_helpers
 
 
 
-{-
+
 
 
 
@@ -130,15 +131,3 @@ transformGame game player opponent whichPlayer serverUpdate = ?hole
 
 
 
-
-
-
-
-
-
-
-
-
-
-
--}

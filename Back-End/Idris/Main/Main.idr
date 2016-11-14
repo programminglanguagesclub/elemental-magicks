@@ -7,6 +7,7 @@ import Base.Player
 import Base.Card
 import Main.Serverupdates
 import Main.Game
+import Main.Transform_game
 import Base.Skill_dsl_data
 import Base.Phase
 
@@ -29,9 +30,20 @@ getPlayerByTemporaryId playerTemporaryId game = if (temporaryId (player_A game))
 createNewGame : List Game -> String -> String -> List Game
 createNewGame games originalPlayerA originalPlayerB = games ++ [new game originalPlayerA originalPlayerB]
 
+
+{-
+processServerUpdateOnGame : Game -> Player -> Player -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+processServerUpdateOnGame = transformGame
+-}
+
 processServerUpdate : List Game -> ServerUpdateWrapper -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
-processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId)= ?hole {- create function for getting player id out of server update? Perhaps should be server update wrapper and not server update? -}
+processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = transformGame ?hole ?hole ?hole ?hole
+
+{- THE ABOVE IS JUST TO TRIGGER TRANSFORM GAME TO BE TYPECHECKED. STILL NEED CORRECT CODE FOR TRAVERSING THIS. -}
+
+
+
 
 processMessage : List Game -> String -> (List Game, String)
 processMessage games message =
