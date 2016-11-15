@@ -70,6 +70,11 @@ otherwise, we're done.
    to the skill head / queue to trigger client updates....
 -}
 
+
+
+
+{- Eventually return two Strings too, which is the next instruction for the players. For now, don't give instructions -}
+
 {-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
 {-also mutual with stepGameNoSkills and stepGame -}
 mutual 
