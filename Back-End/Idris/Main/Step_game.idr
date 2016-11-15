@@ -66,6 +66,9 @@ otherwise, we're done.
 
 
 
+{- Because stepping the game can cause a skill to trigger, I *might* need to have skills being loaded
+   to the skill head / queue to trigger client updates....
+-}
 
 {-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
 {-also mutual with stepGameNoSkills and stepGame -}
