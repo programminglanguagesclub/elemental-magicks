@@ -4,6 +4,9 @@ import Base.Preliminaries
 import Base.Bounded
 %access public export
 %default total
+
+data ClientInstruction = MkClientInstruction String {- not integrated yet -}
+
 data ClientUpdate = GameLogicError
                   | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
                   | DrawPhaseToSpawnPhase
@@ -31,7 +34,6 @@ data ClientUpdate = GameLogicError
                   | SetStat String String (Fin 9) String {-stat name, marshalled stat value, board index, player Id -}
                   | SpawnCard Nat String
                   | PlayerTurn String
-
 
 
 {-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}

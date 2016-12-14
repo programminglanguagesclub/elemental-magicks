@@ -85,7 +85,12 @@ mutual
   continueStep (game,updates) = stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
   stepGameNoSkills (initiative, turnNumber, deathQueue, player_A, player_B, phase,acc) with (phase)
-    | DrawPhase = continueStep (stepDrawPhase initiative player_A player_B)
+    | DrawPhase = acc ++ 
+
+Somehow get the message from the string in draw phase added.....
+
+
+
     | SpawnPhase = continueStep (stepSpawnPhase initiative deathQueue player_A player_B)
     | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue player_A player_B)
     | RemovalPhase = continueStep (stepRemovalPhase deathQueue player_A player_B)
