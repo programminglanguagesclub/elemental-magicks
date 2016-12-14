@@ -9,7 +9,7 @@ style content
 style bodyArea
 style footerClass
 
-
+open Test
 
 
 
@@ -19,6 +19,13 @@ style footerClass
 
 fun ask_idris (message : string) : string = "a"
 
+
+
+
+
+
+
+fun gui () : transaction page = return <xml><body></body></xml>
 
 
 

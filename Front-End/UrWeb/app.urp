@@ -9,5 +9,6 @@ rewrite style Main/wrapper wrapper
 rewrite style Main/content content
 rewrite style Main/footerClass footerClass
 library ../../Back-End/Glue
+jsFile test.js
 
 main
