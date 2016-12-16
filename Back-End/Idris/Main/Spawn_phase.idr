@@ -8,7 +8,9 @@ import Base.Clientupdates
 
 
 
-stepSpawnPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate)
+getMessageSpawnPhase : WhichPlayer -> Player -> Player -> ClientInstruction
+
+stepSpawnPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepSpawnPhase initiative deathQueue player opponent = ?hole
 
 

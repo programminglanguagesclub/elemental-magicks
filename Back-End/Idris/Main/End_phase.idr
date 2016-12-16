@@ -6,7 +6,7 @@ import Base.Clientupdates
 %default total
 
 
-stepEndPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate)
+stepEndPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepEndPhase initiative deathQueue player opponent = ?hole
 
 

@@ -8,5 +8,7 @@ import Base.Clientupdates
 
 
 
-stepSpellPhase : WhichPlayer -> Nat -> List Nat -> Player -> Player -> (Game, List ClientUpdate)
+{-getMessageSpellPhase : Player -> Player -> Nonautomatic -> Automatic -> ClientInstruction-}
+
+stepSpellPhase : WhichPlayer -> Nat -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepSpellPhase initiative turnNumber deathQueue player opponent = ?hole

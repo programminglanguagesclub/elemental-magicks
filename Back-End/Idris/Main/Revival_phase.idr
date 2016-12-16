@@ -83,7 +83,7 @@ revive positions player = case _revive positions (board player) (thoughts player
 
 
 
-stepRevivalPhase : Player -> Player -> (Game, List ClientUpdate)
+stepRevivalPhase : Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepRevivalPhase player opponent = ?hole
 
 

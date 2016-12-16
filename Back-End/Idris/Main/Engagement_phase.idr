@@ -21,5 +21,5 @@ allUnitsDead board = _allUnitsDead (toList board)
 
 
 
-stepEngagementPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate)
+stepEngagementPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepEngagementPhase initiative deathQueue player opponent = ?hole

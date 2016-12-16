@@ -8,5 +8,5 @@ import Base.Clientupdates
 
 
 
-stepRemovalPhase : List Nat -> Player -> Player -> (Game, List ClientUpdate)
+stepRemovalPhase : List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepRemovalPhase deathQueue player opponent = ?hole

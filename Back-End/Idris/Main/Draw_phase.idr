@@ -37,10 +37,16 @@ serializeSequence SB PlayerB = yourSoul
 
 {- deal with bounds checking later. For now assume okay -}
 
-getCardDraw : Player -> Player -> Maybe CardDraw
+getCardDraw : Player -> Player -> CardDraw
 getCardDraw playerA playerB = index' ((length $ hand playerA) + (length $ hand playerB)) drawSequence
 
+{-
 getMessageDrawPhase : Player -> Player -> Maybe (String,String)
 getMessageDrawPhase playerA playerB = do 
                                       cardDraw <- getCardDraw playerA playerB
                                       pure (serializeSequence cardDraw PlayerA, serializeSequence cardDraw PlayerB)
+
+-}
+
+stepDrawPhase : Player -> Player -> Maybe ClientInstruction
+stepDrawPhase playerA playerB = ?hole

@@ -47,6 +47,8 @@ transform can have valid : phase -> update -> bool?
 
 
 
+
+
 {- need to modify signature to not take a game but take the components other than the skills, as those are assumed
  to be empty or whatever.
 -}
@@ -75,19 +77,38 @@ otherwise, we're done.
 
 {- Eventually return two Strings too, which is the next instruction for the players. For now, don't give instructions -}
 
+
+{-
+getMessage : (WhichPlayer, List Nat, Player, Player, Phase, Nonautomatic, List Automatic) -> ClientInstruction
+getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQueue) with (phase)
+  | DrawPhase = getMessageDrawPhase playerA playerB
+  | SpawnPhase = getMessageSpawnPhase initiative playerA playerB
+  | SpellPhase = getMessageSpellPhase playerA playerB skillHead skillQueue
+  | RemovalPhase = getMessageRemovalPhase playerA playerB skillHead skillQueue
+  | StartPhase = getMessageStartPhase initiative playerA playerB skillHead skillQueue
+  | EngagementPhase = getMessageEngagementPhase initiative playerA playerB skillHead skillQueue
+  | EndPhase = getMessageEndPhase initiative playerA playerB skillHead skillQueue
+  | RevivalPhase = getMessageRevivalPhase initiative playerA playerB
+  | DeploymentPhase = getMessageDeploymentPhase initiative playerA playerB
+-}
+
+
 {-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
 {-also mutual with stepGameNoSkills and stepGame -}
-mutual 
-  continueStep : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
-  stepGameNoSkills : (WhichPlayer, Nat, List Nat, Player, Player, Phase, List ClientUpdate) -> (Game, List ClientUpdate)
-  stepGame : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
-  continueStep (game,[]) = (game,[])
-  continueStep (game,updates) = stepGame (game,updates)
+mutual {- drag along a boolean argument which says if we're done stepping -}
+  continueStep : (Game, List ClientUpdate, Maybe ClientInstruction) -> (Game, List ClientUpdate, ClientInstruction)
+  stepGameNoSkills : (WhichPlayer, Nat, List Nat, Player, Player, Phase, List ClientUpdate) -> (Game, List ClientUpdate, ClientInstruction)
+  stepGame : (Game, List ClientUpdate) -> (Game, List ClientUpdate, ClientInstruction)
+  continueStep (game,updates,Just clientInstruction) = (game,updates,clientInstruction)
+  continueStep (game,updates,Nothing) = stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
   stepGameNoSkills (initiative, turnNumber, deathQueue, player_A, player_B, phase,acc) with (phase)
-    | DrawPhase = acc ++ 
+    | DrawPhase = ?hole {-acc ++ ?hole-}
 
-Somehow get the message from the string in draw phase added.....
+
+
+
+{-Somehow get the message from the string in draw phase added.....-}
 
 
 

@@ -16,5 +16,5 @@ boardFull : Vect 9 (Maybe Monster) -> Bool {-don't want to make players try to d
 boardFull board = _boardFull (toList board)
 
 
-stepDeploymentPhase : Player -> Player -> (Game, List ClientUpdate)
+stepDeploymentPhase : Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepDeploymentPhase player opponent = ?hole

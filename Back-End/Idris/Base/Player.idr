@@ -1,5 +1,6 @@
 module Base.Player
 import Data.Vect
+import Data.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic
@@ -19,7 +20,16 @@ record Player where
  {- board : Vect 9 (Maybe Monster)-}
  board : Vect 3 (Vect 3 (Maybe Monster))
  rowTarget : Vect 3 (Fin 3)
- hand : List Card
+ 
+
+ {- hand : List Card-}
+ 
+
+
+ hand : BoundedList Card
+ 
+
+
  graveyard : List Card
  discard : List Card
  spawnCard : Spawn
@@ -27,6 +37,15 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
+
+
+{-
+record DrawPhasePlayer where
+ constructor MkDrawPhasePlayer
+ hand : 
+-}
+
+
 
 flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
 flattenBoard [row0, row1, row2] = row0 ++ row1 ++ row2
