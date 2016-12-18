@@ -102,24 +102,19 @@ mutual {- drag along a boolean argument which says if we're done stepping -}
   continueStep (game,updates,Just clientInstruction) = (game,updates,clientInstruction)
   continueStep (game,updates,Nothing) = stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
-  stepGameNoSkills (initiative, turnNumber, deathQueue, player_A, player_B, phase,acc) with (phase)
-    | DrawPhase = ?hole {-acc ++ ?hole-}
-
-
-
-
-{-Somehow get the message from the string in draw phase added.....-}
-
-
-
-    | SpawnPhase = continueStep (stepSpawnPhase initiative deathQueue player_A player_B)
-    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue player_A player_B)
-    | RemovalPhase = continueStep (stepRemovalPhase deathQueue player_A player_B)
-    | StartPhase = continueStep (stepStartPhase initiative deathQueue player_A player_B)
-    | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue player_A player_B)
-    | EndPhase = continueStep (stepEndPhase initiative deathQueue player_A player_B)
-    | RevivalPhase = continueStep (stepRevivalPhase player_A player_B)
-    | DeploymentPhase = continueStep (stepDeploymentPhase player_A player_B)
+  stepGameNoSkills (initiative, turnNumber, deathQueue, playerA, playerB, phase,acc) with (phase)
+    | DrawPhase = case stepDrawPhase playerA playerB of
+                       Nothing => let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc)
+                                  in continueStep (game', acc', Nothing)
+                       Just clientInstruction => continueStep (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc, Just clientInstruction)
+    | SpawnPhase = continueStep (stepSpawnPhase initiative deathQueue playerA playerB)
+    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
+    | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
+    | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
+    | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
+    | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
+    | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
+    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
   stepGame (g,acc) with (skillHead g, skillQueue g)
     | (TerminatedSkillComponent, []) = stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
     | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
