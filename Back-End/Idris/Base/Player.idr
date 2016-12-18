@@ -1,6 +1,6 @@
 module Base.Player
 import Data.Vect
-import Data.BoundedList
+import Base.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic
@@ -20,16 +20,7 @@ record Player where
  {- board : Vect 9 (Maybe Monster)-}
  board : Vect 3 (Vect 3 (Maybe Monster))
  rowTarget : Vect 3 (Fin 3)
- 
-
- {- hand : List Card-}
- 
-
-
- hand : BoundedList Card
- 
-
-
+ hand : BoundedList 25 Card
  graveyard : List Card
  discard : List Card
  spawnCard : Spawn
@@ -39,12 +30,118 @@ record Player where
  temporaryId : String
 
 
+
+
+
+
+
 {-
-record DrawPhasePlayer where
- constructor MkDrawPhasePlayer
- hand : 
+vectToBoundedList : Vect n a -> BoundedList n a
+vectToBoundedList [] = Nil
+vectToBoundedList (x::xs) = x::(vectToBoundedList xs)
 -}
 
+
+weakenS : BoundedList n a -> BoundedList (S n) a
+weakenS [] = []
+weakenS (x::xs) = x::(weakenS xs)
+{-
+weakenM : BoundedList n a -> BoundedList (m + n)
+-}
+
+filterVectToBoundedList : Vect n a -> (a -> Bool) -> BoundedList n a
+filterVectToBoundedList [] _ = Nil
+filterVectToBoundedList (x::xs) f =
+ if f x
+  then x::(filterVectToBoundedList xs f)
+  else weakenS $ filterVectToBoundedList xs f
+
+filterVectMaybes : Vect n (Maybe a) -> BoundedList n a
+filterVectMaybes [] = Nil
+filterVectMaybes (Nothing::xs) = weakenS $ filterVectMaybes xs
+filterVectMaybes ((Just x)::xs) = x::(filterVectMaybes xs)
+
+
+vectCount : Vect n a -> (a -> Bool) -> Fin (S n)
+vectCount [] _ = FZ
+vectCount (x::xs) f = if f x then FS (vectCount xs f) else weaken $ vectCount xs f
+
+{-
+boundedListToVect : BoundedList (n + m) a -> Vect m a
+boundedListToVect Nil = []
+-}
+
+
+blarg : (m : Nat ) -> (n : Nat) -> plus m (S n) = S (m + n)
+blarg m n = rewrite plusAssociative m 1 n in (rewrite plusCommutative m 1 in Refl)
+
+
+concatBoundedList : {n : Nat} -> {m : Nat} -> BoundedList n a -> BoundedList m a -> BoundedList (m + n) a
+concatBoundedList [] l2 = weaken l2
+concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m n1 in x::(concatBoundedList xs l2)
+
+
+getAll : Vect n1 (Maybe a) -> Vect n2 (Maybe a) -> BoundedList n3 b -> BoundedList n4 b -> (a->b) ->  BoundedList ((n1+n2)+(n3+n4)) b
+getAll v1 v2 l1 l2 f =
+ let x1 = filterVectMaybes v1 in
+ let x2 = filterVectMaybes v2 in
+ let x3 = map f (concatBoundedList x2 x1) in
+ let x4 = concatBoundedList l2 l1 in
+ concatBoundedList x4 x3        
+
+doIt : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> BoundedList 60 Card
+doIt v1 v2 l1 l2 = getAll v1 v2 l1 l2 (\x => MonsterCard x)
+
+
+
+{-concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m (S n) in x::(concatBoundedList xs l2)-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+finSum : Fin n -> Fin m -> Fin (n + m)
+finSum FZ _ = FZ
+finSum (FS k) x = FS (finSum k x)
+{-
+finSum3 : Fin n1 -> Fin n2 -> Fin n3 -> Fin (n1 + (n2 + n3))
+finSum3 FZ x y = finSum x y
+finSum3 (FS k) x y = FS (finSum3 k x y)
+
+finSum4 : Fin n1 -> Fin n2 -> Fin n3 -> Fin n4 -> Fin (n1 + (n2 + (n3 + n4)))
+-}
+
+
+{- might want to integrate this -}
+record DrawPhasePlayer where
+ constructor MkDrawPhasePlayer
+ hand : BoundedList 25 Card
+ soulCards : Vect 5 (Maybe Monster)
+ temporaryId : String
 
 
 flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
@@ -63,7 +160,7 @@ findBoardMonsterIndex monsterId board = findIndex (idMatches monsterId) (flatten
 findBoardMonster : Nat -> Vect 3 (Vect 3 (Maybe Monster)) -> Maybe Monster
 findBoardMonster monsterId board = case findBoardMonsterIndex monsterId board of
                                         Nothing => Nothing
-                                        Just monsterIndex => index monsterIndex (flattenBoard board)
+                                        Just monsterIndex => Vect.index monsterIndex (flattenBoard board)
 
 getLiving : Maybe Monster -> Bool
 getLiving Nothing = False
@@ -82,17 +179,17 @@ getLiving (Just m) with (aliveness (basic m))
 
 {-
 getRowTarget : Fin 3 -> Vect 9 (Maybe Monster) -> Fin 9 -> Fin 9 -> Fin 9 -> Maybe (Fin 9)
-getRowTarget FZ m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+getRowTarget FZ m a b c with ((getLiving (Vect.index a m)),(getLiving (Vect.index b m)),(getLiving (Vect.index c m)))
  | (True,_,_) = Just a
  | (False,True,_) = Just b
  | (False,False,True) = Just c
  | (False,False,False) = Nothing
-getRowTarget (FS FZ) m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+getRowTarget (FS FZ) m a b c with ((getLiving (Vect.index a m)),(getLiving (Vect.index b m)),(getLiving (Vect.index c m)))
  | (_,True,_) = Just b
  | (_,False,True) = Just c
  | (True,False,False) = Just a
  | (False,False,False) = Nothing
-getRowTarget (FS (FS FZ)) m a b c with ((getLiving (index a m)),(getLiving (index b m)),(getLiving (index c m)))
+getRowTarget (FS (FS FZ)) m a b c with ((getLiving (Vect.index a m)),(getLiving (Vect.index b m)),(getLiving (Vect.index c m)))
  | (_,_,True) = Just c
  | (True,_,False) = Just a
  | (False,True,False) = Just b
@@ -109,9 +206,9 @@ incrementRowTarget (FS (FS (FS (FS _)))) impossible
 
 getRowTarget : Fin 3 -> Player -> Maybe (Fin 3)
 getRowTarget row player =
-  let playerRow = index row (board player) in
-      let target = index row (rowTarget player) in
-          case index target playerRow of
+  let playerRow = Vect.index row (board player) in
+      let target = Vect.index row (rowTarget player) in
+          case Vect.index target playerRow of
                Nothing => Nothing
                Just _ => Just row
 

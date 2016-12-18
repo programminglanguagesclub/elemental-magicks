@@ -1,6 +1,7 @@
 package base
 
 modules =
+ Base.BoundedList,
  Base.Utility,
  Base.Bounded,
  Base.Bounded_then_integer,
@@ -14,4 +15,3 @@ modules =
  Base.Skill_dsl_logic,
  Base.Card,
  Base.Player
-

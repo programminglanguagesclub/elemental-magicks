@@ -1,13 +1,16 @@
 module Main.Draw_phase
+import Data.Vect
 import Main.Game
+import Base.BoundedList
 import Base.Player
+import Base.Card
 import Base.Clientupdates
 %access public export
 %default total
 
 data CardDraw = HA | HB | SA | SB
 
-drawSequence : List CardDraw
+drawSequence : Vect 60 CardDraw
 drawSequence = [
  HA, HB, HB, HA,   HB, HA, HA, HB,   HA, HB, SB, SA,
  HB, HA, HA, HB,   HA, HB, HB, HA,   HB, HA, SA, SB,
@@ -37,8 +40,31 @@ serializeSequence SB PlayerB = yourSoul
 
 {- deal with bounds checking later. For now assume okay -}
 
+
+
+{- Currently there's an off by one error resulting from there not being a proper instruction if everything is fully draw -}
+
+getCardDraw : Player -> Player -> Maybe CardDraw
+getCardDraw playerA playerB =
+ let cardsDrawn = length (doIt (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) in
+ case strengthen cardsDrawn of
+      Left sameCardsDrawn => Nothing
+      Right smallerCardsDrawn => Just $ Vect.index smallerCardsDrawn drawSequence
+
+{-
 getCardDraw : Player -> Player -> CardDraw
-getCardDraw playerA playerB = index' ((length $ hand playerA) + (length $ hand playerB)) drawSequence
+getCardDraw playerA playerB =
+ let handLengthA = length $ hand playerA in
+ let handLengthB = length $ hand playerB in
+ let soulLengthA = vectCount (soulCards playerA) isJust in
+ let soulLengthB = vectCount (soulCards playerB) isJust in
+ let hands = finSum handLengthA handLengthB in
+ let souls = finSum soulLengthA soulLengthB in
+ let everything = finSum hands souls in
+ Vect.index everything drawSequence
+  -}         
+
+{-index {-((length $ hand playerA) + (length $ hand playerB))-} FZ drawSequence-}
 
 {-
 getMessageDrawPhase : Player -> Player -> Maybe (String,String)
@@ -49,4 +75,4 @@ getMessageDrawPhase playerA playerB = do
 -}
 
 stepDrawPhase : Player -> Player -> Maybe ClientInstruction
-stepDrawPhase playerA playerB = ?hole
+stepDrawPhase playerA playerB = ?hole {-HAVE TO BE ABLE TO GO TO THE NEXT PHASE-}
