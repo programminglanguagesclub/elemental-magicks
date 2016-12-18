@@ -75,4 +75,13 @@ getMessageDrawPhase playerA playerB = do
 -}
 
 stepDrawPhase : Player -> Player -> Maybe ClientInstruction
-stepDrawPhase playerA playerB = ?hole {-HAVE TO BE ABLE TO GO TO THE NEXT PHASE-}
+stepDrawPhase playerA playerB = map (\x => MkClientInstruction (serializeSequence x PlayerA, serializeSequence x PlayerB)) $ getCardDraw playerA playerB
+
+
+
+
+
+
+
+
+

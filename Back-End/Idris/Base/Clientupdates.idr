@@ -5,7 +5,7 @@ import Base.Bounded
 %access public export
 %default total
 
-data ClientInstruction = MkClientInstruction String String{- not integrated yet -}
+data ClientInstruction = MkClientInstruction (String,String) {- not integrated yet -}
 
 data ClientUpdate = GameLogicError
                   | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
