@@ -5,6 +5,10 @@ import Base.BoundedList
 import Base.Player
 import Base.Card
 import Base.Clientupdates
+import Main.Serverupdates
+
+import Cards.Card_list
+
 %access public export
 %default total
 
@@ -48,3 +52,7 @@ stepDrawPhase : Player -> Player -> Maybe ClientInstruction
 stepDrawPhase playerA playerB =
  map (\x => MkClientInstruction (serializeSequence x PlayerA, serializeSequence x PlayerB)) $ getCardDraw playerA playerB
 
+transformDrawPhase : WhichPlayer -> ServerUpdate -> Game -> Maybe (Game, List ClientUpdate)
+transformDrawPhase player (DrawCardHand cardId) game = ?hole
+transformDrawPhase player (DrawCardSoul cardId soulIndex) game = ?hole
+transformDrawPhase _ _ _ = Nothing

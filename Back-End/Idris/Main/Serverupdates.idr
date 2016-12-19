@@ -2,6 +2,7 @@ module Main.ServerUpdates
 import Data.Vect
 import Data.String
 import Base.Bounded
+import Main.Game {-WhichPlayer should probably be moved to Player...-}
 %access public export
 %default total
 
@@ -16,8 +17,9 @@ data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat
                   | SkillInitiation Nat
                   | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
                   | Revive (Vect 9 Bool)
-                  | DrawCard Nat {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
-
+                  | DrawCardHand Nat
+                  {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
+                  | DrawCardSoul Nat (Fin 5)
 
 data ServerUpdateWrapper = MkServerUpdateWrapper ServerUpdate String
 data ServerMessage = NewGameMessage String String
@@ -177,9 +179,15 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
   | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
                   positions <- getRevivePositions rawPositions
                   pure (ServerUpdateMessage (MkServerUpdateWrapper (Revive positions) (player marshalledServerUpdate)))
-  | "drawCard" = do rawId <- getField (info marshalledServerUpdate) "id"
-                    id <- parsePositive {a=Nat} rawId
-                    pure (ServerUpdateMessage (MkServerUpdateWrapper (DrawCard id) (player marshalledServerUpdate)))
+  | "drawCardHand" = do rawId <- getField (info marshalledServerUpdate) "id"
+                        id <- parsePositive {a=Nat} rawId
+                        pure (ServerUpdateMessage (MkServerUpdateWrapper (DrawCardHand id) (player marshalledServerUpdate)))
+  | "drawCardSoul" = do rawId <- getField (info marshalledServerUpdate) "id"
+                        id <- parsePositive {a=Nat} rawId
+                        rawSoulIndex <- getField (info marshalledServerUpdate) "soulIndex"
+                        soulIndexNat <- parsePositive {a=Nat} rawSoulIndex
+                        soulIndex <- natToFin soulIndexNat 5
+                        pure (ServerUpdateMessage (MkServerUpdateWrapper (DrawCardSoul id soulIndex) (player marshalledServerUpdate)))
   | "newGame" = ?hole
   | _ = Nothing
 

@@ -28,6 +28,49 @@ import Base.Card_list_syntax
 
 
 
+
+
+{-For now, I want to have a small list of simple cards that can be drawn for testing the beginning of the game-}
+
+monsterList : List MonsterFactory
+monsterList = [
+ "Axeman" <- no_schools level : 3 life : 50 attack : 30 defense : 0 speed : 2 range : 1 sp : 2,
+             soulSkill : "Brutal Strike" 2 thoughts select x in enemy board where not dead x then damage x 50
+]
+                                                                                                    
+
+
+
+
+{- Below is chaos -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {-
 {- reimaging this how I want it to be, assuming the syntax extensions work correctly
  I still have the superfluous specifications on whether the card can be dead.
