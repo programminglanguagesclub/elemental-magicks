@@ -2,6 +2,7 @@ module Main.Main
 import Data.Vect
 import Data.So
 import Base.Bounded
+import Base.BoundedList
 import Base.Preliminaries
 import Base.Player
 import Base.Card

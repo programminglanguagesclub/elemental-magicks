@@ -78,6 +78,18 @@ otherwise, we're done.
 {- Eventually return two Strings too, which is the next instruction for the players. For now, don't give instructions -}
 
 
+
+{-
+
+
+
+INITIATIVE CAN BE CALCULATED FROM TURNNUMBER, AND SHOULD NOT BE AN ADDITIONAL FIELD OF GAME
+
+-}
+
+
+
+
 {-
 getMessage : (WhichPlayer, List Nat, Player, Player, Phase, Nonautomatic, List Automatic) -> ClientInstruction
 getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQueue) with (phase)
@@ -93,6 +105,8 @@ getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQue
 -}
 
 
+{-STEP GAME IS ASSERTED TO BE TOTAL WITHOUT PROOF. PROVING STEP GAME IS TOTAL MAY BE A SOMEWHAT MAJOR PROJECT -}
+
 {-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
 {-also mutual with stepGameNoSkills and stepGame -}
 mutual {- drag along a boolean argument which says if we're done stepping -}
@@ -107,7 +121,10 @@ mutual {- drag along a boolean argument which says if we're done stepping -}
                        Nothing => let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc)
                                   in continueStep (game', acc', Nothing)
                        Just clientInstruction => continueStep (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc, Just clientInstruction)
-    | SpawnPhase = continueStep (stepSpawnPhase initiative deathQueue playerA playerB)
+    | SpawnPhase = case stepSpawnPhase initiative playerA playerB of
+                        Nothing => let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue playerA playerB SpawnPhase, acc)
+                                   in continueStep (game', acc', Nothing)
+                        Just clientInstruction => continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue playerA playerB SpawnPhase, acc, Just clientInstruction)
     | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
     | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
@@ -116,7 +133,7 @@ mutual {- drag along a boolean argument which says if we're done stepping -}
     | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
     | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
   stepGame (g,acc) with (skillHead g, skillQueue g)
-    | (TerminatedSkillComponent, []) = stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
-    | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
+    | (TerminatedSkillComponent, []) = assert_total $ stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
+    | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = assert_total ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
     | _ = ?hole
 
