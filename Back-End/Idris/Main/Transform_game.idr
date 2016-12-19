@@ -31,22 +31,6 @@ import Main.Step_game
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-Somewhere I also have to return whose turn it is.-}
-
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that temporaryId)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 public export
