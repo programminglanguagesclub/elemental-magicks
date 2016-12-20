@@ -32,12 +32,24 @@ import Base.Card_list_syntax
 
 {-For now, I want to have a small list of simple cards that can be drawn for testing the beginning of the game-}
 
+axeman : MonsterFactory
+axeman = MkMonsterFactory (MkBasicMonsterFactory "Axeman" no_schools >> 50 << >> 30 << >> 0 << >> 2 << >> 1 << >> 3 << >> 2 <<) Nothing Nothing Nothing Nothing Nothing Nothing [] (done, 0, Vacuous)
+
+
+{-
 monsterList : List MonsterFactory
-monsterList = [
- "Axeman" <- no_schools level : 3 life : 50 attack : 30 defense : 0 speed : 2 range : 1 sp : 2,
-             soulSkill : "Brutal Strike" 2 thoughts select x in enemy board where not dead x then damage x 50
+monsterList = [axeman]
+-}
+
+
+cardList : List CardFactory
+cardList = [MonsterCardFactory axeman]
+
+{-monsterList = [
+ "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2,
+             soulSkill : done {-"Brutal Strike"-} {-2 thoughts select x in enemy board where not dead x then damage x 50-}
 ]
-                                                                                                    
+  -}                                                                                                  
 
 
 

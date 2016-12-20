@@ -40,7 +40,10 @@ processServerUpdateOnGame = transformGame
 
 processServerUpdate : List Game -> ServerUpdateWrapper -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
-processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = let x = transformGame ?hole ?hole ?hole ?hole ?hole in ?hole
+processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = let x = transformGame ?hole ?hole ?hole in ?hole
+
+
+{-Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)-}
 
 {- THE ABOVE IS JUST TO TRIGGER TRANSFORM GAME TO BE TYPECHECKED. STILL NEED CORRECT CODE FOR TRAVERSING THIS. -}
 

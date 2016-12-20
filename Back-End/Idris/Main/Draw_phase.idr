@@ -41,6 +41,13 @@ serializeSequence HB PlayerB = yourHand
 serializeSequence SB PlayerA = opponentSoul
 serializeSequence SB PlayerB = yourSoul
 
+
+{- move to player -}
+getPlayer : WhichPlayer -> Player -> Player -> Player
+getPlayer PlayerA playerA _ = playerA
+getPlayer PlayerB _ playerB = playerB
+
+
 getCardDraw : Player -> Player -> Maybe CardDraw
 getCardDraw playerA playerB =
  let cardsDrawn = length (doIt (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) in
@@ -52,7 +59,15 @@ stepDrawPhase : Player -> Player -> Maybe ClientInstruction
 stepDrawPhase playerA playerB =
  map (\x => MkClientInstruction (serializeSequence x PlayerA, serializeSequence x PlayerB)) $ getCardDraw playerA playerB
 
-transformDrawPhase : WhichPlayer -> ServerUpdate -> Game -> Maybe (Game, List ClientUpdate)
-transformDrawPhase player (DrawCardHand cardId) game = ?hole
-transformDrawPhase player (DrawCardSoul cardId soulIndex) game = ?hole
-transformDrawPhase _ _ _ = Nothing
+{-not sure where I handle whose turn it is...-}
+
+
+transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> (Either (Game, List ClientUpdate) (String, String))
+transformDrawPhase actor playerA playerB (DrawCardHand cardId) with (index' cardId cardList)
+ | Nothing = Right ("The card you selected is not valid.", temporaryId $ getPlayer actor playerA playerB)
+ | Just cardFactory = ?hole
+transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) with (index' cardId cardList)
+ | Nothing = Right ("The card you selected is not valid.", temporaryId $ getPlayer actor playerA playerB)
+ | Just (SpellCardFactory spellFactory) = ?hole  
+ | Just (MonsterCardFactory monsterFactory) = ?hole
+transformDrawPhase actor playerA playerB _  = Right ("Invalid action during draw phase.", temporaryId $ getPlayer actor playerA playerB)

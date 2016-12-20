@@ -5,6 +5,7 @@ import Base.Card
 import Base.Player
 import Main.Game
 import Base.Clientupdates
+import Base.Skill_dsl_data
 %access public export
 %default total
 
@@ -87,6 +88,4 @@ stepRevivalPhase : Player -> Player -> (Game, List ClientUpdate, Maybe ClientIns
 stepRevivalPhase player opponent = ?hole
 
 
-
-
-
+transformRevivalPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> List Nat -> Either (Player, Player, List Nat, List ClientUpdate) (String, String)

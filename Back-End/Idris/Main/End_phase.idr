@@ -2,12 +2,28 @@ module Main.End_phase
 import Base.Player
 import Main.Game
 import Base.Clientupdates
+import Base.Skill_dsl_data
 %access public export
 %default total
 
 
 stepEndPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepEndPhase initiative deathQueue player opponent = ?hole
+
+
+transformEndPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> Nonautomatic -> List Automatic -> List Nat ->
+ Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String, String)
+
+
+{-
+
+| EndPhase = case transformEndPhase actor (player_A game) (player_B game) (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
+                   Right (errorMessage, playerId) => ?hole
+                   Left (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
+
+
+-}
+
 
 
 

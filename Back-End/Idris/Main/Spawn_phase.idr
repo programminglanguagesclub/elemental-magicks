@@ -3,6 +3,7 @@ import Base.Player
 import Base.Card
 import Main.Game
 import Base.Clientupdates
+import Main.Serverupdates
 %access public export
 %default total
 
@@ -78,6 +79,23 @@ and the message for the player with and without the initiative-}
       Just _ => case (spawnCard $ getOpponent initiative playerA playerB) of
                      Nothing => Just $ MkClientInstruction (opponentSpawns,youSpawn)
 -}
+
+
+
+{-
+
+ | SpawnPhase = case transformSpawnPhase actor (player_A game) (player_B game) (initiative game) serverUpdate of
+                     Right (errorMessage, playerId) => ?hole
+                     Left ((playerA', playerB'), updates) => ?hole
+
+
+-}
+
+transformSpawnPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> ServerUpdate -> Either ((Player,Player),List ClientUpdate) (String,String)
+
+
+
+
 
 
 

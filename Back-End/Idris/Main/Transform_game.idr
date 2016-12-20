@@ -5,8 +5,8 @@ import Data.So
 import Base.Preliminaries
 -}
 import Base.Phase
-{-import Base.Objects_basic
-import Base.Skill_dsl_data-}
+{-import Base.Objects_basic-}
+import Base.Skill_dsl_data
 import Base.Player
 import Main.Game
 import Main.Serverupdates
@@ -28,14 +28,55 @@ import Main.Step_game
 %default total
 
 
+{- if two units die the same time on the same number square, have the unit of the player with the initiative die first -}
 
 
+
+{- some of the responsibilities (and thus the data sent and received) may change when I decide how much of executing skills transformGame and stepGame each perform -}
 
 {-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that temporaryId)-}
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
-public export
-transformGame : Game -> (player : Player) -> (opponent : Player) -> WhichPlayer -> ServerUpdate -> (Game, WhichPlayer, List ClientUpdate)
-transformGame game player opponent whichPlayer serverUpdate = ?hole
+
+
+partial
+transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
+ | DrawPhase = case transformDrawPhase actor (player_A game) (player_B game) serverUpdate of
+                    Right (errorMessage, playerId) => ?hole
+                    Left (player', updates) => ?hole
+ | SpawnPhase = case transformSpawnPhase actor (player_A game) (player_B game) (initiative game) serverUpdate of
+                     Right (errorMessage, playerId) => ?hole
+                     Left ((playerA', playerB'), updates) => ?hole
+ | SpellPhase = case transformSpellPhase actor (player_A game) (player_B game) (skillHead game) (skillQueue game) (deathQueue game) of
+                     Right (errorMessage, playerId) => ?hole
+                     Left (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
+ | RemovalPhase = case transformRemovalPhase actor (player_A game) (player_B game) (skillHead game) (skillQueue game) (deathQueue game) of
+                       Right (errorMessage, playerId) => ?hole
+                       Left (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
+ | StartPhase = case transformStartPhase actor (player_A game) (player_B game) (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
+                     Right (errorMessage, playerId) => ?hole
+                     Left (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
+ | EngagementPhase = case transformEngagementPhase actor (player_A game) (player_B game) (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
+                     Right (errorMessage, playerId) => ?hole
+                     Left (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
+ | EndPhase = case transformEndPhase actor (player_A game) (player_B game) (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
+                   Right (errorMessage, playerId) => ?hole
+                   Left (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
+ | RevivalPhase = case transformRevivalPhase actor (player_A game) (player_B game) (initiative game) (deathQueue game) of
+                       Right (errorMessage, playerId) => ?hole
+                       Left (playerA', playerB', deathQueue', updates) => ?hole
+
+ 
+{- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
+
+
+transformGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame = assert_total transformGame'
+
+
+
+
+
 
 
 {-with (phase game,serverUpdate)

@@ -69,5 +69,6 @@ instantiateSpell cardId playerId spellFactory =
   MkSpell (instantiateBasicSpell (basic spellFactory) cardId)
           (instantiateSkill cardId playerId (spawnSkill spellFactory))
 
+data CardFactory = SpellCardFactory SpellFactory | MonsterCardFactory MonsterFactory
 data Card = SpellCard Spell | MonsterCard Monster
 
