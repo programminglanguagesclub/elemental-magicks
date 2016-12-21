@@ -9,29 +9,20 @@ import Base.Card
 %access public export
 %default total
 
-
-Spawn : Type
-Spawn = Maybe Card
-Soul : Type
-Soul = Vect 5 (Maybe Monster) {- again more information could go in the type -}
-
 record Player where
  constructor MkPlayer
  {- board : Vect 9 (Maybe Monster)-}
  board : Vect 3 (Vect 3 (Maybe Monster))
  rowTarget : Vect 3 (Fin 3)
- hand : BoundedList 25 Card
+ {-hand : BoundedList 25 Card-}
+ hand : List Card
  graveyard : List Card
  discard : List Card
- spawnCard : Spawn
- soulCards : Soul
+ spawnCard : Maybe Card
+ soulCards : Vect 5 (Maybe Monster)
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
-
-
-
-
 
 
 
@@ -92,6 +83,23 @@ getAll v1 v2 l1 l2 f =
 doIt : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> BoundedList 60 Card
 doIt v1 v2 l1 l2 = getAll v1 v2 l1 l2 (\x => MonsterCard x)
 
+
+filterVectMaybeToList : Vect n (Maybe Monster) -> List Monster
+filterVectMaybeToList [] = []
+filterVectMaybeToList (Nothing::xs) = filterVectMaybeToList xs
+filterVectMaybeToList ((Just x)::xs) = x :: (filterVectMaybeToList xs)
+
+getAllList : Vect n1 (Maybe Monster) -> Vect n2 (Maybe Monster) -> List Card -> List Card -> (Monster -> Card) -> List Card
+
+getAllList v1 v2 l1 l2 f =
+ let x1 = filterVectMaybeToList v1 in
+ let x2 = filterVectMaybeToList v2 in
+ let x3 = map f (x2 ++ x1) in
+ let x4 = l2 ++ l1 in
+ x4 ++ x3
+
+getAllCardsDrawn : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> List Card -> List Card -> List Card
+getAllCardsDrawn soulA soulB handA handB = getAllList soulA soulB handA handB (\x => MonsterCard x)
 
 
 {-concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m (S n) in x::(concatBoundedList xs l2)-}

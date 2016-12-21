@@ -38,12 +38,19 @@ import Main.Step_game
 {-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
 
 
+
+
+{- I can change the others to be maybes later... -}
+
 partial
 transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
 transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
  | DrawPhase = case transformDrawPhase actor (player_A game) (player_B game) serverUpdate of
-                    Right (errorMessage, playerId) => ?hole
-                    Left (player', updates) => ?hole
+                    Nothing => (game,[GameLogicError])
+                    Just $ Right (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+                    Just $ Left (player', updates) => case actor of
+                                                           PlayerA => (record {player_A = player'} game, updates)
+                                                           PlayerB => (record {player_B = player'} game, updates)
  | SpawnPhase = case transformSpawnPhase actor (player_A game) (player_B game) (initiative game) serverUpdate of
                      Right (errorMessage, playerId) => ?hole
                      Left ((playerA', playerB'), updates) => ?hole

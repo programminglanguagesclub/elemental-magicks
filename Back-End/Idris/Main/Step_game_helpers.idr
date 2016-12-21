@@ -34,7 +34,7 @@ foo7312016 Nothing = 0
 foo7312016 (Just m) with (soulPoints ( basic(m) ))
   | (MkBounded (current ** _),_) = current
 
-getPointsFromSoul : Soul -> Integer
+getPointsFromSoul : Vect 5 (Maybe Monster) -> Integer
 getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
 
 
