@@ -1,12 +1,10 @@
 module Main.Draw_phase
 import Data.Vect
 import Main.Game
-{-import Base.BoundedList-}
 import Base.Player
 import Base.Card
 import Base.Clientupdates
 import Main.Serverupdates
-
 import Cards.Card_list
 import Base.Phase
 import Base.Skill_dsl_data
@@ -120,33 +118,6 @@ This can change the nature of some abilities, usually making them more potent.
 
 
 
-{-
-
-
-
- constructor MkGame
- initiative : WhichPlayer
- turnNumber : Nat
- skillHead : Nonautomatic {-
- currentEvoker : Nat {-this would be better in skillHead but that is somewhat invasive when I create skills..-}
-Actually I'm going to put this in them..
--}
- skillQueue : List Automatic
- deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
- player_A : Player
- player_B : Player
- phase : Phase
-
-
--}
-
-
-{- ClientUpdate
-
-                 | DrawHand Nat String
-                 | DrawSoul Nat (Fin 5) String
-
--}
 
 
 {-Right now, cards only have their position in the card list, and no names, or ability to have images. This is a problem.
@@ -160,34 +131,6 @@ odd that in the client update though, I have "cardId" rather than card name then
 -}
 
 
-
-
-{-
-
-
-instantiateMonster : Nat -> String -> MonsterFactory -> Monster
-instantiateMonster cardId playerId monsterFactory =
-  MkMonster (instantiateBasicMonster (basic monsterFactory) cardId)
-            ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory))
-            (instantiateSkill cardId playerId (soulSkill monsterFactory))
-
-instantiateSpell : Nat -> String -> SpellFactory -> Spell
-instantiateSpell cardId playerId spellFactory =
-  MkSpell (instantiateBasicSpell (basic spellFactory) cardId)
-          (instantiateSkill cardId playerId (spawnSkill spellFactory))
-
-data CardFactory = SpellCardFactory SpellFactory | MonsterCardFactory MonsterFactory
-data Card = SpellCard Spell | MonsterCard Monster
-
-
-
--}
 
 
 
@@ -214,11 +157,6 @@ transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
       (Just cardFactory,Just SB,PlayerB) => Just $ Right (drawToSoulNotHand, playerId)
 
 
-{- there should be a draw to hand not soul message as well....
-
-In particular, I am not checking against the correct draw action.
-
--}
 
 transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
  let player = getActor actor playerA playerB in
@@ -237,10 +175,10 @@ transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
       (_,_,Just HB,PlayerB) => Just $ Right (drawToHandNotSoul, playerId)
       (_,_,Just SA,PlayerB) => Just $ Right (notYourTurn, playerId)
       (Nothing,_,Just SB,PlayerB) => Just $ Right (cardInvalid, playerId)
-      (Just (SpellCardFactory spellFactory),_,Just SA,PlayerA) => Just $ Right (noSpellsInSoul, playerId)      
+      (Just (SpellCardFactory spellFactory),_,Just SB,PlayerB) => Just $ Right (noSpellsInSoul, playerId)      
       (Just (MonsterCardFactory monsterFactory),Just _,Just SB,PlayerB) => Just $ Right (soulCardAlreadyDrawn, playerId)
       (Just (MonsterCardFactory monsterFactory),Nothing,Just SB,PlayerB) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
-
+      _ => ?hole
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
