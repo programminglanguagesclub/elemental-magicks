@@ -34,7 +34,10 @@ computeCardDraw SB = (Soul, PlayerB)
 drawSequence : List (CardDraw, WhichPlayer)
 drawSequence = map computeCardDraw drawSequence'
 
-
+yourTurnToDraw : (CardDraw, WhichPlayer) -> WhichPlayer -> Bool
+yourTurnToDraw (_,PlayerA) PlayerA = True
+yourTurnToDraw (_,PlayerB) PlayerB = True
+yourTurnToDraw _ _ = False
 
 {-
 correctLength : List.length drawSequence = 60
@@ -178,34 +181,35 @@ transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId player in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
- case (index' cardId cardList, index soulIndex (soulCards player), getCardDraw playerA playerB, actor) of
-      (_,_,Nothing,_) => Nothing
-      (_,_,Just (Hand, PlayerA),PlayerA) => Just $ Right (drawToHandNotSoul, playerId)
-      (_,_,Just (Hand, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Nothing,_,Just (Soul, PlayerA),PlayerA) => Just $ Right (cardInvalid, playerId)
-      (Just (SpellCardFactory spellFactory),_,Just (Soul, PlayerA),PlayerA) => Just $ Right (noSpellsInSoul, playerId)
-      (Just (MonsterCardFactory monsterFactory),Just _,Just (Soul, PlayerA),PlayerA) => Just $ Right (soulCardAlreadyDrawn, playerId)
-      (Just (MonsterCardFactory monsterFactory),Nothing,Just (Soul, PlayerA),PlayerA) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
-      (_,_,Just (Soul, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
-      (_,_,Just (Hand, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
-      (_,_,Just (Hand, PlayerB),PlayerB) => Just $ Right (drawToHandNotSoul, playerId)
-      (_,_,Just (Soul, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Nothing,_,Just (Soul, PlayerB),PlayerB) => Just $ Right (cardInvalid, playerId)
-      (Just (SpellCardFactory spellFactory),_,Just (Soul, PlayerB),PlayerB) => Just $ Right (noSpellsInSoul, playerId)      
-      (Just (MonsterCardFactory monsterFactory),Just _,Just (Soul, PlayerB),PlayerB) => Just $ Right (soulCardAlreadyDrawn, playerId)
-      (Just (MonsterCardFactory monsterFactory),Nothing,Just (Soul, PlayerB),PlayerB) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
+ getCardDraw playerA playerB >>= \turn =>
+ case (index' cardId cardList, index soulIndex (soulCards player), turn, actor) of
+      (_,_,(Hand, PlayerA),PlayerA) => Just $ Right (drawToHandNotSoul, playerId)
+      (_,_,(Hand, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
+      (Nothing,_,(Soul, PlayerA),PlayerA) => Just $ Right (cardInvalid, playerId)
+      (Just (SpellCardFactory spellFactory),_,(Soul, PlayerA),PlayerA) => Just $ Right (noSpellsInSoul, playerId)
+      (Just (MonsterCardFactory monsterFactory),Just _,(Soul, PlayerA),PlayerA) => Just $ Right (soulCardAlreadyDrawn, playerId)
+      (Just (MonsterCardFactory monsterFactory),Nothing,(Soul, PlayerA),PlayerA) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
+      (_,_,(Soul, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
+      (_,_,(Hand, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
+      (_,_,(Hand, PlayerB),PlayerB) => Just $ Right (drawToHandNotSoul, playerId)
+      (_,_,(Soul, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
+      (Nothing,_,(Soul, PlayerB),PlayerB) => Just $ Right (cardInvalid, playerId)
+      (Just (SpellCardFactory spellFactory),_,(Soul, PlayerB),PlayerB) => Just $ Right (noSpellsInSoul, playerId)      
+      (Just (MonsterCardFactory monsterFactory),Just _,(Soul, PlayerB),PlayerB) => Just $ Right (soulCardAlreadyDrawn, playerId)
+      (Just (MonsterCardFactory monsterFactory),Nothing,(Soul, PlayerB),PlayerB) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
       _ => ?hole
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
- case (getCardDraw playerA playerB, actor) of
-      (Nothing,_) => Nothing
-      (Just (Hand, PlayerA),PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just (Soul, PlayerA),PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just (Hand, PlayerB),PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just (Soul, PlayerB),PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just _,_) => Just $ Right (notYourTurn, playerId)
-
+ getCardDraw playerA playerB >>= \turn =>
+ if yourTurnToDraw turn actor then
+  case turn of
+       (Hand, PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
+       (Soul, PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
+       (Hand, PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
+       (Soul, PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
+ else
+  Just $ Right (notYourTurn, playerId)
 
 
 
