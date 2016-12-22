@@ -164,23 +164,32 @@ assignSoulSkill soulIndex cardId playerId monsterFactory player =
  let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardId playerId monsterFactory)) s)} player in
  (player', [DrawSoul cardId soulIndex playerId])
 
+drawHandCard : Nat -> String -> CardFactory -> Player -> (Player, List ClientUpdate)
+drawHandCard cardId playerId cardFactory player =
+ (record {hand $= (++[instantiateCardFactory cardId playerId cardFactory])} player, [DrawHand cardId playerId])
+
+
+
 {- for now, can also return nothing, until that is proven impossible. Nothing signifies an error in the game logic -}
+
+
+
+
 transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> Maybe (Either (Player, List ClientUpdate) (String, String))
 transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
+ let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
- case (index' cardId cardList, getCardDraw playerA playerB, actor) of
-      (Nothing,_,_) => Just $ Right (cardInvalid, playerId)
-      (Just cardFactory,Nothing,_) => Nothing
-      (Just cardFactory,Just (Hand, PlayerA),PlayerA) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerA, [DrawHand cardId playerId])
-      (Just cardFactory,Just (Hand, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just (Hand, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just (Hand, PlayerB),PlayerB) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerB, [DrawHand cardId playerId])
-      (Just cardFactory,Just (Soul, PlayerA),PlayerA) => Just $ Right (drawToSoulNotHand, playerId)
-      (Just cardFactory,Just (Soul, PlayerA),PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just (Soul, PlayerB),PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just (Soul, PlayerB),PlayerB) => Just $ Right (drawToSoulNotHand, playerId)
-
+ getCardDraw playerA playerB >>= \turn =>
+ if yourTurnToDraw turn actor then
+  case fst turn of
+       Soul => Just $ Right (drawToSoulNotHand, playerId)
+       Hand =>
+        case index' cardId cardList of
+             Nothing => Just $ Right (cardInvalid, playerId)
+             Just cardFactory => Just $ Left $ drawHandCard cardsDrawn playerId cardFactory player
+ else
+  Just $ Right (notYourTurn, playerId)
 
 
 transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
