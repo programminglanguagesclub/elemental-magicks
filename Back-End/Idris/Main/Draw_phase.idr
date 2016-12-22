@@ -92,12 +92,22 @@ drawToSoulNotHand : String
 drawToSoulNotHand = "You must a soul card this time. Select an unallocated slot among your five souls for your next card"
 
 
+drawToHandNotSoul : String
+drawToHandNotSoul = "You must draw a card for your hand this time. Make sure you have not selected any of your souls, and draw a card."
+
 noSpellsInSoul : String
 noSpellsInSoul = "None of your souls can be spell cards."
 
 
 cardInvalid : String
 cardInvalid = "The card you selected is not valid."
+
+soulCardAlreadyDrawn : String
+soulCardAlreadyDrawn = "You have already chosen a card for this soul. Select a card for a different soul."
+
+
+invalidActionDrawPhase : String
+invalidActionDrawPhase = "Invalid action during draw phase."
 
 {-
 
@@ -188,31 +198,67 @@ instantiateCardFactory cardId playerId (MonsterCardFactory MonsterFactory) = Mon
 
 {- for now, can also return nothing, until that is proven impossible. Nothing signifies an error in the game logic -}
 transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> Maybe (Either (Player, List ClientUpdate) (String, String))
-transformDrawPhase actor playerA playerB (DrawCardHand cardId) with (index' cardId cardList)
- | Nothing = Just $ Right (cardInvalid, temporaryId $ getActor actor playerA playerB)
- | Just cardFactory = case getCardDraw playerA playerB of
-                           Nothing => Nothing
-                           Just HA => case actor of
-                                      PlayerA => Just $ Left (record {hand $= (++[instantiateCardFactory (List.length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) (temporaryId $ getActor actor playerA playerB) cardFactory])} playerA, [DrawHand cardId (temporaryId $ getActor actor playerA playerB)])
-                                      PlayerB => Just $ Right (notYourTurn, temporaryId $ getActor actor playerA playerB)
-                           Just HB => case actor of
-                                      PlayerA => Just $ Right (notYourTurn, temporaryId $ getActor actor playerA playerB)
-                                      PlayerB => Just $ Left (record {hand $= (++[instantiateCardFactory (List.length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) (temporaryId $ getActor actor playerA playerB) cardFactory])} playerB, [DrawHand cardId (temporaryId $ getActor actor playerA playerB)])
-                           Just SA => case actor of
-                                      PlayerA => Just $ Right (drawToSoulNotHand, temporaryId $ getActor actor playerA playerB)
-                                      PlayerB => Just $ Right (notYourTurn, temporaryId $ getActor actor playerA playerB)
-                           Just SB => case actor of
-                                      PlayerA => Just $ Right (notYourTurn, temporaryId $ getActor actor playerA playerB)
-                                      PlayerB => Just $ Right (drawToSoulNotHand, temporaryId $ getActor actor playerA playerB) {- already know what player from matching on actor -}
-transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) with (index' cardId cardList)
- | Nothing = Just $ Right (cardInvalid, temporaryId $ getActor actor playerA playerB)
- | Just (SpellCardFactory spellFactory) = Just $ Right (noSpellsInSoul, temporaryId $ getActor actor playerA playerB)
- | Just (MonsterCardFactory monsterFactory) = case index soulIndex (soulCards $ getActor actor playerA playerB) of
-                                                   Nothing => Just $ Left (record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster (List.length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) (temporaryId $ getActor actor playerA playerB) monsterFactory)) s)} (getActor actor playerA playerB), [DrawSoul cardId soulIndex (temporaryId $ getActor actor playerA playerB)])
-                                                   Just monsterCard => Just $ Right ("You have already chosen a card for this soul. Select a card for a different soul.", temporaryId $ getActor actor playerA playerB)
+transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
+ let playerId = temporaryId $ getActor actor playerA playerB in
+ let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
+ case (index' cardId cardList, getCardDraw playerA playerB, actor) of
+      (Nothing,_,_) => Just $ Right (cardInvalid, playerId)
+      (Just cardFactory,Nothing,_) => Nothing
+      (Just cardFactory,Just HA,PlayerA) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerA, [DrawHand cardId playerId])
+      (Just cardFactory,Just HA,PlayerB) => Just $ Right (notYourTurn, playerId)
+      (Just cardFactory,Just HB,PlayerA) => Just $ Right (notYourTurn, playerId)
+      (Just cardFactory,Just HB,PlayerB) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerB, [DrawHand cardId playerId])
+      (Just cardFactory,Just SA,PlayerA) => Just $ Right (drawToSoulNotHand, playerId)
+      (Just cardFactory,Just SA,PlayerB) => Just $ Right (notYourTurn, playerId)
+      (Just cardFactory,Just SB,PlayerA) => Just $ Right (notYourTurn, playerId)
+      (Just cardFactory,Just SB,PlayerB) => Just $ Right (drawToSoulNotHand, playerId)
 
 
-transformDrawPhase actor playerA playerB _  = Just $ Right ("Invalid action during draw phase.", temporaryId $ getActor actor playerA playerB)
+{- there should be a draw to hand not soul message as well....
+
+In particular, I am not checking against the correct draw action.
+
+-}
+
+transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
+ let player = getActor actor playerA playerB in
+ let playerId = temporaryId player in
+ let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
+ case (index' cardId cardList, index soulIndex (soulCards player), getCardDraw playerA playerB, actor) of
+      (_,_,Nothing,_) => Nothing
+      (_,_,Just HA,PlayerA) => Just $ Right (drawToHandNotSoul, playerId)
+      (_,_,Just HB,PlayerA) => Just $ Right (notYourTurn, playerId)
+      (Nothing,_,Just SA,PlayerA) => Just $ Right (cardInvalid, playerId)
+      (Just (SpellCardFactory spellFactory),_,Just SA,PlayerA) => Just $ Right (noSpellsInSoul, playerId)
+      (Just (MonsterCardFactory monsterFactory),Just _,Just SA,PlayerA) => Just $ Right (soulCardAlreadyDrawn, playerId)
+      (Just (MonsterCardFactory monsterFactory),Nothing,Just SA,PlayerA) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
+      (_,_,Just SB,PlayerA) => Just $ Right (notYourTurn, playerId)
+      (_,_,Just HA,PlayerB) => Just $ Right (notYourTurn, playerId)
+      (_,_,Just HB,PlayerB) => Just $ Right (drawToHandNotSoul, playerId)
+      (_,_,Just SA,PlayerB) => Just $ Right (notYourTurn, playerId)
+      (Nothing,_,Just SB,PlayerB) => Just $ Right (cardInvalid, playerId)
+      (Just (SpellCardFactory spellFactory),_,Just SA,PlayerA) => Just $ Right (noSpellsInSoul, playerId)      
+      (Just (MonsterCardFactory monsterFactory),Just _,Just SB,PlayerB) => Just $ Right (soulCardAlreadyDrawn, playerId)
+      (Just (MonsterCardFactory monsterFactory),Nothing,Just SB,PlayerB) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
+
+
+transformDrawPhase actor playerA playerB _  =
+ let playerId = temporaryId $ getActor actor playerA playerB in
+ case (getCardDraw playerA playerB, actor) of
+      (Nothing,_) => Nothing
+      (Just HA,PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
+      (Just SA,PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
+      (Just HB,PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
+      (Just SB,PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
+      (Just _,_) => Just $ Right (notYourTurn, playerId)
+
+
+
+
+
+
+
+
 
 
 
