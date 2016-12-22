@@ -189,29 +189,25 @@ transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
  getCardDraw playerA playerB >>= \turn =>
  if yourTurnToDraw turn actor then
-  case index' cardId cardList of
-       Nothing => Just $ Right (cardInvalid, playerId)
-       Just $ SpellCardFactory _ => Just $ Right (noSpellsInSoul, playerId) 
-       Just $ MonsterCardFactory monsterFactory => 
-        case fst turn of
-             Hand => Just $ Right (drawToHandNotSoul, playerId)
-             Soul => case index soulIndex (soulCards player) of
-                          Just _ => Just $ Right (soulCardAlreadyDrawn, playerId)
-                          Nothing => Just $ Left $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
+  case fst turn of
+       Hand => Just $ Right (drawToHandNotSoul, playerId)
+       Soul =>
+        case index' cardId cardList of
+             Nothing => Just $ Right (cardInvalid, playerId)
+             Just $ SpellCardFactory _ => Just $ Right (noSpellsInSoul, playerId) 
+             Just $ MonsterCardFactory monsterFactory => 
+              case index soulIndex (soulCards player) of
+                   Just _ => Just $ Right (soulCardAlreadyDrawn, playerId)
+                   Nothing => Just $ Left $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
  else
   Just $ Right (notYourTurn, playerId)
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
  getCardDraw playerA playerB >>= \turn =>
- if yourTurnToDraw turn actor then
-  case turn of
-       (Hand, PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-       (Soul, PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-       (Hand, PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
-       (Soul, PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
- else
-  Just $ Right (notYourTurn, playerId)
+ if yourTurnToDraw turn actor
+  then Just $ Right (invalidActionDrawPhase, playerId)
+  else Just $ Right (notYourTurn, playerId)
 
 
 
