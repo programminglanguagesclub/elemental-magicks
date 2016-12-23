@@ -17,7 +17,7 @@ void freeMe()
 }
 
 
-char *reader(int type)
+char *readerHelper(int type)
 {
         int fd;
 
@@ -55,7 +55,7 @@ char *reader(int type)
 	return buf;
 }
 
-void writer(char *message)
+void writerHelper(char *message)
 {
         printf("Sending %s \n", message);
 int fd;
@@ -77,11 +77,9 @@ int fd;
         unlink(myfifo2);
 }
 
-void messageManager()
-{
-	//Read in message size
-	char * messageSize = reader(1);
-        freeMe();
+char *reader(int type){
+  char * messageSize = readerHelper(1);
+  freeMe();
 	
 	//Tell other I side got the message
 	char response[]="sizeok";
@@ -90,35 +88,16 @@ void messageManager()
 	writer(response);
 
 	//Get actualy Message message
-	char * message = reader(atoi(messageSize));
-	//freeMe();
+	char * message = readerHelper(atoi(messageSize));
+  return message;
+}
 
-	// Do whatever with message here
-	//
-	//
-	//
-	//	
-	
-	//printf("Message: %s", message);
 
-	char * message2 = "Hello back";
-	
-	writer(message2);
-	
-	//Rolley wants freeme here
+void writer(char *message){
+	writer(message);
 	freeMe();
+}
 
-}
-/*
-int main()
-{
 
-int y=10000;
-while(y>0)
-{
-messageManager();
-y--;
-}
-	return 0;
-}
-*/
+
+
