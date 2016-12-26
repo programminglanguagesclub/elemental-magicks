@@ -18,7 +18,7 @@ function getCardFront(){
   var cardFrontTexture = new THREE.Texture(cardFrontImage);
   cardFrontTexture.needsUpdate = true;
   var cardFront = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,25),
+    new THREE.PlaneGeometry(28,35),
     new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
   );
   cardFront.material.transparent = true;
@@ -29,7 +29,7 @@ function getCardFront(){
 function getCardBack(){
   var cardBackTexture = new THREE.Texture(cardBackImage);
   cardBackTexture.needsUpdate = true;
-  var backGeometry = new THREE.PlaneGeometry(20,25);
+  var backGeometry = new THREE.PlaneGeometry(28,35);
   backGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
   var cardBack = new THREE.Mesh(
     backGeometry,
@@ -49,7 +49,7 @@ function getCard(){
 //-----------------------------------------------------------------------
 function getCardSelection(){
   var cardSlot = new THREE.Mesh(
-  new THREE.PlaneGeometry(22,27),
+  new THREE.PlaneGeometry(30,37.5),
   new THREE.MeshBasicMaterial({color:0x888888}))
   selectionMeshes.push(cardSlot);
   return cardSlot;
@@ -64,7 +64,7 @@ function getFieldIndex(index){
   var positionTexture = new THREE.Texture(positionImages[index]);
   positionTexture.needsUpdate = true;
   return new THREE.Mesh(
-  new THREE.PlaneGeometry(19,23.75),
+  new THREE.PlaneGeometry(27,33.75),
   new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
 }
 //-----------------------------------------------------------------------
@@ -106,7 +106,7 @@ function getBoard(player){
   woodTexture.needsUpdate = true;
   var boardContainer = new THREE.Object3D();
   var board = new THREE.Mesh(
-    new THREE.PlaneGeometry(90,80),
+    new THREE.PlaneGeometry(120,96),
     new THREE.MeshPhongMaterial({ map: woodTexture, shininess: 0, transparent : true })
   )
   board.position.set(0,0,0);
@@ -116,18 +116,18 @@ function getBoard(player){
   for(var j = 0; j < 3; ++j){
     for(var i = 0; i < 3; ++i){
       var cardSlot = getCardSlot(j*3 + i);
-      cardSlot.position.set(25 * i - 25, 30 * (2-j) - 30, 2);
+      cardSlot.position.set(31 * i - 31, 39 * (2-j) - 39, 2);
       boardContainer.add(cardSlot);
     }
   }
   if(player){
     var spawn = getSpawn();
-    spawn.position.set(0,-60,2);
+    spawn.position.set(70,-39,2);
     boardContainer.add(spawn);
   }
   else{
      var spawn = getSpawn();
-    spawn.position.set(0,60,2);
+    spawn.position.set(70,39,2);
     boardContainer.add(spawn);
   }
   return boardContainer;
@@ -242,11 +242,11 @@ scene.add(opponentsoulContainer);
 
 
 var boardContainer = getBoard(true);
-boardContainer.position.set(-205,-48,98);
+boardContainer.position.set(48,-62,98);
 scene.add(boardContainer);
 
 var opponentBoardContainer = getBoard(false);
-opponentBoardContainer.position.set(-205,47,98);
+opponentBoardContainer.position.set(48,62,98);
 scene.add(opponentBoardContainer);
 
 var orbLevel = [0,0,0,0,0,0];
