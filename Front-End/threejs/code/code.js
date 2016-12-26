@@ -84,7 +84,24 @@ function getCardSlot(index){
   return cardSlot;
 }
 //------------------------------------------------------------------------
-function getBoard(){
+function getSpawn(){
+  var cardSlot = new THREE.Object3D();
+  var card = getCard();
+  var cardSelection = getCardSelection();
+  var fieldIndex = getFieldIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
+  cardSlot.add(card);
+  cardSlot.add(cardSelection);
+  cardSlot.add(fieldIndex);
+  cardSelection.position.set(0,0,-1);
+  fieldIndex.position.set(0,0,-.5);
+  fieldPositions.push(fieldIndex);
+  cardSlots.push(cardSelection);
+  cards.push(card);
+  return cardSlot;
+}
+//-----------------------------------------------------------------------
+
+function getBoard(player){
   var woodTexture = new THREE.Texture(wood);
   woodTexture.needsUpdate = true;
   var boardContainer = new THREE.Object3D();
@@ -103,18 +120,79 @@ function getBoard(){
       boardContainer.add(cardSlot);
     }
   }
+  if(player){
+    var spawn = getSpawn();
+    spawn.position.set(0,-60,2);
+    boardContainer.add(spawn);
+  }
+  else{
+     var spawn = getSpawn();
+    spawn.position.set(0,60,2);
+    boardContainer.add(spawn);
+  }
   return boardContainer;
 }
 //------------------------------------------------------------------------
+function getSoul(soulIndex){
+  var cardSlot = new THREE.Object3D();
+  var card = getCard();
+  var cardSelection = getCardSelection();
+  var fieldIndex = getFieldIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
+  cardSlot.add(card);
+  cardSlot.add(cardSelection);
+  cardSlot.add(fieldIndex);
+  cardSelection.position.set(0,0,-1);
+  fieldIndex.position.set(0,0,-.5);
+  fieldPositions.push(fieldIndex);
+  cardSlots.push(cardSelection);
+  cards.push(card);
+  return cardSlot;
+}
+//-----------------------------------------------------------------------
+function getSouls(player){
+  var woodTexture = new THREE.Texture(wood); // might want a different texture for this one eventually.
+  woodTexture.needsUpdate = true;
+  var boardContainer = new THREE.Object3D();
+  var board = new THREE.Mesh(
+    new THREE.PlaneGeometry(30,130),
+    new THREE.MeshPhongMaterial({ map: woodTexture, shininess: 0, transparent : true })
+  )
+  board.position.set(0,0,0);
+  playerBoard = board;
+  boardContainer.add(board);
+  board.rotation.z = Math.PI/2; 
+  for(var i = 0; i < 5; ++i){
+    var cardSlot = getSoul(i);
+    cardSlot.position.set(25 * i - 50, 0, 2);
+    boardContainer.add(cardSlot);
+  }
+  return boardContainer;
+}
+//-------------------------------------------------------------------------
+
+
+
 
 // bunch of variables
 
-var boardContainer = getBoard();
-boardContainer.position.set(-175,-55,98);
+
+var soulContainer = getSouls(true);
+soulContainer.position.set(-40,-10,98);
+scene.add(soulContainer);
+
+var opponentsoulContainer = getSouls(false);
+opponentsoulContainer.position.set(-40,47,98);
+scene.add(opponentsoulContainer);
+
+
+
+
+var boardContainer = getBoard(true);
+boardContainer.position.set(-205,-48,98);
 scene.add(boardContainer);
 
-var opponentBoardContainer = getBoard();
-opponentBoardContainer.position.set(-175,60,98);
+var opponentBoardContainer = getBoard(false);
+opponentBoardContainer.position.set(-205,47,98);
 scene.add(opponentBoardContainer);
 
 var orbLevel = [0,0,0,0,0,0];
@@ -122,7 +200,7 @@ var orbSpeed = [1/3, 1/3, 1/3, 1/3, 1/3, 1/3];
 var beginFade = [2000,1000,0,2000,2000,0000];
 var endFade = [7000,7000,3000,7000,7000,5000];
 var numParticles = [60,60,30,20,60,60];
-var orbCoordinates = [[-100,0,120],[-50,0,120],[0,0,120],[50,0,120],[100,0,120],[150,0,120]];
+var orbCoordinates = [[-130,-75,120],[-100,-75,120],[-70,-75,120],[-40,-75,120],[-10,-75,120],[20,-75,120]];
 
 var fireTransitions = [];
 for(var i = 0; i < 22; ++i){
@@ -224,26 +302,34 @@ minusTexture.needsUpdate = true;
 
 for(var i = 0; i < 6; ++i){
   var upArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,20),
+    new THREE.PlaneGeometry(10,10),
     new THREE.MeshPhongMaterial({color: 0xffffff, map : plusTexture,  blending: THREE.AdditiveBlending})
   );
-  upArrow.position.set(-100 + (i * 50), 30, 120);
+  upArrow.position.set(-130 + (i * 30), -50, 120);
   plusButtons.push(upArrow);
   scene.add(upArrow);
   var downArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,20),
+    new THREE.PlaneGeometry(10,10),
     new THREE.MeshBasicMaterial({ color: 0xffffff, map : minusTexture,  blending: THREE.AdditiveBlending })
   );
-  downArrow.position.set(-100 + (i * 50), -30, 120);
+  downArrow.position.set(-130 + (i * 30), -100, 120);
   downButtons.push(downArrow);
   scene.add(downArrow);
 }
-
+/*
 var orbBackground = new THREE.Mesh(
   new THREE.PlaneGeometry(350,100),
-  new THREE.MeshBasicMaterial({ color: 0x777777 })
+  new THREE.MeshBasicMaterial({ color: 0x444444 })
 );
-orbBackground.position.set(30, 0, 29);
+orbBackground.position.set(0, -80, 29);
+scene.add(orbBackground);
+*/
+
+var orbBackground = new THREE.Mesh(
+  new THREE.PlaneGeometry(2000,2000),
+  new THREE.MeshBasicMaterial({ color: 0x444444 })
+);
+orbBackground.position.set(0, 0, 0);
 scene.add(orbBackground);
 
 var clearTexture = new THREE.Texture(clearImage);
@@ -253,6 +339,149 @@ for(var i = 0; i < 9; ++i){
   positionTextures[i+1] = new THREE.Texture(positionImages[i]);
   positionTextures[i+1].needsUpdate = true;
 }
+
+
+
+
+
+// MORE WORK
+
+// probably need to make the text on the original image bigger so that this can scale up without getting pixelated.
+
+//used a cursive font that starts with a U in gimp
+
+var knowledgeTexture = new THREE.Texture(knowledgeImage);
+knowledgeTexture.needsUpdate = true;
+
+var knowledgeGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(50,12.5),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : knowledgeTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
+/*
+var knowledgeGeo = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
+var knowledgeMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  knowledgeTexture});
+var knowledgeSphere = new THREE.Mesh(knowledgeGeo, earthMat);
+*/
+
+knowledgeGeo.position.set(-55, -36, 120);
+knowledgeGeo.needsUpdate = true;
+scene.add(knowledgeGeo);
+
+
+
+
+
+var thoughtsTexture = new THREE.Texture(thoughtsImage);
+thoughtsTexture.needsUpdate = true;
+
+var thoughtsGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(50,12.5),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : thoughtsTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
+
+
+thoughtsGeo.position.set(60, -36, 120);
+thoughtsGeo.needsUpdate = true;
+scene.add(thoughtsGeo);
+
+
+
+
+
+
+
+
+
+// Eventually I need a whole system for thoughts. For now just this.
+
+
+
+
+
+var numberImages = [number0Image, number1Image, number2Image, number3Image, number4Image, number5Image, number6Image, number7Image, number8Image, number9Image];
+var numberTextures = [];
+for(var i = 0; i < 10; ++i){
+ numberTextures[i] = new THREE.Texture(numberImages[i]);
+ numberTextures[i].needsUpdate = true;
+}
+
+
+
+var number0Texture = numberTextures[0];
+
+var number0Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(15,15),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number0Geo.position.set(40, -75, 120);
+number0Geo.needsUpdate = true;
+scene.add(number0Geo);
+
+
+var number1Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(15,15),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number1Geo.position.set(57, -75, 120);
+number1Geo.needsUpdate = true;
+scene.add(number1Geo);
+
+
+
+var number2Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(15,15),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number2Geo.position.set(74, -75, 120);
+number2Geo.needsUpdate = true;
+scene.add(number2Geo);
+
+
+
+
+
+
+
+
+
+
+
+var hpGeometry = new THREE.CylinderGeometry( 15, 15, 15, 50, 1, false, 0, Math.PI/2 );
+hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+//hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/4 ) );
+//hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI/8 ) );
+var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+var cylinder = new THREE.Mesh( hpGeometry, material );
+
+
+
+scene.add( cylinder );
+
+
+
+var hpGeometry2 = new THREE.CylinderGeometry( 15, 15, 15, 50, 1, false, 0, Math.PI/2 );
+hpGeometry2.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+var material2 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+var cylinder2 = new THREE.Mesh( hpGeometry2, material2 );
+
+
+cylinder2.position.set(16,0,0);
+scene.add( cylinder2 );
+
+// END MORE WORK
+
+
+// I Probably want to move the board to the middle of the interface, and move everything else to the left.
+// That way the main action that the player is looking at will be in the center of the screen.
+
+
+
 //-------------------------------------------------------------------------------------------------------------
 var earthGeo = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
 var earthMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  positionTextures[0]});
@@ -291,6 +520,49 @@ voidGeo.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
 scene.add(voidSphere);
 voidSphere.position.set(orbCoordinates[5][0], orbCoordinates[5][1], orbCoordinates[5][2]);
 var orbMats = [earthMat, fireMat, waterMat, airMat, spiritMat, voidMat];
+
+
+
+
+
+
+
+
+
+
+// NEW WORK
+
+/*
+var thoughtGeo = new THREE.SphereGeometry(20, 20, 20);// args are radius, and then segments in x and y.
+var thoughtMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x999999, specular: 0x222222, shininess: 10 , map :  positionTextures[5]});
+var thoughtSphere = new THREE.Mesh(thoughtGeo, thoughtMat);
+thoughtGeo.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) ); // so that text shows up in the correct position.
+
+
+
+thoughtSphere.position.set(100, -75, 120);
+
+scene.add(thoughtSphere);
+*/
+
+
+
+// END NEW WORK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //------------------------------------------------------------------------------------------------------------------
 function initParticle(particle, thisLastUpdate, orb, id){ // id only useful for flame currently.
   particle.position.set(orbCoordinates[orb][0], orbCoordinates[orb][1], orbCoordinates[orb][2]);
@@ -640,8 +912,8 @@ var projector = new THREE.Projector();
 function onDocumentMouseDown( event ) {
   event.preventDefault();
   var vector = new THREE.Vector3(
-    ( event.clientX / document.getElementById("content").offsetWidth ) * 2 - 1,
-    - ( event.clientY / document.getElementById("content").offsetHeight ) * 2 + 1,
+    ( event.clientX / document.getElementById("c").offsetWidth ) * 2 - 1,
+    - ( event.clientY / document.getElementById("c").offsetHeight ) * 2 + 1,
     0.5
   );
   projector.unprojectVector( vector, camera );
