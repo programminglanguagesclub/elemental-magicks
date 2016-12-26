@@ -133,7 +133,10 @@ function getBoard(player){
   return boardContainer;
 }
 //------------------------------------------------------------------------
-function getSoul(soulIndex){
+var lp1 = [];
+var lp2 = [[],[],[],[],[]];
+
+function getSoul(soulIndex,player){
   var cardSlot = new THREE.Object3D();
   var card = getCard();
   var cardSelection = getCardSelection();
@@ -146,6 +149,57 @@ function getSoul(soulIndex){
   fieldPositions.push(fieldIndex);
   cardSlots.push(cardSelection);
   cards.push(card);
+
+/*
+  var hpGeometry = new THREE.CylinderGeometry( 5, 5, 24, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder = new THREE.Mesh( hpGeometry, material );
+  if(player){
+    cylinder.position.set(0, 21, 2);
+  }
+  else{
+    cylinder.position.set(0, -22, 2);
+  }
+  lp1[soulIndex] = cylinder;
+
+  cardSlot.add(cylinder);
+
+*/  
+
+
+
+// MIGHT HAVE TO TWEEK SOME X VALUES LATER.
+
+  var hpGeometry0 = new THREE.CylinderGeometry( 5, 5, 12, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry0.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material0 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder0 = new THREE.Mesh( hpGeometry0, material0 );
+  if(player){
+    cylinder0.position.set(-6.25, 21, 2);
+  }
+  else{
+    cylinder0.position.set(-6.25, -22, 2);
+  }
+  lp2[soulIndex][0] = cylinder1;
+
+  var hpGeometry1 = new THREE.CylinderGeometry( 5, 5, 12, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry1.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material1 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder1 = new THREE.Mesh( hpGeometry1, material1 );
+  if(player){
+    cylinder1.position.set(6.25, 21, 2);
+  }
+  else{
+    cylinder1.position.set(6.25, -22, 2);
+  }
+  lp2[soulIndex][1] = cylinder1;
+
+  cardSlot.add(cylinder0);
+  cardSlot.add(cylinder1);
+
+
+
   return cardSlot;
 }
 //-----------------------------------------------------------------------
@@ -162,7 +216,7 @@ function getSouls(player){
   boardContainer.add(board);
   board.rotation.z = Math.PI/2; 
   for(var i = 0; i < 5; ++i){
-    var cardSlot = getSoul(i);
+    var cardSlot = getSoul(i,player);
     cardSlot.position.set(25 * i - 50, 0, 2);
     boardContainer.add(cardSlot);
   }
@@ -177,11 +231,11 @@ function getSouls(player){
 
 
 var soulContainer = getSouls(true);
-soulContainer.position.set(-40,-10,98);
+soulContainer.position.set(-55,-10,98);
 scene.add(soulContainer);
 
 var opponentsoulContainer = getSouls(false);
-opponentsoulContainer.position.set(-40,47,98);
+opponentsoulContainer.position.set(-55,60,98);
 scene.add(opponentsoulContainer);
 
 
@@ -201,6 +255,9 @@ var beginFade = [2000,1000,0,2000,2000,0000];
 var endFade = [7000,7000,3000,7000,7000,5000];
 var numParticles = [60,60,30,20,60,60];
 var orbCoordinates = [[-130,-75,120],[-100,-75,120],[-70,-75,120],[-40,-75,120],[-10,-75,120],[20,-75,120]];
+
+var enemyOrbCoordinates = [[-130,95,120],[-100,95,120],[-70,95,120],[-40,95,120],[-10,95,120],[20,95,120]];
+
 
 var fireTransitions = [];
 for(var i = 0; i < 22; ++i){
@@ -450,29 +507,48 @@ scene.add(number2Geo);
 
 
 
+/*
+var lp1 = [];
+var lp2 = [[],[],[],[],[]];
+for(var i = 0; i < 5; ++i){
+  var hpGeometry = new THREE.CylinderGeometry( 5, 5, 26, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder = new THREE.Mesh( hpGeometry, material );
+  cylinder.position.set(-119 + i*29, 13, 2);
+  scene.add( cylinder );
+}
+
+for(var i = 0; i < 5; ++i){
+}
+*/
 
 
-var hpGeometry = new THREE.CylinderGeometry( 15, 15, 15, 50, 1, false, 0, Math.PI/2 );
+/*
+var hpGeometry = new THREE.CylinderGeometry( 5, 5, 10, 50, 1, false, 0, Math.PI/2 );
 hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
 //hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/4 ) );
 //hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI/8 ) );
 var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
 var cylinder = new THREE.Mesh( hpGeometry, material );
-
+cylinder.position.set(-10,13,0);
 
 
 scene.add( cylinder );
 
 
 
-var hpGeometry2 = new THREE.CylinderGeometry( 15, 15, 15, 50, 1, false, 0, Math.PI/2 );
+var hpGeometry2 = new THREE.CylinderGeometry( 5, 5, 10, 50, 1, false, 0, Math.PI/2 );
 hpGeometry2.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
 var material2 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
 var cylinder2 = new THREE.Mesh( hpGeometry2, material2 );
 
 
-cylinder2.position.set(16,0,0);
+cylinder2.position.set(2,13,0);
 scene.add( cylinder2 );
+*/
+
+
 
 // END MORE WORK
 
@@ -521,7 +597,44 @@ scene.add(voidSphere);
 voidSphere.position.set(orbCoordinates[5][0], orbCoordinates[5][1], orbCoordinates[5][2]);
 var orbMats = [earthMat, fireMat, waterMat, airMat, spiritMat, voidMat];
 
-
+//---------------------------------------------------------------------------------------------------
+var earthGeo2 = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
+var earthMat2 = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  positionTextures[0]});
+var earthSphere2 = new THREE.Mesh(earthGeo2, earthMat2);
+earthGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) ); // so that text shows up in the correct position.
+scene.add(earthSphere2);
+earthSphere2.position.set(enemyOrbCoordinates[0][0], enemyOrbCoordinates[0][1], enemyOrbCoordinates[0][2]);
+var fireGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var fireMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0xff0000, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var fireSphere2 = new THREE.Mesh(fireGeo2, fireMat2);
+fireGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(fireSphere2);
+fireSphere2.position.set(enemyOrbCoordinates[1][0], enemyOrbCoordinates[1][1], enemyOrbCoordinates[1][2]);
+var waterGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var waterMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x8888ff, specular: 0x222222, shininess: 10, map : positionTextures[0] } );
+var waterSphere2 = new THREE.Mesh(waterGeo2, waterMat2);
+waterGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(waterSphere2);
+waterSphere2.position.set(enemyOrbCoordinates[2][0], enemyOrbCoordinates[2][1], enemyOrbCoordinates[2][2]);
+var airGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var airMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0xffffff, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var airSphere2 = new THREE.Mesh(airGeo2, airMat2);
+airGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(airSphere2);
+airSphere2.position.set(enemyOrbCoordinates[3][0], enemyOrbCoordinates[3][1], enemyOrbCoordinates[3][2]);
+var spiritGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var spiritMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x440088, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var spiritSphere2 = new THREE.Mesh(spiritGeo2, spiritMat2);
+spiritGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(spiritSphere2);
+spiritSphere2.position.set(enemyOrbCoordinates[4][0], enemyOrbCoordinates[4][1], enemyOrbCoordinates[4][2]);
+var voidGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var voidMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x222222, specular: 0x111111, shininess: 10 , map : positionTextures[0]} );
+var voidSphere2 = new THREE.Mesh(voidGeo2, voidMat2);
+voidGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(voidSphere2);
+voidSphere2.position.set(enemyOrbCoordinates[5][0], enemyOrbCoordinates[5][1], enemyOrbCoordinates[5][2]);
+//-------------------------------------------------------------------------------------------------------------------
 
 
 
