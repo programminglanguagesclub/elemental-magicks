@@ -14,22 +14,36 @@ var cardMeshes = [];
 var selectionMeshes = [];
 var selectedField = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
 //-----------------------------------------------------------------------
-function getCardFront(){
+function getCardFront(isSoul){
   var cardFrontTexture = new THREE.Texture(cardFrontImage);
+  var cardFront;
   cardFrontTexture.needsUpdate = true;
-  var cardFront = new THREE.Mesh(
-    new THREE.PlaneGeometry(28,35),
-    new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
-  );
+  if(isSoul){
+    cardFront = new THREE.Mesh(
+      new THREE.PlaneGeometry(16,20),
+      new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
+    );
+  }
+  else{
+    cardFront = new THREE.Mesh(
+      new THREE.PlaneGeometry(28,35),
+      new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
+    );
+  }
   cardFront.material.transparent = true;
   cardMeshes.push(cardFront);
   return cardFront;
 }
 //-----------------------------------------------------------------------
-function getCardBack(){
+function getCardBack(isSoul){
   var cardBackTexture = new THREE.Texture(cardBackImage);
   cardBackTexture.needsUpdate = true;
-  var backGeometry = new THREE.PlaneGeometry(28,35);
+  var backGeometry;
+  if(isSoul){
+    backGeometry = new THREE.PlaneGeometry(16,20);
+  }
+  else
+  backGeometry = new THREE.PlaneGeometry(28,35);
   backGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
   var cardBack = new THREE.Mesh(
     backGeometry,
@@ -40,17 +54,25 @@ function getCardBack(){
   return cardBack;
 }
 //-----------------------------------------------------------------------
-function getCard(){
+function getCard(isSoul){
   var card = new THREE.Object3D();
-  card.add(getCardFront());
-  card.add(getCardBack());
+  card.add(getCardFront(isSoul));
+  card.add(getCardBack(isSoul));
   return card;
 }
 //-----------------------------------------------------------------------
-function getCardSelection(){
-  var cardSlot = new THREE.Mesh(
-  new THREE.PlaneGeometry(30,37.5),
-  new THREE.MeshBasicMaterial({color:0x888888}))
+function getCardSelection(isSoul){
+  var cardSlot;
+  if(!isSoul){
+    cardSlot = new THREE.Mesh(
+    new THREE.PlaneGeometry(30,37.5),
+    new THREE.MeshBasicMaterial({color:0x888888}))
+  }
+  else{
+   cardSlot = new THREE.Mesh(
+    new THREE.PlaneGeometry(18,22.5),
+    new THREE.MeshBasicMaterial({color:0x888888}))
+  }
   selectionMeshes.push(cardSlot);
   return cardSlot;
 }
@@ -65,6 +87,14 @@ function getFieldIndex(index){
   positionTexture.needsUpdate = true;
   return new THREE.Mesh(
   new THREE.PlaneGeometry(27,33.75),
+  new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
+}
+//-----------------------------------------------------------------------
+function getSoulIndex(index){
+  var positionTexture = new THREE.Texture(positionImages[index]); // incorrect?
+  positionTexture.needsUpdate = true;
+  return new THREE.Mesh(
+  new THREE.PlaneGeometry(16,20),
   new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
 }
 //-----------------------------------------------------------------------
@@ -122,12 +152,12 @@ function getBoard(player){
   }
   if(player){
     var spawn = getSpawn();
-    spawn.position.set(70,-39,2);
+    spawn.position.set(-70,-39,2);
     boardContainer.add(spawn);
   }
   else{
      var spawn = getSpawn();
-    spawn.position.set(70,39,2);
+    spawn.position.set(-70,39,2);
     boardContainer.add(spawn);
   }
   return boardContainer;
@@ -138,9 +168,9 @@ var lp2 = [[],[],[],[],[]];
 
 function getSoul(soulIndex,player){
   var cardSlot = new THREE.Object3D();
-  var card = getCard();
-  var cardSelection = getCardSelection();
-  var fieldIndex = getFieldIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
+  var card = getCard(true);
+  var cardSelection = getCardSelection(true);
+  var fieldIndex = getSoulIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
   cardSlot.add(card);
   cardSlot.add(cardSelection);
   cardSlot.add(fieldIndex);
@@ -176,10 +206,10 @@ function getSoul(soulIndex,player){
   var material0 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
   var cylinder0 = new THREE.Mesh( hpGeometry0, material0 );
   if(player){
-    cylinder0.position.set(-6.25, 21, 2);
+    cylinder0.position.set(-6.25, 18, 2);
   }
   else{
-    cylinder0.position.set(-6.25, -22, 2);
+    cylinder0.position.set(-6.25, -18, 2);
   }
   lp2[soulIndex][0] = cylinder1;
 
@@ -188,10 +218,10 @@ function getSoul(soulIndex,player){
   var material1 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
   var cylinder1 = new THREE.Mesh( hpGeometry1, material1 );
   if(player){
-    cylinder1.position.set(6.25, 21, 2);
+    cylinder1.position.set(6.25, 18, 2);
   }
   else{
-    cylinder1.position.set(6.25, -22, 2);
+    cylinder1.position.set(6.25, -18, 2);
   }
   lp2[soulIndex][1] = cylinder1;
 
@@ -208,7 +238,7 @@ function getSouls(player){
   woodTexture.needsUpdate = true;
   var boardContainer = new THREE.Object3D();
   var board = new THREE.Mesh(
-    new THREE.PlaneGeometry(30,130),
+    new THREE.PlaneGeometry(25,130),
     new THREE.MeshPhongMaterial({ map: woodTexture, shininess: 0, transparent : true })
   )
   board.position.set(0,0,0);
@@ -231,22 +261,22 @@ function getSouls(player){
 
 
 var soulContainer = getSouls(true);
-soulContainer.position.set(-55,-10,98);
+soulContainer.position.set(-120,-10,98);
 scene.add(soulContainer);
 
 var opponentsoulContainer = getSouls(false);
-opponentsoulContainer.position.set(-55,60,98);
+opponentsoulContainer.position.set(-120,40,98);
 scene.add(opponentsoulContainer);
 
 
 
 
 var boardContainer = getBoard(true);
-boardContainer.position.set(48,-62,98);
+boardContainer.position.set(0,-62,98);
 scene.add(boardContainer);
 
 var opponentBoardContainer = getBoard(false);
-opponentBoardContainer.position.set(48,62,98);
+opponentBoardContainer.position.set(0,62,98);
 scene.add(opponentBoardContainer);
 
 var orbLevel = [0,0,0,0,0,0];
@@ -254,9 +284,9 @@ var orbSpeed = [1/3, 1/3, 1/3, 1/3, 1/3, 1/3];
 var beginFade = [2000,1000,0,2000,2000,0000];
 var endFade = [7000,7000,3000,7000,7000,5000];
 var numParticles = [60,60,30,20,60,60];
-var orbCoordinates = [[-130,-75,120],[-100,-75,120],[-70,-75,120],[-40,-75,120],[-10,-75,120],[20,-75,120]];
+var orbCoordinates = [[-220,-50,120],[-190,-50,120],[-160,-50,120],[-130,-50,120],[-100,-50,120],[-70,-50,120]];
 
-var enemyOrbCoordinates = [[-130,95,120],[-100,95,120],[-70,95,120],[-40,95,120],[-10,95,120],[20,95,120]];
+var enemyOrbCoordinates = [[-220,65,120],[-190,65,120],[-160,65,120],[-130,65,120],[-100,65,120],[-70,65,120]];
 
 
 var fireTransitions = [];
@@ -362,14 +392,14 @@ for(var i = 0; i < 6; ++i){
     new THREE.PlaneGeometry(10,10),
     new THREE.MeshPhongMaterial({color: 0xffffff, map : plusTexture,  blending: THREE.AdditiveBlending})
   );
-  upArrow.position.set(-130 + (i * 30), -50, 120);
+  upArrow.position.set(-220 + (i * 30), -30, 120);
   plusButtons.push(upArrow);
   scene.add(upArrow);
   var downArrow = new THREE.Mesh(
     new THREE.PlaneGeometry(10,10),
     new THREE.MeshBasicMaterial({ color: 0xffffff, map : minusTexture,  blending: THREE.AdditiveBlending })
   );
-  downArrow.position.set(-130 + (i * 30), -100, 120);
+  downArrow.position.set(-220 + (i * 30), -70, 120);
   downButtons.push(downArrow);
   scene.add(downArrow);
 }
