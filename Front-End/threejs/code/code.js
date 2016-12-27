@@ -437,6 +437,7 @@ for(var i = 0; i < 9; ++i){
 
 //used a cursive font that starts with a U in gimp
 
+/*
 var knowledgeTexture = new THREE.Texture(knowledgeImage);
 knowledgeTexture.needsUpdate = true;
 
@@ -444,16 +445,22 @@ var knowledgeGeo = new THREE.Mesh(
   new THREE.PlaneGeometry(50,12.5),
   new THREE.MeshBasicMaterial({ color: 0xffffff, map : knowledgeTexture,  blending: THREE.AdditiveBlending, transparent: true })
 );
+
+*/
+
+
 /*
 var knowledgeGeo = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
 var knowledgeMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  knowledgeTexture});
 var knowledgeSphere = new THREE.Mesh(knowledgeGeo, earthMat);
 */
 
+
+/*
 knowledgeGeo.position.set(-55, -36, 120);
 knowledgeGeo.needsUpdate = true;
 scene.add(knowledgeGeo);
-
+*/
 
 
 
@@ -462,17 +469,123 @@ var thoughtsTexture = new THREE.Texture(thoughtsImage);
 thoughtsTexture.needsUpdate = true;
 
 var thoughtsGeo = new THREE.Mesh(
-  new THREE.PlaneGeometry(50,12.5),
+  new THREE.PlaneGeometry(40,10),
   new THREE.MeshBasicMaterial({ color: 0xffffff, map : thoughtsTexture,  blending: THREE.AdditiveBlending, transparent: true })
 );
 
 
-thoughtsGeo.position.set(60, -36, 120);
+thoughtsGeo.position.set(-145, -80, 120);
 thoughtsGeo.needsUpdate = true;
 scene.add(thoughtsGeo);
 
 
+var enemyThoughtsGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(40,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : thoughtsTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
 
+
+enemyThoughtsGeo.position.set(-145, 80, 120);
+enemyThoughtsGeo.needsUpdate = true;
+scene.add(enemyThoughtsGeo);
+
+
+
+
+
+
+
+
+var confirmTexture = new THREE.Texture(confirmImage);
+confirmTexture.needsUpdate = true;
+var confirmGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : confirmTexture, transparent: false })
+);
+confirmGeo.position.set(-220, -100, 120);
+confirmGeo.needsUpdate = true;
+scene.add(confirmGeo);
+
+
+
+var resignTexture = new THREE.Texture(resignImage);
+resignTexture.needsUpdate = true;
+var resignGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : resignTexture, transparent: false })
+);
+resignGeo.position.set(-225, 110, 120);
+resignGeo.needsUpdate = true;
+scene.add(resignGeo);
+
+
+
+
+var viewHandTexture = new THREE.Texture(handImage);
+viewHandTexture.needsUpdate = true;
+var viewHandGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewHandTexture, transparent: false })
+);
+viewHandGeo.position.set(-115, -107, 120);
+viewHandGeo.needsUpdate = true;
+scene.add(viewHandGeo);
+
+var viewGraveyardTexture = new THREE.Texture(graveyardImage);
+viewGraveyardTexture.needsUpdate = true;
+var viewGraveyardGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewGraveyardTexture, /* blending: THREE.AdditiveBlending, */ transparent: false })
+);
+viewGraveyardGeo.position.set(-145, -107, 120);
+viewGraveyardGeo.needsUpdate = true;
+scene.add(viewGraveyardGeo);
+
+var viewBanishedTexture = new THREE.Texture(banishedImage);
+viewBanishedTexture.needsUpdate = true;
+var viewBanishedGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewBanishedTexture, transparent: false })
+);
+viewBanishedGeo.position.set(-175, -107, 120);
+viewBanishedGeo.needsUpdate = true;
+scene.add(viewBanishedGeo);
+
+
+var viewEnemyHandTexture = new THREE.Texture(handImage);
+viewEnemyHandTexture.needsUpdate = true;
+var viewEnemyHandGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyHandTexture,  transparent: false })
+);
+viewEnemyHandGeo.position.set(-115, 107, 120);
+viewEnemyHandGeo.needsUpdate = true;
+scene.add(viewEnemyHandGeo);
+
+var viewEnemyGraveyardTexture = new THREE.Texture(graveyardImage);
+viewEnemyGraveyardTexture.needsUpdate = true;
+var viewEnemyGraveyardGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyGraveyardTexture,  transparent: false })
+);
+viewEnemyGraveyardGeo.position.set(-145, 107, 120);
+viewEnemyGraveyardGeo.needsUpdate = true;
+scene.add(viewEnemyGraveyardGeo);
+
+var viewEnemyBanishedTexture = new THREE.Texture(banishedImage);
+viewEnemyBanishedTexture.needsUpdate = true;
+var viewEnemyBanishedGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyBanishedTexture, transparent: false })
+);
+viewEnemyBanishedGeo.position.set(-175, 107, 120);
+viewEnemyBanishedGeo.needsUpdate = true;
+scene.add(viewEnemyBanishedGeo);
+
+
+
+
+// Probably want to make all the Z indices the same or at least sensible at some point...
 
 
 
@@ -481,7 +594,8 @@ scene.add(thoughtsGeo);
 
 // Eventually I need a whole system for thoughts. For now just this.
 
-
+// The number of thoughts needs to be maxed at 999, not 1000 (will want to change backend).
+// further, this probably means that everything that was previously maxed at 1000 now should be maxed at 999.
 
 
 
@@ -497,39 +611,83 @@ for(var i = 0; i < 10; ++i){
 var number0Texture = numberTextures[0];
 
 var number0Geo = new THREE.Mesh(
-  new THREE.PlaneGeometry(15,15),
+  new THREE.PlaneGeometry(10,10),
   new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
 );
 
 
-number0Geo.position.set(40, -75, 120);
+number0Geo.position.set(-134, -90, 120);
 number0Geo.needsUpdate = true;
 scene.add(number0Geo);
 
 
 var number1Geo = new THREE.Mesh(
-  new THREE.PlaneGeometry(15,15),
+  new THREE.PlaneGeometry(10,10),
   new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
 );
 
 
-number1Geo.position.set(57, -75, 120);
+number1Geo.position.set(-145, -90, 120);
 number1Geo.needsUpdate = true;
 scene.add(number1Geo);
 
 
 
 var number2Geo = new THREE.Mesh(
-  new THREE.PlaneGeometry(15,15),
+  new THREE.PlaneGeometry(10,10),
   new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
 );
 
 
-number2Geo.position.set(74, -75, 120);
+number2Geo.position.set(-156, -90, 120);
 number2Geo.needsUpdate = true;
 scene.add(number2Geo);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+var enemyNumber0Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber0Geo.position.set(-134, 91, 120);
+enemyNumber0Geo.needsUpdate = true;
+scene.add(enemyNumber0Geo);
+
+
+var enemyNumber1Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber1Geo.position.set(-145, 91, 120);
+enemyNumber1Geo.needsUpdate = true;
+scene.add(enemyNumber1Geo);
+
+
+
+var enemyNumber2Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber2Geo.position.set(-156, 91, 120);
+enemyNumber2Geo.needsUpdate = true;
+scene.add(enemyNumber2Geo);
 
 
 
