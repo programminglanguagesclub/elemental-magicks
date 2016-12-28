@@ -1,5 +1,9 @@
 <html>
 <head>
+
+
+<link rel="stylesheet" type="text/css" href="othercss.css">
+
 <style>
  body {
   margin: 0px;
@@ -7,9 +11,12 @@
   background-color: #333;
   background-size: 20px 20px;
  }
+
+
 </style>
 </head>
-<body>
+	<body id="active2" style="display: block; overflow: hidden;">
+		
 
 
 
@@ -92,13 +99,33 @@
 -->
 
 
-<div id = "content" style = "width:1600px;height:900px;position:relative;">
-  <span id = "d" style = "width:600px;height:750px;background-color:pink;position:absolute;left:60%;top:2%;font-family:cursive;font-size:12px;text-align:left;border:groove #AAAAAA; resize:none; background-color:black;color:white; overflow-y:scroll;white-space:pre-wrap;"></span>
+
+		<div style="position:relative;height:100%;padding:1%">
+			<div style="object-fit: contain; height:100%; width:100%;">
+				<span class="wrapper">
+					<!--<svg width="1200px" height="2856px" class="image"></svg><div class="positioner" >-->
+					<svg width="160000px" height="90000px" class="image"></svg>
+          <div class="positioner">
+            <div style="padding-top:56.25%;">
+<div class="content-box">
+								<div class="content">
+              <canvas id="c" style = "width:100%;"></canvas> </div> </div>
+            </div>
+          </div>
+        </span>
+     </div>
+    </div>
+
+
 <!--
-<span id = "d" style = "width:480px;height:600px;background-color:pink;position:absolute;left:68%;top:2%;font-family:cursive;font-size:12px;text-align:left;border:groove #AAAAAA; resize:none;white-space:pre-wrap;"></span>
--->
+<div class = "content">
+  <span id = "d" style = "width:600px;height:750px;background-color:pink;position:absolute;left:60%;top:2%;font-family:cursive;font-size:12px;text-align:left;border:groove #AAAAAA; resize:none; background-color:black;color:white; overflow-y:scroll;white-space:pre-wrap;"></span>
+
   <canvas id="c" style = "width:100%;"></canvas>
 </div>
+-->
+
+
 <script src="code.js"></script>
 
 
