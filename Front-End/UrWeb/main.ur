@@ -9,10 +9,6 @@ style content
 style bodyArea
 style footerClass
 
-open Test
-
-
-
 
 
 

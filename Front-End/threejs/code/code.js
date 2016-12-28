@@ -14,22 +14,36 @@ var cardMeshes = [];
 var selectionMeshes = [];
 var selectedField = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
 //-----------------------------------------------------------------------
-function getCardFront(){
+function getCardFront(isSoul){
   var cardFrontTexture = new THREE.Texture(cardFrontImage);
+  var cardFront;
   cardFrontTexture.needsUpdate = true;
-  var cardFront = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,25),
-    new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
-  );
+  if(isSoul){
+    cardFront = new THREE.Mesh(
+      new THREE.PlaneGeometry(16,20),
+      new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
+    );
+  }
+  else{
+    cardFront = new THREE.Mesh(
+      new THREE.PlaneGeometry(28,35),
+      new THREE.MeshPhongMaterial({ map: cardFrontTexture, shininess: 50 })
+    );
+  }
   cardFront.material.transparent = true;
   cardMeshes.push(cardFront);
   return cardFront;
 }
 //-----------------------------------------------------------------------
-function getCardBack(){
+function getCardBack(isSoul){
   var cardBackTexture = new THREE.Texture(cardBackImage);
   cardBackTexture.needsUpdate = true;
-  var backGeometry = new THREE.PlaneGeometry(20,25);
+  var backGeometry;
+  if(isSoul){
+    backGeometry = new THREE.PlaneGeometry(16,20);
+  }
+  else
+  backGeometry = new THREE.PlaneGeometry(28,35);
   backGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
   var cardBack = new THREE.Mesh(
     backGeometry,
@@ -40,17 +54,25 @@ function getCardBack(){
   return cardBack;
 }
 //-----------------------------------------------------------------------
-function getCard(){
+function getCard(isSoul){
   var card = new THREE.Object3D();
-  card.add(getCardFront());
-  card.add(getCardBack());
+  card.add(getCardFront(isSoul));
+  card.add(getCardBack(isSoul));
   return card;
 }
 //-----------------------------------------------------------------------
-function getCardSelection(){
-  var cardSlot = new THREE.Mesh(
-  new THREE.PlaneGeometry(22,27),
-  new THREE.MeshBasicMaterial({color:0x888888}))
+function getCardSelection(isSoul){
+  var cardSlot;
+  if(!isSoul){
+    cardSlot = new THREE.Mesh(
+    new THREE.PlaneGeometry(30,37.5),
+    new THREE.MeshBasicMaterial({color:0x888888}))
+  }
+  else{
+   cardSlot = new THREE.Mesh(
+    new THREE.PlaneGeometry(18,22.5),
+    new THREE.MeshBasicMaterial({color:0x888888}))
+  }
   selectionMeshes.push(cardSlot);
   return cardSlot;
 }
@@ -64,7 +86,15 @@ function getFieldIndex(index){
   var positionTexture = new THREE.Texture(positionImages[index]);
   positionTexture.needsUpdate = true;
   return new THREE.Mesh(
-  new THREE.PlaneGeometry(19,23.75),
+  new THREE.PlaneGeometry(27,33.75),
+  new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
+}
+//-----------------------------------------------------------------------
+function getSoulIndex(index){
+  var positionTexture = new THREE.Texture(positionImages[index]); // incorrect?
+  positionTexture.needsUpdate = true;
+  return new THREE.Mesh(
+  new THREE.PlaneGeometry(16,20),
   new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
 }
 //-----------------------------------------------------------------------
@@ -84,12 +114,29 @@ function getCardSlot(index){
   return cardSlot;
 }
 //------------------------------------------------------------------------
-function getBoard(){
+function getSpawn(){
+  var cardSlot = new THREE.Object3D();
+  var card = getCard();
+  var cardSelection = getCardSelection();
+  var fieldIndex = getFieldIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
+  cardSlot.add(card);
+  cardSlot.add(cardSelection);
+  cardSlot.add(fieldIndex);
+  cardSelection.position.set(0,0,-1);
+  fieldIndex.position.set(0,0,-.5);
+  fieldPositions.push(fieldIndex);
+  cardSlots.push(cardSelection);
+  cards.push(card);
+  return cardSlot;
+}
+//-----------------------------------------------------------------------
+
+function getBoard(player){
   var woodTexture = new THREE.Texture(wood);
   woodTexture.needsUpdate = true;
   var boardContainer = new THREE.Object3D();
   var board = new THREE.Mesh(
-    new THREE.PlaneGeometry(90,80),
+    new THREE.PlaneGeometry(120,96),
     new THREE.MeshPhongMaterial({ map: woodTexture, shininess: 0, transparent : true })
   )
   board.position.set(0,0,0);
@@ -99,22 +146,137 @@ function getBoard(){
   for(var j = 0; j < 3; ++j){
     for(var i = 0; i < 3; ++i){
       var cardSlot = getCardSlot(j*3 + i);
-      cardSlot.position.set(25 * i - 25, 30 * (2-j) - 30, 2);
+      cardSlot.position.set(31 * i - 31, 39 * (2-j) - 39, 2);
       boardContainer.add(cardSlot);
     }
+  }
+  if(player){
+    var spawn = getSpawn();
+    spawn.position.set(-70,-39,2);
+    boardContainer.add(spawn);
+  }
+  else{
+     var spawn = getSpawn();
+    spawn.position.set(-70,39,2);
+    boardContainer.add(spawn);
   }
   return boardContainer;
 }
 //------------------------------------------------------------------------
+var lp1 = [];
+var lp2 = [[],[],[],[],[]];
+
+function getSoul(soulIndex,player){
+  var cardSlot = new THREE.Object3D();
+  var card = getCard(true);
+  var cardSelection = getCardSelection(true);
+  var fieldIndex = getSoulIndex(4); // ALMOST SAME CODE AS GET FIELD INDEX....
+  cardSlot.add(card);
+  cardSlot.add(cardSelection);
+  cardSlot.add(fieldIndex);
+  cardSelection.position.set(0,0,-1);
+  fieldIndex.position.set(0,0,-.5);
+  fieldPositions.push(fieldIndex);
+  cardSlots.push(cardSelection);
+  cards.push(card);
+
+/*
+  var hpGeometry = new THREE.CylinderGeometry( 5, 5, 24, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder = new THREE.Mesh( hpGeometry, material );
+  if(player){
+    cylinder.position.set(0, 21, 2);
+  }
+  else{
+    cylinder.position.set(0, -22, 2);
+  }
+  lp1[soulIndex] = cylinder;
+
+  cardSlot.add(cylinder);
+
+*/  
+
+
+
+// MIGHT HAVE TO TWEEK SOME X VALUES LATER.
+
+  var hpGeometry0 = new THREE.CylinderGeometry( 5, 5, 12, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry0.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material0 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder0 = new THREE.Mesh( hpGeometry0, material0 );
+  if(player){
+    cylinder0.position.set(-6.25, 18, 2);
+  }
+  else{
+    cylinder0.position.set(-6.25, -18, 2);
+  }
+  lp2[soulIndex][0] = cylinder1;
+
+  var hpGeometry1 = new THREE.CylinderGeometry( 5, 5, 12, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry1.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material1 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder1 = new THREE.Mesh( hpGeometry1, material1 );
+  if(player){
+    cylinder1.position.set(6.25, 18, 2);
+  }
+  else{
+    cylinder1.position.set(6.25, -18, 2);
+  }
+  lp2[soulIndex][1] = cylinder1;
+
+  cardSlot.add(cylinder0);
+  cardSlot.add(cylinder1);
+
+
+
+  return cardSlot;
+}
+//-----------------------------------------------------------------------
+function getSouls(player){
+  var woodTexture = new THREE.Texture(wood); // might want a different texture for this one eventually.
+  woodTexture.needsUpdate = true;
+  var boardContainer = new THREE.Object3D();
+  var board = new THREE.Mesh(
+    new THREE.PlaneGeometry(25,130),
+    new THREE.MeshPhongMaterial({ map: woodTexture, shininess: 0, transparent : true })
+  )
+  board.position.set(0,0,0);
+  playerBoard = board;
+  boardContainer.add(board);
+  board.rotation.z = Math.PI/2; 
+  for(var i = 0; i < 5; ++i){
+    var cardSlot = getSoul(i,player);
+    cardSlot.position.set(25 * i - 50, 0, 2);
+    boardContainer.add(cardSlot);
+  }
+  return boardContainer;
+}
+//-------------------------------------------------------------------------
+
+
+
 
 // bunch of variables
 
-var boardContainer = getBoard();
-boardContainer.position.set(-175,-55,98);
+
+var soulContainer = getSouls(true);
+soulContainer.position.set(-120,-10,98);
+scene.add(soulContainer);
+
+var opponentsoulContainer = getSouls(false);
+opponentsoulContainer.position.set(-120,40,98);
+scene.add(opponentsoulContainer);
+
+
+
+
+var boardContainer = getBoard(true);
+boardContainer.position.set(0,-62,98);
 scene.add(boardContainer);
 
-var opponentBoardContainer = getBoard();
-opponentBoardContainer.position.set(-175,60,98);
+var opponentBoardContainer = getBoard(false);
+opponentBoardContainer.position.set(0,62,98);
 scene.add(opponentBoardContainer);
 
 var orbLevel = [0,0,0,0,0,0];
@@ -122,7 +284,10 @@ var orbSpeed = [1/3, 1/3, 1/3, 1/3, 1/3, 1/3];
 var beginFade = [2000,1000,0,2000,2000,0000];
 var endFade = [7000,7000,3000,7000,7000,5000];
 var numParticles = [60,60,30,20,60,60];
-var orbCoordinates = [[-100,0,120],[-50,0,120],[0,0,120],[50,0,120],[100,0,120],[150,0,120]];
+var orbCoordinates = [[-220,-50,120],[-190,-50,120],[-160,-50,120],[-130,-50,120],[-100,-50,120],[-70,-50,120]];
+
+var enemyOrbCoordinates = [[-220,65,120],[-190,65,120],[-160,65,120],[-130,65,120],[-100,65,120],[-70,65,120]];
+
 
 var fireTransitions = [];
 for(var i = 0; i < 22; ++i){
@@ -224,26 +389,34 @@ minusTexture.needsUpdate = true;
 
 for(var i = 0; i < 6; ++i){
   var upArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,20),
+    new THREE.PlaneGeometry(10,10),
     new THREE.MeshPhongMaterial({color: 0xffffff, map : plusTexture,  blending: THREE.AdditiveBlending})
   );
-  upArrow.position.set(-100 + (i * 50), 30, 120);
+  upArrow.position.set(-220 + (i * 30), -30, 120);
   plusButtons.push(upArrow);
   scene.add(upArrow);
   var downArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,20),
+    new THREE.PlaneGeometry(10,10),
     new THREE.MeshBasicMaterial({ color: 0xffffff, map : minusTexture,  blending: THREE.AdditiveBlending })
   );
-  downArrow.position.set(-100 + (i * 50), -30, 120);
+  downArrow.position.set(-220 + (i * 30), -70, 120);
   downButtons.push(downArrow);
   scene.add(downArrow);
 }
-
+/*
 var orbBackground = new THREE.Mesh(
   new THREE.PlaneGeometry(350,100),
-  new THREE.MeshBasicMaterial({ color: 0x777777 })
+  new THREE.MeshBasicMaterial({ color: 0x444444 })
 );
-orbBackground.position.set(30, 0, 29);
+orbBackground.position.set(0, -80, 29);
+scene.add(orbBackground);
+*/
+
+var orbBackground = new THREE.Mesh(
+  new THREE.PlaneGeometry(2000,2000),
+  new THREE.MeshBasicMaterial({ color: 0x444444 })
+);
+orbBackground.position.set(0, 0, 0);
 scene.add(orbBackground);
 
 var clearTexture = new THREE.Texture(clearImage);
@@ -253,6 +426,326 @@ for(var i = 0; i < 9; ++i){
   positionTextures[i+1] = new THREE.Texture(positionImages[i]);
   positionTextures[i+1].needsUpdate = true;
 }
+
+
+
+
+
+// MORE WORK
+
+// probably need to make the text on the original image bigger so that this can scale up without getting pixelated.
+
+//used a cursive font that starts with a U in gimp
+
+/*
+var knowledgeTexture = new THREE.Texture(knowledgeImage);
+knowledgeTexture.needsUpdate = true;
+
+var knowledgeGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(50,12.5),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : knowledgeTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
+
+*/
+
+
+/*
+var knowledgeGeo = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
+var knowledgeMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  knowledgeTexture});
+var knowledgeSphere = new THREE.Mesh(knowledgeGeo, earthMat);
+*/
+
+
+/*
+knowledgeGeo.position.set(-55, -36, 120);
+knowledgeGeo.needsUpdate = true;
+scene.add(knowledgeGeo);
+*/
+
+
+
+
+var thoughtsTexture = new THREE.Texture(thoughtsImage);
+thoughtsTexture.needsUpdate = true;
+
+var thoughtsGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(40,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : thoughtsTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
+
+
+thoughtsGeo.position.set(-145, -80, 120);
+thoughtsGeo.needsUpdate = true;
+scene.add(thoughtsGeo);
+
+
+var enemyThoughtsGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(40,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : thoughtsTexture,  blending: THREE.AdditiveBlending, transparent: true })
+);
+
+
+enemyThoughtsGeo.position.set(-145, 80, 120);
+enemyThoughtsGeo.needsUpdate = true;
+scene.add(enemyThoughtsGeo);
+
+
+
+
+
+
+
+
+var confirmTexture = new THREE.Texture(confirmImage);
+confirmTexture.needsUpdate = true;
+var confirmGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : confirmTexture, transparent: false })
+);
+confirmGeo.position.set(-220, -100, 120);
+confirmGeo.needsUpdate = true;
+scene.add(confirmGeo);
+
+
+
+var resignTexture = new THREE.Texture(resignImage);
+resignTexture.needsUpdate = true;
+var resignGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : resignTexture, transparent: false })
+);
+resignGeo.position.set(-225, 110, 120);
+resignGeo.needsUpdate = true;
+scene.add(resignGeo);
+
+
+
+
+var viewHandTexture = new THREE.Texture(handImage);
+viewHandTexture.needsUpdate = true;
+var viewHandGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewHandTexture, transparent: false })
+);
+viewHandGeo.position.set(-115, -107, 120);
+viewHandGeo.needsUpdate = true;
+scene.add(viewHandGeo);
+
+var viewGraveyardTexture = new THREE.Texture(graveyardImage);
+viewGraveyardTexture.needsUpdate = true;
+var viewGraveyardGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewGraveyardTexture, /* blending: THREE.AdditiveBlending, */ transparent: false })
+);
+viewGraveyardGeo.position.set(-145, -107, 120);
+viewGraveyardGeo.needsUpdate = true;
+scene.add(viewGraveyardGeo);
+
+var viewBanishedTexture = new THREE.Texture(banishedImage);
+viewBanishedTexture.needsUpdate = true;
+var viewBanishedGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewBanishedTexture, transparent: false })
+);
+viewBanishedGeo.position.set(-175, -107, 120);
+viewBanishedGeo.needsUpdate = true;
+scene.add(viewBanishedGeo);
+
+
+var viewEnemyHandTexture = new THREE.Texture(handImage);
+viewEnemyHandTexture.needsUpdate = true;
+var viewEnemyHandGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyHandTexture,  transparent: false })
+);
+viewEnemyHandGeo.position.set(-115, 107, 120);
+viewEnemyHandGeo.needsUpdate = true;
+scene.add(viewEnemyHandGeo);
+
+var viewEnemyGraveyardTexture = new THREE.Texture(graveyardImage);
+viewEnemyGraveyardTexture.needsUpdate = true;
+var viewEnemyGraveyardGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyGraveyardTexture,  transparent: false })
+);
+viewEnemyGraveyardGeo.position.set(-145, 107, 120);
+viewEnemyGraveyardGeo.needsUpdate = true;
+scene.add(viewEnemyGraveyardGeo);
+
+var viewEnemyBanishedTexture = new THREE.Texture(banishedImage);
+viewEnemyBanishedTexture.needsUpdate = true;
+var viewEnemyBanishedGeo = new THREE.Mesh(
+  new THREE.PlaneGeometry(28,16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : viewEnemyBanishedTexture, transparent: false })
+);
+viewEnemyBanishedGeo.position.set(-175, 107, 120);
+viewEnemyBanishedGeo.needsUpdate = true;
+scene.add(viewEnemyBanishedGeo);
+
+
+
+
+// Probably want to make all the Z indices the same or at least sensible at some point...
+
+
+
+
+
+
+// Eventually I need a whole system for thoughts. For now just this.
+
+// The number of thoughts needs to be maxed at 999, not 1000 (will want to change backend).
+// further, this probably means that everything that was previously maxed at 1000 now should be maxed at 999.
+
+
+
+var numberImages = [number0Image, number1Image, number2Image, number3Image, number4Image, number5Image, number6Image, number7Image, number8Image, number9Image];
+var numberTextures = [];
+for(var i = 0; i < 10; ++i){
+ numberTextures[i] = new THREE.Texture(numberImages[i]);
+ numberTextures[i].needsUpdate = true;
+}
+
+
+
+var number0Texture = numberTextures[0];
+
+var number0Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number0Geo.position.set(-134, -90, 120);
+number0Geo.needsUpdate = true;
+scene.add(number0Geo);
+
+
+var number1Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number1Geo.position.set(-145, -90, 120);
+number1Geo.needsUpdate = true;
+scene.add(number1Geo);
+
+
+
+var number2Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+number2Geo.position.set(-156, -90, 120);
+number2Geo.needsUpdate = true;
+scene.add(number2Geo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var enemyNumber0Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber0Geo.position.set(-134, 91, 120);
+enemyNumber0Geo.needsUpdate = true;
+scene.add(enemyNumber0Geo);
+
+
+var enemyNumber1Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber1Geo.position.set(-145, 91, 120);
+enemyNumber1Geo.needsUpdate = true;
+scene.add(enemyNumber1Geo);
+
+
+
+var enemyNumber2Geo = new THREE.Mesh(
+  new THREE.PlaneGeometry(10,10),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, map : number0Texture,  blending: THREE.AdditiveBlending, transparent: false })
+);
+
+
+enemyNumber2Geo.position.set(-156, 91, 120);
+enemyNumber2Geo.needsUpdate = true;
+scene.add(enemyNumber2Geo);
+
+
+
+
+
+
+
+/*
+var lp1 = [];
+var lp2 = [[],[],[],[],[]];
+for(var i = 0; i < 5; ++i){
+  var hpGeometry = new THREE.CylinderGeometry( 5, 5, 26, 50, 1, false, 0, Math.PI/2 );
+  hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+  var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+  var cylinder = new THREE.Mesh( hpGeometry, material );
+  cylinder.position.set(-119 + i*29, 13, 2);
+  scene.add( cylinder );
+}
+
+for(var i = 0; i < 5; ++i){
+}
+*/
+
+
+/*
+var hpGeometry = new THREE.CylinderGeometry( 5, 5, 10, 50, 1, false, 0, Math.PI/2 );
+hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+//hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/4 ) );
+//hpGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI/8 ) );
+var material = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+var cylinder = new THREE.Mesh( hpGeometry, material );
+cylinder.position.set(-10,13,0);
+
+
+scene.add( cylinder );
+
+
+
+var hpGeometry2 = new THREE.CylinderGeometry( 5, 5, 10, 50, 1, false, 0, Math.PI/2 );
+hpGeometry2.applyMatrix( new THREE.Matrix4().makeRotationZ( Math.PI/2 ) );
+var material2 = new THREE.MeshPhongMaterial( { ambient: 0xaa2200, color: 0xaa000, specular: 0x555500, shininess: 4 } );
+var cylinder2 = new THREE.Mesh( hpGeometry2, material2 );
+
+
+cylinder2.position.set(2,13,0);
+scene.add( cylinder2 );
+*/
+
+
+
+// END MORE WORK
+
+
+// I Probably want to move the board to the middle of the interface, and move everything else to the left.
+// That way the main action that the player is looking at will be in the center of the screen.
+
+
+
 //-------------------------------------------------------------------------------------------------------------
 var earthGeo = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
 var earthMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  positionTextures[0]});
@@ -291,6 +784,86 @@ voidGeo.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
 scene.add(voidSphere);
 voidSphere.position.set(orbCoordinates[5][0], orbCoordinates[5][1], orbCoordinates[5][2]);
 var orbMats = [earthMat, fireMat, waterMat, airMat, spiritMat, voidMat];
+
+//---------------------------------------------------------------------------------------------------
+var earthGeo2 = new THREE.SphereGeometry(10, 10, 10);// args are radius, and then segments in x and y.
+var earthMat2 = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x006600, specular: 0x222222, shininess: 10 , map :  positionTextures[0]});
+var earthSphere2 = new THREE.Mesh(earthGeo2, earthMat2);
+earthGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) ); // so that text shows up in the correct position.
+scene.add(earthSphere2);
+earthSphere2.position.set(enemyOrbCoordinates[0][0], enemyOrbCoordinates[0][1], enemyOrbCoordinates[0][2]);
+var fireGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var fireMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0xff0000, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var fireSphere2 = new THREE.Mesh(fireGeo2, fireMat2);
+fireGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(fireSphere2);
+fireSphere2.position.set(enemyOrbCoordinates[1][0], enemyOrbCoordinates[1][1], enemyOrbCoordinates[1][2]);
+var waterGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var waterMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x8888ff, specular: 0x222222, shininess: 10, map : positionTextures[0] } );
+var waterSphere2 = new THREE.Mesh(waterGeo2, waterMat2);
+waterGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(waterSphere2);
+waterSphere2.position.set(enemyOrbCoordinates[2][0], enemyOrbCoordinates[2][1], enemyOrbCoordinates[2][2]);
+var airGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var airMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0xffffff, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var airSphere2 = new THREE.Mesh(airGeo2, airMat2);
+airGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(airSphere2);
+airSphere2.position.set(enemyOrbCoordinates[3][0], enemyOrbCoordinates[3][1], enemyOrbCoordinates[3][2]);
+var spiritGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var spiritMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x440088, specular: 0x222222, shininess: 10 , map : positionTextures[0]} );
+var spiritSphere2 = new THREE.Mesh(spiritGeo2, spiritMat2);
+spiritGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(spiritSphere2);
+spiritSphere2.position.set(enemyOrbCoordinates[4][0], enemyOrbCoordinates[4][1], enemyOrbCoordinates[4][2]);
+var voidGeo2 = new THREE.SphereGeometry(10, 10, 10);
+var voidMat2 = new THREE.MeshPhongMaterial( { ambient: 0x555555, color: 0x222222, specular: 0x111111, shininess: 10 , map : positionTextures[0]} );
+var voidSphere2 = new THREE.Mesh(voidGeo2, voidMat2);
+voidGeo2.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) );
+scene.add(voidSphere2);
+voidSphere2.position.set(enemyOrbCoordinates[5][0], enemyOrbCoordinates[5][1], enemyOrbCoordinates[5][2]);
+//-------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+// NEW WORK
+
+/*
+var thoughtGeo = new THREE.SphereGeometry(20, 20, 20);// args are radius, and then segments in x and y.
+var thoughtMat = new THREE.MeshPhongMaterial(  { ambient: 0x555555, color: 0x999999, specular: 0x222222, shininess: 10 , map :  positionTextures[5]});
+var thoughtSphere = new THREE.Mesh(thoughtGeo, thoughtMat);
+thoughtGeo.applyMatrix( new THREE.Matrix4().makeRotationY( 3 * Math.PI/2 ) ); // so that text shows up in the correct position.
+
+
+
+thoughtSphere.position.set(100, -75, 120);
+
+scene.add(thoughtSphere);
+*/
+
+
+
+// END NEW WORK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //------------------------------------------------------------------------------------------------------------------
 function initParticle(particle, thisLastUpdate, orb, id){ // id only useful for flame currently.
   particle.position.set(orbCoordinates[orb][0], orbCoordinates[orb][1], orbCoordinates[orb][2]);
@@ -640,8 +1213,8 @@ var projector = new THREE.Projector();
 function onDocumentMouseDown( event ) {
   event.preventDefault();
   var vector = new THREE.Vector3(
-    ( event.clientX / document.getElementById("content").offsetWidth ) * 2 - 1,
-    - ( event.clientY / document.getElementById("content").offsetHeight ) * 2 + 1,
+    ( event.clientX / document.getElementById("c").offsetWidth ) * 2 - 1,
+    - ( event.clientY / document.getElementById("c").offsetHeight ) * 2 + 1,
     0.5
   );
   projector.unprojectVector( vector, camera );

@@ -1,12 +1,10 @@
 module Main.Draw_phase
 import Data.Vect
 import Main.Game
-{-import Base.BoundedList-}
 import Base.Player
 import Base.Card
 import Base.Clientupdates
 import Main.Serverupdates
-
 import Cards.Card_list
 import Base.Phase
 import Base.Skill_dsl_data
@@ -14,15 +12,32 @@ import Base.Skill_dsl_data
 %access public export
 %default total
 
-data CardDraw = HA | HB | SA | SB
+data CardDraw' = HA | HB | SA | SB
 
-drawSequence : List CardDraw
-drawSequence = [
+drawSequence' : List CardDraw'
+drawSequence' = [
  HA, HB, HB, HA,   HB, HA, HA, HB,   HA, HB, SB, SA,
  HB, HA, HA, HB,   HA, HB, HB, HA,   HB, HA, SA, SB,
  HA, HB, HB, HA,   HB, HA, HA, HB,   HA, HB, SB, SA,
  HB, HA, HA, HB,   HA, HB, HB, HA,   HB, HA, SA, SB,
  HA, HB, HB, HA,   HB, HA, HA, HB,   HA, HB, SB, SA ]
+
+data CardDraw = Hand | Soul
+
+computeCardDraw : CardDraw' -> (CardDraw, WhichPlayer)
+computeCardDraw HA = (Hand, PlayerA)
+computeCardDraw HB = (Hand, PlayerB)
+computeCardDraw SA = (Soul, PlayerA)
+computeCardDraw SB = (Soul, PlayerB)
+
+
+drawSequence : List (CardDraw, WhichPlayer)
+drawSequence = map computeCardDraw drawSequence'
+
+yourTurnToDraw : (CardDraw, WhichPlayer) -> WhichPlayer -> Bool
+yourTurnToDraw (_,PlayerA) PlayerA = True
+yourTurnToDraw (_,PlayerB) PlayerB = True
+yourTurnToDraw _ _ = False
 
 {-
 correctLength : List.length drawSequence = 60
@@ -38,15 +53,17 @@ yourSoul = "Select a position in your soul and a card to add to your soul."
 opponentSoul : String
 opponentSoul = "Wait for your opponent to add a card to their soul."
 
-serializeSequence : CardDraw -> WhichPlayer -> String
-serializeSequence HA PlayerA = yourHand
-serializeSequence HA PlayerB = opponentHand
-serializeSequence SA PlayerA = yourSoul
-serializeSequence SA PlayerB = opponentSoul
-serializeSequence HB PlayerA = opponentHand
-serializeSequence HB PlayerB = yourHand
-serializeSequence SB PlayerA = opponentSoul
-serializeSequence SB PlayerB = yourSoul
+
+
+serializeSequence : (CardDraw, WhichPlayer) -> WhichPlayer -> String
+serializeSequence (Hand, PlayerA) PlayerA = yourHand
+serializeSequence (Hand, PlayerA) PlayerB = opponentHand
+serializeSequence (Soul, PlayerA) PlayerA = yourSoul
+serializeSequence (Soul, PlayerA) PlayerB = opponentSoul
+serializeSequence (Hand, PlayerB) PlayerA = opponentHand
+serializeSequence (Hand, PlayerB) PlayerB = yourHand
+serializeSequence (Soul, PlayerB) PlayerA = opponentSoul
+serializeSequence (Soul, PlayerB) PlayerB = yourSoul
 
 
 {- move to player -}
@@ -65,7 +82,7 @@ getPlayerAPlayerB PlayerA theActor theNonactor = (theActor, theNonactor)
 getPlayerAPlayerB PlayerB theActor theNonactor = (theNonactor, theActor)
 
 
-getCardDraw : Player -> Player -> Maybe CardDraw
+getCardDraw : Player -> Player -> Maybe (CardDraw, WhichPlayer)
 getCardDraw playerA playerB = List.index' (List.length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) drawSequence
  
  {-let cardsDrawn = length (doIt (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) in
@@ -120,33 +137,6 @@ This can change the nature of some abilities, usually making them more potent.
 
 
 
-{-
-
-
-
- constructor MkGame
- initiative : WhichPlayer
- turnNumber : Nat
- skillHead : Nonautomatic {-
- currentEvoker : Nat {-this would be better in skillHead but that is somewhat invasive when I create skills..-}
-Actually I'm going to put this in them..
--}
- skillQueue : List Automatic
- deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
- player_A : Player
- player_B : Player
- phase : Phase
-
-
--}
-
-
-{- ClientUpdate
-
-                 | DrawHand Nat String
-                 | DrawSoul Nat (Fin 5) String
-
--}
 
 
 {-Right now, cards only have their position in the card list, and no names, or ability to have images. This is a problem.
@@ -162,96 +152,71 @@ odd that in the client update though, I have "cardId" rather than card name then
 
 
 
-{-
-
-
-instantiateMonster : Nat -> String -> MonsterFactory -> Monster
-instantiateMonster cardId playerId monsterFactory =
-  MkMonster (instantiateBasicMonster (basic monsterFactory) cardId)
-            ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory))
-            ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory))
-            (instantiateSkill cardId playerId (soulSkill monsterFactory))
-
-instantiateSpell : Nat -> String -> SpellFactory -> Spell
-instantiateSpell cardId playerId spellFactory =
-  MkSpell (instantiateBasicSpell (basic spellFactory) cardId)
-          (instantiateSkill cardId playerId (spawnSkill spellFactory))
-
-data CardFactory = SpellCardFactory SpellFactory | MonsterCardFactory MonsterFactory
-data Card = SpellCard Spell | MonsterCard Monster
-
-
-
--}
-
-
 
 instantiateCardFactory : Nat -> String -> CardFactory -> Card
 instantiateCardFactory cardId playerId (SpellCardFactory SpellFactory) = SpellCard $ instantiateSpell cardId playerId SpellFactory
 instantiateCardFactory cardId playerId (MonsterCardFactory MonsterFactory) = MonsterCard $ instantiateMonster cardId playerId MonsterFactory
 
 
+
+assignSoulSkill : Fin 5 -> Nat -> String -> MonsterFactory -> Player -> (Player, List ClientUpdate)
+assignSoulSkill soulIndex cardId playerId monsterFactory player =
+ let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardId playerId monsterFactory)) s)} player in
+ (player', [DrawSoul cardId soulIndex playerId])
+
+drawHandCard : Nat -> String -> CardFactory -> Player -> (Player, List ClientUpdate)
+drawHandCard cardId playerId cardFactory player =
+ (record {hand $= (++[instantiateCardFactory cardId playerId cardFactory])} player, [DrawHand cardId playerId])
+
+
+
 {- for now, can also return nothing, until that is proven impossible. Nothing signifies an error in the game logic -}
+
+
+
+
 transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> Maybe (Either (Player, List ClientUpdate) (String, String))
 transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
+ let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
- case (index' cardId cardList, getCardDraw playerA playerB, actor) of
-      (Nothing,_,_) => Just $ Right (cardInvalid, playerId)
-      (Just cardFactory,Nothing,_) => Nothing
-      (Just cardFactory,Just HA,PlayerA) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerA, [DrawHand cardId playerId])
-      (Just cardFactory,Just HA,PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just HB,PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just HB,PlayerB) => Just $ Left (record {hand $= (++[instantiateCardFactory cardsDrawn playerId cardFactory])} playerB, [DrawHand cardId playerId])
-      (Just cardFactory,Just SA,PlayerA) => Just $ Right (drawToSoulNotHand, playerId)
-      (Just cardFactory,Just SA,PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just SB,PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Just cardFactory,Just SB,PlayerB) => Just $ Right (drawToSoulNotHand, playerId)
+ getCardDraw playerA playerB >>= \turn =>
+ if yourTurnToDraw turn actor then
+  case fst turn of
+       Soul => Just $ Right (drawToSoulNotHand, playerId)
+       Hand =>
+        case index' cardId cardList of
+             Nothing => Just $ Right (cardInvalid, playerId)
+             Just cardFactory => Just $ Left $ drawHandCard cardsDrawn playerId cardFactory player
+ else
+  Just $ Right (notYourTurn, playerId)
 
-
-{- there should be a draw to hand not soul message as well....
-
-In particular, I am not checking against the correct draw action.
-
--}
 
 transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId player in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
- case (index' cardId cardList, index soulIndex (soulCards player), getCardDraw playerA playerB, actor) of
-      (_,_,Nothing,_) => Nothing
-      (_,_,Just HA,PlayerA) => Just $ Right (drawToHandNotSoul, playerId)
-      (_,_,Just HB,PlayerA) => Just $ Right (notYourTurn, playerId)
-      (Nothing,_,Just SA,PlayerA) => Just $ Right (cardInvalid, playerId)
-      (Just (SpellCardFactory spellFactory),_,Just SA,PlayerA) => Just $ Right (noSpellsInSoul, playerId)
-      (Just (MonsterCardFactory monsterFactory),Just _,Just SA,PlayerA) => Just $ Right (soulCardAlreadyDrawn, playerId)
-      (Just (MonsterCardFactory monsterFactory),Nothing,Just SA,PlayerA) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
-      (_,_,Just SB,PlayerA) => Just $ Right (notYourTurn, playerId)
-      (_,_,Just HA,PlayerB) => Just $ Right (notYourTurn, playerId)
-      (_,_,Just HB,PlayerB) => Just $ Right (drawToHandNotSoul, playerId)
-      (_,_,Just SA,PlayerB) => Just $ Right (notYourTurn, playerId)
-      (Nothing,_,Just SB,PlayerB) => Just $ Right (cardInvalid, playerId)
-      (Just (SpellCardFactory spellFactory),_,Just SA,PlayerA) => Just $ Right (noSpellsInSoul, playerId)      
-      (Just (MonsterCardFactory monsterFactory),Just _,Just SB,PlayerB) => Just $ Right (soulCardAlreadyDrawn, playerId)
-      (Just (MonsterCardFactory monsterFactory),Nothing,Just SB,PlayerB) => let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardsDrawn playerId monsterFactory)) s)} player in Just $ Left (player', [DrawSoul cardId soulIndex playerId])
-
+ getCardDraw playerA playerB >>= \turn =>
+ if yourTurnToDraw turn actor then
+  case fst turn of
+       Hand => Just $ Right (drawToHandNotSoul, playerId)
+       Soul =>
+        case index' cardId cardList of
+             Nothing => Just $ Right (cardInvalid, playerId)
+             Just $ SpellCardFactory _ => Just $ Right (noSpellsInSoul, playerId) 
+             Just $ MonsterCardFactory monsterFactory => 
+              case index soulIndex (soulCards player) of
+                   Just _ => Just $ Right (soulCardAlreadyDrawn, playerId)
+                   Nothing => Just $ Left $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
+ else
+  Just $ Right (notYourTurn, playerId)
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
- case (getCardDraw playerA playerB, actor) of
-      (Nothing,_) => Nothing
-      (Just HA,PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just SA,PlayerA) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just HB,PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just SB,PlayerB) => Just $ Right (invalidActionDrawPhase, playerId)
-      (Just _,_) => Just $ Right (notYourTurn, playerId)
-
+ getCardDraw playerA playerB >>= \turn =>
+ if yourTurnToDraw turn actor
+  then Just $ Right (invalidActionDrawPhase, playerId)
+  else Just $ Right (notYourTurn, playerId)
 
 
 

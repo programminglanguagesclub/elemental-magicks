@@ -188,7 +188,9 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                         soulIndexNat <- parsePositive {a=Nat} rawSoulIndex
                         soulIndex <- natToFin soulIndexNat 5
                         pure (ServerUpdateMessage (MkServerUpdateWrapper (DrawCardSoul id soulIndex) (player marshalledServerUpdate)))
-  | "newGame" = ?hole
+  | "newGame" = do playerId <- getField (info marshalledServerUpdate) "playerId"
+                   enemyId <- getField (info marshalledServerUpdate) "enemyId"
+                   pure (NewGameMessage playerId enemyId)
   | _ = Nothing
 
 
