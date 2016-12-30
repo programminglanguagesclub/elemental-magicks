@@ -78,33 +78,40 @@ void writer(char *message)
 char * messageManager(char* input)
 {
 
-//Send size of message
+//Send outgoing message- size of message
 char strSize[12];
 sprintf(strSize, "%lu", sizeof(input));
 writer(strSize);
 
-//Read Response - size ok
-char *returnMessage = reader(1);
+//Read incomming message - size ok
+char *sizeOK = reader(1);
 
-int size = strlen(returnMessage);
-freeMe();
+//Free the sizeOK message
+//freeMe()
 
-//Send actual Message
+//Send outgoing message -actual Message
 writer(input);
 
-//Get size of reponse
-//
+//Read incomming message - size of incomming message
+char *sizeOfMessage = reader(1);
 
+//Save size of incomming message message
+int size = 1024;
+//size = strlen(sizeOfMessage);
+//size = size*4;
 
-//Read response
-char *returnMessage2 = reader(1);
-size = strlen(returnMessage2);
+//Free sizeOfMessage2
+//freeMe()
 
-size = size*4;
+//Send outgoing message - sizeok
+writer("sizeok");
 
-freeMe(); // also frees message2
+//Read incomming message - actual message
+char * message2 = reader(size);
 
-//Return response
+//Free message2
+//freeMe();
+
 return NULL; //returnMessage2;
 }
 
@@ -113,8 +120,8 @@ return NULL; //returnMessage2;
 int main()
 {
 int y;
-y = 10000;
-
+y = 1000;
+//y=1;
 while(y >0)
 {
 messageManager("Hello there");

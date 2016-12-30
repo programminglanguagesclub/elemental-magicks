@@ -79,46 +79,50 @@ int fd;
 
 void messageManager()
 {
-	//Read in message size
+	//Read incomming message -  size of incomming message
 	char * messageSize = reader(1);
-    int size = atoi(messageSize);
-    freeMe();
+    int size = 1024;
+    //int size = strlen((messageSize);
+    //size = size * 4
+    
+    //Free messageSize
+    //freeMe();
 	
-	//Tell other I side got the message
+	//Send outgoing message - size ok
 	char response[]="sizeok";
-
 	writer(response);
 
-	//Get actualy incomming Message message
+	//Read incomming message - actual message
     //printf("%d",size);
     char * message = reader(size);
 	
     //Do nothing with message
 
+    //Free the message
+    //freeMe()
+    
+    //Send outgoing message - size of message
+    writer("12"); 
 
-    //Free space from message
-    freeMe();
+    //Read incomming message - sizeok
+    char * messageOk = reader(size);
 
 
-    //Send size of reply
-    //
-    //
+    //Free messageok
+    //freeMe()
 
-
-    //Send message reply
+    //Send outgoing message - hello back
 	char * message2 = "Hello back";
-	
 	writer(message2);
 	
-	//Rolley wants freeme here
-	//freeMe();
 
 }
 
 int main()
 {
 
-int y=10000;
+int y=1000;
+//int y= 1;
 while(y>0)
 {
 messageManager();
