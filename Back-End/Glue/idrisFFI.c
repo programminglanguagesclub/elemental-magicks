@@ -7,8 +7,9 @@
 #include <string.h>
 #include "idrisFFI.h"
 
-
 #define MAX_BUF 1024
+
+
 
 char*buf;
 void freeMe()
@@ -17,7 +18,7 @@ void freeMe()
 }
 
 
-char *readerHelper(int type)
+char *readerHelper(int flag)
 {
         int fd;
 
@@ -27,13 +28,13 @@ char *readerHelper(int type)
 
  	//Set to empty
         
-	if(type==1)
+	if(flag==1)
 	{
-        	buf = (char *) malloc(12);
-        }
+        buf = (char *) malloc(1024);
+    }
 	else
 	{
-		buf = (char *) malloc(type);
+		buf = (char *) malloc(1024);
 	}
 	
 	strcpy(buf, "empty");
@@ -77,27 +78,52 @@ int fd;
         unlink(myfifo2);
 }
 
-char *reader(int type){
-  char * messageSize = readerHelper(1);
-  freeMe();
+char * reader()
+{
+	//Read incomming message -  size of incomming message
+	char * messageSize = readerHelper(1);
+    int size = 1024;
+    //int size = strlen((messageSize);
+    //size = size * 4
+    
+    //Free messageSize
+    //freeMe();
 	
-	//Tell other I side got the message
+	//Send outgoing message - size ok
 	char response[]="sizeok";
-
-	//Response i got the size of the message
 	writer(response);
 
-	//Get actualy Message message
-	char * message = readerHelper(atoi(messageSize));
+	//Read incomming message - actual message
+    //printf("%d",size);
+    char * message = readerHelper(size);
+	
   return message;
 }
 
 
 void writer(char *message){
-	writer(message);
-	freeMe();
-}
+	
+    //Do nothing with message
 
+    //Free the message
+    //freeMe()
+    
+    //Send outgoing message - size of message
+    writer("12"); 
+
+    //Read incomming message - sizeok
+    char * messageOk = readerHelper(1024);
+
+
+    //Free messageok
+    //freeMe()
+
+    //Send outgoing message - hello back
+	char * message2 = "Hello back";
+	writer(message2);
+	
+
+}
 
 
 

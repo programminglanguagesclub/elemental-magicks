@@ -1,138 +1,175 @@
 #include <string.h>
 #include <stdio.h>
-#include <urweb.h>
+
+
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <urweb.h>
+
+
+
+
 
 #define MAX_BUF 1024
+#include <string.h>
+#include <stdio.h>
+#include <string.h>
 
-int fd;
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define MAX_BUF 1024
+char*buf;
 
-
-char *itoa(long i, char* s, int dummy_radix) {
-        sprintf(s, "%ld", i);
-            return s;
+void freeMe()
+{
+	free(buf);
 }
 
-
-void  writer(char *message)
+char *readerHelper(int flag)
 {
+ 	int fd;
+	
+	//Where to store the pipe according to library
+        char * myfifo2 = "/tmp/myfifo2";
+	if(flag == 1)
+	{
+		//Set to empty
+		buf = (char *) malloc(1024); // memory leak
+        }
+	else
+	{
+		buf = (char*) malloc(flag);	
+	}
 
-    int fd;
-    int fd2;
+	strcpy(buf,"empty");
 
-    char * myfifo = "/tmp/myfifo";
-    mkfifo(myfifo,0666);
-   char * myfifo2 = "/tmp/myfifo2";
-   mkfifo(myfifo2, 0666);
-    //Open FIFO pipe
-    fd = open(myfifo, O_WRONLY);
+	//char buf[MAX_BUF] = "empty";
+
+        // open, read, and display the message from FIFO 
+	//Keep pipe open untill it gets a message
+	while(0 == strcmp("empty", buf))
+	{
+		//Check in FIFO folder for a open pipe
+        	fd = open(myfifo2, O_RDONLY);
+		
+		//Read the pipe (location, message, size of message)
+        	read(fd, buf, MAX_BUF);
+	}
+	//Print the message
+	 printf("Received: %s\n", buf);
+
+        close(fd);
+	return buf;
+}
+
+void writerHelper(char *message)
+{
+	printf("Sending %s \n", message);
+
+	int fd;
+        char * myfifo = "/tmp/myfifo";
+
+	//Makes the FIFO nameed pipe
+        mkfifo(myfifo, 0666);
+
+        //write to the FIFO pipe
+        fd = open(myfifo, O_WRONLY);
 
 	//Actualy thing send (where im sending, message, size of message)
-    //This was used for testing, default message with no size first sent
+        write(fd, message, 128);
 
-    //Size of the message
-    char * sizeOfMessage = (char *) malloc(strlen(message)+1);
+	//Close the pipe
+        	close(fd);
 
-
-    perror("Urweb sending message size");
-   //snprintf(sizeOfMessage,"%d",sizeof(message) +4);
-    strcpy(sizeOfMessage,message);
-    write (fd, sizeOfMessage, sizeof(sizeOfMessage));
-    perror("Urweb sent message size");
-	
-    //Close the pipe
-    close(fd);
-   
-
-/////*
-  //call reader.... once reader returns continue....
-   
-    //The error comes from te open FD 
-    
-//http://www.gnu.org/software/libc/manual/html_node/Creating-a-Pipe.html#Creating-a-Pipe
-    char *reply = (char *) malloc(128);
-     strcpy(reply, "empty");
-
-     perror("ur web messaged reader " );
-     
-     long x = 10000000L;
-     while(0 == strcmp("empty", reply))
-    {         
-        fd2 = open(myfifo2, O_RDONLY);
-        read(fd2, reply, 1024);
-
-        if(x-- < 0)
-                {
-                    strcpy(reply, "Failed getting reply");
-                    break;
-                }
+        //remove the FIFO 
+        unlink(myfifo);
+}
 
 
-    }
-     perror("The message i got was: ");
-     perror(reply);
-     close(fd2);
-    
-/////*/
-/*
-    //Send message
-    fd = open(myfifo, O_WRONLY);
-    int i;
 
-    perror("Sending message urweb " );
-    write(fd,message, sscanf(sizeOfMessage, "%d", &i));
 
-    perror("Message sent ur web");
-  
-    
-    //close(fd);
-    */
-    unlink(myfifo);
+char * writer(char* input)
+{
+
+//Send outgoing message- size of message
+char strSize[12];
+sprintf(strSize, "%lu", sizeof(input));
+writerHelper(strSize);
+
+//Read incomming message - size ok
+char *sizeOK = readerHelper(1);
+
+//Free the sizeOK message
+//freeMe()
+
+//Send outgoing message -actual Message
+writerHelper(input);
+
+//Read incomming message - size of incomming message
+char *sizeOfMessage = readerHelper(1);
+
+//Save size of incomming message message
+int size = 1024;
+//size = strlen(sizeOfMessage);
+//size = size*4;
+
+//Free sizeOfMessage2
+//freeMe()
+
+//Send outgoing message - sizeok
+writer("sizeok");
+
+//Read incomming message - actual message
+char * message2 = readerHelper(size);
+
+//Free message2
+//freeMe();
+
+return "DUMMY FOR NOW"; //returnMessage2;
+}
+
+
+
+
+
+
+
+
+
+// this is actually the writer to Idris.
+
+uw_Basis_string uw_UrwebFFI_counter(uw_context ctx, uw_unit u) {
+ //char message[] = "Sending message from Ur/Web to Idris";
+ //return messageManager(message); 
+  return writer("Sending message from Ur/Web to Idris"); 
+
+
+/*char message[]="Hello";
+ writer(message);
+ char *buf;
+ //buf = (char *) malloc(1024); // memory leak
+ buf = reader();
+ //printf("About to return counter: %s\n", buf);
+ //return counter++;
+ 
+ //uw_Basis_string s2 = uw_malloc(ctx, 6+1);
+ //sprintf(s2,"%s","hahaha");
+ return buf;//(&buf);
+ 
+// return "Hello";
+*/
 
 }
 
 
-char * reader()
- {
-int fd;
-     char * myfifo2 = "/tmp/myfifo2";
 
-     //This section sets the size of the message, for the reader to expect
-     //Set to empty
-         char *sizeOfMessage;
-         sizeOfMessage = (char *) malloc(128);
- 
-     //Initialize the character array
-         strcpy(sizeOfMessage, "empty");
- 
-
-         long x = 1000000000L;
-     // open, read, and display the message from FIFO 
-     //Keep pipe open untill it gets a message
-         while(0 == strcmp("empty", sizeOfMessage) )
-         {
-                 //Check in FIFO folder for a open pipe
-                 fd = open(myfifo2, O_RDONLY);
- 
-                 //Read the pipe (location, message, size of message)
-                read(fd, sizeOfMessage, 128);
-                if(x-- < 0)
-                {
-                    strcpy(sizeOfMessage, "failed");
-                    break;
-                }
-         }
-     //For the first message might want something to check there is not garbage in the pipe
- 
- 
-        close(fd);
-        //unlink(myfifo2);
-         return sizeOfMessage;
- }
+// IGNORE THESE!!!!!!!
 
 uw_Basis_string uw_UrwebFFI_hello(uw_context ctx, uw_unit u) {
   return "Hello";
@@ -145,28 +182,8 @@ uw_Basis_string uw_UrwebFFI_important(uw_context ctx, uw_Basis_string s) {
   return s2;
 }
 
-static int counter;
-
-uw_Basis_string uw_UrwebFFI_counter(uw_context ctx, uw_unit u) {
- char message[]="Hello";
- char *buf;
- writer(message);
- //buf = (char *) malloc(1024); // memory leak
- buf = reader();
- //printf("About to return counter: %s\n", buf);
- 
- //uw_Basis_string s2 = uw_malloc(ctx, 6+1);
- 
- 
- 
- // REMOVE FOR NOW
- return buf;//(&buf);
- 
-
-// return "testing literal string";
-
-// return "Hello";
-}
+// actually this might be being used right now. should fix that.
+//static int counter;
 
 
 
