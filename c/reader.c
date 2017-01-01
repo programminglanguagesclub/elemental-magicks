@@ -8,7 +8,8 @@
 #include "reader.h"
 
 
-#define MAX_BUF 1024
+#define DEFAULT_BUFFER_SIZE 1024
+#define BE_SAFE 1024 // deal with null termination, etc.
 
 char*buf;
 void freeMe()
@@ -17,7 +18,7 @@ void freeMe()
 }
 
 
-char *reader(int flag)
+char *readerHelper(int size)
 {
         int fd;
 
@@ -26,15 +27,9 @@ char *reader(int flag)
 
 
  	//Set to empty
-        
-	if(flag==1)
-	{
-        buf = (char *) malloc(1024);
-    }
-	else
-	{
-		buf = (char *) malloc(1024);
-	}
+ 
+	buf = (char *) malloc(size + BE_SAFE);
+	
 	
 	strcpy(buf, "empty");
         // open, read, and display the message from FIFO 
@@ -46,7 +41,7 @@ char *reader(int flag)
                 fd = open(myfifo, O_RDONLY);
 
                 //Read the pipe (location, message, size of message)
-                read(fd, buf, MAX_BUF);
+                read(fd, buf, size + BE_SAFE);
         }
         //Print the message
          printf("Received: %s\n", buf);
@@ -55,67 +50,52 @@ char *reader(int flag)
 	return buf;
 }
 
-void writer(char *message)
-{
-        printf("Sending %s \n", message);
-int fd;
-        char * myfifo2 = "/tmp/myfifo2";
-
-        //Makes the FIFO nameed pipe
-        mkfifo(myfifo2, 0666);
-
-        //write to the FIFO pipe
-        fd = open(myfifo2, O_WRONLY);
-
-        //Actualy thing send (where im sending, message, size of message)
-        write(fd, message, 128);
-
-        //Close the pipe
-        close(fd);
-
-        //remove the FIFO 
-        unlink(myfifo2);
+void writerHelper(char *message){
+  printf("Sending %s \n", message);
+  int fd;
+  char * myfifo2 = "/tmp/myfifo2";
+  //Makes the FIFO nameed pipe
+  mkfifo(myfifo2, 0666);
+  //write to the FIFO pipe
+  fd = open(myfifo2, O_WRONLY);
+  //Actualy thing send (where im sending, message, size of message)
+  write(fd, message, 128);
+  //Close the pipe
+  close(fd);
+  //remove the FIFO 
+  unlink(myfifo2);
 }
 
-void messageManager()
-{
-	//Read incomming message -  size of incomming message
-	char * messageSize = reader(1);
-    int size = 1024;
-    //int size = strlen((messageSize);
-    //size = size * 4
-    
-    //Free messageSize
-    //freeMe();
-	
-	//Send outgoing message - size ok
+
+
+
+void writer(char *message){
+  int message_size = strlen(message);
+
+  char message_size_buffer[DEFAULT_BUFFER_SIZE];
+  snprintf(message_size_buffer, DEFAULT_BUFFER_SIZE, "%d", message_size); // assuming the size of the message isn't much over 10^100.
+
+  writerHelper(message_size_buffer);
+  readerHelper(DEFAULT_BUFFER_SIZE);
+  freeMe();
+ 	writerHelper(message); // Not sure what to do with the memory for message at this point. If we are calling this from Idris can we assume that this is on the stack and doesn't need to be managed?
+}
+
+
+char * reader(){
+	char * messageSize = readerHelper(DEFAULT_BUFFER_SIZE);
+  int size = atoi(messageSize);
+  printf("size we got %d \n", size);
+  freeMe();
 	char response[]="sizeok";
-	writer(response);
-
-	//Read incomming message - actual message
-    //printf("%d",size);
-    char * message = reader(size);
-	
-    //Do nothing with message
-
-    //Free the message
-    //freeMe()
-    
-    //Send outgoing message - size of message
-    writer("12"); 
-
-    //Read incomming message - sizeok
-    char * messageOk = reader(size);
+	writerHelper(response);
+  return readerHelper(size);
+}
 
 
-    //Free messageok
-    //freeMe()
-
-    //Send outgoing message - hello back
-	char * message2 = "Hello back";
-	writer(message2);
-	
-
+void messageManager(){
+  char * foo = reader(); // Here when Idris calls reader, it NEEDS to use something like CFFI.Memory (http://www.idris-lang.org/docs/0.12/contrib_doc/docs/CFFI.Memory.html), or we will have a leak.
+  writer("lalala. IDRIS IS GREAT! URWEB IS GREAT! YAY!!!!! WOOHOO");
 }
 
 int main()

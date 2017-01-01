@@ -7,160 +7,123 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#define MAX_BUF 1024
+#define DEFAULT_BUFFER_SIZE 1024
+#define BE_SAFE 1024 // deal with null termination, etc.
 char*buf;
 
+
+//const int DEFAULT_BUFFER_SIZE = 1024;
 void freeMe()
 {
 	free(buf);
 }
 
-char *reader(int flag)
+char *readerHelper(int bytes)
 {
  	int fd;
-	
-	//Where to store the pipe according to library
-        char * myfifo2 = "/tmp/myfifo2";
-	if(flag == 1)
-	{
+  
+  //Where to store the pipe according to library
+  char * myfifo2 = "/tmp/myfifo2"; 
+	/*if(flag == 1){
 		//Set to empty
-		buf = (char *) malloc(1024); // memory leak
-        }
-	else
-	{
-		buf = (char*) malloc(flag);	
-	}
+		buf = (char *) malloc(MAX_BUF);
+  }
+	else{*/
+  buf = (char*) malloc(bytes + BE_SAFE);	
+	//}
 
 	strcpy(buf,"empty");
-
-	//char buf[MAX_BUF] = "empty";
-
-        // open, read, and display the message from FIFO 
-	//Keep pipe open untill it gets a message
-	while(0 == strcmp("empty", buf))
-	{
+  // open, read, and display the message from FIFO 
+	//Keep pipe open until it gets a message
+	while(0 == strcmp("empty", buf)){
 		//Check in FIFO folder for a open pipe
-        	fd = open(myfifo2, O_RDONLY);
+    fd = open(myfifo2, O_RDONLY);
 		
 		//Read the pipe (location, message, size of message)
-        	read(fd, buf, MAX_BUF);
+    read(fd, buf, bytes + BE_SAFE);
 	}
 	//Print the message
-	 printf("Received: %s\n", buf);
-
-        close(fd);
+	printf("Received: %s\n", buf);
+  close(fd);
 	return buf;
 }
 
-void writer(char *message)
-{
+void writerHelper(char *message){
 	printf("Sending %s \n", message);
-
 	int fd;
-        char * myfifo = "/tmp/myfifo";
-
+  char * myfifo = "/tmp/myfifo";
 	//Makes the FIFO nameed pipe
-        mkfifo(myfifo, 0666);
-
-        //write to the FIFO pipe
-        fd = open(myfifo, O_WRONLY);
-
+  mkfifo(myfifo, 0666);
+  //write to the FIFO pipe
+  fd = open(myfifo, O_WRONLY);
 	//Actualy thing send (where im sending, message, size of message)
-        write(fd, message, 128);
-
+  write(fd, message, sizeof(message));
 	//Close the pipe
-        	close(fd);
-
-        //remove the FIFO 
-        unlink(myfifo);
+  close(fd);
+  //remove the FIFO 
+  unlink(myfifo);
 }
 
-char * messageManager(char* input)
-{
+char * writer(char* input){
+
 
 //Send outgoing message- size of message
-char strSize[12];
-sprintf(strSize, "%lu", sizeof(input));
-writer(strSize);
+
+  int message_size = strlen(input) /*+ BE_SAFE*/;
+  char message_size_buffer[DEFAULT_BUFFER_SIZE];
+  snprintf(message_size_buffer, DEFAULT_BUFFER_SIZE, "%d", message_size);
+
+
+writerHelper(message_size_buffer);
 
 //Read incomming message - size ok
-char *sizeOK = reader(1);
+char *sizeOK = readerHelper(DEFAULT_BUFFER_SIZE);
 
 //Free the sizeOK message
-//freeMe()
+freeMe();
 
 //Send outgoing message -actual Message
-writer(input);
+writerHelper(input);
 
 //Read incomming message - size of incomming message
-char *sizeOfMessage = reader(1);
+char *sizeOfMessage = readerHelper(DEFAULT_BUFFER_SIZE);
 
 //Save size of incomming message message
-int size = 1024;
-//size = strlen(sizeOfMessage);
-//size = size*4;
+int size = atoi(sizeOfMessage);
 
 //Free sizeOfMessage2
-//freeMe()
+freeMe();
 
 //Send outgoing message - sizeok
-writer("sizeok");
+writerHelper("sizeok");
 
 //Read incomming message - actual message
-char * message2 = reader(size);
+char * message2 = readerHelper(size);
 
-//Free message2
+// We do not have to free message2 here: We can use CFFI.Memory in Idris (this file is for urweb though... still have to figure out how to do it there, but probably should just let it leak since that's the Ur/Web way)
 //freeMe();
 
-return NULL; //returnMessage2;
+
+return message2;
 }
 
 
 
-int main()
-{
-int y;
-y = 1000;
-//y=1;
-while(y >0)
-{
-messageManager("Hello there");
-
-y--;
-}
-return 0;
-
-
+int main(){
+  int y;
+  y = 1000;
+  //y=1;
+  while(y > 0){
+    writer("Hello there");
+    y--;
+  }
+  return 0;
 }
 
 
 
 
-/*
-uw_Basis_string uw_Lib_hello(uw_context ctx, uw_unit u) {
-  return "Hello";
-}
-uw_Basis_string uw_Lib_important(uw_context ctx, uw_Basis_string s) {
-  uw_Basis_string s2 = uw_malloc(ctx, strlen(s)+2);
-  sprintf(s2, "%s!", s);
-  return s2;
-}
-static int counter;
-uw_Basis_string uw_Lib_counter(uw_context ctx, uw_unit u) {
- char message[]="Hello";
- writer(message);
- char *buf;
- //buf = (char *) malloc(1024); // memory leak
- buf = reader();
- //printf("About to return counter: %s\n", buf);
- //return counter++;
- 
- //uw_Basis_string s2 = uw_malloc(ctx, 6+1);
- //sprintf(s2,"%s","hahaha");
- return buf;//(&buf);
- 
-// return "Hello";
-}
-*/
+
+
 
 
