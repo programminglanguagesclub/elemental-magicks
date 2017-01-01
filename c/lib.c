@@ -91,6 +91,8 @@ char *sizeOfMessage = readerHelper(DEFAULT_BUFFER_SIZE);
 //Save size of incomming message message
 int size = atoi(sizeOfMessage);
 
+printf("GOT SIZE: %d\n", size);
+
 //Free sizeOfMessage2
 freeMe();
 

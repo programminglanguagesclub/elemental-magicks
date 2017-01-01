@@ -85,7 +85,7 @@ void writer(char *message){
 char * reader(){
 	char * messageSize = readerHelper(DEFAULT_BUFFER_SIZE);
   int size = atoi(messageSize);
-  printf("size we got %d \n", size);
+  printf("GOT SIZE: %d\n", size);
   freeMe();
 	char response[]="sizeok";
 	writerHelper(response);
