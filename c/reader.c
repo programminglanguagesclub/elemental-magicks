@@ -59,7 +59,7 @@ void writerHelper(char *message){
   //write to the FIFO pipe
   fd = open(myfifo2, O_WRONLY);
   //Actualy thing send (where im sending, message, size of message)
-  write(fd, message, 128);
+  write(fd, message, strlen(message));
   //Close the pipe
   close(fd);
   //remove the FIFO 
