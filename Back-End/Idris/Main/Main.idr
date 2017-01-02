@@ -1,4 +1,7 @@
 module Main.Main
+
+import CFFI.Memory
+
 import Data.Vect
 import Data.So
 import Base.Bounded
@@ -21,6 +24,10 @@ import Base.Clientupdates
 
 reader : IO String
 reader = foreign FFI_C "reader" (IO String)
+
+
+reader' : IO CPtr
+reader' = foreign FFI_C "reader" (IO CPtr)
 
 writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
