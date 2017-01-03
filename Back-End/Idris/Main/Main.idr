@@ -1,7 +1,5 @@
 module Main.Main
 
-import CFFI.Memory
-
 import Data.Vect
 import Data.So
 import Base.Bounded
@@ -22,12 +20,12 @@ import Base.Clientupdates
 %include C "../Glue/idrisFFI.h"
 %link C "../Glue/idrisFFI.o"
 
+
+init : IO ()
+init = foreign FFI_C "init" (IO ())
+
 reader : IO String
 reader = foreign FFI_C "reader" (IO String)
-
-
-reader' : IO CPtr
-reader' = foreign FFI_C "reader" (IO CPtr)
 
 writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
@@ -73,12 +71,20 @@ partial
 main' : IO () {- switch to this when I'm ready... -}
 main' = statefulBackend []
 
+
+partial
+mainHelper : IO ()
+mainHelper = do {
+x <- reader;
+writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
+mainHelper;
+}
+
 partial
 main : IO ()
 main = do {
-x <- reader;
-writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
-main;
+_ <- init;
+mainHelper;
 }
 
 {-units now should become engaged AFTER their skills finish (if that's not too hard) actually that might be too hard...-}

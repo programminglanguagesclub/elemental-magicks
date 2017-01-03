@@ -38,6 +38,18 @@ fun counter () =
 
 
 
+fun stress_test (x : int) : transaction page =
+  if x = 0
+   then
+    return <xml><body> All Done!! </body> </xml>
+   else
+    _ <- UrwebFFI.counter ();
+    stress_test (x-1)
+
+
+
+fun test () : transaction page = stress_test 100000
+
 
 fun main () : transaction page = return <xml><body>
   {[UrwebFFI.hello ()]}<br/>

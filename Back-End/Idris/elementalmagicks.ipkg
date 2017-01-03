@@ -1,6 +1,6 @@
 package elementalmagicks
 
-pkgs = base,cards
+pkgs = base,cards,contrib
 
 modules =
  Main.Game, 

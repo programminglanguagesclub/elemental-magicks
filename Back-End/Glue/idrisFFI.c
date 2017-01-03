@@ -14,12 +14,19 @@
 #define DEFAULT_BUFFER_SIZE 1024
 #define BE_SAFE 1024 // deal with null termination, etc.
 
-char*buf;
-void freeMe()
-{
-	free(buf);
+
+int allocations;
+int net_allocations;
+
+
+
+
+void init(){
+ allocations = 0;
+ net_allocations = 0;
 }
 
+char * buf;
 
 char *readerHelper(int size)
 {
@@ -30,9 +37,13 @@ char *readerHelper(int size)
 
 
  	//Set to empty
- 
+        if(net_allocations > 0){
+           free(buf);
+           --net_allocations;
+        }
 	buf = (char *) malloc(size + BE_SAFE);
-	
+	++net_allocations;
+        ++allocations;
 	
 	strcpy(buf, "empty");
         // open, read, and display the message from FIFO 
@@ -46,15 +57,11 @@ char *readerHelper(int size)
                 //Read the pipe (location, message, size of message)
                 read(fd, buf, size + BE_SAFE);
         }
-        //Print the message
-         printf("Received: %s\n", buf);
-
         close(fd);
 	return buf;
 }
 
 void writerHelper(char *message){
-  printf("Sending %s \n", message);
   int fd;
   char * myfifo2 = "/tmp/myfifo2";
   //Makes the FIFO nameed pipe
@@ -74,24 +81,21 @@ void writerHelper(char *message){
 
 void writer(char *message){
   int message_size = strlen(message);
-
   char message_size_buffer[DEFAULT_BUFFER_SIZE];
   snprintf(message_size_buffer, DEFAULT_BUFFER_SIZE, "%d", message_size); // assuming the size of the message isn't much over 10^100.
-
   writerHelper(message_size_buffer);
   readerHelper(DEFAULT_BUFFER_SIZE);
-  freeMe();
- 	writerHelper(message); // Not sure what to do with the memory for message at this point. If we are calling this from Idris can we assume that this is on the stack and doesn't need to be managed?
+  writerHelper(message);
+
+  //printf("Number of allocations : %d \n", allocations);
+  //printf("Total unfreed memory buffers : %d \n", net_allocations);
 }
 
 
 char * reader(){
-	char * messageSize = readerHelper(DEFAULT_BUFFER_SIZE);
+  char * messageSize = readerHelper(DEFAULT_BUFFER_SIZE);
   int size = atoi(messageSize);
-  printf("GOT SIZE: %d\n", size);
-  freeMe();
-	char response[]="sizeok";
-	writerHelper(response);
-  return readerHelper(size); // Idris needs to free this data?????????????????
+  char response[]="sizeok";
+  writerHelper(response);
+  return readerHelper(size);
 }
-
