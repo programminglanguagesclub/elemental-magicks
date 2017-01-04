@@ -17,7 +17,7 @@ char * readerHelper(int size){
   //Where to store the pipe according to library
   char * myfifo = "/tmp/myfifo2";
   //Set to empty
-  buf = (char *) malloc(size + BE_SAFE);	
+  buf = (char *) uw_malloc(size + BE_SAFE);	
   strcpy(buf, "empty");
   // open, read, and display the message from FIFO 
   //Keep pipe open untill it gets a message
