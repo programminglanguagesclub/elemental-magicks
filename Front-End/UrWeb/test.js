@@ -1,4 +1,4 @@
-function yikes(x){
+function jsTest(x){
  return x * 2;
 }
 

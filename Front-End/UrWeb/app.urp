@@ -1,3 +1,5 @@
+allow url https://raw.githubusercontent.com/programminglanguagesclub/elemental-magicks/master/Front-End/threejs/javascript_tests/foo.js
+allow url http://raw.githubusercontent.com/programminglanguagesclub/elemental-magicks/master/Front-End/threejs/javascript_tests/foo.js
 allow url http://elementalmagicks.ml/home.css
 allow url http://elementalmagicks.ml/*
 allow url http://elementalmagicks.ml
@@ -9,7 +11,12 @@ rewrite style Main/wrapper wrapper
 rewrite style Main/content content
 rewrite style Main/footerClass footerClass
 library ../../Back-End/Glue
-jsFile test.js
+lessSafeFfi
+script http://159.203.219.123/foo.js
+ffi js
+jsFunc Js.jsTest = jsTest
+jsFunc Js.realTest = realTest
+jsFunc Js.finishTest = finishTest
 safeGet Main/test
 
 main
