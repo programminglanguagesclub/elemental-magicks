@@ -1,8 +1,8 @@
 allow url https://raw.githubusercontent.com/programminglanguagesclub/elemental-magicks/master/Front-End/threejs/javascript_tests/foo.js
 allow url http://raw.githubusercontent.com/programminglanguagesclub/elemental-magicks/master/Front-End/threejs/javascript_tests/foo.js
-allow url http://elementalmagicks.ml/home.css
-allow url http://elementalmagicks.ml/*
-allow url http://elementalmagicks.ml
+allow url http://159.203.219.123/home.css
+allow url http://159.203.219.123/*
+allow url http://159.203.219.123
 rewrite style Main/navMenu navMenu
 rewrite style Main/metal metal
 rewrite style Main/linear linear

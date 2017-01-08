@@ -10,6 +10,28 @@ style footerClass
 
 
 
+(*working on getting css for these*)
+
+style image
+style positioner
+style contentbox
+style idc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -19,21 +41,7 @@ fun generate_token () : transaction string =
  random_number <- rand;
  return (show (random_number))
 
-
-
-fun ask_idris (message : string) : string = "a"
-
-
-
-
-
-
-
 fun gui () : transaction page = return <xml><body></body></xml>
-
-
-
-
 
 
 fun counter () =
@@ -82,7 +90,7 @@ fun main () : transaction page = return <xml><body>
 
 (* leaving out microdata and styles for now (have to go into apache2 stuff or urp or something to set rewrites for styles*)
 fun credits () : transaction page = return <xml>
- <head><title>Credits</title><link rel="stylesheet" type="text/css" href="http://elementalmagicks.ml/credits.css"/><link rel="stylesheet" type="text/css" href="http://elementalmagicks.ml/home.css"/></head>
+ <head><title>Credits</title><link rel="stylesheet" type="text/css" href="http://159.203.219.123/credits.css"/><link rel="stylesheet" type="text/css" href="159.203.219.123/home.css"/></head>
  <body><div class = {wrapper}>
   <header><h1>Elemental Magicks Credits</h1></header>
   <nav>
@@ -109,16 +117,16 @@ fun credits () : transaction page = return <xml>
 fun home () : transaction page = return <xml>
 <head>
  <title>Elemental Magicks</title>
- <link rel="stylesheet" type="text/css" href="http://elementalmagicks.ml/home.css"/>
+ <link rel="stylesheet" type="text/css" href="http://159.203.219.123/home.css"/>
 </head>
 <body><div class = {wrapper}>
  <header><h1>Elemental Magicks</h1></header>
  <nav>
-  <div class = {navMenu}><a href = "http://elementalmagicks.ml">Introduction</a></div>
-  <div class = {navMenu}><a href = "http://elementalmagicks.ml">Tutorial</a></div>
-  <div class = {navMenu}><a href = "http://elementalmagicks.ml">Rules</a></div>
-  <div class = {navMenu}><a href = "http://elementalmagicks.ml">Cards</a></div>
-  <div class = {navMenu}><a href = "http://elementalmagicks.ml">Credits</a></div>
+  <div class = {navMenu}><a href = "http://159.203.219.123">Introduction</a></div>
+  <div class = {navMenu}><a href = "http://159.203.219.123">Tutorial</a></div>
+  <div class = {navMenu}><a href = "http://159.203.219.123">Rules</a></div>
+  <div class = {navMenu}><a href = "http://159.203.219.123">Cards</a></div>
+  <div class = {navMenu}><a href = "http://159.203.219.123">Credits</a></div>
   <hr style = "clear:both;"/>
  </nav>
  <div style = "text-align:center;"><h2>Elemental Magicks is the only game in the world in which outcomes are determined entirely by objective quality of play</h2></div>
@@ -153,15 +161,15 @@ fun battle () : transaction page = return <xml>
  <head>
  </head>
  <body>
-  <div style="position:relative;height:100%;padding:1%">
-   <div style="object-fit: contain; height:100%; width:100%;">
+  <div>
+   <div>
     <span class={wrapper}>
-     <svg width="160000px" height="90000px" class={image}></svg>
+(*   <svg class={image}></svg>*)
      <div class={positioner}>
-      <div style="padding-top:56.25%;">
-       <div class={content-box}>
+      <div>
+       <div class={contentbox}>
         <div class={content}>
-         <canvas id="c" style = "width:100%;"></canvas>
+         (*<canvas class={idc}></canvas>*)
         </div>
        </div>
       </div>
