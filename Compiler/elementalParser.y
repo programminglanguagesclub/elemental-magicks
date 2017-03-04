@@ -185,11 +185,11 @@ IfUnableCase : {Automatic [] TerminatedSkillComponent}
              | if unable lbracket Automatic rbracket {$4}
 NextAutomatic : {Automatic [] TerminatedSkillComponent}
               | lbracket Automatic rbracket {$2}
-SelectionStatement : Variables in Set RestSelectionStatement {undefined}
+SelectionStatement : Variables in Set RestSelectionStatement {[] ++ $4}
 Set : Side RelativeSet {SimpleSet $1 $2}
     | Set union Set {UnionSet $1 $3}
 RestSelectionStatement : {[]}
-                       | comma Variables in Set RestSelectionStatement {undefined : $5}
+                       | comma Variables in Set RestSelectionStatement { (getFoo $2 $4) ++ $5}
 Variables : var RestVariable {$1 : $2}
 RestVariable : {[]}
              | comma var RestVariable {$2 : $3}
@@ -197,7 +197,6 @@ SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
 
 SkillEffect : Assignment {SkillEffectAssignment $1}
-              | {undefined}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment $2 $4 $5}
 Mutator : assign {Set}
         | increment {Increment}
@@ -256,7 +255,8 @@ RelativeSet : field {Field}
 
 
 
-
+getFoo :: [String] -> Set -> [(String,Set)]
+getFoo _ _ = undefined 
 
 
 {-
@@ -344,7 +344,7 @@ data Set = SimpleSet Side RelativeSet
 
 data SkillEffect = SkillEffectAssignment Assignment
                  deriving Show
-data Nonautomatic = Nonautomatic [(String, Side, RelativeSet)] Expr Automatic Automatic Automatic {-variables, where condition-} | TerminatedSkillComponent
+data Nonautomatic = Nonautomatic [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-} | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic [SkillEffect] Nonautomatic
                deriving Show
