@@ -13,87 +13,90 @@ import qualified Lexer
 
 
 %token
- then {Lexer.Token Lexer.Then lineNumber}
- for {Lexer.Token Lexer.For lineNumber}
- where {Lexer.Token Lexer.Where lineNumber}
- each {Lexer.Token Lexer.Each lineNumber}
- in {Lexer.Token Lexer.In lineNumber}
- unable {Lexer.Token Lexer.Unable lineNumber}
- unit {Lexer.Token Lexer.Unit lineNumber}
- spell {Lexer.Token Lexer.Spell lineNumber}
- assign {Lexer.Token Lexer.Assignment lineNumber}
- name {Lexer.Token (Lexer.TargetString $$) lineNumber}
- if {Lexer.Token Lexer.If lineNumber}
- {-else {Lexer.Token Lexer.Else lineNumber}-}
- var {Lexer.Token (Lexer.Identifier $$) lineNumber}
- colon {Lexer.Token Lexer.Colon lineNumber}
- lparen  {Lexer.Token Lexer.Lparen lineNumber}
- rparen {Lexer.Token Lexer.Rparen lineNumber}
- lbracket {Lexer.Token Lexer.Lbracket lineNumber}
- rbracket {Lexer.Token Lexer.Rbracket lineNumber}
- comma {Lexer.Token Lexer.Comma lineNumber}
- semicolon {Lexer.Token Lexer.Semicolon lineNumber}
- sum {Lexer.Token Lexer.Sum lineNumber}
- difference {Lexer.Token Lexer.Difference lineNumber}
- product {Lexer.Token Lexer.Product lineNumber}
- quotient {Lexer.Token Lexer.Quotient lineNumber}
- mod {Lexer.Token Lexer.Mod lineNumber}
- number {Lexer.Token (Lexer.Number $$) lineNumber {-This is going to need a projection function probably??-}}
- {-string {Lexer.Token (Lexer.TargetString $$) lineNumber}-}
- {-lex_error {Lexer.Token (Lexer.Error $$) lineNumber} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
- eq {Lexer.Token Lexer.Equality lineNumber}
- leq {Lexer.Token Lexer.LEQ lineNumber}
- lt {Lexer.Token Lexer.Lt lineNumber}
- geq {Lexer.Token Lexer.GEQ lineNumber}
- gt {Lexer.Token Lexer.Gt lineNumber}
- and {Lexer.Token Lexer.And lineNumber}
- or {Lexer.Token Lexer.Or lineNumber}
- not {Lexer.Token Lexer.Not lineNumber}
-{- eof {Lexer.Token Lexer.EOFToken lineNumber} {- NO NO NO I do not want this either!!!!! -}-}
- level {Lexer.Token Lexer.Level lineNumber}
- attack {Lexer.Token Lexer.Attack lineNumber}
- defense {Lexer.Token Lexer.Defense lineNumber}
- speed {Lexer.Token Lexer.Speed lineNumber}
- range {Lexer.Token Lexer.Range lineNumber}
- soulPoints {Lexer.Token Lexer.SoulPoints lineNumber}
- earth {Lexer.Token Lexer.Earth lineNumber}
- fire {Lexer.Token Lexer.Fire lineNumber}
- water {Lexer.Token Lexer.Water lineNumber}
- air {Lexer.Token Lexer.Air lineNumber}
- spirit {Lexer.Token Lexer.Spirit lineNumber}
- void {Lexer.Token Lexer.Void lineNumber}
- start {Lexer.Token Lexer.StartSkill lineNumber}
- end {Lexer.Token Lexer.EndSkill lineNumber}
- counter {Lexer.Token Lexer.CounterSkill lineNumber}
- spawn {Lexer.Token Lexer.SpawnSkill lineNumber}
- death {Lexer.Token Lexer.DeathSkill lineNumber}
- auto {Lexer.Token Lexer.AutoSkill lineNumber}
- action {Lexer.Token Lexer.ActionSkill lineNumber}
- soul {Lexer.Token Lexer.SoulSkill lineNumber}
- cost {Lexer.Token Lexer.Cost lineNumber}
- condition {Lexer.Token Lexer.Condition lineNumber}
- self {Lexer.Token Lexer.Self lineNumber}
- thoughts {Lexer.Token Lexer.Thoughts lineNumber}
- thought {Lexer.Token Lexer.Thought lineNumber}
- max {Lexer.Token Lexer.Max lineNumber}
- hp {Lexer.Token Lexer.Hp lineNumber}
- base {Lexer.Token Lexer.Base lineNumber}
- permanent {Lexer.Token Lexer.Permanent lineNumber}
- current {Lexer.Token Lexer.Temporary lineNumber}
- engagement {Lexer.Token Lexer.Engagement lineNumber}
- friendly {Lexer.Token Lexer.Friendly lineNumber}
- enemy {Lexer.Token Lexer.Enemy lineNumber}
- increment {Lexer.Token Lexer.Increment lineNumber}
- decrement {Lexer.Token Lexer.Decrement lineNumber}
- stretch {Lexer.Token Lexer.Stretch lineNumber}
- crush {Lexer.Token Lexer.Crush lineNumber}
- contort {Lexer.Token Lexer.Contort lineNumber}
- select {Lexer.Token Lexer.Select lineNumber}
- hand {Lexer.Token Lexer.Hand lineNumber}
- field {Lexer.Token Lexer.Field lineNumber}
- graveyard {Lexer.Token Lexer.Graveyard lineNumber}
- banished {Lexer.Token Lexer.Banished lineNumber}
- union {Lexer.Token Lexer.Union lineNumber}
+ then {Lexer.Token Lexer.Then (_)}
+ for {Lexer.Token Lexer.For (_)}
+ where {Lexer.Token Lexer.Where (_)}
+ each {Lexer.Token Lexer.Each (_)}
+ in {Lexer.Token Lexer.In (_)}
+ unable {Lexer.Token Lexer.Unable (_)}
+ unit {Lexer.Token Lexer.Unit (_)}
+ spell {Lexer.Token Lexer.Spell (_)}
+ assign {Lexer.Token Lexer.Assignment (_)}
+ name {Lexer.Token (Lexer.TargetString $$) (_)}
+ if {Lexer.Token Lexer.If (_)}
+ {-else {Lexer.Token Lexer.Else (_)}-}
+ var {Lexer.Token (Lexer.Identifier $$) (_)}
+ colon {Lexer.Token Lexer.Colon (_)}
+ lparen  {Lexer.Token Lexer.Lparen (_)}
+ rparen {Lexer.Token Lexer.Rparen (_)}
+ lbracket {Lexer.Token Lexer.Lbracket (_)}
+ rbracket {Lexer.Token Lexer.Rbracket (_)}
+ comma {Lexer.Token Lexer.Comma (_)}
+ semicolon {Lexer.Token Lexer.Semicolon (_)}
+ sum {Lexer.Token Lexer.Sum (_)}
+ difference {Lexer.Token Lexer.Difference (_)}
+ product {Lexer.Token Lexer.Product (_)}
+ quotient {Lexer.Token Lexer.Quotient (_)}
+ mod {Lexer.Token Lexer.Mod (_)}
+ number {Lexer.Token (Lexer.Number $$) (_) {-This is going to need a projection function probably??-}}
+ {-string {Lexer.Token (Lexer.TargetString $$) (_)}-}
+ {-lex_error {Lexer.Token (Lexer.Error $$) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
+ eq {Lexer.Token Lexer.Equality (_)}
+ leq {Lexer.Token Lexer.LEQ (_)}
+ lt {Lexer.Token Lexer.Lt (_)}
+ geq {Lexer.Token Lexer.GEQ (_)}
+ gt {Lexer.Token Lexer.Gt (_)}
+ and {Lexer.Token Lexer.And (_)}
+ or {Lexer.Token Lexer.Or (_)}
+ not {Lexer.Token Lexer.Not (_)}
+{- eof {Lexer.Token Lexer.EOFToken (_)} {- NO NO NO I do not want this either!!!!! -}-}
+ level {Lexer.Token Lexer.Level (_)}
+ attack {Lexer.Token Lexer.Attack (_)}
+ defense {Lexer.Token Lexer.Defense (_)}
+ speed {Lexer.Token Lexer.Speed (_)}
+ range {Lexer.Token Lexer.Range (_)}
+ soulPoints {Lexer.Token Lexer.SoulPoints (_)}
+ earth {Lexer.Token Lexer.Earth (_)}
+ fire {Lexer.Token Lexer.Fire (_)}
+ water {Lexer.Token Lexer.Water (_)}
+ air {Lexer.Token Lexer.Air (_)}
+ spirit {Lexer.Token Lexer.Spirit (_)}
+ void {Lexer.Token Lexer.Void (_)}
+ start {Lexer.Token Lexer.StartSkill (_)}
+ end {Lexer.Token Lexer.EndSkill (_)}
+ counter {Lexer.Token Lexer.CounterSkill (_)}
+ spawn {Lexer.Token Lexer.SpawnSkill (_)}
+ death {Lexer.Token Lexer.DeathSkill (_)}
+ auto {Lexer.Token Lexer.AutoSkill (_)}
+ action {Lexer.Token Lexer.ActionSkill (_)}
+ soul {Lexer.Token Lexer.SoulSkill (_)}
+ cost {Lexer.Token Lexer.Cost (_)}
+ condition {Lexer.Token Lexer.Condition (_)}
+ self {Lexer.Token Lexer.Self (_)}
+ thoughts {Lexer.Token Lexer.Thoughts (_)}
+ thought {Lexer.Token Lexer.Thought (_)}
+ max {Lexer.Token Lexer.Max (_)}
+ hp {Lexer.Token Lexer.Hp (_)}
+ base {Lexer.Token Lexer.Base (_)}
+ permanent {Lexer.Token Lexer.Permanent (_)}
+ current {Lexer.Token Lexer.Temporary (_)}
+ engagement {Lexer.Token Lexer.Engagement (_)}
+ friendly {Lexer.Token Lexer.Friendly (_)}
+ enemy {Lexer.Token Lexer.Enemy (_)}
+ increment {Lexer.Token Lexer.Increment (_)}
+ decrement {Lexer.Token Lexer.Decrement (_)}
+ stretch {Lexer.Token Lexer.Stretch (_)}
+ crush {Lexer.Token Lexer.Crush (_)}
+ contort {Lexer.Token Lexer.Contort (_)}
+ select {Lexer.Token Lexer.Select (_)}
+ hand {Lexer.Token Lexer.Hand (_)}
+ field {Lexer.Token Lexer.Field (_)}
+ graveyard {Lexer.Token Lexer.Graveyard (_)}
+ banished {Lexer.Token Lexer.Banished (_)}
+ union {Lexer.Token Lexer.Union (_)}
+   
+   
+   
 
 
 %nonassoc gt lt eq leq geq
