@@ -336,6 +336,12 @@ fooPrint (Right s) = hPutStrLn stderr s
 
 
 
+getLineNumber :: Alex Int
+getLineNumber = Alex $ \s -> Right (s, myGetLineNumber $ alex_pos s)
+myGetLineNumber (AlexPn _ s _) = s
+
+
+
 
 -- Philip Overgod code:
 

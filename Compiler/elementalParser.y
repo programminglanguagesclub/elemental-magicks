@@ -9,7 +9,8 @@ import qualified Lexer
 %name calc
 %tokentype {Lexer.Token}
 %error {parseError}
-
+%monad {P} {thenP} {returnP}
+%lexer {lexer} {(Lexer.Token Lexer.EOFToken (_))}
 
 
 %token
@@ -262,6 +263,48 @@ getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = undefined 
 
 
+
+
+
+
+
+type P a = Lexer.Alex a
+
+
+
+thenP = (>>=)
+
+returnP = return
+{-
+failP = fail
+-}
+catchP m c = fail "catch not implemented"
+
+
+
+
+
+
+
+
+
+
+
+{-
+fooBar :: ((Token,Int) -> P a) -> P a
+       fooBar  = (alexMonadScan >>=)
+       -}
+
+
+
+lexer :: (Lexer.Token -> P a) -> P a
+lexer = (Lexer.alexMonadScan >>=)
+
+
+
+
+
+
 {-
 
 At this point an important design decision has to be made regarding statements of the form
@@ -292,9 +335,16 @@ If we rejected this with a parse error, we would have much more difficulty displ
 
 {-I'm currently throwing away typing information in my AST.-}
 
-
+{-
 parseError :: [Lexer.Token] -> a
 parseError tokens = error $ ("ERROR: " ++ show tokens) {-error "Parse error"-}
+-}
+
+parseError tokens = do
+ i <- Lexer.getLineNumber
+ Lexer.alexError $ show i
+
+
 
 data File = File [Unit] [Spell]
              deriving Show
@@ -455,25 +505,44 @@ data Expr = Constant String
            deriving Show
 
 
+getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
+getTokens s = case Lexer.runAlex s Lexer.gather of Left _ -> []
+                                                   Right x -> x {-(map fst x)-}
 
 
+{-
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
 getTokens s = case Lexer.runAlex s Lexer.gather of
                    Left _ -> []
                    Right x -> (map fst x)
+-}
 
+{-
 programPrint :: File -> IO ()
 programPrint p = print p
+-}
 
+{-
 getProgram :: IO File
 getProgram = do
              s <- getContents
              pure (calc $ getTokens s)
+-}
 
-main = do
+{-
+main = pure (){-do
        x <- getProgram
        programPrint x
-       
+       -}
+-}
+
+
+main = do
+ x <- getContents
+ case Lexer.runAlex x calc of
+  Right x -> error $ show x
+  Left x -> error $ show x
+
 }
 
 
