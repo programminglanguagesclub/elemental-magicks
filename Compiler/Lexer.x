@@ -15,112 +15,112 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 tokens :-
 <0>  $white+				;
 
-<0> soulSkill { \s i -> return (SoulSkill, lineNumber s) }
-<0> start { \s i -> return (StartSkill, lineNumber s) }
-<0> end { \s i -> return (EndSkill, lineNumber s) }
-<0> counter { \s i -> return (CounterSkill, lineNumber s) }
-<0> spawn { \s i -> return (SpawnSkill, lineNumber s) }
-<0> death { \s i -> return (DeathSkill, lineNumber s) }
-<0> auto { \s i -> return (AutoSkill, lineNumber s) }
-<0> action { \s i -> return (ActionSkill, lineNumber s) }
-<0> union { \s i -> return (Union, lineNumber s) }
+<0> soulSkill { \s i -> return (Token SoulSkill $ lineNumber s) }
+<0> start { \s i -> return (Token StartSkill $ lineNumber s) }
+<0> end { \s i -> return (Token EndSkill $ lineNumber s) }
+<0> counter { \s i -> return (Token CounterSkill $ lineNumber s) }
+<0> spawn { \s i -> return (Token SpawnSkill $ lineNumber s) }
+<0> death { \s i -> return (Token DeathSkill $ lineNumber s) }
+<0> auto { \s i -> return (Token AutoSkill $ lineNumber s) }
+<0> action { \s i -> return (Token ActionSkill $ lineNumber s) }
+<0> union { \s i -> return (Token Union $ lineNumber s) }
 
 
-<0> unit { \s i -> return (Unit, lineNumber s) }
-<0> spell { \s i -> return (Spell, lineNumber s) }
-
-
-
-
-
-<0> for { \s i -> return (For, lineNumber s) }
-<0> each { \s i -> return (Each, lineNumber s) }
-
-
-<0> self { \s i -> return (Self, lineNumber s) }
-<0> soulPoints  { \s i -> return (SoulPoints, lineNumber s) }
-<0> in { \s i -> return (In, lineNumber s) }
-<0> attack       { \s i -> return (Attack, lineNumber s) }
-<0> defense  { \s i -> return (Defense, lineNumber s) }
-<0> hp  { \s i -> return (Hp, lineNumber s) }
-<0> max  { \s i -> return (Max, lineNumber s) }
-<0> range  { \s i -> return (Range, lineNumber s) }
-<0> speed  { \s i -> return (Speed, lineNumber s) }
-<0> level  { \s i -> return (Level, lineNumber s) }
-<0> knowledge  { \s i -> return (Knowledge, lineNumber s) }
-<0> earth  { \s i -> return (Earth, lineNumber s) }
-<0> fire  { \s i -> return (Fire, lineNumber s) }
-<0> water { \s i -> return (Water, lineNumber s) }
-<0> air { \s i -> return (Air, lineNumber s) }
-<0> spirit { \s i -> return (Spirit, lineNumber s) }
-<0> void { \s i -> return (Void, lineNumber s) }
-<0> thoughts { \s i -> return (Thoughts, lineNumber s) }
-<0> thought { \s i -> return (Thought, lineNumber s) }
-<0> friendly { \s i -> return (Friendly, lineNumber s) }
-<0> enemy { \s i -> return (Enemy, lineNumber s) }
-<0> field { \s i -> return (Field, lineNumber s) }
-<0> hand { \s i -> return (Hand, lineNumber s) }
-<0> graveyard { \s i -> return (Graveyard, lineNumber s) }
-<0> banished { \s i -> return (Banished, lineNumber s) }
-<0> send { \s i -> return (Send, lineNumber s) }
-<0> from { \s i -> return (From, lineNumber s) }
-<0> to { \s i -> return (To, lineNumber s) }
-<0> revive { \s i -> return (Revive, lineNumber s) }
-<0> restore { \s i -> return (Restore, lineNumber s) }
-<0> base { \s i -> return (Base, lineNumber s) }
-<0> permanent  { \s i -> return (Permanent, lineNumber s) }
-<0> temporary  { \s i -> return (Temporary, lineNumber s) }
-<0> engagement  { \s i -> return (Engagement, lineNumber s) }
-<0>  if          { \s i -> return (If, lineNumber s) }
-<0> where { \s i -> return (Where, lineNumber s) }
-<0> then { \s i -> return (Then, lineNumber s) }
-<0> next { \s i -> return (Next, lineNumber s) }
-<0> select { \s i -> return (Select, lineNumber s) }
-<0> unable { \s i -> return (Unable, lineNumber s) }
+<0> unit { \s i -> return (Token Unit $ lineNumber s) }
+<0> spell { \s i -> return (Token Spell $ lineNumber s) }
 
 
 
-<0> "+=" { \s i -> return (Increment, lineNumber s) }
-<0> "-=" { \s i -> return (Decrement, lineNumber s) }
-<0> "*=" { \s i -> return (Stretch, lineNumber s) }
-<0> "/=" { \s i -> return (Crush, lineNumber s) }
-<0> "%=" { \s i -> return (Contort, lineNumber s) }
 
 
-<0>  "," { \s i -> return (Comma, lineNumber s) }
-<0>  ":"         { \s i -> return (Colon, lineNumber s) }
-<0>  "("         { \s i -> return (Lparen, lineNumber s) }
-<0>  ")"         { \s i -> return (Rparen, lineNumber s) }
-<0>  "{"         { \s i -> return (Lbracket, lineNumber s) }
-<0>  "}"         { \s i -> return (Rbracket, lineNumber s) }
+<0> for { \s i -> return (Token For $ lineNumber s) }
+<0> each { \s i -> return (Token Each $ lineNumber s) }
 
 
-<0>  ";"         { \s i -> return (Semicolon, lineNumber s) }
-<0>  "."         { \s i -> return (Dot, lineNumber s) }
-<0>  ":="         { \s i -> return (Assignment, lineNumber s) }
+<0> self { \s i -> return (Token Self $ lineNumber s) }
+<0> soulPoints  { \s i -> return (Token SoulPoints $ lineNumber s) }
+<0> in { \s i -> return (Token In $ lineNumber s) }
+<0> attack       { \s i -> return (Token Attack $ lineNumber s) }
+<0> defense  { \s i -> return (Token Defense $ lineNumber s) }
+<0> hp  { \s i -> return (Token Hp $ lineNumber s) }
+<0> max  { \s i -> return (Token Max $ lineNumber s) }
+<0> range  { \s i -> return (Token Range $ lineNumber s) }
+<0> speed  { \s i -> return (Token Speed $ lineNumber s) }
+<0> level  { \s i -> return (Token Level $ lineNumber s) }
+<0> knowledge  { \s i -> return (Token Knowledge $ lineNumber s) }
+<0> earth  { \s i -> return (Token Earth $ lineNumber s) }
+<0> fire  { \s i -> return (Token Fire $ lineNumber s) }
+<0> water { \s i -> return (Token Water $ lineNumber s) }
+<0> air { \s i -> return (Token Air $ lineNumber s) }
+<0> spirit { \s i -> return (Token Spirit $ lineNumber s) }
+<0> void { \s i -> return (Token Void $ lineNumber s) }
+<0> thoughts { \s i -> return (Token Thoughts $ lineNumber s) }
+<0> thought { \s i -> return (Token Thought $ lineNumber s) }
+<0> friendly { \s i -> return (Token Friendly $ lineNumber s) }
+<0> enemy { \s i -> return (Token Enemy $ lineNumber s) }
+<0> field { \s i -> return (Token Field $ lineNumber s) }
+<0> hand { \s i -> return (Token Hand $ lineNumber s) }
+<0> graveyard { \s i -> return (Token Graveyard $ lineNumber s) }
+<0> banished { \s i -> return (Token Banished $ lineNumber s) }
+<0> send { \s i -> return (Token Send $ lineNumber s) }
+<0> from { \s i -> return (Token From $ lineNumber s) }
+<0> to { \s i -> return (Token To $ lineNumber s) }
+<0> revive { \s i -> return (Token Revive $ lineNumber s) }
+<0> restore { \s i -> return (Token Restore $ lineNumber s) }
+<0> base { \s i -> return (Token Base $ lineNumber s) }
+<0> permanent  { \s i -> return (Token Permanent $ lineNumber s) }
+<0> temporary  { \s i -> return (Token Temporary $ lineNumber s) }
+<0> engagement  { \s i -> return (Token Engagement $ lineNumber s) }
+<0>  if          { \s i -> return (Token If $ lineNumber s) }
+<0> where { \s i -> return (Token Where $ lineNumber s) }
+<0> then { \s i -> return (Token Then $ lineNumber s) }
+<0> next { \s i -> return (Token Next $ lineNumber s) }
+<0> select { \s i -> return (Token Select $ lineNumber s) }
+<0> unable { \s i -> return (Token Unable $ lineNumber s) }
 
-<0> else         { \s i -> return (Else, lineNumber s) }
+
+
+<0> "+=" { \s i -> return (Token Increment $ lineNumber s) }
+<0> "-=" { \s i -> return (Token Decrement $ lineNumber s) }
+<0> "*=" { \s i -> return (Token Stretch $ lineNumber s) }
+<0> "/=" { \s i -> return (Token Crush $ lineNumber s) }
+<0> "%=" { \s i -> return (Token Contort $ lineNumber s) }
+
+
+<0>  "," { \s i -> return (Token Comma $ lineNumber s) }
+<0>  ":"         { \s i -> return (Token Colon $ lineNumber s) }
+<0>  "("         { \s i -> return (Token Lparen $ lineNumber s) }
+<0>  ")"         { \s i -> return (Token Rparen $ lineNumber s) }
+<0>  "{"         { \s i -> return (Token Lbracket $ lineNumber s) }
+<0>  "}"         { \s i -> return (Token Rbracket $ lineNumber s) }
+
+
+<0>  ";"         { \s i -> return (Token Semicolon $ lineNumber s) }
+<0>  "."         { \s i -> return (Token Dot $ lineNumber s) }
+<0>  ":="         { \s i -> return (Token Assignment $ lineNumber s) }
+
+<0> else         { \s i -> return (Token Else $ lineNumber s) }
 
 
 
-<0>  "+"         { \s i -> return (Sum, lineNumber s) }
-<0>  "-"         { \s i -> return (Difference, lineNumber s) }
-<0>  "*"         { \s i -> return (Product, lineNumber s) }
-<0>  "/"         { \s i -> return (Quotient, lineNumber s) }
-<0> "%"          {\s i -> return (Mod, lineNumber s) }
+<0>  "+"         { \s i -> return (Token Sum $ lineNumber s) }
+<0>  "-"         { \s i -> return (Token Difference $ lineNumber s) }
+<0>  "*"         { \s i -> return (Token Product $ lineNumber s) }
+<0>  "/"         { \s i -> return (Token Quotient $ lineNumber s) }
+<0> "%"          {\s i -> return (Token Mod $ lineNumber s) }
 
 
 
-<0> "=" {\s i -> return (Equality, lineNumber s) } 
-<0> "<=" {\s i -> return (LEQ, lineNumber s)}
-<0> "<" {\s i -> return (Lt, lineNumber s)}
-<0> ">=" {\s i -> return (GEQ, lineNumber s)}
-<0> ">" {\s i -> return (Gt, lineNumber s)}
-<0> "and" {\s i -> return (And, lineNumber s)}
-<0> "or" {\s i -> return (Or, lineNumber s)}
-<0> "not" {\s i -> return (Not, lineNumber s)}
+<0> "=" {\s i -> return (Token Equality $ lineNumber s) } 
+<0> "<=" {\s i -> return (Token LEQ $ lineNumber s)}
+<0> "<" {\s i -> return (Token Lt $ lineNumber s)}
+<0> ">=" {\s i -> return (Token GEQ $ lineNumber s)}
+<0> ">" {\s i -> return (Token Gt $ lineNumber s)}
+<0> "and" {\s i -> return (Token And $ lineNumber s)}
+<0> "or" {\s i -> return (Token Or $ lineNumber s)}
+<0> "not" {\s i -> return (Token Not $ lineNumber s)}
 
-eof  {\s i -> return (EOFToken, lineNumber s)}
+eof  {\s i -> return (Token EOFToken $ lineNumber s)}
 
 
 
@@ -130,6 +130,45 @@ eof  {\s i -> return (EOFToken, lineNumber s)}
 <comment2> "*/"          {begin 0}
 
 <comment2> [.\n]       ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NEED TO UPDATE RETURNS HERE!!!!!!!!!!!!!!!!!!!
+
+
+
+!!!!!
+
+
+!!!
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -180,8 +219,10 @@ project (_,_,_,x) = x
 
 -- Each action has type :: String -> Token
 
+data Token = Token TokenInner Int
+           deriving Show
 -- The token type:
-data Token =
+data TokenInner =
   Program
   | Else
   | If
@@ -292,7 +333,7 @@ alexEOF = return (EOFToken,undefined)
 helpPrint :: Int -> String -> String -> String
 helpPrint n t val = (show n) ++ "  " ++ t ++ " \"" ++ val ++ "\""
 
-myPrint :: (Token, Int) -> Either String String
+myPrint :: (TokenInner, Int) -> Either String String
 myPrint (Else, n) = Left $ helpPrint n "ELSE" "else"
 myPrint (If, n) = Left $ helpPrint n "IF" "if"
 myPrint (Identifier val, n) = Left $ helpPrint n "IDENT" val
@@ -339,7 +380,7 @@ fooPrint (Right s) = hPutStrLn stderr s
 
 gather =  alexMonadScan >>= \x -> 
   case x of 
-   (EOFToken,n) -> return []
+   (Token EOFToken n) -> return []
    _ -> gather >>= (return . (x :))
 
 -- end Overgod code
