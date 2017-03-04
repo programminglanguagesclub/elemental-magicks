@@ -136,67 +136,28 @@ eof  {\s i -> return (Token EOFToken $ lineNumber s)}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-NEED TO UPDATE RETURNS HERE!!!!!!!!!!!!!!!!!!!
-
-
-
-!!!!!
-
-
-!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  <0> \"\"\" {begin string2}
 
 
-<string2> ((([.\n]?[.\n]?[^\"])* \"\"\") | \"\"\")  { \s i -> ( (alexSetStartCode 0) >> return ((TargetString $ take (i-3) $ project    s), lineNumber s))}
+<string2> ((([.\n]?[.\n]?[^\"])* \"\"\") | \"\"\")  { \s i -> ( (alexSetStartCode 0) >> return ( Token (TargetString $ take (i-3) $ project    s) $ lineNumber s))}
 
 
 
 <0>  \"           {begin string1}
-<string1> ([. # \" # \\] | \\0 | \\b | \\t | \\n | \\r | \\f | \\\" | \\\\ )* \"  { \s i -> ( (alexSetStartCode 0) >> return ((TargetString $ (take (i-1) $ project s)), lineNumber s))}
+<string1> ([. # \" # \\] | \\0 | \\b | \\t | \\n | \\r | \\f | \\\" | \\\\ )* \"  { \s i -> ( (alexSetStartCode 0) >> return ( Token (TargetString $ (take (i-1) $ project s)) $ lineNumber s))}
 
 
 
 
 
-<0>       [0-9]+    { \s i -> return ((Number $ take i $ project s), lineNumber s)}
+<0>       [0-9]+    { \s i -> return (Token (Number $ take i $ project s) $ lineNumber s)}
 
 
 
-<0> [a-z] { \s i -> return ((Identifier $ take i $ project s), lineNumber s)}
+<0> [a-z] { \s i -> return (Token (Identifier $ take i $ project s) $ lineNumber s)}
 
 
-[.\n] { \s i -> (alexSetStartCode 0) >> return ((Error $ take 1 $ project s), lineNumber s)} -- not sure what to do here.
+[.\n] { \s i -> (alexSetStartCode 0) >> return (Token (Error $ take 1 $ project s) $ lineNumber s)} -- not sure what to do here.
 
 
 {
@@ -325,11 +286,11 @@ data TokenInner =
   | EOFToken
   deriving (Eq,Show)
 
-alexEOF = return (EOFToken,undefined)
+alexEOF = return (Token EOFToken (-1))
 
 
 
-
+{-
 helpPrint :: Int -> String -> String -> String
 helpPrint n t val = (show n) ++ "  " ++ t ++ " \"" ++ val ++ "\""
 
@@ -367,7 +328,7 @@ myPrint (Not, n) = Left $ helpPrint n "NOT" "not"
 
 
 myPrint (EOFToken, _) = Left "" {-do I have to worry about an extra newline?-}
-
+-}
 
 fooPrint :: Either String String -> IO ()
 fooPrint (Left s) = putStrLn s
