@@ -100,7 +100,7 @@ eof  {\s i -> return (Token EOFToken (lineNumber s) (columnNumber s) "EOF")}
 <comment2> [.\n]       ;
 <0>  \"           {begin string1}
 <string1> ([. # \" # \\] | \\0 | \\b | \\t | \\n | \\r | \\f | \\\" | \\\\ )* \"  { \s i -> ( (alexSetStartCode 0) >> return ( Token (TargetString $ (take (i-1) $ project s)) (lineNumber s) (columnNumber s) (take (i-1) $ project s)))}
-<0>       [0-9]+    { \s i -> return (Token (Number $ take i $ project s) (lineNumber s) (columnNumber s) (take (i-1) $ project s))}
+<0>       [0-9]+    { \s i -> return (Token (Number $ take i $ project s) (lineNumber s) (columnNumber s) (take i $ project s))}
 <0> [a-z] { \s i -> return (Token (Identifier $ take i $ project s) (lineNumber s) (columnNumber s) (take i $ project s))}
 [.\n] { \s i -> (alexSetStartCode 0) >> return (Token (Error $ take 1 $ project s) (lineNumber s) (columnNumber s) "ERROR")} -- not sure what to do here.
 
