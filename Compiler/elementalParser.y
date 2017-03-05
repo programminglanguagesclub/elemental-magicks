@@ -161,28 +161,9 @@ School : earth {Knowledge "earth"}
        | air {Knowledge "air"}
        | spirit {Knowledge "spirit"}
        | void {Knowledge "void"}
-Schools : {NoSchools}
-        | earth {Earth}
-        | fire {Fire}
-        | water {Water}
-        | air {Air}
-        | spirit {Spirit}
-        | void {Void}
-        | earth fire {EarthFire}
-        | earth water {EarthWater}
-        | earth air {EarthAir}
-        | earth spirit {EarthSpirit}
-        | earth void {EarthVoid}
-        | fire water {FireWater}
-        | fire air {FireAir}
-        | fire spirit {FireSpirit}
-        | fire void {FireVoid}
-        | water air {WaterAir}
-        | water spirit {WaterSpirit}
-        | water void {WaterVoid}
-        | air spirit {AirSpirit}
-        | air void {AirVoid}
-        | spirit void {SpiritVoid}
+Schools : {Schools "NoSchools"}
+        | name {Schools "Earth}
+        | name name {Schools ($1 ++ $2)}
 Start : {Nothing}
       | start colon Skill {Just $ Start $3}
 End : {Nothing}
@@ -480,7 +461,7 @@ This can be after some typechecking...
 data Knowledge = Knowledge String
                deriving Show
 
-
+{-
 data Schools = NoSchools
              | Earth
              | Fire
@@ -504,7 +485,9 @@ data Schools = NoSchools
              | AirVoid
              | SpiritVoid
              deriving Show
+-}
 
+data Schools = Schools String
 
 
 
