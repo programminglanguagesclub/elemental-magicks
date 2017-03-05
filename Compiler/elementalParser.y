@@ -593,6 +593,8 @@ typeCheckSkill :: Skill -> [String]
 typeCheckSkill _ = undefined
 -}
 
+
+
 typeCheckStart :: Maybe Start -> [String]
 typeCheckStart _ = undefined
 
@@ -617,9 +619,16 @@ typeCheckAction _ = undefined
 typeCheckSoul :: Soul -> [String]
 typeCheckSoul _ = undefined
 
-typeCheckStats :: Stats -> [String]
-typeCheckStats _ = undefined
 
+
+{-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
+typeCheckLevel :: String -> [String]
+typeCheckLevel _ = undefined
+
+
+
+typeCheckStats :: Stats -> [String]
+typeCheckStats (Stats schools level hp attack defense speed range soulPoints) = undefined
 
 typeCheckSpawnSpell :: Skill -> [String]
 typeCheckSpawnSpell _ = undefined
