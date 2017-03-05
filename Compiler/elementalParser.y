@@ -129,12 +129,12 @@ Spells : {[]}
 Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats $1 $4 $7 $10 $13 $16 $19 $22}
-School : earth {EarthKnowledge}
-       | fire {FireKnowledge}
-       | water {WaterKnowledge}
-       | air {AirKnowledge}
-       | spirit {SpiritKnowledge}
-       | void {VoidKnowledge}
+School : earth {Knowledge "earth"}
+       | fire {Knowledge "fire"}
+       | water {Knowledge "water"}
+       | air {Knowledge "air"}
+       | spirit {Knowledge "spirit"}
+       | void {Knowledge "void"}
 Schools : {NoSchools}
         | earth {Earth}
         | fire {Fire}
@@ -435,6 +435,8 @@ data Engagement = Engagement
                 deriving Show
 
 
+
+{-
 data Knowledge = EarthKnowledge
                | FireKnowledge
                | WaterKnowledge
@@ -442,6 +444,17 @@ data Knowledge = EarthKnowledge
                | SpiritKnowledge
                | VoidKnowledge
                deriving Show
+
+
+This can be after some typechecking...
+
+-}
+
+
+data Knowledge = Knowledge String
+               deriving Show
+
+
 data Schools = NoSchools
              | Earth
              | Fire
@@ -548,6 +561,117 @@ prettyPrint (x:[]) = x
 prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
 
 
+
+
+
+{-
+::::::::::::
+TYPE CHECKER
+::::::::::::
+-}
+
+
+
+
+
+
+
+
+
+typeCheckSchool :: String -> [String]
+typeCheckSchool _ = undefined
+
+typeCheckSchools :: String -> [String]
+typeCheckSchools _ = undefined                 
+
+typeCheckBaseLevel :: String -> [String]
+typeCheckBaseLevel _ = undefined
+
+
+{-
+typeCheckSkill :: Skill -> [String]
+typeCheckSkill _ = undefined
+-}
+
+typeCheckStart :: Maybe Start -> [String]
+typeCheckStart _ = undefined
+
+typeCheckEnd :: Maybe End -> [String]
+typeCheckEnd _ = undefined
+
+typeCheckCounter :: Maybe Counter -> [String]
+typeCheckCounter _ = undefined
+
+typeCheckSpawnUnit :: Maybe Spawn -> [String]
+typeCheckSpawnUnit _ = undefined
+
+typeCheckDeath :: Maybe Death -> [String]
+typeCheckDeath _ = undefined
+
+typeCheckAuto :: Maybe Auto -> [String]
+typeCheckAuto _ = undefined
+
+typeCheckAction :: Action -> [String]
+typeCheckAction _ = undefined
+
+typeCheckSoul :: Soul -> [String]
+typeCheckSoul _ = undefined
+
+typeCheckStats :: Stats -> [String]
+typeCheckStats _ = undefined
+
+
+typeCheckSpawnSpell :: Skill -> [String]
+typeCheckSpawnSpell _ = undefined
+
+typeCheckSpell :: Spell -> [String]
+typeCheckSpell (Spell name (Knowledge school) level skill) =
+ (typeCheckSchool school) ++
+ (typeCheckBaseLevel level) ++
+ (typeCheckSpawnSpell skill)
+
+typeCheckUnit :: Unit -> [String]
+typeCheckUnit (Unit name stats start end counter spawn death auto actions soul) =
+ (typeCheckStats stats) ++
+ (typeCheckStart start) ++
+ (typeCheckEnd end) ++
+ (typeCheckCounter counter) ++
+ (typeCheckSpawnUnit spawn) ++
+ (typeCheckDeath death) ++
+ (typeCheckAuto auto) ++
+ (concat $ map typeCheckAction actions) ++
+ (typeCheckSoul soul)
+
+typeCheck :: File -> [String]
+typeCheck (File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 main = do
  x <- getContents
  case Lexer.runAlex x calc of
@@ -555,6 +679,7 @@ main = do
   Left y -> error $ show {-x-} y
 
 }
+
 
 
 
