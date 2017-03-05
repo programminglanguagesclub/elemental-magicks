@@ -3,6 +3,32 @@ module Main where
 
 import qualified Lexer
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import Text.Read
+
 }
 
 
@@ -570,8 +596,8 @@ TYPE CHECKER
 ::::::::::::
 -}
 
-
-
+maxInt :: Int
+maxInt = 1000
 
 
 
@@ -584,8 +610,6 @@ typeCheckSchool _ = undefined
 typeCheckSchools :: String -> [String]
 typeCheckSchools _ = undefined                 
 
-typeCheckBaseLevel :: String -> [String]
-typeCheckBaseLevel _ = undefined
 
 
 {-
@@ -622,13 +646,57 @@ typeCheckSoul _ = undefined
 
 
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
-typeCheckLevel :: String -> [String]
-typeCheckLevel _ = undefined
+typeCheckBaseLevel :: String -> [String]
+typeCheckBaseLevel s = 
+ case (readMaybe s :: Maybe Int) of
+  Nothing -> ["Base level must be an int."]
+  Just i ->
+   if i < 1 then ["Base level must be at least 1."]
+   else if i > 9 then ["Base level must be at most 9."]
+   else []
 
 
+
+typeCheckBaseHp :: String -> [String]
+typeCheckBaseHp s =
+ case (readMaybe s :: Maybe Int) of
+  Nothing -> ["Base hp must be an int"]
+  Just i ->
+   if i < 1 then ["Base hp must be at least 1"]
+   else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
+   else []
+
+typeCheckAttack :: String -> [String]
+typeCheckAttack s =
+ case (readMaybe s :: Maybe Int) of
+  Nothing -> ["Base attack must be an int"]
+  Just i ->
+   if i < 0 then ["Base attack must be at least 0"]
+   else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
+   else []
+
+{- This above can be refactored to remove a lot of redundancy...-}
+
+
+typeCheckDefense :: String -> [String]
+typeCheckDefense _ = undefined
+typeCheckBaseSpeed :: String -> [String]
+typeCheckBaseSpeed _ = undefined
+typeCheckBaseRange :: String -> [String]
+typeCheckBaseRange _ = undefined
+typeCheckBaseSoulPoints :: String -> [String]
+typeCheckBaseSoulPoints _ = undefined
 
 typeCheckStats :: Stats -> [String]
-typeCheckStats (Stats schools level hp attack defense speed range soulPoints) = undefined
+typeCheckStats (Stats schools level hp attack defense speed range soulPoints) =
+ (typeCheckSchools schools) ++
+ (typeCheckBaseLevel level) ++
+ (typeCheckBaseHp hp) ++
+ (typeCheckAttack attack) ++
+ (typeCheckDefense defense) ++
+ (typeCheckBaseSpeed speed) ++
+ (typeCheckBaseRange range) ++
+ (typeCheckBaseSoulPoints soulPoints)
 
 typeCheckSpawnSpell :: Skill -> [String]
 typeCheckSpawnSpell _ = undefined
