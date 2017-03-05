@@ -38,89 +38,89 @@ tokens :-
 
 
 <0> self { \s i -> return (Token Self (lineNumber s) (columnNumber s) 3}
-<0> soulPoints  { \s i -> return (Token SoulPoints $ lineNumber s) }
-<0> in { \s i -> return (Token In $ lineNumber s) }
-<0> attack       { \s i -> return (Token Attack $ lineNumber s) }
-<0> defense  { \s i -> return (Token Defense $ lineNumber s) }
-<0> hp  { \s i -> return (Token Hp $ lineNumber s) }
-<0> max  { \s i -> return (Token Max $ lineNumber s) }
-<0> range  { \s i -> return (Token Range $ lineNumber s) }
-<0> speed  { \s i -> return (Token Speed $ lineNumber s) }
-<0> level  { \s i -> return (Token Level $ lineNumber s) }
-<0> knowledge  { \s i -> return (Token Knowledge $ lineNumber s) }
-<0> earth  { \s i -> return (Token Earth $ lineNumber s) }
-<0> fire  { \s i -> return (Token Fire $ lineNumber s) }
-<0> water { \s i -> return (Token Water $ lineNumber s) }
-<0> air { \s i -> return (Token Air $ lineNumber s) }
-<0> spirit { \s i -> return (Token Spirit $ lineNumber s) }
-<0> void { \s i -> return (Token Void $ lineNumber s) }
-<0> thoughts { \s i -> return (Token Thoughts $ lineNumber s) }
-<0> thought { \s i -> return (Token Thought $ lineNumber s) }
-<0> friendly { \s i -> return (Token Friendly $ lineNumber s) }
-<0> enemy { \s i -> return (Token Enemy $ lineNumber s) }
-<0> field { \s i -> return (Token Field $ lineNumber s) }
-<0> hand { \s i -> return (Token Hand $ lineNumber s) }
-<0> graveyard { \s i -> return (Token Graveyard $ lineNumber s) }
-<0> banished { \s i -> return (Token Banished $ lineNumber s) }
-<0> send { \s i -> return (Token Send $ lineNumber s) }
-<0> from { \s i -> return (Token From $ lineNumber s) }
-<0> to { \s i -> return (Token To $ lineNumber s) }
-<0> revive { \s i -> return (Token Revive $ lineNumber s) }
-<0> restore { \s i -> return (Token Restore $ lineNumber s) }
-<0> base { \s i -> return (Token Base $ lineNumber s) }
-<0> permanent  { \s i -> return (Token Permanent $ lineNumber s) }
-<0> temporary  { \s i -> return (Token Temporary $ lineNumber s) }
-<0> engagement  { \s i -> return (Token Engagement $ lineNumber s) }
-<0>  if          { \s i -> return (Token If $ lineNumber s) }
-<0> where { \s i -> return (Token Where $ lineNumber s) }
-<0> then { \s i -> return (Token Then $ lineNumber s) }
-<0> next { \s i -> return (Token Next $ lineNumber s) }
-<0> select { \s i -> return (Token Select $ lineNumber s) }
-<0> unable { \s i -> return (Token Unable $ lineNumber s) }
+<0> soulPoints  { \s i -> return (Token SoulPoints (lineNumber s) (columnNumber s) 1000 }
+<0> in { \s i -> return (Token In (lineNumber s) (columnNumber s) 1000 }
+<0> attack       { \s i -> return (Token Attack (lineNumber s) (columnNumber s) 1000 }
+<0> defense  { \s i -> return (Token Defense (lineNumber s) (columnNumber s) 1000 }
+<0> hp  { \s i -> return (Token Hp (lineNumber s) (columnNumber s) 1000 }
+<0> max  { \s i -> return (Token Max (lineNumber s) (columnNumber s) 1000 }
+<0> range  { \s i -> return (Token Range (lineNumber s) (columnNumber s) 1000 }
+<0> speed  { \s i -> return (Token Speed (lineNumber s) (columnNumber s) 1000 }
+<0> level  { \s i -> return (Token Level (lineNumber s) (columnNumber s) 1000 }
+<0> knowledge  { \s i -> return (Token Knowledge (lineNumber s) (columnNumber s) 1000 }
+<0> earth  { \s i -> return (Token Earth (lineNumber s) (columnNumber s) 1000 }
+<0> fire  { \s i -> return (Token Fire (lineNumber s) (columnNumber s) 1000 }
+<0> water { \s i -> return (Token Water (lineNumber s) (columnNumber s) 1000 }
+<0> air { \s i -> return (Token Air (lineNumber s) (columnNumber s) 1000 }
+<0> spirit { \s i -> return (Token Spirit (lineNumber s) (columnNumber s) 1000 }
+<0> void { \s i -> return (Token Void (lineNumber s) (columnNumber s) 1000 }
+<0> thoughts { \s i -> return (Token Thoughts (lineNumber s) (columnNumber s) 1000 }
+<0> thought { \s i -> return (Token Thought (lineNumber s) (columnNumber s) 1000 }
+<0> friendly { \s i -> return (Token Friendly (lineNumber s) (columnNumber s) 1000 }
+<0> enemy { \s i -> return (Token Enemy (lineNumber s) (columnNumber s) 1000 }
+<0> field { \s i -> return (Token Field (lineNumber s) (columnNumber s) 1000 }
+<0> hand { \s i -> return (Token Hand (lineNumber s) (columnNumber s) 1000 }
+<0> graveyard { \s i -> return (Token Graveyard (lineNumber s) (columnNumber s) 1000 }
+<0> banished { \s i -> return (Token Banished (lineNumber s) (columnNumber s) 1000 }
+<0> send { \s i -> return (Token Send (lineNumber s) (columnNumber s) 1000 }
+<0> from { \s i -> return (Token From (lineNumber s) (columnNumber s) 1000 }
+<0> to { \s i -> return (Token To (lineNumber s) (columnNumber s) 1000 }
+<0> revive { \s i -> return (Token Revive (lineNumber s) (columnNumber s) 1000 }
+<0> restore { \s i -> return (Token Restore (lineNumber s) (columnNumber s) 1000 }
+<0> base { \s i -> return (Token Base (lineNumber s) (columnNumber s) 1000 }
+<0> permanent  { \s i -> return (Token Permanent (lineNumber s) (columnNumber s) 1000 }
+<0> temporary  { \s i -> return (Token Temporary (lineNumber s) (columnNumber s) 1000 }
+<0> engagement  { \s i -> return (Token Engagement (lineNumber s) (columnNumber s) 1000 }
+<0>  if          { \s i -> return (Token If (lineNumber s) (columnNumber s) 1000 }
+<0> where { \s i -> return (Token Where (lineNumber s) (columnNumber s) 1000 }
+<0> then { \s i -> return (Token Then (lineNumber s) (columnNumber s) 1000 }
+<0> next { \s i -> return (Token Next (lineNumber s) (columnNumber s) 1000 }
+<0> select { \s i -> return (Token Select (lineNumber s) (columnNumber s) 1000 }
+<0> unable { \s i -> return (Token Unable (lineNumber s) (columnNumber s) 1000 }
 
 
 
-<0> "+=" { \s i -> return (Token Increment $ lineNumber s) }
-<0> "-=" { \s i -> return (Token Decrement $ lineNumber s) }
-<0> "*=" { \s i -> return (Token Stretch $ lineNumber s) }
-<0> "/=" { \s i -> return (Token Crush $ lineNumber s) }
-<0> "%=" { \s i -> return (Token Contort $ lineNumber s) }
+<0> "+=" { \s i -> return (Token Increment (lineNumber s) (columnNumber s) 1000 }
+<0> "-=" { \s i -> return (Token Decrement (lineNumber s) (columnNumber s) 1000 }
+<0> "*=" { \s i -> return (Token Stretch (lineNumber s) (columnNumber s) 1000 }
+<0> "/=" { \s i -> return (Token Crush (lineNumber s) (columnNumber s) 1000 }
+<0> "%=" { \s i -> return (Token Contort (lineNumber s) (columnNumber s) 1000 }
 
 
-<0>  "," { \s i -> return (Token Comma $ lineNumber s) }
-<0>  ":"         { \s i -> return (Token Colon $ lineNumber s) }
-<0>  "("         { \s i -> return (Token Lparen $ lineNumber s) }
-<0>  ")"         { \s i -> return (Token Rparen $ lineNumber s) }
-<0>  "{"         { \s i -> return (Token Lbracket $ lineNumber s) }
-<0>  "}"         { \s i -> return (Token Rbracket $ lineNumber s) }
+<0>  "," { \s i -> return (Token Comma (lineNumber s) (columnNumber s) 1000 }
+<0>  ":"         { \s i -> return (Token Colon (lineNumber s) (columnNumber s) 1000 }
+<0>  "("         { \s i -> return (Token Lparen (lineNumber s) (columnNumber s) 1000 }
+<0>  ")"         { \s i -> return (Token Rparen (lineNumber s) (columnNumber s) 1000 }
+<0>  "{"         { \s i -> return (Token Lbracket (lineNumber s) (columnNumber s) 1000 }
+<0>  "}"         { \s i -> return (Token Rbracket (lineNumber s) (columnNumber s) 1000 }
 
 
-<0>  ";"         { \s i -> return (Token Semicolon $ lineNumber s) }
-<0>  "."         { \s i -> return (Token Dot $ lineNumber s) }
-<0>  ":="         { \s i -> return (Token Assignment $ lineNumber s) }
+<0>  ";"         { \s i -> return (Token Semicolon (lineNumber s) (columnNumber s) 1000 }
+<0>  "."         { \s i -> return (Token Dot (lineNumber s) (columnNumber s) 1000 }
+<0>  ":="         { \s i -> return (Token Assignment (lineNumber s) (columnNumber s) 1000 }
 
-<0> else         { \s i -> return (Token Else $ lineNumber s) }
-
-
-
-<0>  "+"         { \s i -> return (Token Sum $ lineNumber s) }
-<0>  "-"         { \s i -> return (Token Difference $ lineNumber s) }
-<0>  "*"         { \s i -> return (Token Product $ lineNumber s) }
-<0>  "/"         { \s i -> return (Token Quotient $ lineNumber s) }
-<0> "%"          {\s i -> return (Token Mod $ lineNumber s) }
+<0> else         { \s i -> return (Token Else (lineNumber s) (columnNumber s) 1000 }
 
 
 
-<0> "=" {\s i -> return (Token Equality $ lineNumber s) } 
-<0> "<=" {\s i -> return (Token LEQ $ lineNumber s)}
-<0> "<" {\s i -> return (Token Lt $ lineNumber s)}
-<0> ">=" {\s i -> return (Token GEQ $ lineNumber s)}
-<0> ">" {\s i -> return (Token Gt $ lineNumber s)}
-<0> "and" {\s i -> return (Token And $ lineNumber s)}
-<0> "or" {\s i -> return (Token Or $ lineNumber s)}
-<0> "not" {\s i -> return (Token Not $ lineNumber s)}
+<0>  "+"         { \s i -> return (Token Sum (lineNumber s) (columnNumber s) 1000 }
+<0>  "-"         { \s i -> return (Token Difference (lineNumber s) (columnNumber s) 1000 }
+<0>  "*"         { \s i -> return (Token Product (lineNumber s) (columnNumber s) 1000 }
+<0>  "/"         { \s i -> return (Token Quotient (lineNumber s) (columnNumber s) 1000 }
+<0> "%"          {\s i -> return (Token Mod (lineNumber s) (columnNumber s) 1000 }
 
-eof  {\s i -> return (Token EOFToken $ lineNumber s)}
+
+
+<0> "=" {\s i -> return (Token Equality (lineNumber s) (columnNumber s) 1000 } 
+<0> "<=" {\s i -> return (Token LEQ (lineNumber s) (columnNumber s) 1000}
+<0> "<" {\s i -> return (Token Lt (lineNumber s) (columnNumber s) 1000}
+<0> ">=" {\s i -> return (Token GEQ (lineNumber s) (columnNumber s) 1000}
+<0> ">" {\s i -> return (Token Gt (lineNumber s) (columnNumber s) 1000}
+<0> "and" {\s i -> return (Token And (lineNumber s) (columnNumber s) 1000}
+<0> "or" {\s i -> return (Token Or (lineNumber s) (columnNumber s) 1000}
+<0> "not" {\s i -> return (Token Not (lineNumber s) (columnNumber s) 1000}
+
+eof  {\s i -> return (Token EOFToken (lineNumber s) (columnNumber s) 1000}
 
 
 
