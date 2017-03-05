@@ -162,7 +162,7 @@ School : earth {Knowledge "earth"}
        | spirit {Knowledge "spirit"}
        | void {Knowledge "void"}
 Schools : {Schools "NoSchools"}
-        | name {Schools "Earth}
+        | name {Schools "Earth"}
         | name name {Schools ($1 ++ $2)}
 Start : {Nothing}
       | start colon Skill {Just $ Start $3}
@@ -444,7 +444,7 @@ data Engagement = Engagement
 
 
 {-
-data Knowledge = EarthKnowledge
+data TyKnowled = EarthKnowledge
                | FireKnowledge
                | WaterKnowledge
                | AirKnowledge
@@ -461,8 +461,8 @@ This can be after some typechecking...
 data Knowledge = Knowledge String
                deriving Show
 
-{-
-data Schools = NoSchools
+
+data TypedSc = NoSchools
              | Earth
              | Fire
              | Water
@@ -485,10 +485,10 @@ data Schools = NoSchools
              | AirVoid
              | SpiritVoid
              deriving Show
--}
+
 
 data Schools = Schools String
-
+             deriving Show
 
 
 
@@ -587,10 +587,10 @@ maxInt = 1000
 
 
 
-typeCheckSchool :: String -> [String]
+typeCheckSchool :: Knowledge -> [String]
 typeCheckSchool _ = undefined
 
-typeCheckSchools :: String -> [String]
+typeCheckSchools :: Schools -> [String]
 typeCheckSchools _ = undefined                 
 
 
@@ -686,7 +686,7 @@ typeCheckSpawnSpell _ = undefined
 
 typeCheckSpell :: Spell -> [String]
 typeCheckSpell (Spell name (Knowledge school) level skill) =
- (typeCheckSchool school) ++
+ (typeCheckSchool (Knowledge school)) ++
  (typeCheckBaseLevel level) ++
  (typeCheckSpawnSpell skill)
 
