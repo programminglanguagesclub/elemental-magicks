@@ -539,10 +539,19 @@ main = pure (){-do
 -}
 
 
+extractSurface :: Lexer.Token -> String
+extractSurface (Lexer.Token _ _ _ s) = s
+
+prettyPrint :: [String] -> String
+prettyPrint [] = ""
+prettyPrint (x:[]) = x
+prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
+
+
 main = do
  x <- getContents
  case Lexer.runAlex x calc of
-  Right y -> error $ show y
+  Right y -> error $ show $ (prettyPrint $ map extractSurface (getTokens x)) {-show y-}
   Left y -> error $ show {-x-} y
 
 }
