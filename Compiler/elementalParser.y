@@ -10,11 +10,11 @@ import qualified Lexer
 %tokentype {Lexer.Token}
 %error {parseError}
 %monad {P} {thenP} {returnP}
-%lexer {lexer} {(Lexer.Token Lexer.EOFToken (_))}
+%lexer {lexer} {(Lexer.Token Lexer.EOFToken (_) (_) (_))}
 
 
 %token
-  then {Lexer.Token Lexer.Then (_) (_) (_)}
+ then {Lexer.Token Lexer.Then (_) (_) (_)}
  for {Lexer.Token Lexer.For (_) (_) (_)}
  where {Lexer.Token Lexer.Where (_) (_) (_)}
  each {Lexer.Token Lexer.Each (_) (_) (_)}
