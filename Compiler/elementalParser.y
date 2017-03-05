@@ -181,7 +181,7 @@ OptionalCondition : {Always}
 OptionalFilter : {Always}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent}
-             | select SelectionStatement Expr ThenCase IfUnableCase NextAutomatic {Nonautomatic $2 $3 $4 $5 $6}
+             | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic $2 $3 $4 $5 $6}
 Automatic : SkillEffects Nonautomatic {Automatic $1 $2 {-Ignoring Universal case for now-} }
           | for each var in Side RelativeSet OptionalFilter comma {undefined {-Only allow one universally quantified variable at once. No pairs -}}
 ThenCase : then lbracket Automatic rbracket {$3}
@@ -213,6 +213,8 @@ ListExpr : {[]}
          | Expr comma ListExprCommas {$1 : $3}
 ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
+NullableExpr : {Always}
+             | Expr {$1}
 Expr : number {Constant $1}
      | Field self {Self $1}
      | Field var {Var $1 $2}
@@ -540,8 +542,8 @@ main = pure (){-do
 main = do
  x <- getContents
  case Lexer.runAlex x calc of
-  Right x -> error $ show x
-  Left x -> error $ show x
+  Right y -> error $ show y
+  Left y -> error $ show {-x-} y
 
 }
 

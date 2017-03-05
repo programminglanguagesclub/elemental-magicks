@@ -2,10 +2,10 @@ unit "Ent Sapling" earth level : 3 hp : 65 attack : 20 defense : 10 speed : 1 ra
  soulSkill :
   select x in friendly field
    then {
-    hp self := 0;
-    select y in enemy field then { hp y := hp x }
+    (hp self) := 0;
+    select y in enemy field then { (hp y) := hp x; }
    }
-   if unable { hp self := 5 }
+   if unable { (hp self) := 5; }
 
 /*
  *

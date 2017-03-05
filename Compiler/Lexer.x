@@ -15,29 +15,29 @@ $alpha = [a-zA-Z]		-- alphabetic characters
 tokens :-
 <0>  $white+				;
 
-<0> soulSkill { \s i -> return (Token SoulSkill $ lineNumber s) }
-<0> start { \s i -> return (Token StartSkill $ lineNumber s) }
-<0> end { \s i -> return (Token EndSkill $ lineNumber s) }
-<0> counter { \s i -> return (Token CounterSkill $ lineNumber s) }
-<0> spawn { \s i -> return (Token SpawnSkill $ lineNumber s) }
-<0> death { \s i -> return (Token DeathSkill $ lineNumber s) }
-<0> auto { \s i -> return (Token AutoSkill $ lineNumber s) }
-<0> action { \s i -> return (Token ActionSkill $ lineNumber s) }
-<0> union { \s i -> return (Token Union $ lineNumber s) }
+<0> soulSkill { \s i -> return (Token SoulSkill (lineNumber s) (columnNumber s) 8) }
+<0> start { \s i -> return (Token StartSkill  (lineNumber s) (columnNumber s) 4}
+<0> end { \s i -> return (Token EndSkill (lineNumber s) (columnNumber s) 2}
+<0> counter { \s i -> return (Token CounterSkill $ lineNumber s) (columnNumber s) 6}
+<0> spawn { \s i -> return (Token SpawnSkill (lineNumber s) (columnNumber s) 4}
+<0> death { \s i -> return (Token DeathSkill (lineNumber s) (columnNumber s) 4}
+<0> auto { \s i -> return (Token AutoSkill (lineNumber s) (columnNumber s) 3}
+<0> action { \s i -> return (Token ActionSkill (lineNumber s) (columnNumber s) 5}
+<0> union { \s i -> return (Token Union (lineNumber s) (columnNumber s) 4}
 
 
-<0> unit { \s i -> return (Token Unit $ lineNumber s) }
-<0> spell { \s i -> return (Token Spell $ lineNumber s) }
+<0> unit { \s i -> return (Token Unit (lineNumber s) (columnNumber s) 3}
+<0> spell { \s i -> return (Token Spell (lineNumber s) (columnNumber s) 4}
 
 
 
 
 
-<0> for { \s i -> return (Token For $ lineNumber s) }
-<0> each { \s i -> return (Token Each $ lineNumber s) }
+<0> for { \s i -> return (Token For (lineNumber s) (columnNumber s) 2}
+<0> each { \s i -> return (Token Each (lineNumber s) (columnNumber s) 3}
 
 
-<0> self { \s i -> return (Token Self $ lineNumber s) }
+<0> self { \s i -> return (Token Self (lineNumber s) (columnNumber s) 3}
 <0> soulPoints  { \s i -> return (Token SoulPoints $ lineNumber s) }
 <0> in { \s i -> return (Token In $ lineNumber s) }
 <0> attack       { \s i -> return (Token Attack $ lineNumber s) }
@@ -164,6 +164,8 @@ eof  {\s i -> return (Token EOFToken $ lineNumber s)}
 
 lineNumber ((AlexPn _ s _),_,_,_) = s
 
+columnNumber ((AlexPn _ _ s),_,_,_) = s
+
 
 -- Some code taken from https://www.haskell.org/alex/doc/alex.pdf, possibly other mostly official references.
 -- I also used this tutorial https://www.jyotirmoy.net/posts/2015-08-17-alex-happy-startcodes.html
@@ -180,7 +182,7 @@ project (_,_,_,x) = x
 
 -- Each action has type :: String -> Token
 
-data Token = Token TokenInner Int
+data Token = Token TokenInner Int Int Int
            deriving Show
 -- The token type:
 data TokenInner =
@@ -336,9 +338,10 @@ fooPrint (Right s) = hPutStrLn stderr s
 
 
 
-getLineNumber :: Alex Int
+getLineNumber :: Alex (Int,Int)
 getLineNumber = Alex $ \s -> Right (s, myGetLineNumber $ alex_pos s)
-myGetLineNumber (AlexPn _ s _) = s
+myGetLineNumber (AlexPn _ s column) = (s,column)
+
 
 
 
