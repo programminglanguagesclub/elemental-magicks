@@ -1,30 +1,30 @@
 alex Lexer.x
 happy Parser.y -o Parser.hs
-ghc typechecker.hs -o typechecker
+ghc Main.hs -o Main
 
 echo "1"
-./typechecker < test.es
+./Main < test.es
 echo "2"
-./typechecker < test2.es
+./Main < test2.es
 echo "3"
-./typechecker < test3.es
+./Main < test3.es
 echo "4"
-./typechecker < test4.es
+./Main < test4.es
 echo "5"
-./typechecker < test5.es
+./Main < test5.es
 echo "6"
-./typechecker < test6.es
+./Main < test6.es
 echo "7"
-./typechecker < test7.es
+./Main < test7.es
 echo "8"
-./typechecker < test8.es
+./Main < test8.es
 echo "9"
-./typechecker < test9.es
+./Main < test9.es
 echo "10"
-./typechecker < test10.es
+./Main < test10.es
 echo "11"
-./typechecker < test11.es
+./Main < test11.es
 echo "12"
-./typechecker < test12.es
+./Main < test12.es
 echo "13"
-./typechecker < test13.es
+./Main < test13.es
