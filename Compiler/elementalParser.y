@@ -29,6 +29,8 @@ import qualified Lexer
 
 import Text.Read
 
+import Text.EditDistance
+
 }
 
 
@@ -40,7 +42,7 @@ import Text.Read
 
 
 %token
-  action {Lexer.Token Lexer.ActionSkill (_) (_) (_)}
+ action {Lexer.Token Lexer.ActionSkill (_) (_) (_)}
  air {Lexer.Token Lexer.Air (_) (_) (_)}
  and {Lexer.Token Lexer.And (_) (_) (_)}
  assign {Lexer.Token Lexer.Assignment (_) (_) (_)}
@@ -117,6 +119,7 @@ import Text.Read
  void {Lexer.Token Lexer.Void (_) (_) (_)}
  water {Lexer.Token Lexer.Water (_) (_) (_)}
  where {Lexer.Token Lexer.Where (_) (_) (_)}
+ word {Lexer.Token (Lexer.Word $$) (_) (_) (_)}
  {-else {Lexer.Token Lexer.Else (_) (_) (_)}-}
  {-lex_error {Lexer.Token (Lexer.Error $$) (_) (_) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
  {-string {Lexer.Token (Lexer.TargetString $$) (_) (_) (_)}-}
@@ -155,15 +158,10 @@ Spells : {[]}
 Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats $1 $4 $7 $10 $13 $16 $19 $22}
-School : earth {Knowledge "earth"}
-       | fire {Knowledge "fire"}
-       | water {Knowledge "water"}
-       | air {Knowledge "air"}
-       | spirit {Knowledge "spirit"}
-       | void {Knowledge "void"}
+School : word {Knowledge $1}
 Schools : {Schools "NoSchools"}
-        | name {Schools "Earth"}
-        | name name {Schools ($1 ++ $2)}
+        | word {Schools $1}
+        | word word {Schools ($1 ++ $2)}
 Start : {Nothing}
       | start colon Skill {Just $ Start $3}
 End : {Nothing}
@@ -583,12 +581,67 @@ maxInt :: Int
 maxInt = 1000
 
 
+{-
+levenshteinDistance
+
+defaultEditCosts :: EditCosts
+
+levenshteinDistance :: EditCosts -> String -> String -> Int
+
+Find the Levenshtein edit distance between two strings. That is to say, the number of deletion, insertion and substitution operations that are required to make the two strings equal. Note that this algorithm therefore does not make use of the transpositionCost field of the costs. See also: http://en.wikipedia.org/wiki/Levenshtein_distance.
+
+-}
 
 
 
 
-typeCheckSchool :: Knowledge -> [String]
-typeCheckSchool _ = undefined
+
+
+
+
+getDistance :: String -> String -> Int
+getDistance s1 s2 = restrictedDamerauLevenshteinDistance defaultEditCosts s1 s2
+
+
+
+getDistances :: String -> [String] -> [Int]
+getDistances s1 ss = map (getDistance s1) ss 
+
+
+getDistancesWithStrings :: String -> [String] -> [(String,Int)]
+getDistancesWithStrings s1 ss = zip ss $ map (getDistance s1) ss
+
+
+getCloseDistancesWithStrings :: String -> [String] -> [(String,Int)]
+getCloseDistancesWithStrings s1 ss = filter (\x -> (snd x) <= 2) $ getDistancesWithStrings s1 ss
+
+
+
+getDistanceMessages' :: [(String,Int)] -> String
+getDistanceMessages' [] = ""
+getDistanceMessages' (x1:x2:xs) = (fst x1) ++ " or " ++ getDistanceMessages' (x2:xs)
+getDistanceMessages' (x:[]) = (fst x) ++ "?" 
+
+
+getDistanceMessages :: String -> [String] -> [String]
+getDistanceMessages s ss =
+ let x = getCloseDistancesWithStrings s ss in [getDistanceMessages' x]
+
+
+
+typeCheckSchool :: String -> [String]
+typeCheckSchool "earth" = []
+typeCheckSchool "fire" = []
+typeCheckSchool "water" = []
+typeCheckSchool "air" = []
+typeCheckSchool "spirit" = []
+typeCheckSchool "void" = []
+typeCheckSchool s =
+ let x = getDistanceMessages s ["earth", "fire", "water", "air", "spirit", "void"] in
+ case x of
+  [] -> [s ++ " is not a valid school."]
+  _ -> [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
+
 
 typeCheckSchools :: Schools -> [String]
 typeCheckSchools _ = undefined                 
@@ -686,7 +739,7 @@ typeCheckSpawnSpell _ = undefined
 
 typeCheckSpell :: Spell -> [String]
 typeCheckSpell (Spell name (Knowledge school) level skill) =
- (typeCheckSchool (Knowledge school)) ++
+ (typeCheckSchool school) ++
  (typeCheckBaseLevel level) ++
  (typeCheckSpawnSpell skill)
 
@@ -706,7 +759,7 @@ typeCheck :: File -> [String]
 typeCheck (File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
 
 
-
+ {-cabal install edit-distance-}
 
 
 

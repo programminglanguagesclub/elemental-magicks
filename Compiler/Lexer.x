@@ -36,12 +36,6 @@ tokens :-
 <0> speed  { \s i -> return (Token Speed (lineNumber s) (columnNumber s) "speed")}
 <0> level  { \s i -> return (Token Level (lineNumber s) (columnNumber s) "level")}
 <0> knowledge  { \s i -> return (Token Knowledge (lineNumber s) (columnNumber s) "knowledge") }
-<0> earth  { \s i -> return (Token Earth (lineNumber s) (columnNumber s) "earth") }
-<0> fire  { \s i -> return (Token Fire (lineNumber s) (columnNumber s) "fire") }
-<0> water { \s i -> return (Token Water (lineNumber s) (columnNumber s) "water") }
-<0> air { \s i -> return (Token Air (lineNumber s) (columnNumber s) "air")}
-<0> spirit { \s i -> return (Token Spirit (lineNumber s) (columnNumber s) "spirit") }
-<0> void { \s i -> return (Token Void (lineNumber s) (columnNumber s) "void") }
 <0> thoughts { \s i -> return (Token Thoughts (lineNumber s) (columnNumber s) "thoughts") }
 <0> thought { \s i -> return (Token Thought (lineNumber s) (columnNumber s) "thought")}
 <0> friendly { \s i -> return (Token Friendly (lineNumber s) (columnNumber s) "friendly") }
@@ -99,10 +93,12 @@ eof  {\s i -> return (Token EOFToken (lineNumber s) (columnNumber s) "EOF")}
 <comment2> "*/"          {begin 0}
 <comment2> [.\n]       ;
 <0>  \"           {begin string1}
-<string1> ([. # \" # \\] | \\0 | \\b | \\t | \\n | \\r | \\f | \\\" | \\\\ )* \"  { \s i -> ( (alexSetStartCode 0) >> return ( Token (TargetString $ (take (i-1) $ project s)) (lineNumber s) (columnNumber s) (take (i-1) $ project s)))}
+<string1> ([. # \" # \\] | \\0 | \\b | \\t | \\n | \\r | \\f | \\\" | \\\\ )* \"  { \s i -> ( (alexSetStartCode 0) >> return ( Token (TargetString (take (i-1) $ project s)) (lineNumber s) (columnNumber s) (take (i-1) $ project s)))}
 <0>       [0-9]+    { \s i -> return (Token (Number $ take i $ project s) (lineNumber s) (columnNumber s) (take i $ project s))}
 <0> [a-z] { \s i -> return (Token (Identifier $ take i $ project s) (lineNumber s) (columnNumber s) (take i $ project s))}
 [.\n] { \s i -> (alexSetStartCode 0) >> return (Token (Error $ take 1 $ project s) (lineNumber s) (columnNumber s) "ERROR")} -- not sure what to do here.
+<0> [a-z]+ { \s i -> return (Token (Word $ take i $ project s) (lineNumber s) (columnNumber s) (take i $ project s))}
+
 
 {
 lineNumber ((AlexPn _ s _),_,_,_) = s
@@ -200,6 +196,7 @@ data TokenInner =
   | ActionSkill
   | SpawnSkill
   | Condition
+  | Word String
   | EOFToken
   deriving (Eq,Show)
 alexEOF = return (Token EOFToken (-1) (-1) "EOF")
