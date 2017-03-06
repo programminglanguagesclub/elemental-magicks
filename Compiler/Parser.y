@@ -1,5 +1,5 @@
 {
-module Main where    
+module Parser where    
 
 import qualified Lexer
 
@@ -231,11 +231,11 @@ Expr : number {Constant $1}
      | Expr product Expr {Product $1 $3}
      | Expr quotient Expr {Quotient $1 $3}
      | Expr mod Expr {Mod $1 $3} 
-     | Expr gt Expr {Main.GT $1 $3}
+     | Expr gt Expr {Parser.GT $1 $3}
      | Expr geq Expr {GEQ $1 $3}
-     | Expr lt Expr {Main.LT $1 $3}
+     | Expr lt Expr {Parser.LT $1 $3}
      | Expr leq Expr {LEQ $1 $3}
-     | Expr eq Expr {Main.EQ $1 $3}
+     | Expr eq Expr {Parser.EQ $1 $3}
      | Expr and Expr {And $1 $3}
      | Expr or Expr {Or $1 $3}
      | not Expr {Not $2}
@@ -782,7 +782,7 @@ typeCheck (File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ 
 
 
 
-
+{-
 
 
 main = do
@@ -790,6 +790,12 @@ main = do
  case Lexer.runAlex x calc of
   Right y -> error $ show $ (prettyPrint $ map extractSurface (getTokens x)) {-show y-}
   Left y -> error $ show {-x-} y
+
+
+-}
+
+
+
 
 }
 
