@@ -28,6 +28,18 @@ Find the Levenshtein edit distance between two strings. That is to say, the numb
 
 
 
+data File = File [Unit] [Spell]
+          deriving Show
+data Unit = String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
+          deriving Show
+data Spell = Spell String Knowledge String Skill {- name, school, level, skill -}
+           deriving Show
+data Skill = AutomaticSkill RNat RBool Automatic
+
+
+
+
+
 
 
 getDistance :: String -> String -> Int
