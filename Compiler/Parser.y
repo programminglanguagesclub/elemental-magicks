@@ -617,15 +617,25 @@ getCloseDistancesWithStrings s1 ss = filter (\x -> (snd x) <= 2) $ getDistancesW
 
 
 
-getDistanceMessages' :: [(String,Int)] -> String
-getDistanceMessages' [] = ""
-getDistanceMessages' (x1:x2:xs) = (fst x1) ++ " or " ++ getDistanceMessages' (x2:xs)
-getDistanceMessages' (x:[]) = (fst x) ++ "?" 
+
+getDistanceMessages'' :: Maybe String -> String
+getDistanceMessages'' x =
+ case x of
+  Nothing -> ""
+  Just s -> s
+
+getDistanceMessages' :: [(String,Int)] -> Maybe String
+getDistanceMessages' [] = Nothing
+getDistanceMessages' (x1:x2:xs) = Just ((fst x1) ++ " or " ++ ( getDistanceMessages'' $ getDistanceMessages' (x2:xs)))
+getDistanceMessages' (x:[]) = Just ( (fst x) ++ "?")
 
 
 getDistanceMessages :: String -> [String] -> [String]
 getDistanceMessages s ss =
- let x = getCloseDistancesWithStrings s ss in [getDistanceMessages' x]
+ let x = getCloseDistancesWithStrings s ss in
+  case getDistanceMessages' x of
+   Nothing -> []
+   Just y -> [y]
 
 
 
