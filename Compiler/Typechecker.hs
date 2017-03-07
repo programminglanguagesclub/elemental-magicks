@@ -1,7 +1,8 @@
 module Typechecker where    
 import qualified Lexer
 import qualified Parser
-
+import Text.Read
+import Text.EditDistance
 
  
   
@@ -83,7 +84,7 @@ typeCheckSchool s =
   _ -> [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
 
 
-typeCheckSchools :: Schools -> [String]
+typeCheckSchools :: Parser.Schools -> [String]
 typeCheckSchools _ = undefined                 
 
 
@@ -95,28 +96,28 @@ typeCheckSkill _ = undefined
 
 
 
-typeCheckStart :: Maybe Start -> [String]
+typeCheckStart :: Maybe Parser.Start -> [String]
 typeCheckStart _ = undefined
 
-typeCheckEnd :: Maybe End -> [String]
+typeCheckEnd :: Maybe Parser.End -> [String]
 typeCheckEnd _ = undefined
 
-typeCheckCounter :: Maybe Counter -> [String]
+typeCheckCounter :: Maybe Parser.Counter -> [String]
 typeCheckCounter _ = undefined
 
-typeCheckSpawnUnit :: Maybe Spawn -> [String]
+typeCheckSpawnUnit :: Maybe Parser.Spawn -> [String]
 typeCheckSpawnUnit _ = undefined
 
-typeCheckDeath :: Maybe Death -> [String]
+typeCheckDeath :: Maybe Parser.Death -> [String]
 typeCheckDeath _ = undefined
 
-typeCheckAuto :: Maybe Auto -> [String]
+typeCheckAuto :: Maybe Parser.Auto -> [String]
 typeCheckAuto _ = undefined
 
-typeCheckAction :: Action -> [String]
+typeCheckAction :: Parser.Action -> [String]
 typeCheckAction _ = undefined
 
-typeCheckSoul :: Soul -> [String]
+typeCheckSoul :: Parser.Soul -> [String]
 typeCheckSoul _ = undefined
 
 
@@ -163,8 +164,8 @@ typeCheckBaseRange _ = undefined
 typeCheckBaseSoulPoints :: String -> [String]
 typeCheckBaseSoulPoints _ = undefined
 
-typeCheckStats :: Stats -> [String]
-typeCheckStats (Stats schools level hp attack defense speed range soulPoints) =
+typeCheckStats :: Parser.Stats -> [String]
+typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
  (typeCheckSchools schools) ++
  (typeCheckBaseLevel level) ++
  (typeCheckBaseHp hp) ++
@@ -174,17 +175,17 @@ typeCheckStats (Stats schools level hp attack defense speed range soulPoints) =
  (typeCheckBaseRange range) ++
  (typeCheckBaseSoulPoints soulPoints)
 
-typeCheckSpawnSpell :: Skill -> [String]
+typeCheckSpawnSpell :: Parser.Skill -> [String]
 typeCheckSpawnSpell _ = undefined
 
-typeCheckSpell :: Spell -> [String]
-typeCheckSpell (Spell name (Knowledge school) level skill) =
+typeCheckSpell :: Parser.Spell -> [String]
+typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) =
  (typeCheckSchool school) ++
  (typeCheckBaseLevel level) ++
  (typeCheckSpawnSpell skill)
 
-typeCheckUnit :: Unit -> [String]
-typeCheckUnit (Unit name stats start end counter spawn death auto actions soul) =
+typeCheckUnit :: Parser.Unit -> [String]
+typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
  (typeCheckStats stats) ++
  (typeCheckStart start) ++
  (typeCheckEnd end) ++
@@ -195,8 +196,8 @@ typeCheckUnit (Unit name stats start end counter spawn death auto actions soul) 
  (concat $ map typeCheckAction actions) ++
  (typeCheckSoul soul)
 
-typeCheck :: File -> [String]
-typeCheck (File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
+typeCheck :: Parser.File -> [String]
+typeCheck (Parser.File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
 
 
  {-cabal install edit-distance-}
