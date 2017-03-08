@@ -242,41 +242,63 @@ typeCheckBaseLevel s =
   Just i ->
    if i < 1 then Left ["Base level must be at least 1."]
    else if i > 9 then Left ["Base level must be at most 9."]
-   else Right (BaseLevel i)
+   else Right $ BaseLevel i
 
 
 
 
 typeCheckBaseHp :: String -> Either [String] BaseHp
-typeCheckBaseHp s = undefined{-
+typeCheckBaseHp s =
  case (readMaybe s :: Maybe Int) of
-  Nothing -> ["Base hp must be an int"]
+  Nothing -> Left ["Base hp must be an int"]
   Just i ->
-   if i < 1 then ["Base hp must be at least 1"]
-   else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
-   else []
--}
+   if i < 1 then Left ["Base hp must be at least 1"]
+   else if i > maxInt then Left ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
+   else Right $ BaseHp i
 typeCheckBaseAttack :: String -> Either [String] BaseAttack
-typeCheckBaseAttack s = undefined {-
+typeCheckBaseAttack s =
  case (readMaybe s :: Maybe Int) of
-  Nothing -> ["Base attack must be an int"]
+  Nothing -> Left ["Base attack must be an int"]
   Just i ->
-   if i < 0 then ["Base attack must be at least 0"]
-   else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
-   else []
--}
+   if i < 0 then Left ["Base attack must be at least 0"]
+   else if i > maxInt then Left ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
+   else Right $ BaseAttack i
+
+
+
+typeCheckInt :: String -> String -> Int -> Int -> Either [String] Int
+typeCheckInt s name lowerBound upperBound =
+ case (readMaybe s :: Maybe Int) of
+  Nothing -> Left [name ++ " must be an int"]
+  Just i ->
+   if i < lowerBound then Left [name ++ " must be at least " ++ (show lowerBound)]
+   else if i > upperBound then Left [name ++ " cannot exceed " ++ (show upperBound)]
+   else Right i
+
+
 {- This above can be refactored to remove a lot of redundancy...-}
 
 
 typeCheckBaseDefense :: String -> Either [String] BaseDefense
-typeCheckBaseDefense _ = undefined
+typeCheckBaseDefense x =
+ case typeCheckInt x "Base defense" 0 1000 of
+  Left s -> Left s
+  Right i -> Right $ BaseDefense i
 typeCheckBaseSpeed :: String -> Either [String] BaseSpeed
-typeCheckBaseSpeed _ = undefined
+typeCheckBaseSpeed x =
+ case typeCheckInt x "Base speed" 1 5 of
+  Left s -> Left s
+  Right i -> Right $ BaseSpeed i
 typeCheckBaseRange :: String -> Either [String] BaseRange
-typeCheckBaseRange _ = undefined
+typeCheckBaseRange x =
+ case typeCheckInt x "Base range" 1 5 of
+  Left s -> Left s
+  Right i -> Right $ BaseRange i
 typeCheckBaseSoulPoints :: String -> Either [String] BaseSoulPoints
-typeCheckBaseSoulPoints _ = undefined
-
+typeCheckBaseSoulPoints x =
+ case typeCheckInt x "Base soul points" 2 3 of
+  Left s -> Left s
+  Right i -> Right $ BaseSoulPoints i
 typeCheckStats :: Parser.Stats -> Either [String] Stats
 typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
  case (typeCheckSchools schools, typeCheckBaseLevel level, typeCheckBaseHp hp, typeCheckBaseAttack attack, typeCheckBaseDefense defense, typeCheckBaseSpeed speed, typeCheckBaseRange range, typeCheckBaseSoulPoints soulPoints) of
@@ -284,15 +306,9 @@ typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoi
    undefined
   (failedSchools, failedLevel, failedHp, failedAttack, failedDefense, failedSpeed, failedRange, failedSoulPoints) ->
    Left $ (assumeFailure failedSchools) ++ (assumeFailure failedHp) ++ (assumeFailure failedAttack) ++ (assumeFailure failedDefense) ++ (assumeFailure failedSpeed) ++ (assumeFailure failedRange) ++ (assumeFailure failedSoulPoints)
-{- (typeCheckSchools schools) ++
- (typeCheckBaseLevel level) ++
- (typeCheckBaseHp hp) ++
- (typeCheckAttack attack) ++
- (typeCheckDefense defense) ++
- (typeCheckBaseSpeed speed) ++
- (typeCheckBaseRange range) ++
- (typeCheckBaseSoulPoints soulPoints)
--}
+
+
+
 typeCheckSpawnSpell :: Parser.Skill -> [String]
 typeCheckSpawnSpell _ = undefined
 
