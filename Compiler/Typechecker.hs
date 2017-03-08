@@ -208,28 +208,28 @@ typeCheckSkill _ = undefined
 
 
 
-typeCheckStart :: Maybe Parser.Start -> [String]
+typeCheckStart :: Maybe Parser.Start -> Either [String] Start
 typeCheckStart _ = undefined
 
-typeCheckEnd :: Maybe Parser.End -> [String]
+typeCheckEnd :: Maybe Parser.End -> Either [String] End
 typeCheckEnd _ = undefined
 
-typeCheckCounter :: Maybe Parser.Counter -> [String]
+typeCheckCounter :: Maybe Parser.Counter -> Either [String] Counter
 typeCheckCounter _ = undefined
 
-typeCheckSpawnUnit :: Maybe Parser.Spawn -> [String]
+typeCheckSpawnUnit :: Maybe Parser.Spawn -> Either [String] Spawn
 typeCheckSpawnUnit _ = undefined
 
-typeCheckDeath :: Maybe Parser.Death -> [String]
+typeCheckDeath :: Maybe Parser.Death -> Either [String] Death
 typeCheckDeath _ = undefined
 
-typeCheckAuto :: Maybe Parser.Auto -> [String]
+typeCheckAuto :: Maybe Parser.Auto -> Either [String] Auto
 typeCheckAuto _ = undefined
 
-typeCheckAction :: Parser.Action -> [String]
+typeCheckAction :: Parser.Action -> Either [String] Action
 typeCheckAction _ = undefined
 
-typeCheckSoul :: Parser.Soul -> [String]
+typeCheckSoul :: Parser.Soul -> Either [String] Soul
 typeCheckSoul _ = undefined
 
 
@@ -277,9 +277,9 @@ typeCheckBaseRange _ = undefined
 typeCheckBaseSoulPoints :: String -> [String]
 typeCheckBaseSoulPoints _ = undefined
 
-typeCheckStats :: Parser.Stats -> [String]
-typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
- (typeCheckSchools schools) ++
+typeCheckStats :: Parser.Stats -> Either [String] Stats
+typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) = undefined
+{- (typeCheckSchools schools) ++
  (typeCheckBaseLevel level) ++
  (typeCheckBaseHp hp) ++
  (typeCheckAttack attack) ++
@@ -287,19 +287,27 @@ typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoi
  (typeCheckBaseSpeed speed) ++
  (typeCheckBaseRange range) ++
  (typeCheckBaseSoulPoints soulPoints)
-
+-}
 typeCheckSpawnSpell :: Parser.Skill -> [String]
 typeCheckSpawnSpell _ = undefined
 
 typeCheckSpell :: Parser.Spell -> [String]
-typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) =
- (typeCheckSchool school) ++
+typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) = undefined
+{- (typeCheckSchool school) ++
  (typeCheckBaseLevel level) ++
  (typeCheckSpawnSpell skill)
+-}
 
-typeCheckUnit :: Parser.Unit -> [String]
+collectActions :: [Either [String] Action] -> Either [String] [Action]
+collectActions = undefined 
+
+
+typeCheckUnit :: Parser.Unit -> Either [String] Unit
 typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
- (typeCheckStats stats) ++
+ case (typeCheckStats stats, typeCheckStart start, typeCheckEnd end, typeCheckCounter counter, typeCheckSpawnUnit spawn, typeCheckDeath death, typeCheckAuto auto, collectActions $ map typeCheckAction actions, typeCheckSoul soul) of
+  (Right correctStats, Right correctStart, Right correctEnd, Right correctCounter, Right correctSpawn, Right correctDeath, Right correctAuto, Right correctActions , Right correctSoul) -> undefined
+  _ -> undefined
+{- (typeCheckStats stats) ++
  (typeCheckStart start) ++
  (typeCheckEnd end) ++
  (typeCheckCounter counter) ++
@@ -308,15 +316,26 @@ typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions
  (typeCheckAuto auto) ++
  (concat $ map typeCheckAction actions) ++
  (typeCheckSoul soul)
+-}
 
-typeCheck :: Parser.File -> [String]
-typeCheck (Parser.File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
+collectUnits :: [Either [String] Unit] -> Either [String] [Unit]
+collectUnits = undefined
+
+collectSpells :: [Either [String] Spell] -> Either [String] [Spell]
+collectSpells = undefined
+
+typeCheck :: Parser.File -> Either [String] File
+typeCheck (Parser.File units spells) =
+ case (collectUnits $ map typeCheckUnit units, collectSpells $ map typeCheckSpell spells) of
+  
 
 
+(concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
 
-
-
-
+{-
+data Attempt success = Attempt success [String]
+instance Applicative => Monad Attempt where
+-}
 
 
 

@@ -1,5 +1,3 @@
-alex Lexer.x
-happy Parser.y -o Parser.hs
 ghc Main.hs -o Main
 
 echo "1"
