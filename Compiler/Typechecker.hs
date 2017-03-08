@@ -30,7 +30,7 @@ Find the Levenshtein edit distance between two strings. That is to say, the numb
 
 data File = File [Unit] [Spell]
           deriving Show
-data Unit = String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
+data Unit = Unit String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
           deriving Show
 data Spell = Spell String Knowledge String Skill {- name, school, level, skill -}
            deriving Show
@@ -208,22 +208,22 @@ typeCheckSkill _ = undefined
 
 
 
-typeCheckStart :: Maybe Parser.Start -> Either [String] Start
+typeCheckStart :: Maybe Parser.Start -> Either [String] (Maybe Start)
 typeCheckStart _ = undefined
 
-typeCheckEnd :: Maybe Parser.End -> Either [String] End
+typeCheckEnd :: Maybe Parser.End -> Either [String] (Maybe End)
 typeCheckEnd _ = undefined
 
-typeCheckCounter :: Maybe Parser.Counter -> Either [String] Counter
+typeCheckCounter :: Maybe Parser.Counter -> Either [String] (Maybe Counter)
 typeCheckCounter _ = undefined
 
-typeCheckSpawnUnit :: Maybe Parser.Spawn -> Either [String] Spawn
+typeCheckSpawnUnit :: Maybe Parser.Spawn -> Either [String] (Maybe Spawn)
 typeCheckSpawnUnit _ = undefined
 
-typeCheckDeath :: Maybe Parser.Death -> Either [String] Death
+typeCheckDeath :: Maybe Parser.Death -> Either [String] (Maybe Death)
 typeCheckDeath _ = undefined
 
-typeCheckAuto :: Maybe Parser.Auto -> Either [String] Auto
+typeCheckAuto :: Maybe Parser.Auto -> Either [String] (Maybe Auto)
 typeCheckAuto _ = undefined
 
 typeCheckAction :: Parser.Action -> Either [String] Action
@@ -291,46 +291,48 @@ typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoi
 typeCheckSpawnSpell :: Parser.Skill -> [String]
 typeCheckSpawnSpell _ = undefined
 
-typeCheckSpell :: Parser.Spell -> [String]
+typeCheckSpell :: Parser.Spell -> Either [String] Spell
 typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) = undefined
 {- (typeCheckSchool school) ++
  (typeCheckBaseLevel level) ++
  (typeCheckSpawnSpell skill)
 -}
 
-collectActions :: [Either [String] Action] -> Either [String] [Action]
-collectActions = undefined 
+
+
+collect :: [Either [String] a] -> Either [String] [a]
+collect [] = Right []
+collect ((Left s):xs) =
+ case collect xs of
+  Right _ -> Left s
+  Left s2 -> Left (s ++ s2)
+collect ((Right x):xs) = collect xs
+
+
 
 
 typeCheckUnit :: Parser.Unit -> Either [String] Unit
 typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
- case (typeCheckStats stats, typeCheckStart start, typeCheckEnd end, typeCheckCounter counter, typeCheckSpawnUnit spawn, typeCheckDeath death, typeCheckAuto auto, collectActions $ map typeCheckAction actions, typeCheckSoul soul) of
-  (Right correctStats, Right correctStart, Right correctEnd, Right correctCounter, Right correctSpawn, Right correctDeath, Right correctAuto, Right correctActions , Right correctSoul) -> undefined
-  _ -> undefined
-{- (typeCheckStats stats) ++
- (typeCheckStart start) ++
- (typeCheckEnd end) ++
- (typeCheckCounter counter) ++
- (typeCheckSpawnUnit spawn) ++
- (typeCheckDeath death) ++
- (typeCheckAuto auto) ++
- (concat $ map typeCheckAction actions) ++
- (typeCheckSoul soul)
--}
+ case (typeCheckStats stats, typeCheckStart start, typeCheckEnd end, typeCheckCounter counter, typeCheckSpawnUnit spawn, typeCheckDeath death, typeCheckAuto auto, collect $ map typeCheckAction actions, typeCheckSoul soul) of
+  (Right correctStats, Right correctStart, Right correctEnd, Right correctCounter, Right correctSpawn, Right correctDeath, Right correctAuto, Right correctActions , Right correctSoul) ->
+   Right $ Unit name correctStats correctStart correctEnd correctCounter correctSpawn correctDeath correctAuto correctActions correctSoul
+  (failedStats, failedStart, failedEnd, failedCounter, failedSpawn, failedDeath, failedAuto, failedActions, failedSoul) ->
+   Left $ (assumeFailure failedStats) ++ (assumeFailure failedStart) ++ (assumeFailure failedEnd) ++ (assumeFailure failedCounter) ++ (assumeFailure failedSpawn) ++ (assumeFailure failedDeath) ++ (assumeFailure failedAuto) ++ (assumeFailure failedActions) ++ (assumeFailure failedSoul)
 
-collectUnits :: [Either [String] Unit] -> Either [String] [Unit]
-collectUnits = undefined
 
-collectSpells :: [Either [String] Spell] -> Either [String] [Spell]
-collectSpells = undefined
+assumeFailure :: Either [String] a -> [String]
+assumeFailure (Left s) = s
+assumeFailure (Right _) = []
+
 
 typeCheck :: Parser.File -> Either [String] File
 typeCheck (Parser.File units spells) =
- case (collectUnits $ map typeCheckUnit units, collectSpells $ map typeCheckSpell spells) of
-  
+ case (collect $ map typeCheckUnit units, collect $ map typeCheckSpell spells) of
+  (Right correctUnits, Right correctSpells) -> Right $ File correctUnits correctSpells
+  (failedUnits, failedSpells) -> Left $ (assumeFailure failedUnits) ++ (assumeFailure failedSpells)
 
 
-(concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
+{-(concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)-}
 
 {-
 data Attempt success = Attempt success [String]
