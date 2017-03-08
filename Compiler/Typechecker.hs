@@ -196,7 +196,7 @@ typeCheckSchool s =
   _ -> [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
 
 
-typeCheckSchools :: Parser.Schools -> [String]
+typeCheckSchools :: Parser.Schools -> Either [String] Schools
 typeCheckSchools _ = undefined                 
 
 
@@ -247,38 +247,43 @@ typeCheckBaseLevel s =
 
 
 
-typeCheckBaseHp :: String -> [String]
-typeCheckBaseHp s =
+typeCheckBaseHp :: String -> Either [String] BaseHp
+typeCheckBaseHp s = undefined{-
  case (readMaybe s :: Maybe Int) of
   Nothing -> ["Base hp must be an int"]
   Just i ->
    if i < 1 then ["Base hp must be at least 1"]
    else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
    else []
-
-typeCheckAttack :: String -> [String]
-typeCheckAttack s =
+-}
+typeCheckBaseAttack :: String -> Either [String] BaseAttack
+typeCheckBaseAttack s = undefined {-
  case (readMaybe s :: Maybe Int) of
   Nothing -> ["Base attack must be an int"]
   Just i ->
    if i < 0 then ["Base attack must be at least 0"]
    else if i > maxInt then ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
    else []
-
+-}
 {- This above can be refactored to remove a lot of redundancy...-}
 
 
-typeCheckDefense :: String -> [String]
-typeCheckDefense _ = undefined
-typeCheckBaseSpeed :: String -> [String]
+typeCheckBaseDefense :: String -> Either [String] BaseDefense
+typeCheckBaseDefense _ = undefined
+typeCheckBaseSpeed :: String -> Either [String] BaseSpeed
 typeCheckBaseSpeed _ = undefined
-typeCheckBaseRange :: String -> [String]
+typeCheckBaseRange :: String -> Either [String] BaseRange
 typeCheckBaseRange _ = undefined
-typeCheckBaseSoulPoints :: String -> [String]
+typeCheckBaseSoulPoints :: String -> Either [String] BaseSoulPoints
 typeCheckBaseSoulPoints _ = undefined
 
 typeCheckStats :: Parser.Stats -> Either [String] Stats
-typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) = undefined
+typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
+ case (typeCheckSchools schools, typeCheckBaseLevel level, typeCheckBaseHp hp, typeCheckBaseAttack attack, typeCheckBaseDefense defense, typeCheckBaseSpeed speed, typeCheckBaseRange range, typeCheckBaseSoulPoints soulPoints) of
+  (Right correctSchools, Right correctLevel, Right correctHp, Right correctAttack, Right correctDefense, Right correctSpeed, Right correctRange, Right correctSoulPoints) ->
+   undefined
+  (failedSchools, failedLevel, failedHp, failedAttack, failedDefense, failedSpeed, failedRange, failedSoulPoints) ->
+   Left $ (assumeFailure failedSchools) ++ (assumeFailure failedHp) ++ (assumeFailure failedAttack) ++ (assumeFailure failedDefense) ++ (assumeFailure failedSpeed) ++ (assumeFailure failedRange) ++ (assumeFailure failedSoulPoints)
 {- (typeCheckSchools schools) ++
  (typeCheckBaseLevel level) ++
  (typeCheckBaseHp hp) ++
