@@ -43,7 +43,6 @@ import Text.EditDistance
 
 %token
  action {Lexer.Token Lexer.ActionSkill (_) (_) (_)}
- air {Lexer.Token Lexer.Air (_) (_) (_)}
  and {Lexer.Token Lexer.And (_) (_) (_)}
  assign {Lexer.Token Lexer.Assignment (_) (_) (_)}
  attack {Lexer.Token Lexer.Attack (_) (_) (_)}
@@ -63,13 +62,11 @@ import Text.EditDistance
  defense {Lexer.Token Lexer.Defense (_) (_) (_)}
  difference {Lexer.Token Lexer.Difference (_) (_) (_)}
  each {Lexer.Token Lexer.Each (_) (_) (_)}
- earth {Lexer.Token Lexer.Earth (_) (_) (_)}
  end {Lexer.Token Lexer.EndSkill (_) (_) (_)}
  enemy {Lexer.Token Lexer.Enemy (_) (_) (_)}
  engagement {Lexer.Token Lexer.Engagement (_) (_) (_)}
  eq {Lexer.Token Lexer.Equality (_) (_) (_)}
  field {Lexer.Token Lexer.Field (_) (_) (_)}
- fire {Lexer.Token Lexer.Fire (_) (_) (_)}
  for {Lexer.Token Lexer.For (_) (_) (_)}
  friendly {Lexer.Token Lexer.Friendly (_) (_) (_)}
  geq {Lexer.Token Lexer.GEQ (_) (_) (_)}
@@ -105,7 +102,6 @@ import Text.EditDistance
  spawn {Lexer.Token Lexer.SpawnSkill (_) (_) (_)}
  speed {Lexer.Token Lexer.Speed (_) (_) (_)}
  spell {Lexer.Token Lexer.Spell (_) (_) (_)}
- spirit {Lexer.Token Lexer.Spirit (_) (_) (_)}
  start {Lexer.Token Lexer.StartSkill (_) (_) (_)}
  stretch {Lexer.Token Lexer.Stretch (_) (_) (_)}
  sum {Lexer.Token Lexer.Sum (_) (_) (_)}
@@ -116,8 +112,6 @@ import Text.EditDistance
  union {Lexer.Token Lexer.Union (_) (_) (_)}
  unit {Lexer.Token Lexer.Unit (_) (_) (_)}
  var {Lexer.Token (Lexer.Identifier $$) (_) (_) (_)}
- void {Lexer.Token Lexer.Void (_) (_) (_)}
- water {Lexer.Token Lexer.Water (_) (_) (_)}
  where {Lexer.Token Lexer.Where (_) (_) (_)}
  word {Lexer.Token (Lexer.Word $$) (_) (_) (_)}
  {-else {Lexer.Token Lexer.Else (_) (_) (_)}-}

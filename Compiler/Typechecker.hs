@@ -34,12 +34,112 @@ data Unit = String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn)
           deriving Show
 data Spell = Spell String Knowledge String Skill {- name, school, level, skill -}
            deriving Show
-data Skill = AutomaticSkill RNat RBool Automatic
+data Skill = Skill RNat RBool Automatic
+           deriving Show
+data Start = Start Skill
+           deriving Show
+data End = End Skill
+         deriving Show
+data Counter = Counter Skill
+             deriving Show
+data Spawn = Spawn Skill
+           deriving Show
+data Death = Death Skill
+           deriving Show
+data Auto = Auto Skill
+          deriving Show
+data Action = Action Skill
+            deriving Show
+data Soul = Soul Skill
+          deriving Show
+
+
+data RNat = RNat Int
+          deriving Show
+data RBool = RBool Bool
+           deriving Show
+data Knowledge = Earth
+               | Fire
+               | Water
+               | Air
+               | Spirit
+               | Void
+               deriving Show
+
+data Automatic = Automatic [SkillEffect] Nonautomatic
+               deriving Show
+data Nonautomatic = Selection Variables RBool Automatic Automatic
+                  deriving Show
+data Stats = Stats Schools BaseLevel BaseHp BaseAttack BaseDefense BaseSpeed BaseRange BaseSoulPoints
+           deriving Show
+data Schools = NoSchools
+             | EarthMono
+             | FireMono
+             | WaterMono
+             | AirMono
+             | SpiritMono
+             | VoidMono
+             | EarthFire
+             | EarthWater
+             | EarthAir
+             | EarthSpirit
+             | EarthVoid
+             | FireWater
+             | FireAir
+             | FireSpirit
+             | FireVoid
+             | WaterAir
+             | WaterSpirit
+             | WaterVoid
+             | AirSpirit
+             | AirVoid
+             | SpiritVoid
+             deriving Show
+data BaseLevel = BaseLevel Int
+               deriving Show
+data BaseHp = BaseHp Int
+            deriving Show
+data BaseAttack = BaseAttack Int
+                deriving Show
+data BaseDefense = BaseDefense Int
+                 deriving Show
+data BaseSpeed = BaseSpeed Int
+               deriving Show
+data BaseRange = BaseRange Int
+               deriving Show
+data BaseSoulPoints = BaseSoulPoints Int
+                    deriving Show
 
 
 
+data Variables = Variables [(String,Set)]
+               deriving Show
+data Set = SimpleSet Side RelativeSet
+         | UnionSet Set Set
+         deriving Show
+data Side = Friendly
+          | Enemy
+          deriving Show
+data RelativeSet = Field
+                 | Hand
+                 | Graveyard
+                 | Banished
+                 | SpawnLocation
+                 deriving Show
 
 
+data SkillEffect = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
+                 deriving Show
+data Assignment = Assignment [LExpr] Mutator RExpr
+                deriving Show
+data LExpr = LExpr {-None yet-}
+           deriving Show
+data RExpr = RExpr {-None yet-}
+           deriving Show
+data Mutator = Increment
+             | Decrement
+             | Assign
+             deriving Show
 
 
 getDistance :: String -> String -> Int
@@ -135,14 +235,15 @@ typeCheckSoul _ = undefined
 
 
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
-typeCheckBaseLevel :: String -> [String]
+typeCheckBaseLevel :: String -> Either [String] BaseLevel
 typeCheckBaseLevel s = 
  case (readMaybe s :: Maybe Int) of
-  Nothing -> ["Base level must be an int."]
+  Nothing -> Left ["Base level must be an int."]
   Just i ->
-   if i < 1 then ["Base level must be at least 1."]
-   else if i > 9 then ["Base level must be at most 9."]
-   else []
+   if i < 1 then Left ["Base level must be at least 1."]
+   else if i > 9 then Left ["Base level must be at most 9."]
+   else Right (BaseLevel i)
+
 
 
 
@@ -210,6 +311,17 @@ typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions
 
 typeCheck :: Parser.File -> [String]
 typeCheck (Parser.File units spells) = (concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)
+
+
+
+
+
+
+
+
+
+
+
 
 
  {-cabal install edit-distance-}

@@ -145,12 +145,6 @@ data TokenInner =
   | Speed
   | Level
   | Knowledge
-  | Earth
-  | Fire
-  | Water
-  | Air
-  | Spirit
-  | Void
   | Thoughts
   | Thought
   | Friendly
