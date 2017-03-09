@@ -564,7 +564,8 @@ prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
 
 generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
 generateTokenLocation [] = HashMap.empty
-generateTokenLocation ((Token _ ):xs) = HashMap.
+generateTokenLocation ((Lexer.Token tokenValue line column surface):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
+
 
 }
 
