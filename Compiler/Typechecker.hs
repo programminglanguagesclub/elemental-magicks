@@ -233,6 +233,11 @@ typeCheckAuto _ = undefined
 typeCheckAction :: Parser.Action -> Either [String] Action
 typeCheckAction _ = undefined
 
+typeCheckActions :: [Parser.Action] -> Either [String] [Action]
+typeCheckActions _ = undefined
+
+
+
 typeCheckSoul :: Parser.Soul -> Either [String] Soul
 typeCheckSoul _ = undefined
 
@@ -335,15 +340,15 @@ collect ((Right x):xs) = collect xs
 
 typeCheckUnit :: Parser.Unit -> Either [String] Unit
 typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
- Unit <$> (Left ["foo"]) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left [])
+ Unit <$> (Right "name") <*> (typeCheckStats stats) <*> (typeCheckStart start) <*> (typeCheckEnd end) <*> (typeCheckCounter counter) <*> (typeCheckSpawnUnit spawn) <*> (typeCheckDeath death) <*> (typeCheckAuto auto) <*> (typeCheckActions actions) <*> (typeCheckSoul soul)
 
-{-
- case (typeCheckStats stats, typeCheckStart start, typeCheckEnd end, typeCheckCounter counter, typeCheckSpawnUnit spawn, typeCheckDeath death, typeCheckAuto auto, collect $ map typeCheckAction actions, typeCheckSoul soul) of
-  (Right correctStats, Right correctStart, Right correctEnd, Right correctCounter, Right correctSpawn, Right correctDeath, Right correctAuto, Right correctActions , Right correctSoul) ->
-   Right $ Unit name correctStats correctStart correctEnd correctCounter correctSpawn correctDeath correctAuto correctActions correctSoul
-  (failedStats, failedStart, failedEnd, failedCounter, failedSpawn, failedDeath, failedAuto, failedActions, failedSoul) ->
-   Left $ (assumeFailure failedStats) ++ (assumeFailure failedStart) ++ (assumeFailure failedEnd) ++ (assumeFailure failedCounter) ++ (assumeFailure failedSpawn) ++ (assumeFailure failedDeath) ++ (assumeFailure failedAuto) ++ (assumeFailure failedActions) ++ (assumeFailure failedSoul)
--}
+
+typeCheckUnits :: [Parser.Unit] -> Either [String] [Unit]
+typeCheckUnits = undefined
+
+typeCheckSpells :: [Parser.Spell] -> Either [String] [Spell]
+typeCheckSpells = undefined
+
 
 assumeFailure :: Either [String] a -> [String]
 assumeFailure (Left s) = s
@@ -352,9 +357,17 @@ assumeFailure (Right _) = []
 
 typeCheck :: Parser.File -> Either [String] File
 typeCheck (Parser.File units spells) =
+ File <$> (typeCheckUnits units) <*> (typeCheckSpells spells)
+
+
+
+ {-
+ 
  case (collect $ map typeCheckUnit units, collect $ map typeCheckSpell spells) of
   (Right correctUnits, Right correctSpells) -> Right $ File correctUnits correctSpells
   (failedUnits, failedSpells) -> Left $ (assumeFailure failedUnits) ++ (assumeFailure failedSpells)
+
+-}
 
 
 {-(concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)-}
