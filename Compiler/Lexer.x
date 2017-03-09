@@ -207,6 +207,14 @@ gather =  alexMonadScan >>= \x ->
 helper s = case runAlex s gather of
                 Left _ -> mapM putStrLn []
                 Right x -> mapM print x
+
+
+
+
+
+
+
+
 } 
 
 

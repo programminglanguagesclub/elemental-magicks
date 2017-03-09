@@ -5,9 +5,7 @@ import qualified Lexer
 
 
 
-
-
-
+import qualified Data.Map.Strict as HashMap
 
 
 
@@ -561,6 +559,12 @@ prettyPrint [] = ""
 prettyPrint (x:[]) = x
 prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
 
+
+
+
+generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
+generateTokenLocation [] = HashMap.empty
+generateTokenLocation ((Token _ ):xs) = HashMap.
 
 }
 
