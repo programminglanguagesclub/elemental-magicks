@@ -36,7 +36,7 @@ data File = File [Unit] [Spell]
           deriving Show
 data Unit = Unit String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
           deriving Show
-data Spell = Spell String Knowledge String Skill {- name, school, level, skill -}
+data Spell = Spell String Knowledge BaseLevel Skill {- name, school, level, skill -}
            deriving Show
 data Skill = Skill RNat RBool Automatic
            deriving Show
@@ -186,18 +186,18 @@ getDistanceMessages s ss =
 
 
 
-typeCheckSchool :: String -> [String]
-typeCheckSchool "earth" = []
-typeCheckSchool "fire" = []
-typeCheckSchool "water" = []
-typeCheckSchool "air" = []
-typeCheckSchool "spirit" = []
-typeCheckSchool "void" = []
+typeCheckSchool :: String -> TC Knowledge
+typeCheckSchool "earth" = TC . Right $ Earth
+typeCheckSchool "fire" = TC . Right $ Fire
+typeCheckSchool "water" = TC . Right $ Water
+typeCheckSchool "air" = TC . Right $ Air
+typeCheckSchool "spirit" = TC . Right $ Spirit
+typeCheckSchool "void" = TC . Right $ Void
 typeCheckSchool s =
  let x = getDistanceMessages s ["earth", "fire", "water", "air", "spirit", "void"] in
  case x of
-  [] -> [s ++ " is not a valid school."]
-  _ -> [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
+  [] -> TC . Left $ [s ++ " is not a valid school."]
+  _ -> TC . Left $ [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
 
 
 typeCheckSchools :: Parser.Schools -> TC Schools
@@ -301,27 +301,15 @@ typeCheckBaseSoulPoints x =
   Left s -> TC $ Left s
   Right i -> TC $ Right $ BaseSoulPoints i
 typeCheckStats :: Parser.Stats -> TC Stats
-typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) = undefined {-Stats <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined-}
+typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
+ Stats <$> (typeCheckSchools schools) <*> (typeCheckBaseLevel level) <*> (typeCheckBaseHp hp) <*> (typeCheckBaseAttack attack) <*> (typeCheckBaseDefense defense) <*> (typeCheckBaseSpeed speed) <*> (typeCheckBaseRange range) <*> (typeCheckBaseSoulPoints soulPoints)
  
- {-case (typeCheckSchools schools, typeCheckBaseLevel level, typeCheckBaseHp hp, typeCheckBaseAttack attack, typeCheckBaseDefense defense, typeCheckBaseSpeed speed, typeCheckBaseRange range, typeCheckBaseSoulPoints soulPoints) of
-  (Right correctSchools, Right correctLevel, Right correctHp, Right correctAttack, Right correctDefense, Right correctSpeed, Right correctRange, Right correctSoulPoints) ->
-   undefined
-  (failedSchools, failedLevel, failedHp, failedAttack, failedDefense, failedSpeed, failedRange, failedSoulPoints) ->
-   Left $ (assumeFailure failedSchools) ++ (assumeFailure failedHp) ++ (assumeFailure failedAttack) ++ (assumeFailure failedDefense) ++ (assumeFailure failedSpeed) ++ (assumeFailure failedRange) ++ (assumeFailure failedSoulPoints)
--}
-
-
-typeCheckSpawnSpell :: Parser.Skill -> [String]
+typeCheckSpawnSpell :: Parser.Skill -> TC Skill
 typeCheckSpawnSpell _ = undefined
 
-typeCheckSpell :: Parser.Spell -> Either [String] Spell
-typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) = undefined
-{- (typeCheckSchool school) ++
- (typeCheckBaseLevel level) ++
- (typeCheckSpawnSpell skill)
--}
-
-
+typeCheckSpell :: Parser.Spell -> TC Spell
+typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) =
+ Spell <$> (TC . Right $ name) <*> (typeCheckSchool $ school) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell $ skill)
 
 collect :: [Either [String] a] -> Either [String] [a]
 collect [] = Right []
