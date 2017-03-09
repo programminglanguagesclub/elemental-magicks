@@ -1,0 +1,91 @@
+
+
+
+
+getErr (TC (Right _)) = []
+getErr (TC (Left x)) = x
+
+
+
+
+
+instance Applicative TC where
+ pure = TC . Right
+ (TC (Right f)) <*> (TC (Right x)) = TC . Right . f $ x
+ m <*> n = TC . Left $ (getErr m) <> (getErr n)
+
+
+
+
+
+
+
+
+
+
+
+
+ f : A -> B -> C -> D
+
+
+
+ f <$> m <*> n <*> o
+
+
+
+
+ Unit <$> (checkName name) ......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ip :: Applicative f => f a -> f b -> f (a,b)
+ ip :: m n = (fmap (,) m) <*> n
+              f (b -> (a,b))
+              <*> :: f (a -> b) -> f a -> f b
+
+
+
+m <*> n = fmap (\(a,b) -> a b) (ip m n)
+
+
+
