@@ -344,71 +344,7 @@ typeCheck (Parser.File units spells) =
  File <$> (typeCheckUnits units) <*> (typeCheckSpells spells)
 
 
-
- {-
- 
- case (collect $ map typeCheckUnit units, collect $ map typeCheckSpell spells) of
-  (Right correctUnits, Right correctSpells) -> Right $ File correctUnits correctSpells
-  (failedUnits, failedSpells) -> Left $ (assumeFailure failedUnits) ++ (assumeFailure failedSpells)
-
--}
-
-
-{-(concat $ map typeCheckUnit units) ++ (concat $ map typeCheckSpell spells)-}
-
-{-
-data Attempt success = Attempt success [String]
-instance Applicative => Monad Attempt where
--}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
  {-cabal install edit-distance-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
