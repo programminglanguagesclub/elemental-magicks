@@ -252,23 +252,19 @@ typeCheckBaseLevel s =
 
 
 typeCheckBaseHp :: String -> Either [String] BaseHp
-typeCheckBaseHp s =
- case (readMaybe s :: Maybe Int) of
-  Nothing -> Left ["Base hp must be an int"]
-  Just i ->
-   if i < 1 then Left ["Base hp must be at least 1"]
-   else if i > maxInt then Left ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
-   else Right $ BaseHp i
+typeCheckBaseHp x =
+ case typeCheckInt x "Base hp" 1 1000 of
+  Left s -> Left s
+  Right i -> Right $ BaseHp i
+
+
+
+
 typeCheckBaseAttack :: String -> Either [String] BaseAttack
-typeCheckBaseAttack s =
- case (readMaybe s :: Maybe Int) of
-  Nothing -> Left ["Base attack must be an int"]
-  Just i ->
-   if i < 0 then Left ["Base attack must be at least 0"]
-   else if i > maxInt then Left ["Base hp cannot exceed maximum stat value of " ++ (show maxInt)]
-   else Right $ BaseAttack i
-
-
+typeCheckBaseAttack x =
+ case typeCheckInt x "Base attack" 0 1000 of
+  Left s -> Left s
+  Right i -> Right $ BaseAttack i
 
 typeCheckInt :: String -> String -> Int -> Int -> Either [String] Int
 typeCheckInt s name lowerBound upperBound =
@@ -304,13 +300,14 @@ typeCheckBaseSoulPoints x =
   Left s -> Left s
   Right i -> Right $ BaseSoulPoints i
 typeCheckStats :: Parser.Stats -> Either [String] Stats
-typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
- case (typeCheckSchools schools, typeCheckBaseLevel level, typeCheckBaseHp hp, typeCheckBaseAttack attack, typeCheckBaseDefense defense, typeCheckBaseSpeed speed, typeCheckBaseRange range, typeCheckBaseSoulPoints soulPoints) of
+typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) = undefined {-Stats <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined <$> undefined-}
+ 
+ {-case (typeCheckSchools schools, typeCheckBaseLevel level, typeCheckBaseHp hp, typeCheckBaseAttack attack, typeCheckBaseDefense defense, typeCheckBaseSpeed speed, typeCheckBaseRange range, typeCheckBaseSoulPoints soulPoints) of
   (Right correctSchools, Right correctLevel, Right correctHp, Right correctAttack, Right correctDefense, Right correctSpeed, Right correctRange, Right correctSoulPoints) ->
    undefined
   (failedSchools, failedLevel, failedHp, failedAttack, failedDefense, failedSpeed, failedRange, failedSoulPoints) ->
    Left $ (assumeFailure failedSchools) ++ (assumeFailure failedHp) ++ (assumeFailure failedAttack) ++ (assumeFailure failedDefense) ++ (assumeFailure failedSpeed) ++ (assumeFailure failedRange) ++ (assumeFailure failedSoulPoints)
-
+-}
 
 
 typeCheckSpawnSpell :: Parser.Skill -> [String]
@@ -338,12 +335,15 @@ collect ((Right x):xs) = collect xs
 
 typeCheckUnit :: Parser.Unit -> Either [String] Unit
 typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
+ Unit <$> (Left ["foo"]) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left []) <*> (Left [])
+
+{-
  case (typeCheckStats stats, typeCheckStart start, typeCheckEnd end, typeCheckCounter counter, typeCheckSpawnUnit spawn, typeCheckDeath death, typeCheckAuto auto, collect $ map typeCheckAction actions, typeCheckSoul soul) of
   (Right correctStats, Right correctStart, Right correctEnd, Right correctCounter, Right correctSpawn, Right correctDeath, Right correctAuto, Right correctActions , Right correctSoul) ->
    Right $ Unit name correctStats correctStart correctEnd correctCounter correctSpawn correctDeath correctAuto correctActions correctSoul
   (failedStats, failedStart, failedEnd, failedCounter, failedSpawn, failedDeath, failedAuto, failedActions, failedSoul) ->
    Left $ (assumeFailure failedStats) ++ (assumeFailure failedStart) ++ (assumeFailure failedEnd) ++ (assumeFailure failedCounter) ++ (assumeFailure failedSpawn) ++ (assumeFailure failedDeath) ++ (assumeFailure failedAuto) ++ (assumeFailure failedActions) ++ (assumeFailure failedSoul)
-
+-}
 
 assumeFailure :: Either [String] a -> [String]
 assumeFailure (Left s) = s
