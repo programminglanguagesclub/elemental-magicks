@@ -1,8 +1,12 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
+
 module Typechecker where    
 import qualified Lexer
 import qualified Parser
 import Text.Read
 import Text.EditDistance
+import Data.Monoid
 
  
   
@@ -366,6 +370,30 @@ instance Applicative => Monad Attempt where
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  {-cabal install edit-distance-}
 
 
@@ -404,5 +432,17 @@ main = do
       
        
         
-         
-          
+newtype TC a = TC {runTC :: Either [String] a} deriving Functor
+
+getErr (TC (Right _)) = []
+getErr (TC (Left x)) = x
+
+instance Applicative TC where
+ pure = TC . Right
+ (TC (Right f)) <*> (TC (Right x)) = TC . Right . f $ x
+ m <*> n = TC . Left $ (getErr m) <> (getErr n)
+
+
+
+
+

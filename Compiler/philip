@@ -18,7 +18,7 @@ instance Applicative TC where
 
 
 
-
+new TC a = TC {runTC :: Either [String] a} deriving Functor
 
 
 
@@ -56,7 +56,8 @@ instance Applicative TC where
 
 
 
-
+joinTC :: TC(TC a) -> TC a
+joinTC = TC. join runRC
 
 
 
