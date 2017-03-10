@@ -205,33 +205,39 @@ typeCheckSchools _ = undefined
 
 
 
-{-
-typeCheckSkill :: Skill -> [String]
-typeCheckSkill _ = undefined
--}
+
+typeCheckSkill :: Parser.Skill -> TC Skill
+typeCheckSkill (Parser.AutomaticSkill cost condition automatic) = undefined
 
 
 
 typeCheckStart :: Maybe Parser.Start -> TC (Maybe Start)
-typeCheckStart _ = undefined
+typeCheckStart Nothing = undefined
+typeCheckStart (Just start) = undefined
 
 typeCheckEnd :: Maybe Parser.End -> TC (Maybe End)
-typeCheckEnd _ = undefined
+typeCheckEnd Nothing = undefined
+typeCheckEnd (Just end) = undefined
+
 
 typeCheckCounter :: Maybe Parser.Counter -> TC (Maybe Counter)
-typeCheckCounter _ = undefined
+typeCheckCounter Nothing = undefined
+typeCheckCounter (Just counter) = undefined
 
 typeCheckSpawnUnit :: Maybe Parser.Spawn -> TC (Maybe Spawn)
-typeCheckSpawnUnit _ = undefined
+typeCheckSpawnUnit Nothing = undefined
+typeCheckSpawnUnit (Just spawn) = undefined
 
 typeCheckDeath :: Maybe Parser.Death -> TC (Maybe Death)
-typeCheckDeath _ = undefined
+typeCheckDeath Nothing = undefined
+typeCheckDeath (Just death) = undefined
 
 typeCheckAuto :: Maybe Parser.Auto -> TC (Maybe Auto)
-typeCheckAuto _ = undefined
+typeCheckAuto Nothing = undefined
+typeCheckAuto (Just auto) = undefined
 
 typeCheckAction :: Parser.Action -> TC Action
-typeCheckAction _ = undefined
+typeCheckAction action = undefined
 
 typeCheckActions :: [Parser.Action] -> TC [Action]
 typeCheckActions _ = undefined
@@ -239,7 +245,7 @@ typeCheckActions _ = undefined
 
 
 typeCheckSoul :: Parser.Soul -> TC Soul
-typeCheckSoul _ = undefined
+typeCheckSoul soul = undefined
 
 
 

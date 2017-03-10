@@ -355,7 +355,7 @@ data Spell = Spell String Knowledge String Skill {-name, school, level, skill-}
              deriving Show
 
 data Skill = AutomaticSkill Expr Expr Automatic
-           | NonautomaticSkill Expr Expr Nonautomatic 
+        {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
 
