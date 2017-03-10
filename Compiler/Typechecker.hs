@@ -249,10 +249,65 @@ schoolsFromKnowledge school1 school2 =
 joinTC :: TC (TC a) -> TC a
 joinTC = TC . join . fmap runTC . runTC
 
+
+{-Need to wrap variable, and not just have String...-}
+
+
+data Variable = Variable String {-String of length 1-}
+data Context = EmptyContext
+             | ExtendContext Context (Variable, Set)
+
+{-
+getSet :: Context -> Variable -> 
+-}
+
+checkAutomatic :: Context -> Parser.Automatic -> [String]
+checkAutomatic = undefined
+checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
+checkNonautomatic = undefined
+checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
+checkSkillEffect = undefined
+
+checkSet :: Parser.Set -> [String]
+checkSet = undefined
+
+
+{-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
+
+
+
+
+checkStart :: Parser.Skill -> [String]
+checkStart = undefined
+checkEnd :: Parser.Skill -> [String]
+checkEnd = undefined
+checkCounter :: Parser.Skill -> [String]
+checkCounter = undefined
+checkDeath :: Parser.Skill -> [String]
+checkDeath = undefined
+checkAuto :: Parser.Skill -> [String]
+checkAuto = undefined
+checkAction :: Parser.Skill -> [String]
+checkAction = undefined
+checkSoul :: Parser.Skill -> [String]
+checkSoul = undefined
+
+{-Should use a phantom type for some of these?-}
+
+
 typeCheckSchools :: Parser.Schools -> TC Schools
 typeCheckSchools Parser.NoSchools = pure NoSchools
 typeCheckSchools (Parser.OneSchool s) = schoolFromKnowledge <$> typeCheckSchool s
 typeCheckSchools (Parser.TwoSchools s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
+
+
+
+
+
+
+typeCheckCondition :: Parser.Expr -> TC RBool
+typeCheckCondition = undefined
+
 
 typeCheckSkill :: Parser.Skill -> TC Skill
 typeCheckSkill (Parser.AutomaticSkill cost condition automatic) = undefined
