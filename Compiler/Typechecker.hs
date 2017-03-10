@@ -254,13 +254,6 @@ typeCheckSchools Parser.NoSchools = pure NoSchools
 typeCheckSchools (Parser.OneSchool s) = schoolFromKnowledge <$> typeCheckSchool s
 typeCheckSchools (Parser.TwoSchools s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
 
-  {-
-   case (typeCheckSchool s1, typeCheckSchool s2) of
-    (TC (Right k1), TC (Right k2)) -> schoolsFromKnowledge k1 k2
-    (TC (Left s1), TC (Left s2)) -> TC $ Left $ s1 ++ s2
-    (TC (Left s1), _) -> TC $ Left s1
-    (_ , TC (Left s2)) -> TC $ Left s2
--}
 typeCheckSkill :: Parser.Skill -> TC Skill
 typeCheckSkill (Parser.AutomaticSkill cost condition automatic) = undefined
 
