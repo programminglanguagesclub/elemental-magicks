@@ -187,17 +187,17 @@ getDistanceMessages s ss =
 
 
 typeCheckSchool :: String -> TC Knowledge
-typeCheckSchool "earth" = TC . Right $ Earth
-typeCheckSchool "fire" = TC . Right $ Fire
-typeCheckSchool "water" = TC . Right $ Water
-typeCheckSchool "air" = TC . Right $ Air
-typeCheckSchool "spirit" = TC . Right $ Spirit
-typeCheckSchool "void" = TC . Right $ Void
+typeCheckSchool "earth" = pure Earth
+typeCheckSchool "fire" = pure Fire
+typeCheckSchool "water" = pure Water
+typeCheckSchool "air" = pure Air
+typeCheckSchool "spirit" = pure Spirit
+typeCheckSchool "void" = pure Void
 typeCheckSchool s =
  let x = getDistanceMessages s ["earth", "fire", "water", "air", "spirit", "void"] in
  case x of
-  [] -> TC . Left $ [s ++ " is not a valid school."]
-  _ -> TC . Left $ [s ++ " is not a valid school. Did you mean " ++ (concat x) ]
+  [] -> putErr $ s ++ " is not a valid school."
+  _ -> putErr $ s ++ " is not a valid school. Did you mean " ++ (concat x)
 
 
 typeCheckSchools :: Parser.Schools -> TC Schools
@@ -240,7 +240,7 @@ typeCheckAction :: Parser.Action -> TC Action
 typeCheckAction action = undefined
 
 typeCheckActions :: [Parser.Action] -> TC [Action]
-typeCheckActions _ = undefined
+typeCheckActions = traverse typeCheckAction
 
 
 
@@ -252,63 +252,49 @@ typeCheckSoul soul = undefined
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
 typeCheckBaseLevel :: String -> TC BaseLevel
 typeCheckBaseLevel x = 
- case typeCheckInt x "Base level" 1 9 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseLevel i
+ BaseLevel <$> (typeCheckInt x "Base level" 1 9)
  
-
 
 typeCheckBaseHp :: String -> TC BaseHp
 typeCheckBaseHp x =
- case typeCheckInt x "Base hp" 1 1000 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseHp i
-
-
+ BaseHp <$> (typeCheckInt x "Base hp" 1 1000) 
 
 
 typeCheckBaseAttack :: String -> TC BaseAttack
 typeCheckBaseAttack x =
- case typeCheckInt x "Base attack" 0 1000 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseAttack i
+ BaseAttack <$> (typeCheckInt x "Base attack" 0 1000)
 
-typeCheckInt :: String -> String -> Int -> Int -> Either [String] Int
+typeCheckInt :: String -> String -> Int -> Int -> TC Int
 typeCheckInt s name lowerBound upperBound =
  case (readMaybe s :: Maybe Int) of
-  Nothing -> Left [name ++ " must be an int"]
+  Nothing -> TC $ Left [name ++ " must be an int"]
   Just i ->
-   if i < lowerBound then Left [name ++ " must be at least " ++ (show lowerBound)]
-   else if i > upperBound then Left [name ++ " cannot exceed " ++ (show upperBound)]
-   else Right i
-
-
-{- This above can be refactored to remove a lot of redundancy...-}
-
+   if i < lowerBound then putErr $ name ++ " must be at least " ++ (show lowerBound)
+   else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
+   else pure i
 
 typeCheckBaseDefense :: String -> TC BaseDefense
 typeCheckBaseDefense x =
- case typeCheckInt x "Base defense" 0 1000 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseDefense i
+ BaseDefense <$> (typeCheckInt x "Base defense" 0 1000)
 typeCheckBaseSpeed :: String -> TC BaseSpeed
 typeCheckBaseSpeed x =
- case typeCheckInt x "Base speed" 1 5 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseSpeed i
+ BaseSpeed <$> (typeCheckInt x "Base speed" 1 5)
 typeCheckBaseRange :: String -> TC BaseRange
 typeCheckBaseRange x =
- case typeCheckInt x "Base range" 1 5 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseRange i
+ BaseRange <$> (typeCheckInt x "Base range" 1 5)
 typeCheckBaseSoulPoints :: String -> TC BaseSoulPoints
 typeCheckBaseSoulPoints x =
- case typeCheckInt x "Base soul points" 2 3 of
-  Left s -> TC $ Left s
-  Right i -> TC $ Right $ BaseSoulPoints i
+ BaseSoulPoints <$> (typeCheckInt x "Base soul points" 2 3)
 typeCheckStats :: Parser.Stats -> TC Stats
 typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
- Stats <$> (typeCheckSchools schools) <*> (typeCheckBaseLevel level) <*> (typeCheckBaseHp hp) <*> (typeCheckBaseAttack attack) <*> (typeCheckBaseDefense defense) <*> (typeCheckBaseSpeed speed) <*> (typeCheckBaseRange range) <*> (typeCheckBaseSoulPoints soulPoints)
+ Stats <$> typeCheckSchools schools
+       <*> typeCheckBaseLevel level
+       <*> typeCheckBaseHp hp
+       <*> typeCheckBaseAttack attack
+       <*> typeCheckBaseDefense defense
+       <*> typeCheckBaseSpeed speed
+       <*> typeCheckBaseRange range
+       <*> typeCheckBaseSoulPoints soulPoints
  
 typeCheckSpawnSpell :: Parser.Skill -> TC Skill
 typeCheckSpawnSpell _ = undefined
@@ -317,27 +303,26 @@ typeCheckSpell :: Parser.Spell -> TC Spell
 typeCheckSpell (Parser.Spell name (Parser.Knowledge school) level skill) =
  Spell <$> (TC . Right $ name) <*> (typeCheckSchool $ school) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell $ skill)
 
-collect :: [Either [String] a] -> Either [String] [a]
-collect [] = Right []
-collect ((Left s):xs) =
- case collect xs of
-  Right _ -> Left s
-  Left s2 -> Left (s ++ s2)
-collect ((Right x):xs) = collect xs
-
-
-
 
 typeCheckUnit :: Parser.Unit -> TC Unit
 typeCheckUnit (Parser.Unit name stats start end counter spawn death auto actions soul) =
- Unit <$> (TC $ Right "name") <*> (typeCheckStats stats) <*> (typeCheckStart start) <*> (typeCheckEnd end) <*> (typeCheckCounter counter) <*> (typeCheckSpawnUnit spawn) <*> (typeCheckDeath death) <*> (typeCheckAuto auto) <*> (typeCheckActions actions) <*> (typeCheckSoul soul)
+ Unit <$> pure "name"  {- Unit name <$> all the other stuff -}
+      <*> typeCheckStats stats
+      <*> typeCheckStart start 
+      <*> typeCheckEnd end
+      <*> typeCheckCounter counter
+      <*> typeCheckSpawnUnit spawn
+      <*> typeCheckDeath death
+      <*> typeCheckAuto auto
+      <*> typeCheckActions actions 
+      <*> typeCheckSoul soul
 
 
 typeCheckUnits :: [Parser.Unit] -> TC [Unit]
-typeCheckUnits = undefined
+typeCheckUnits = traverse typeCheckUnit
 
 typeCheckSpells :: [Parser.Spell] -> TC [Spell]
-typeCheckSpells = undefined
+typeCheckSpells = traverse typeCheckSpell
 
 
 assumeFailure :: Either [String] a -> [String]
@@ -347,7 +332,8 @@ assumeFailure (Right _) = []
 
 typeCheck :: Parser.File -> TC File
 typeCheck (Parser.File units spells) =
- File <$> (typeCheckUnits units) <*> (typeCheckSpells spells)
+ File <$> (typeCheckUnits units)
+      <*> (typeCheckSpells spells)
 
 
  {-cabal install edit-distance-}
@@ -375,6 +361,14 @@ newtype TC a = TC {runTC :: Either [String] a} deriving Functor
 
 getErr (TC (Right _)) = []
 getErr (TC (Left x)) = x
+
+putErr :: String -> TC a
+putErr = TC . Left . pure
+
+putErrs :: [String] -> TC a
+putErrs = TC . Left
+
+
 
 instance Applicative TC where
  pure = TC . Right
