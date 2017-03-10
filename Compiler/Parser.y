@@ -151,9 +151,9 @@ Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 
 Spell : spell name School level colon number spawn colon Skill {Spell $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats $1 $4 $7 $10 $13 $16 $19 $22}
 School : word {Knowledge $1}
-Schools : {Schools "NoSchools"}
-        | word {Schools $1}
-        | word word {Schools ($1 ++ $2)}
+Schools : {NoSchools}
+        | word {OneSchool $1}
+        | word word {TwoSchools $1 $2}
 Start : {Nothing}
       | start colon Skill {Just $ Start $3}
 End : {Nothing}
@@ -255,6 +255,7 @@ RelativeSet : field {Field}
 
 
 {
+
 
 
 
@@ -453,32 +454,9 @@ data Knowledge = Knowledge String
                deriving Show
 
 
-data TypedSc = NoSchools
-             | Earth
-             | Fire
-             | Water
-             | Air
-             | Spirit
-             | Void
-             | EarthFire
-             | EarthWater
-             | EarthAir
-             | EarthSpirit
-             | EarthVoid
-             | FireWater
-             | FireAir
-             | FireSpirit
-             | FireVoid
-             | WaterAir
-             | WaterSpirit
-             | WaterVoid
-             | AirSpirit
-             | AirVoid
-             | SpiritVoid
-             deriving Show
-
-
-data Schools = Schools String
+data Schools = NoSchools
+             | OneSchool String
+             | TwoSchools String String
              deriving Show
 
 

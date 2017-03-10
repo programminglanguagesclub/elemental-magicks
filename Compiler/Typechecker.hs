@@ -7,7 +7,7 @@ import qualified Parser
 import Text.Read
 import Text.EditDistance
 import Data.Monoid
-
+import Control.Monad(join)
  
   
    
@@ -68,7 +68,7 @@ data Knowledge = Earth
                | Air
                | Spirit
                | Void
-               deriving Show
+               deriving (Eq,Show)
 
 data Automatic = Automatic [SkillEffect] Nonautomatic
                deriving Show
@@ -186,6 +186,18 @@ getDistanceMessages s ss =
 
 
 
+schoolFromKnowledge :: Knowledge -> Schools
+schoolFromKnowledge knowledge =
+ case knowledge of
+  Earth -> EarthMono
+  Fire -> FireMono
+  Water -> WaterMono
+  Air -> AirMono
+  Spirit -> SpiritMono
+  Void -> VoidMono
+
+
+
 typeCheckSchool :: String -> TC Knowledge
 typeCheckSchool "earth" = pure Earth
 typeCheckSchool "fire" = pure Fire
@@ -200,12 +212,55 @@ typeCheckSchool s =
   _ -> putErr $ s ++ " is not a valid school. Did you mean " ++ (concat x)
 
 
+
+showKnowledge :: Knowledge -> String
+showKnowledge knowledge =
+ case knowledge of
+  Earth -> "earth"
+  Fire -> "fire"
+  Water -> "water"
+  Air -> "air"
+  Spirit -> "spirit"
+  Void -> "void"
+
+
+schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
+schoolsFromKnowledge school1 school2 =
+ case (school1,school2) of
+  (Earth,Fire) -> pure EarthFire
+  (Earth,Water) -> pure EarthWater
+  (Earth,Air) -> pure EarthAir
+  (Earth,Spirit) -> pure EarthSpirit
+  (Earth,Void) -> pure EarthVoid
+  _ ->
+   if school1 == school2
+    then
+     putErr "Units cannot belong to two identical schools" {-I should keep the line,column numbers along with the type checker AST, so I can output errors better there...-}
+    else
+     putErr ("Invalid pair of schools: " ++ (showKnowledge school1) ++ " " ++ (showKnowledge school2) ++ ". Did you mean " ++ (showKnowledge school2) ++ " " ++ (showKnowledge school1))
+  
+
+
+
+
+
+
+
+joinTC :: TC (TC a) -> TC a
+joinTC = TC . join . fmap runTC . runTC
+
 typeCheckSchools :: Parser.Schools -> TC Schools
-typeCheckSchools _ = undefined                 
+typeCheckSchools Parser.NoSchools = pure NoSchools
+typeCheckSchools (Parser.OneSchool s) = schoolFromKnowledge <$> typeCheckSchool s
+typeCheckSchools (Parser.TwoSchools s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
 
-
-
-
+  {-
+   case (typeCheckSchool s1, typeCheckSchool s2) of
+    (TC (Right k1), TC (Right k2)) -> schoolsFromKnowledge k1 k2
+    (TC (Left s1), TC (Left s2)) -> TC $ Left $ s1 ++ s2
+    (TC (Left s1), _) -> TC $ Left s1
+    (_ , TC (Left s2)) -> TC $ Left s2
+-}
 typeCheckSkill :: Parser.Skill -> TC Skill
 typeCheckSkill (Parser.AutomaticSkill cost condition automatic) = undefined
 
@@ -284,7 +339,7 @@ typeCheckBaseRange x =
  BaseRange <$> (typeCheckInt x "Base range" 1 5)
 typeCheckBaseSoulPoints :: String -> TC BaseSoulPoints
 typeCheckBaseSoulPoints x =
- BaseSoulPoints <$> (typeCheckInt x "Base soul points" 2 3)
+ BaseSoulPoints <$> (typeCheckInt x "Base soul points" 1 2)
 typeCheckStats :: Parser.Stats -> TC Stats
 typeCheckStats (Parser.Stats schools level hp attack defense speed range soulPoints) =
  Stats <$> typeCheckSchools schools
