@@ -72,7 +72,7 @@ data Knowledge = Earth
 
 data Automatic = Automatic [SkillEffect] Nonautomatic
                deriving Show
-data Nonautomatic = Selection Variables RBool Automatic Automatic
+data Nonautomatic = Selection [Judgement] RBool Automatic Automatic
                   deriving Show
 data Stats = Stats Schools BaseLevel BaseHp BaseAttack BaseDefense BaseSpeed BaseRange BaseSoulPoints
            deriving Show
@@ -115,9 +115,16 @@ data BaseSoulPoints = BaseSoulPoints Int
                     deriving Show
 
 
-
-data Variables = Variables [(String,Set)]
+{- bad -}
+data Judgement = Judgement (Variable,Set)
                deriving Show
+
+data Variable = Variable String {-String of length 1-}
+              deriving Show
+data Context = EmptyContext
+             | ExtendContext Context Judgement
+             deriving Show
+
 data Set = SimpleSet Side RelativeSet
          | UnionSet Set Set
          deriving Show
@@ -134,7 +141,7 @@ data RelativeSet = Field
 
 data SkillEffect = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment [LExpr] Mutator RExpr
+data Assignment = Assignment [Judgement] Mutator RExpr
                 deriving Show
 data LExpr = LExpr {-None yet-}
            deriving Show
@@ -144,6 +151,15 @@ data Mutator = Increment
              | Decrement
              | Assign
              deriving Show
+
+
+
+
+
+
+
+
+
 
 
 getDistance :: String -> String -> Int
@@ -253,23 +269,38 @@ joinTC = TC . join . fmap runTC . runTC
 {-Need to wrap variable, and not just have String...-}
 
 
-data Variable = Variable String {-String of length 1-}
-data Context = EmptyContext
-             | ExtendContext Context (Variable, Set)
 
 {-
 getSet :: Context -> Variable -> 
 -}
 
-checkAutomatic :: Context -> Parser.Automatic -> [String]
-checkAutomatic = undefined
+
+
+
+
+{-
+ -
+ -I HAVE WHERE, BUT I DO NOT HAVE IF STATEMENTS YET IN MY SKILLS BEYOND THIS... I SHOULD.
+ - 
+ - -}
+
+
+
+{-
+checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
+checkAutomatic context (Parser.Automatic skillEffects nonautomatic) = (concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) 
 checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
-checkNonautomatic = undefined
+checkNonautomatic context (Parser.Nonautomatic variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = undefined
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
-checkSkillEffect = undefined
+checkSkillEffect context skillEffect =
+ case skillEffect of
+  (Assignment lExpr mutator rExpr) = 
 
 checkSet :: Parser.Set -> [String]
 checkSet = undefined
+
+
+-}
 
 
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
