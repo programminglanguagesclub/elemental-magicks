@@ -295,10 +295,97 @@ checkNonautomatic context (Parser.Nonautomatic variables condition thenAutomatic
 
 
 
+
+
+
+
+
+
+
+
+
+
+{-If there's an error here, I will not look any further at subexpressions for further problems.-}
+buildLExpr :: Context -> Parser.Expr -> TC LExpr
+buildLExpr context expr =
+ case expr of
+  Parser.ThoughtsExpr side -> pure undefined
+  Parser.KnowledgeExpr knowledge side -> pure undefined
+  Parser.Self field -> undefined
+  Parser.Var field string -> undefined
+  Parser.Sum _ _ -> undefined {-need appropriate error message. Similarly on other cases.-}
+  Parser.Difference _ _ -> undefined
+  Parser.Product _ _ -> putErr undefined
+  Parser.Quotient _ _ -> putErr undefined
+  Parser.Mod _ _ -> putErr undefined
+  Parser.Always -> putErr undefined
+  Parser.GT _ _ -> putErr undefined
+  Parser.GEQ _ _ -> putErr undefined
+  Parser.LT _ _ -> putErr undefined
+  Parser.LEQ _ _ -> putErr undefined
+  Parser.EQ _ _ -> putErr undefined
+  Parser.And _ _ -> putErr undefined
+  Parser.Or _ _ -> putErr undefined
+  Parser.Not _ -> putErr undefined
+
+
+{-
+isInt :: Context -> Parser.Expr -> 
+
+isBool....
+
+
+Maybe when I make LExprs and RExprs... I should just put the type in the datatype..
+-}
+
+{-maybe instead of this function I should have two functions...
+ - one for LExprs, and one for RExprs...
+ - -}
+isValidBinding :: Context -> Parser.Expr -> [String]
+isValidBinding context expr =
+ case expr of
+  Parser.ThoughtsExpr side -> []
+  Parser.KnowledgeExpr knowledge side -> []
+  Parser.Self field -> [] {-extra check elsewhere that soul and spawn skills don't do this.-}
+  Parser.Var field string -> undefined
+  Parser.Sum expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2) {-check for LExpr rejects this..-}
+  Parser.Difference expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  Parser.Product expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  Parser.Quotient expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  Parser.Mod expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  Parser.Always -> undefined
+  Parser.GT expr1 expr2 -> undefined
+  Parser.GEQ expr1 expr2 -> undefined
+  Parser.LT expr1 expr2 -> undefined
+  Parser.LEQ expr1 expr2 -> undefined
+  Parser.EQ expr1 expr2 -> undefined
+  Parser.And expr1 expr2 -> undefined
+  Parser.Or expr1 expr2 -> undefined
+  Parser.Not expr -> undefined
+
+
+
+
+{-
+isValidLExpr checks against things like.. are you assigning to your base stat, etc. Things that are not an LValue.
+
+And/Or maybe I should just convert to LExprs here.
+-}
+
+
+
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
-  (Assignment exprs mutator rExpr) -> undefined
+  (Parser.Assignment exprs mutator rExpr) -> undefined
+
+{-
+ - THE difference between Judgements in contexts here, and sets in the parser, is for convenience we might want to additionally allow the soul to be an additional area to select, even though
+ - we don't want other cards to select that. The reason for that is so that SELF can be bound then to the soul, and we can typecheck references to self.
+ -
+ - Another possibility is to have a separate "no selfs" clause that soul skills check (this is probably easier).
+ -
+ - -}
 
 
 
@@ -384,6 +471,9 @@ typeCheckActions :: [Parser.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
 
 
+
+noSelfReferences :: Parser.Skill -> [String]
+noSelfReferences skill = undefined
 
 typeCheckSoul :: Parser.Soul -> TC Soul
 typeCheckSoul soul = undefined

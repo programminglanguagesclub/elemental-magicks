@@ -197,7 +197,7 @@ RestVariable : {[]}
 SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
 
-SkillEffect : Assignment {SkillEffectAssignment $1}
+SkillEffect : Assignment {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment $2 $4 $5}
 Mutator : assign {Set}
         | increment {Increment}
@@ -396,8 +396,9 @@ data Set = SimpleSet Side RelativeSet
 
 
 
-data SkillEffect = SkillEffectAssignment Assignment
+data SkillEffect = Assignment [Expr] Mutator Expr
                  deriving Show
+
 data Nonautomatic = Nonautomatic [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-} | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic [SkillEffect] Nonautomatic
@@ -464,9 +465,12 @@ data Schools = NoSchools
 
 {- do not forget engagement -}
 
-
+{-
 data Assignment = Assignment [Expr] Mutator Expr
                 deriving Show
+-}
+
+
 data Field = StatField Stat Temporality
            | HpStatField HpStat
            | EngagementField
