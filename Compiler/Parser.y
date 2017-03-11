@@ -256,17 +256,8 @@ RelativeSet : field {Field}
 
 {
 
-
-
-
 getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = undefined 
-
-
-
-
-
-
 
 type P a = Lexer.Alex a
 
@@ -286,59 +277,9 @@ catchP m c = fail "catch not implemented"
 
 
 
-
-
-
-
-{-
-fooBar :: ((Token,Int) -> P a) -> P a
-       fooBar  = (alexMonadScan >>=)
-       -}
-
-
-
 lexer :: (Lexer.Token -> P a) -> P a
 lexer = (Lexer.alexMonadScan >>=)
 
-
-
-
-
-
-{-
-
-At this point an important design decision has to be made regarding statements of the form
-
-base hp x := <RValue>
-
-
-
-In particular, it is probably easiest to accept these at the level of the parser,
-and then reject them later at the type-checking phase, so that error messages will benefit from parsing.
-
-
-That is, in this case, we will know that we have an attempted assignment, so we can output a message of the form
-
-"You are not allowed to assign to base stats"
-
-
-
-If we rejected this with a parse error, we would have much more difficulty displaying useful error messages.
-
-
--}
-
-
-
-
-
-
-{-I'm currently throwing away typing information in my AST.-}
-
-{-
-parseError :: [Lexer.Token] -> a
-parseError tokens = error $ ("ERROR: " ++ show tokens) {-error "Parse error"-}
--}
 
 parseError tokens = do
  i <- Lexer.getLineNumber
