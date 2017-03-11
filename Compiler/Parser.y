@@ -142,53 +142,53 @@ import Text.EditDistance
 
 %%
 
-File : Units Spells {File $1 $2}
+File : Units Spells {File undefined $1 $2}
 Units : {[]}
       | Unit Units {$1 : $2}
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
-Spell : spell name School level colon number spawn colon Skill {Spell $2 $3 $6 $9}
-Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats $1 $4 $7 $10 $13 $16 $19 $22}
-School : word {Knowledge $1}
-Schools : {NoSchools}
-        | word {OneSchool $1}
-        | word word {TwoSchools $1 $2}
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit undefined $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+Spell : spell name School level colon number spawn colon Skill {Spell undefined $2 $3 $6 $9}
+Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats undefined $1 $4 $7 $10 $13 $16 $19 $22}
+School : word {Knowledge undefined $1}
+Schools : {NoSchools undefined }
+        | word {OneSchool undefined $1}
+        | word word {TwoSchools undefined $1 $2}
 Start : {Nothing}
-      | start colon Skill {Just $ Start $3}
+      | start colon Skill {Just $ Start undefined $3}
 End : {Nothing}
-    | end colon Skill {Just $ End $3}
+    | end colon Skill {Just $ End undefined $3}
 Counter : {Nothing}
-        | counter colon Skill {Just $ Counter $3}
+        | counter colon Skill {Just $ Counter undefined $3}
 Spawn : {Nothing}
-      | spawn colon Skill {Just $ Spawn $3}
+      | spawn colon Skill {Just $ Spawn undefined $3}
 Death : {Nothing}
-      | death colon Skill {Just $ Death $3}
+      | death colon Skill {Just $ Death undefined $3}
 Auto : {Nothing}
-     | auto colon Skill {Just $ Auto $3}
+     | auto colon Skill {Just $ Auto undefined $3}
 Actions : {[]}
         | Action Actions {$1 : $2}
-Action : action colon Skill {Action $3}
-Soul : soul colon Skill {Soul $3}
-Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill $1 $2 $3}
-OptionalCost : {Constant "0"}
-             | cost colon number {Constant $3}
-OptionalCondition : {Always}
+Action : action colon Skill {Action undefined $3}
+Soul : soul colon Skill {Soul undefined $3}
+Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill undefined $1 $2 $3}
+OptionalCost : {Constant undefined "0"}
+             | cost colon number {Constant undefined $3}
+OptionalCondition : {Always undefined }
                   | condition colon Expr {$3}
-OptionalFilter : {Always}
+OptionalFilter : {Always undefined}
                | where Expr {$2}
-Nonautomatic : {TerminatedSkillComponent}
-             | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic $2 $3 $4 $5 $6}
-Automatic : SkillEffects Nonautomatic {Automatic $1 $2 {-Ignoring Universal case for now-} }
+Nonautomatic : {TerminatedSkillComponent undefined}
+             | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic undefined $2 $3 $4 $5 $6}
+Automatic : SkillEffects Nonautomatic {Automatic undefined $1 $2 {-Ignoring Universal case for now-} }
           | for each var in Side RelativeSet OptionalFilter comma {undefined {-Only allow one universally quantified variable at once. No pairs -}}
 ThenCase : then lbracket Automatic rbracket {$3}
-IfUnableCase : {Automatic [] TerminatedSkillComponent}
+IfUnableCase : {Automatic undefined [] (TerminatedSkillComponent undefined {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}
-NextAutomatic : {Automatic [] TerminatedSkillComponent}
+NextAutomatic : {Automatic undefined [] (TerminatedSkillComponent undefined)}
               | lbracket Automatic rbracket {$2}
 SelectionStatement : Variables in Set RestSelectionStatement {[] ++ $4}
-Set : Side RelativeSet {SimpleSet $1 $2}
-    | Set union Set {UnionSet $1 $3}
+Set : Side RelativeSet {SimpleSet undefined $1 $2}
+    | Set union Set {UnionSet undefined $1 $3}
 RestSelectionStatement : {[]}
                        | comma Variables in Set RestSelectionStatement { (getFoo $2 $4) ++ $5}
 Variables : var RestVariable {$1 : $2}
@@ -198,63 +198,67 @@ SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
 
 SkillEffect : Assignment {$1}
-Assignment : lparen ListExpr rparen Mutator Expr {Assignment $2 $4 $5}
-Mutator : assign {Set}
-        | increment {Increment}
-        | decrement {Decrement}
-        | stretch {Stretch}
-        | crush {Crush}
-        | contort {Contort}
+Assignment : lparen ListExpr rparen Mutator Expr {Assignment undefined $2 $4 $5}
+Mutator : assign {Set undefined}
+        | increment {Increment undefined}
+        | decrement {Decrement undefined}
+        | stretch {Stretch undefined}
+        | crush {Crush undefined}
+        | contort {Contort undefined}
 ListExpr : {[]}
          | Expr {[$1]}
          | Expr comma ListExprCommas {$1 : $3}
 ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
-NullableExpr : {Always}
+NullableExpr : {Always undefined}
              | Expr {$1}
-Expr : number {Constant $1}
-     | Field self {Self $1}
-     | Field var {Var $1 $2}
-     | Side School {KnowledgeExpr $2 $1}
-     | Side thoughts {ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
-     | Side thought {ThoughtsExpr $1 }
-     | Expr sum Expr {Sum $1 $3}
-     | Expr difference Expr {Difference $1 $3}
-     | Expr product Expr {Product $1 $3}
-     | Expr quotient Expr {Quotient $1 $3}
-     | Expr mod Expr {Mod $1 $3} 
-     | Expr gt Expr {Parser.GT $1 $3}
-     | Expr geq Expr {GEQ $1 $3}
-     | Expr lt Expr {Parser.LT $1 $3}
-     | Expr leq Expr {LEQ $1 $3}
-     | Expr eq Expr {Parser.EQ $1 $3}
-     | Expr and Expr {And $1 $3}
-     | Expr or Expr {Or $1 $3}
-     | not Expr {Not $2}
-Field : Stat Temporality {StatField $1 $2}
-      | HpStat {HpStatField $1}
-      | engagement {EngagementField}  
-Temporality : current {Temporary}
-            | permanent {Permanent}
-            | base {Base}
-HpStat : hp {CurrentHp}
-       | max hp {MaxHp}
-       | base hp {BaseHp}
-Stat : attack {Attack}
-     | defense {Defense}
-     | speed {Speed}
-     | range {Range}
-     | level {Level}
-Side : friendly {Friendly}
-     | enemy {Enemy}
-RelativeSet : field {Field}
-            | hand {Hand}
-            | graveyard {Graveyard}
-            | banished {Banished}
-            | spawn {SpawnLocation}
+Expr : number {Constant undefined $1}
+     | Field self {Self undefined $1}
+     | Field var {Var undefined $1 $2}
+     | Side School {KnowledgeExpr undefined $2 $1}
+     | Side thoughts {ThoughtsExpr undefined $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
+     | Side thought {ThoughtsExpr undefined $1 }
+     | Expr sum Expr {Sum undefined $1 $3}
+     | Expr difference Expr {Difference undefined $1 $3}
+     | Expr product Expr {Product undefined $1 $3}
+     | Expr quotient Expr {Quotient undefined $1 $3}
+     | Expr mod Expr {Mod undefined $1 $3} 
+     | Expr gt Expr {Parser.GT undefined $1 $3}
+     | Expr geq Expr {GEQ undefined $1 $3}
+     | Expr lt Expr {Parser.LT undefined $1 $3}
+     | Expr leq Expr {LEQ undefined $1 $3}
+     | Expr eq Expr {Parser.EQ undefined $1 $3}
+     | Expr and Expr {And undefined $1 $3}
+     | Expr or Expr {Or undefined $1 $3}
+     | not Expr {Not undefined $2}
+Field : Stat Temporality {StatField undefined $1 $2}
+      | HpStat {HpStatField undefined $1}
+      | engagement {EngagementField undefined}  
+Temporality : current {Temporary undefined }
+            | permanent {Permanent undefined }
+            | base {Base undefined}
+HpStat : hp {CurrentHp undefined}
+       | max hp {MaxHp undefined}
+       | base hp {BaseHp undefined}
+Stat : attack {Attack undefined}
+     | defense {Defense undefined}
+     | speed {Speed undefined}
+     | range {Range undefined}
+     | level {Level undefined}
+Side : friendly {Friendly undefined}
+     | enemy {Enemy undefined}
+RelativeSet : field {Field undefined}
+            | hand {Hand undefined}
+            | graveyard {Graveyard undefined}
+            | banished {Banished undefined}
+            | spawn {SpawnLocation undefined}
 
 
 {
+
+getFileSurfaceData :: [Unit] -> [Spell] -> SurfaceData
+getFileSurfaceData = undefined
+
 
 getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = undefined 
@@ -286,17 +290,19 @@ parseError tokens = do
  Lexer.alexError $ show i
 
 
+data SurfaceData = SurfaceData Int Int String
+                 deriving Show
 
 
-data File = File [Unit] [Spell]
+data File = File SurfaceData [Unit] [Spell]
              deriving Show
 
-data Unit = Unit String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
+data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
             deriving Show
-data Spell = Spell String Knowledge String Skill {-name, school, level, skill-}
+data Spell = Spell SurfaceData String Knowledge String Skill {-name, school, level, skill-}
              deriving Show
 
-data Skill = AutomaticSkill Expr Expr Automatic
+data Skill = AutomaticSkill SurfaceData Expr Expr Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
@@ -315,131 +321,121 @@ This allows for better errors messages to be printed.
 -}
 
 
-data VariableBindings = VariableBindings [([String], Set)]
+data VariableBindings = VariableBindings SurfaceData [([String], Set)]
 
 
-data Side = Friendly
-          | Enemy
+data Side = Friendly SurfaceData
+          | Enemy SurfaceData
           deriving Show
             
 
-data RelativeSet = Field
-                 | Hand
-                 | Graveyard
-                 | Banished
-                 | SpawnLocation
+data RelativeSet = Field SurfaceData
+                 | Hand SurfaceData
+                 | Graveyard SurfaceData
+                 | Banished SurfaceData
+                 | SpawnLocation SurfaceData
                  deriving Show
 
 
-data Set = SimpleSet Side RelativeSet
-         | UnionSet Set Set
+data Set = SimpleSet SurfaceData Side RelativeSet
+         | UnionSet SurfaceData Set Set
          deriving Show
 
 
 
-data SkillEffect = Assignment [Expr] Mutator Expr
+data SkillEffect = Assignment SurfaceData [Expr] Mutator Expr
                  deriving Show
 
-data Nonautomatic = Nonautomatic [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-} | TerminatedSkillComponent
+data Nonautomatic = Nonautomatic SurfaceData [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-}
+                  | TerminatedSkillComponent SurfaceData
                   deriving Show
-data Automatic = Automatic [SkillEffect] Nonautomatic
+data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
 
-data Stats = Stats Schools String String String String String String String
+data Stats = Stats SurfaceData Schools String String String String String String String
            deriving Show
-data Start = Start Skill
+data Start = Start SurfaceData Skill
            deriving Show
-data End = End Skill
+data End = End SurfaceData Skill
            deriving Show
-data Counter = Counter Skill
+data Counter = Counter SurfaceData Skill
             deriving Show
-data Spawn = Spawn Skill
+data Spawn = Spawn SurfaceData Skill
             deriving Show
-data Death = Death Skill
+data Death = Death SurfaceData Skill
             deriving Show
-data Auto = Auto Skill
+data Auto = Auto SurfaceData Skill
            deriving Show
-data Action = Action Skill
+data Action = Action SurfaceData Skill
             deriving Show
-data Soul = Soul Skill
+data Soul = Soul SurfaceData Skill
            deriving Show
 
-data Stat = Attack | Defense | Speed | Range | Level 
+data Stat = Attack SurfaceData
+          | Defense SurfaceData 
+          | Speed SurfaceData
+          | Range SurfaceData
+          | Level SurfaceData 
           deriving Show
-data Mutator = Increment | Decrement | Stretch | Crush | Contort | Set
+data Mutator = Increment SurfaceData
+             | Decrement SurfaceData
+             | Stretch SurfaceData
+             | Crush SurfaceData
+             | Contort SurfaceData
+             | Set SurfaceData
              deriving Show
-data Temporality = Temporary | Permanent | Base
+data Temporality = Temporary SurfaceData
+                 | Permanent SurfaceData
+                 | Base SurfaceData
                  deriving Show
-data HpStat = CurrentHp | MaxHp | BaseHp
+data HpStat = CurrentHp SurfaceData
+            | MaxHp SurfaceData
+            | BaseHp SurfaceData
             deriving Show
-data Engagement = Engagement
+data Engagement = Engagement SurfaceData
                 deriving Show
 
 
 
-{-
-data TyKnowled = EarthKnowledge
-               | FireKnowledge
-               | WaterKnowledge
-               | AirKnowledge
-               | SpiritKnowledge
-               | VoidKnowledge
+
+data Knowledge = Knowledge SurfaceData String
                deriving Show
 
 
-This can be after some typechecking...
-
--}
-
-
-data Knowledge = Knowledge String
-               deriving Show
-
-
-data Schools = NoSchools
-             | OneSchool String
-             | TwoSchools String String
+data Schools = NoSchools SurfaceData {-tricky to have surface data here as its nullable...-}
+             | OneSchool SurfaceData String
+             | TwoSchools SurfaceData String String
              deriving Show
 
 
-
-
-{- do not forget engagement -}
-
-{-
-data Assignment = Assignment [Expr] Mutator Expr
-                deriving Show
--}
-
-
-data Field = StatField Stat Temporality
-           | HpStatField HpStat
-           | EngagementField
+data Field = StatField SurfaceData Stat Temporality
+           | HpStatField SurfaceData HpStat
+           | EngagementField SurfaceData
            deriving Show
 
 {-Effects that happen to two units simultaneously trigger resulting effects by order of field position, with
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant String
-          | ThoughtsExpr Side
-          | KnowledgeExpr Knowledge Side
-          | Self Field
-          | Var Field String
-          | Sum Expr Expr
-          | Difference Expr Expr
-          | Product Expr Expr
-          | Quotient Expr Expr
-          | Mod Expr Expr
-          | Always {-add more booleans later......-}
-          | GT Expr Expr
-          | GEQ Expr Expr
-          | LT Expr Expr
-          | LEQ Expr Expr
-          | EQ Expr Expr
-          | And Expr Expr
-          | Or Expr Expr
-          | Not Expr
+data Expr = Constant SurfaceData String
+          | ThoughtsExpr SurfaceData Side
+          | KnowledgeExpr SurfaceData Knowledge Side
+          | Self SurfaceData Field
+          | Var SurfaceData Field String
+          | Sum SurfaceData Expr Expr
+          | Difference SurfaceData Expr Expr
+          | Product SurfaceData Expr Expr
+          | Quotient SurfaceData Expr Expr
+          | Mod SurfaceData Expr Expr
+          | Always SurfaceData {-add more booleans later.....    again... nullable.-}
+          | GT SurfaceData Expr Expr
+          | GEQ SurfaceData Expr Expr
+          | LT SurfaceData Expr Expr
+          | LEQ SurfaceData Expr Expr
+          | EQ SurfaceData Expr Expr
+          | And SurfaceData Expr Expr
+          | Or SurfaceData Expr Expr
+          | Not SurfaceData Expr
            deriving Show
 
 
