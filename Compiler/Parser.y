@@ -177,14 +177,14 @@ OptionalCondition : {Always undefined }
                   | condition colon Expr {$3}
 OptionalFilter : {Always undefined}
                | where Expr {$2}
-Nonautomatic : {TerminatedSkillComponent undefined}
+Nonautomatic : {TerminatedSkillComponent}
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic undefined $2 $3 $4 $5 $6}
 Automatic : SkillEffects Nonautomatic {Automatic undefined $1 $2 {-Ignoring Universal case for now-} }
           | for each var in Side RelativeSet OptionalFilter comma {undefined {-Only allow one universally quantified variable at once. No pairs -}}
 ThenCase : then lbracket Automatic rbracket {$3}
-IfUnableCase : {Automatic undefined [] (TerminatedSkillComponent undefined {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
+IfUnableCase : {Automatic undefined [] (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}
-NextAutomatic : {Automatic undefined [] (TerminatedSkillComponent undefined)}
+NextAutomatic : {Automatic undefined [] (TerminatedSkillComponent)}
               | lbracket Automatic rbracket {$2}
 SelectionStatement : Variables in Set RestSelectionStatement {[] ++ $4}
 Set : Side RelativeSet {SimpleSet undefined $1 $2}
@@ -347,7 +347,7 @@ data SkillEffect = Assignment SurfaceData [Expr] Mutator Expr
                  deriving Show
 
 data Nonautomatic = Nonautomatic SurfaceData [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-}
-                  | TerminatedSkillComponent SurfaceData
+                  | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
