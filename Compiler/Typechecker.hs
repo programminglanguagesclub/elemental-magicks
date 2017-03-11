@@ -286,21 +286,28 @@ getSet :: Context -> Variable ->
 
 
 
-{-
+
 checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
-checkAutomatic context (Parser.Automatic skillEffects nonautomatic) = (concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) 
+checkAutomatic context (Parser.Automatic skillEffects nonautomatic) = undefined {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
+
 checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
 checkNonautomatic context (Parser.Nonautomatic variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = undefined
+
+
+
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
-  (Assignment lExpr mutator rExpr) = 
+  (Assignment exprs mutator rExpr) -> undefined
 
+
+
+{-
 checkSet :: Parser.Set -> [String]
 checkSet = undefined
-
-
 -}
+
+
 
 
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
