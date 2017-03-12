@@ -4,7 +4,7 @@
 module Typechecker where    
 import qualified Lexer
 import qualified Parser
-import Parser(SurfaceData)
+import Lexer(SurfaceData)
 import Text.Read
 import Text.EditDistance
 import Data.Monoid
@@ -228,7 +228,9 @@ schoolFromKnowledge knowledge =
 
 
 
-typeCheckSchool :: String -> SurfaceData -> TC Knowledge
+typeCheckSchool :: SurfaceData -> TC Knowledge
+typeCheckSchool = undefined
+{-
 typeCheckSchool "earth" surfaceData = pure $ Earth surfaceData
 typeCheckSchool "fire" surfaceData = pure $ Fire surfaceData
 typeCheckSchool "water" surfaceData = pure $ Water surfaceData
@@ -241,7 +243,7 @@ typeCheckSchool s surfaceData =
   [] -> putErr $ s ++ " is not a valid school."
   _ -> putErr $ s ++ " is not a valid school. Did you mean " ++ (concat x)
 {-SHOULD INCLUDE SURFACE DATA INFORMATION IN ERROR REPORT..-}
-
+-}
 
 showKnowledge :: Knowledge -> String
 showKnowledge knowledge =
@@ -302,10 +304,10 @@ getSet :: Context -> Variable ->
 
 
 checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
-checkAutomatic context (Parser.Automatic skillEffects nonautomatic) = undefined {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
+checkAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = undefined {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
 
 checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
-checkNonautomatic context (Parser.Nonautomatic variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = undefined
+checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = undefined
 
 
 
@@ -323,24 +325,24 @@ checkNonautomatic context (Parser.Nonautomatic variables condition thenAutomatic
 buildLExpr :: Context -> Parser.Expr -> TC LExpr
 buildLExpr context expr =
  case expr of
-  Parser.ThoughtsExpr side -> pure undefined
-  Parser.KnowledgeExpr knowledge side -> pure undefined
-  Parser.Self field -> undefined
-  Parser.Var field string -> undefined
-  Parser.Sum _ _ -> undefined {-need appropriate error message. Similarly on other cases.-}
-  Parser.Difference _ _ -> undefined
-  Parser.Product _ _ -> putErr undefined
-  Parser.Quotient _ _ -> putErr undefined
-  Parser.Mod _ _ -> putErr undefined
-  Parser.Always -> putErr undefined
-  Parser.GT _ _ -> putErr undefined
-  Parser.GEQ _ _ -> putErr undefined
-  Parser.LT _ _ -> putErr undefined
-  Parser.LEQ _ _ -> putErr undefined
-  Parser.EQ _ _ -> putErr undefined
-  Parser.And _ _ -> putErr undefined
-  Parser.Or _ _ -> putErr undefined
-  Parser.Not _ -> putErr undefined
+  Parser.ThoughtsExpr side surfaceData -> pure undefined
+  Parser.KnowledgeExpr surfaceData knowledge side -> pure undefined
+  Parser.Self surfaceData field -> undefined
+  Parser.Var surfaceData field string -> undefined
+  Parser.Sum surfaceData _ _ -> undefined {-need appropriate error message. Similarly on other cases.-}
+  Parser.Difference surfaceData _ _ -> undefined
+  Parser.Product surfaceData _ _ -> putErr undefined
+  Parser.Quotient surfaceData _ _ -> putErr undefined
+  Parser.Mod surfaceData _ _ -> putErr undefined
+  Parser.Always surfaceData -> putErr undefined {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
+  Parser.GT surfaceData _ _ -> putErr undefined
+  Parser.GEQ surfaceData _ _ -> putErr undefined
+  Parser.LT surfaceData _ _ -> putErr undefined
+  Parser.LEQ surfaceData _ _ -> putErr undefined
+  Parser.EQ surfaceData _ _ -> putErr undefined
+  Parser.And surfaceData _ _ -> putErr undefined
+  Parser.Or surfaceData _ _ -> putErr undefined
+  Parser.Not surfaceData _ -> putErr undefined
 
 
 {-
@@ -355,6 +357,11 @@ Maybe when I make LExprs and RExprs... I should just put the type in the datatyp
 {-maybe instead of this function I should have two functions...
  - one for LExprs, and one for RExprs...
  - -}
+
+
+
+
+ {-
 isValidBinding :: Context -> Parser.Expr -> [String]
 isValidBinding context expr =
  case expr of
@@ -376,7 +383,7 @@ isValidBinding context expr =
   Parser.And expr1 expr2 -> undefined
   Parser.Or expr1 expr2 -> undefined
   Parser.Not expr -> undefined
-
+-}
 
 
 
@@ -391,7 +398,7 @@ And/Or maybe I should just convert to LExprs here.
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
-  (Parser.Assignment exprs mutator rExpr) -> undefined
+  (Parser.Assignment surfaceData exprs mutator rExpr) -> undefined
 
 {-
  - THE difference between Judgements in contexts here, and sets in the parser, is for convenience we might want to additionally allow the soul to be an additional area to select, even though
@@ -435,9 +442,9 @@ checkSoul = undefined
 
 
 typeCheckSchools :: Parser.Schools -> TC Schools
-typeCheckSchools Parser.NoSchools = pure NoSchools
-typeCheckSchools (Parser.OneSchool s) = schoolFromKnowledge <$> typeCheckSchool s
-typeCheckSchools (Parser.TwoSchools s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
+typeCheckSchools (Parser.NoSchools surfaceData) = pure $ NoSchools
+typeCheckSchools (Parser.OneSchool surfaceData s) = schoolFromKnowledge <$> typeCheckSchool surfaceData
+typeCheckSchools (Parser.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
 
 
 
@@ -449,7 +456,7 @@ typeCheckCondition = undefined
 
 
 typeCheckSkill :: Parser.Skill -> TC Skill
-typeCheckSkill (Parser.AutomaticSkill cost condition automatic) = undefined
+typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = undefined
 
 
 
@@ -495,19 +502,19 @@ typeCheckSoul soul = undefined
 
 
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
-typeCheckBaseLevel :: SurfaceData -> String -> TC BaseLevel
-typeCheckBaseLevel sd x = 
- BaseLevel <$> (typeCheckInt x "Base level" 1 9)
+typeCheckBaseLevel :: Lexer.SurfaceData -> TC BaseLevel
+typeCheckBaseLevel (Lexer.SurfaceData row column surface) = 
+ BaseLevel (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base level" 1 9)
  
 
-typeCheckBaseHp :: SurfaceData -> String -> TC BaseHp
-typeCheckBaseHp sd x =
- BaseHp <$> (typeCheckInt x "Base hp" 1 1000) 
+typeCheckBaseHp :: Lexer.SurfaceData -> TC BaseHp
+typeCheckBaseHp (Lexer.SurfaceData row column surface) =
+ BaseHp (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base hp" 1 1000) 
 
 
-typeCheckBaseAttack :: SurfaceData -> String -> TC BaseAttack
-typeCheckBaseAttack sd x =
- BaseAttack <$> (typeCheckInt x "Base attack" 0 1000)
+typeCheckBaseAttack :: SurfaceData -> TC BaseAttack
+typeCheckBaseAttack (Lexer.SurfaceData row column surface) =
+ BaseAttack (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base attack" 0 1000)
 
 typeCheckInt :: String -> String -> Int -> Int -> TC Int
 typeCheckInt s name lowerBound upperBound =
@@ -521,27 +528,27 @@ typeCheckInt s name lowerBound upperBound =
 
 {-Again... need to pass row and column to typecheckint... can actually pass entire surface syntax to it...-}
 typeCheckBaseDefense :: SurfaceData -> TC BaseDefense
-typeCheckBaseDefense (Defense (SurfaceData row column surface)) =
- BaseDefense <$> (typeCheckInt surface "Base defense" 0 1000)
-typeCheckBaseSpeed :: SurfaceData -> String -> TC BaseSpeed
-typeCheckBaseSpeed sd x =
- BaseSpeed <$> (typeCheckInt x "Base speed" 1 5)
-typeCheckBaseRange :: SurfaceData -> String -> TC BaseRange
-typeCheckBaseRange sd x =
- BaseRange <$> (typeCheckInt x "Base range" 1 5)
-typeCheckBaseSoulPoints :: SurfaceData -> String -> TC BaseSoulPoints
-typeCheckBaseSoulPoints sd x =
- BaseSoulPoints <$> (typeCheckInt x "Base soul points" 1 2)
+typeCheckBaseDefense (Lexer.SurfaceData row column surface) =
+ BaseDefense (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base defense" 0 1000)
+typeCheckBaseSpeed :: SurfaceData -> TC BaseSpeed
+typeCheckBaseSpeed (Lexer.SurfaceData row column surface) =
+ BaseSpeed (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base speed" 1 5)
+typeCheckBaseRange :: SurfaceData -> TC BaseRange
+typeCheckBaseRange (Lexer.SurfaceData row column surface) =
+ BaseRange (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base range" 1 5)
+typeCheckBaseSoulPoints :: SurfaceData -> TC BaseSoulPoints
+typeCheckBaseSoulPoints (Lexer.SurfaceData row column surface) =
+ BaseSoulPoints (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base soul points" 1 2)
 typeCheckStats :: Parser.Stats -> TC Stats
 typeCheckStats (Parser.Stats surfaceData schools level hp attack defense speed range soulPoints) =
- Stats <$> typeCheckSchools surfaceData schools
-       <*> typeCheckBaseLevel surfaceData level
-       <*> typeCheckBaseHp surfaceData hp
-       <*> typeCheckBaseAttack surfaceData attack
-       <*> typeCheckBaseDefense surfaceData defense
-       <*> typeCheckBaseSpeed surfaceData speed
-       <*> typeCheckBaseRange surfaceData range
-       <*> typeCheckBaseSoulPoints surfaceData soulPoints
+ Stats surfaceData <$> typeCheckSchools schools
+                   <*> typeCheckBaseLevel level
+                   <*> typeCheckBaseHp hp
+                   <*> typeCheckBaseAttack attack
+                   <*> typeCheckBaseDefense defense
+                   <*> typeCheckBaseSpeed speed
+                   <*> typeCheckBaseRange range
+                   <*> typeCheckBaseSoulPoints soulPoints
  
 
 
@@ -551,8 +558,8 @@ typeCheckSpawnSpell :: Parser.Skill -> TC Skill
 typeCheckSpawnSpell _ = undefined
 
 typeCheckSpell :: Parser.Spell -> TC Spell
-typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool school) level skill) =
- Spell surfaceData <$> (TC . Right $ name) <*> (typeCheckSchool . surfaceDataSchool $ school) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell skill)
+typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool) level skill) =
+ Spell surfaceData <$> (TC . Right $ name) <*> (typeCheckSchool surfaceDataSchool) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell skill)
 
 
 typeCheckUnit :: Parser.Unit -> TC Unit
