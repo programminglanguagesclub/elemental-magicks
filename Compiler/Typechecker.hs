@@ -78,7 +78,7 @@ instance Eq Knowledge where
  Air _ == Air _ = True
  Spirit _ == Spirit _ = True
  Void _ == Void _ = True
-
+ _ == _ = False
 
 
 
@@ -228,20 +228,22 @@ schoolFromKnowledge knowledge =
 
 
 
-typeCheckSchool :: SurfaceData -> TC Knowledge
-typeCheckSchool = undefined
-{-
-typeCheckSchool "earth" surfaceData = pure $ Earth surfaceData
-typeCheckSchool "fire" surfaceData = pure $ Fire surfaceData
-typeCheckSchool "water" surfaceData = pure $ Water surfaceData
-typeCheckSchool "air" surfaceData = pure $ Air surfaceData
-typeCheckSchool "spirit" surfaceData = pure $ Spirit surfaceData
-typeCheckSchool "void" surfaceData = pure $ Void surfaceData
-typeCheckSchool s surfaceData =
- let x = getDistanceMessages s ["earth", "fire", "water", "air", "spirit", "void"] in
- case x of
-  [] -> putErr $ s ++ " is not a valid school."
-  _ -> putErr $ s ++ " is not a valid school. Did you mean " ++ (concat x)
+typeCheckSchool :: Lexer.SurfaceData -> TC Knowledge
+typeCheckSchool (Lexer.SurfaceData row column surface) =
+ let surfaceData = (Lexer.SurfaceData row column surface) in
+ case surface of
+  "earth" -> pure . Earth $ surfaceData
+  "fire" -> pure . Fire $ surfaceData
+  "water" -> pure . Water $ surfaceData
+  "air" -> pure . Air $ surfaceData
+  "spirit" -> pure . Spirit $ surfaceData
+  "void" -> pure . Void $ surfaceData
+  otherwise ->
+   let recommendations = getDistanceMessages otherwise ["earth", "fire", "water", "air", "spirit", "void"] in
+   case recommendations of
+    [] -> putErr $ otherwise ++ " is not a valid school."
+    _ -> putErr $ otherwise ++ " is not a valid school. Did you mean " ++ (concat recommendations)
+  {-
 {-SHOULD INCLUDE SURFACE DATA INFORMATION IN ERROR REPORT..-}
 -}
 
