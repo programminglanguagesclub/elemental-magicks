@@ -228,40 +228,40 @@ schoolFromKnowledge knowledge =
 
 
 
-typeCheckSchool :: String -> TC Knowledge
-typeCheckSchool "earth" = pure Earth
-typeCheckSchool "fire" = pure Fire
-typeCheckSchool "water" = pure Water
-typeCheckSchool "air" = pure Air
-typeCheckSchool "spirit" = pure Spirit
-typeCheckSchool "void" = pure Void
-typeCheckSchool s =
+typeCheckSchool :: String -> SurfaceData -> TC Knowledge
+typeCheckSchool "earth" surfaceData = pure $ Earth surfaceData
+typeCheckSchool "fire" surfaceData = pure $ Fire surfaceData
+typeCheckSchool "water" surfaceData = pure $ Water surfaceData
+typeCheckSchool "air" surfaceData = pure $ Air surfaceData
+typeCheckSchool "spirit" surfaceData = pure $ Spirit surfaceData
+typeCheckSchool "void" surfaceData = pure $ Void surfaceData
+typeCheckSchool s surfaceData =
  let x = getDistanceMessages s ["earth", "fire", "water", "air", "spirit", "void"] in
  case x of
   [] -> putErr $ s ++ " is not a valid school."
   _ -> putErr $ s ++ " is not a valid school. Did you mean " ++ (concat x)
-
+{-SHOULD INCLUDE SURFACE DATA INFORMATION IN ERROR REPORT..-}
 
 
 showKnowledge :: Knowledge -> String
 showKnowledge knowledge =
  case knowledge of
-  Earth -> "earth"
-  Fire -> "fire"
-  Water -> "water"
-  Air -> "air"
-  Spirit -> "spirit"
-  Void -> "void"
+  Earth surfaceData -> "earth"
+  Fire surfaceData -> "fire"
+  Water surfaceData -> "water"
+  Air surfaceData -> "air"
+  Spirit surfaceData -> "spirit"
+  Void surfaceData -> "void"
 
 
 schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
 schoolsFromKnowledge school1 school2 =
  case (school1,school2) of
-  (Earth,Fire) -> pure EarthFire
-  (Earth,Water) -> pure EarthWater
-  (Earth,Air) -> pure EarthAir
-  (Earth,Spirit) -> pure EarthSpirit
-  (Earth,Void) -> pure EarthVoid
+  (Earth surfaceData1, Fire surfaceData2) -> pure . EarthFire $ undefined
+  (Earth surfaceData1, Water surfaceData2) -> pure . EarthWater $ undefined
+  (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ undefined
+  (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ undefined
+  (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ undefined
   _ ->
    if school1 == school2
     then
@@ -518,9 +518,11 @@ typeCheckInt s name lowerBound upperBound =
    else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
    else pure i
 
-typeCheckBaseDefense :: SurfaceData -> String -> TC BaseDefense
-typeCheckBaseDefense sd x =
- BaseDefense <$> (typeCheckInt x "Base defense" 0 1000)
+
+{-Again... need to pass row and column to typecheckint... can actually pass entire surface syntax to it...-}
+typeCheckBaseDefense :: SurfaceData -> TC BaseDefense
+typeCheckBaseDefense (Defense (SurfaceData row column surface)) =
+ BaseDefense <$> (typeCheckInt surface "Base defense" 0 1000)
 typeCheckBaseSpeed :: SurfaceData -> String -> TC BaseSpeed
 typeCheckBaseSpeed sd x =
  BaseSpeed <$> (typeCheckInt x "Base speed" 1 5)
@@ -537,12 +539,11 @@ typeCheckStats (Parser.Stats surfaceData schools level hp attack defense speed r
        <*> typeCheckBaseHp surfaceData hp
        <*> typeCheckBaseAttack surfaceData attack
        <*> typeCheckBaseDefense surfaceData defense
-       <*> typeCheckBaseSpeed speed
-       <*> typeCheckBaseRange range
-       <*> typeCheckBaseSoulPoints soulPoints
+       <*> typeCheckBaseSpeed surfaceData speed
+       <*> typeCheckBaseRange surfaceData range
+       <*> typeCheckBaseSoulPoints surfaceData soulPoints
  
 
-WORKING HERE
 
 
 
@@ -550,22 +551,22 @@ typeCheckSpawnSpell :: Parser.Skill -> TC Skill
 typeCheckSpawnSpell _ = undefined
 
 typeCheckSpell :: Parser.Spell -> TC Spell
-typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge school) level skill) =
- Spell <$> (TC . Right $ name) <*> (typeCheckSchool $ school) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell $ skill)
+typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool school) level skill) =
+ Spell surfaceData <$> (TC . Right $ name) <*> (typeCheckSchool . surfaceDataSchool $ school) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell skill)
 
 
 typeCheckUnit :: Parser.Unit -> TC Unit
 typeCheckUnit (Parser.Unit surfaceData name stats start end counter spawn death auto actions soul) =
- Unit <$> pure "name"  {- Unit name <$> all the other stuff -}
-      <*> typeCheckStats stats
-      <*> typeCheckStart start 
-      <*> typeCheckEnd end
-      <*> typeCheckCounter counter
-      <*> typeCheckSpawnUnit spawn
-      <*> typeCheckDeath death
-      <*> typeCheckAuto auto
-      <*> typeCheckActions actions 
-      <*> typeCheckSoul soul
+ Unit surfaceData <$> pure "name"  {- Unit name <$> all the other stuff -}
+                  <*> typeCheckStats stats
+                  <*> typeCheckStart start 
+                  <*> typeCheckEnd end
+                  <*> typeCheckCounter counter
+                  <*> typeCheckSpawnUnit spawn
+                  <*> typeCheckDeath death
+                  <*> typeCheckAuto auto
+                  <*> typeCheckActions actions 
+                  <*> typeCheckSoul soul
 
 
 typeCheckUnits :: [Parser.Unit] -> TC [Unit]
@@ -581,8 +582,8 @@ assumeFailure (Right _) = []
 
 
 typeCheck :: Parser.File -> TC File
-typeCheck (Parser.File units spells) =
- File <$> (typeCheckUnits units)
+typeCheck (Parser.File surfaceData units spells) =
+ File surfaceData <$> (typeCheckUnits units)
       <*> (typeCheckSpells spells)
 
 

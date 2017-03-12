@@ -1,8 +1,6 @@
 {
 module Parser where    
-
 import qualified Lexer
-
 
 
 import qualified Data.Map.Strict as HashMap
@@ -36,86 +34,86 @@ import Text.EditDistance
 %tokentype {Lexer.Token}
 %error {parseError}
 %monad {P} {thenP} {returnP}
-%lexer {lexer} {(Lexer.Token Lexer.EOFToken (_) (_) (_))}
+%lexer {lexer} {(Lexer.Token Lexer.EOFToken (_))}
 
 
 %token
- action {Lexer.Token Lexer.ActionSkill (_) (_) (_)}
- and {Lexer.Token Lexer.And (_) (_) (_)}
- assign {Lexer.Token Lexer.Assignment (_) (_) (_)}
- attack {Lexer.Token Lexer.Attack (_) (_) (_)}
- auto {Lexer.Token Lexer.AutoSkill (_) (_) (_)}
- banished {Lexer.Token Lexer.Banished (_) (_) (_)}
- base {Lexer.Token Lexer.Base (_) (_) (_)}
- colon {Lexer.Token Lexer.Colon (_) (_) (_)}
- comma {Lexer.Token Lexer.Comma (_) (_) (_)}
- condition {Lexer.Token Lexer.Condition (_) (_) (_)}
- contort {Lexer.Token Lexer.Contort (_) (_) (_)}
- cost {Lexer.Token Lexer.Cost (_) (_) (_)}
- counter {Lexer.Token Lexer.CounterSkill (_) (_) (_)}
- crush {Lexer.Token Lexer.Crush (_) (_) (_)}
- current {Lexer.Token Lexer.Temporary (_) (_) (_)}
- death {Lexer.Token Lexer.DeathSkill (_) (_) (_)}
- decrement {Lexer.Token Lexer.Decrement (_) (_) (_)}
- defense {Lexer.Token Lexer.Defense (_) (_) (_)}
- difference {Lexer.Token Lexer.Difference (_) (_) (_)}
- each {Lexer.Token Lexer.Each (_) (_) (_)}
- end {Lexer.Token Lexer.EndSkill (_) (_) (_)}
- enemy {Lexer.Token Lexer.Enemy (_) (_) (_)}
- engagement {Lexer.Token Lexer.Engagement (_) (_) (_)}
- eq {Lexer.Token Lexer.Equality (_) (_) (_)}
- field {Lexer.Token Lexer.Field (_) (_) (_)}
- for {Lexer.Token Lexer.For (_) (_) (_)}
- friendly {Lexer.Token Lexer.Friendly (_) (_) (_)}
- geq {Lexer.Token Lexer.GEQ (_) (_) (_)}
- graveyard {Lexer.Token Lexer.Graveyard (_) (_) (_)}
- gt {Lexer.Token Lexer.Gt (_) (_) (_)}
- hand {Lexer.Token Lexer.Hand (_) (_) (_)}
- hp {Lexer.Token Lexer.Hp (_) (_) (_)}
- if {Lexer.Token Lexer.If (_) (_) (_)}
- in {Lexer.Token Lexer.In (_) (_) (_)}
- increment {Lexer.Token Lexer.Increment (_) (_) (_)}
- lbracket {Lexer.Token Lexer.Lbracket (_) (_) (_)}
- leq {Lexer.Token Lexer.LEQ (_) (_) (_)}
- level {Lexer.Token Lexer.Level (_) (_) (_)}
- lparen  {Lexer.Token Lexer.Lparen (_) (_) (_)}
- lt {Lexer.Token Lexer.Lt (_) (_) (_)}
- max {Lexer.Token Lexer.Max (_) (_) (_)}
- mod {Lexer.Token Lexer.Mod (_) (_) (_)}
- name {Lexer.Token (Lexer.TargetString $$) (_) (_) (_)}
- not {Lexer.Token Lexer.Not (_) (_) (_)}
- number {Lexer.Token (Lexer.Number $$) (_) (_) (_) {-This is going to need a projection function probably??-}}
- or {Lexer.Token Lexer.Or (_) (_) (_)}
- permanent {Lexer.Token Lexer.Permanent (_) (_) (_)}
- product {Lexer.Token Lexer.Product (_) (_) (_)}
- quotient {Lexer.Token Lexer.Quotient (_) (_) (_)}
- range {Lexer.Token Lexer.Range (_) (_) (_)}
- rbracket {Lexer.Token Lexer.Rbracket (_) (_) (_)}
- rparen {Lexer.Token Lexer.Rparen (_) (_) (_)}
- select {Lexer.Token Lexer.Select (_) (_) (_)}
- self {Lexer.Token Lexer.Self (_) (_) (_)}
- semicolon {Lexer.Token Lexer.Semicolon (_) (_) (_)}
- soul {Lexer.Token Lexer.SoulSkill (_) (_) (_)}
- soulPoints {Lexer.Token Lexer.SoulPoints (_) (_) (_)}
- spawn {Lexer.Token Lexer.SpawnSkill (_) (_) (_)}
- speed {Lexer.Token Lexer.Speed (_) (_) (_)}
- spell {Lexer.Token Lexer.Spell (_) (_) (_)}
- start {Lexer.Token Lexer.StartSkill (_) (_) (_)}
- stretch {Lexer.Token Lexer.Stretch (_) (_) (_)}
- sum {Lexer.Token Lexer.Sum (_) (_) (_)}
- then {Lexer.Token Lexer.Then (_) (_) (_)}
- thought {Lexer.Token Lexer.Thought (_) (_) (_)}
- thoughts {Lexer.Token Lexer.Thoughts (_) (_) (_)}
- unable {Lexer.Token Lexer.Unable (_) (_) (_)}
- union {Lexer.Token Lexer.Union (_) (_) (_)}
- unit {Lexer.Token Lexer.Unit (_) (_) (_)}
- var {Lexer.Token (Lexer.Identifier $$) (_) (_) (_)}
- where {Lexer.Token Lexer.Where (_) (_) (_)}
- word {Lexer.Token (Lexer.Word $$) (_) (_) (_)}
- {-else {Lexer.Token Lexer.Else (_) (_) (_)}-}
- {-lex_error {Lexer.Token (Lexer.Error $$) (_) (_) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
- {-string {Lexer.Token (Lexer.TargetString $$) (_) (_) (_)}-}
-{- eof {Lexer.Token Lexer.EOFToken (_) (_) (_)} {- NO NO NO I do not want this either!!!!! -}-}
+ action {Lexer.Token Lexer.ActionSkill (_)}
+ and {Lexer.Token Lexer.And (_)}
+ assign {Lexer.Token Lexer.Assignment (_)}
+ attack {Lexer.Token Lexer.Attack (_)}
+ auto {Lexer.Token Lexer.AutoSkill (_)}
+ banished {Lexer.Token Lexer.Banished (_)}
+ base {Lexer.Token Lexer.Base (_)}
+ colon {Lexer.Token Lexer.Colon (_)}
+ comma {Lexer.Token Lexer.Comma (_)}
+ condition {Lexer.Token Lexer.Condition (_)}
+ contort {Lexer.Token Lexer.Contort (_)}
+ cost {Lexer.Token Lexer.Cost (_)}
+ counter {Lexer.Token Lexer.CounterSkill (_)}
+ crush {Lexer.Token Lexer.Crush (_)}
+ current {Lexer.Token Lexer.Temporary (_)}
+ death {Lexer.Token Lexer.DeathSkill (_)}
+ decrement {Lexer.Token Lexer.Decrement (_)}
+ defense {Lexer.Token Lexer.Defense (_)}
+ difference {Lexer.Token Lexer.Difference (_)}
+ each {Lexer.Token Lexer.Each (_)}
+ end {Lexer.Token Lexer.EndSkill (_)}
+ enemy {Lexer.Token Lexer.Enemy (_)}
+ engagement {Lexer.Token Lexer.Engagement (_)}
+ eq {Lexer.Token Lexer.Equality (_)}
+ field {Lexer.Token Lexer.Field (_)}
+ for {Lexer.Token Lexer.For (_)}
+ friendly {Lexer.Token Lexer.Friendly (_)}
+ geq {Lexer.Token Lexer.GEQ (_)}
+ graveyard {Lexer.Token Lexer.Graveyard (_)}
+ gt {Lexer.Token Lexer.Gt (_)}
+ hand {Lexer.Token Lexer.Hand (_)}
+ hp {Lexer.Token Lexer.Hp (_)}
+ if {Lexer.Token Lexer.If (_)}
+ in {Lexer.Token Lexer.In (_)}
+ increment {Lexer.Token Lexer.Increment (_)}
+ lbracket {Lexer.Token Lexer.Lbracket (_)}
+ leq {Lexer.Token Lexer.LEQ (_)}
+ level {Lexer.Token Lexer.Level (_)}
+ lparen  {Lexer.Token Lexer.Lparen (_)}
+ lt {Lexer.Token Lexer.Lt (_)}
+ max {Lexer.Token Lexer.Max (_)}
+ mod {Lexer.Token Lexer.Mod (_)}
+ name {Lexer.Token (Lexer.TargetString $$) (_)}
+ not {Lexer.Token Lexer.Not (_)}
+ number {Lexer.Token (Lexer.Number $$) (_) {-This is going to need a projection function probably??-}}
+ or {Lexer.Token Lexer.Or (_)}
+ permanent {Lexer.Token Lexer.Permanent (_)}
+ product {Lexer.Token Lexer.Product (_)}
+ quotient {Lexer.Token Lexer.Quotient (_)}
+ range {Lexer.Token Lexer.Range (_)}
+ rbracket {Lexer.Token Lexer.Rbracket (_)}
+ rparen {Lexer.Token Lexer.Rparen (_)}
+ select {Lexer.Token Lexer.Select (_)}
+ self {Lexer.Token Lexer.Self (_)}
+ semicolon {Lexer.Token Lexer.Semicolon (_)}
+ soul {Lexer.Token Lexer.SoulSkill (_)}
+ soulPoints {Lexer.Token Lexer.SoulPoints (_)}
+ spawn {Lexer.Token Lexer.SpawnSkill (_)}
+ speed {Lexer.Token Lexer.Speed (_)}
+ spell {Lexer.Token Lexer.Spell (_)}
+ start {Lexer.Token Lexer.StartSkill (_)}
+ stretch {Lexer.Token Lexer.Stretch (_)}
+ sum {Lexer.Token Lexer.Sum (_)}
+ then {Lexer.Token Lexer.Then (_)}
+ thought {Lexer.Token Lexer.Thought (_)}
+ thoughts {Lexer.Token Lexer.Thoughts (_)}
+ unable {Lexer.Token Lexer.Unable (_)}
+ union {Lexer.Token Lexer.Union (_)}
+ unit {Lexer.Token Lexer.Unit (_)}
+ var {Lexer.Token (Lexer.Identifier $$) (_)}
+ where {Lexer.Token Lexer.Where (_)}
+ word {Lexer.Token (Lexer.Word _) (_)}
+ {-else {Lexer.Token Lexer.Else (_)}-}
+ {-lex_error {Lexer.Token (Lexer.Error $$) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
+ {-string {Lexer.Token (Lexer.TargetString $$) (_)}-}
+{- eof {Lexer.Token Lexer.EOFToken (_)} {- NO NO NO I do not want this either!!!!! -}-}
    
    
    
@@ -256,6 +254,11 @@ RelativeSet : field {Field undefined}
 
 {
 
+
+
+
+
+
 getFileSurfaceData :: [Unit] -> [Spell] -> SurfaceData
 getFileSurfaceData = undefined
 
@@ -289,9 +292,6 @@ parseError tokens = do
  i <- Lexer.getLineNumber
  Lexer.alexError $ show i
 
-
-data SurfaceData = SurfaceData Int Int String
-                 deriving Show
 
 
 data File = File SurfaceData [Unit] [Spell]
@@ -352,7 +352,7 @@ data Nonautomatic = Nonautomatic SurfaceData [(String, Set)] Expr Automatic Auto
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
 
-data Stats = Stats SurfaceData Schools String String String String String String String
+data Stats = Stats SurfaceData Schools Stat Stat Stat Stat Stat Stat Stat
            deriving Show
 data Start = Start SurfaceData Skill
            deriving Show
@@ -484,7 +484,7 @@ prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
 
 generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
 generateTokenLocation [] = HashMap.empty
-generateTokenLocation ((Lexer.Token tokenValue line column surface):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
+generateTokenLocation ((Lexer.Token tokenValue (SurfaceData line column surface)):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
 
 
 }
