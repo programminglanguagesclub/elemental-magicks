@@ -41,7 +41,7 @@ import Text.EditDistance
  action {Lexer.Token Lexer.ActionSkill (_)}
  and {Lexer.Token Lexer.And (_)}
  assign {Lexer.Token Lexer.Assignment (_)}
- attack {Lexer.Token Lexer.Attack (_)}
+ attack {Lexer.Token Lexer.Attack $$}
  auto {Lexer.Token Lexer.AutoSkill (_)}
  banished {Lexer.Token Lexer.Banished (_)}
  base {Lexer.Token Lexer.Base (_)}
@@ -55,7 +55,7 @@ import Text.EditDistance
  current {Lexer.Token Lexer.Temporary (_)}
  death {Lexer.Token Lexer.DeathSkill (_)}
  decrement {Lexer.Token Lexer.Decrement (_)}
- defense {Lexer.Token Lexer.Defense (_)}
+ defense {Lexer.Token Lexer.Defense $$}
  difference {Lexer.Token Lexer.Difference (_)}
  each {Lexer.Token Lexer.Each (_)}
  end {Lexer.Token Lexer.EndSkill (_)}
@@ -69,7 +69,7 @@ import Text.EditDistance
  graveyard {Lexer.Token Lexer.Graveyard (_)}
  gt {Lexer.Token Lexer.Gt (_)}
  hand {Lexer.Token Lexer.Hand (_)}
- hp {Lexer.Token Lexer.Hp (_)}
+ hp {Lexer.Token Lexer.Hp $$}
  if {Lexer.Token Lexer.If (_)}
  in {Lexer.Token Lexer.In (_)}
  increment {Lexer.Token Lexer.Increment (_)}
@@ -82,12 +82,12 @@ import Text.EditDistance
  mod {Lexer.Token Lexer.Mod (_)}
  name {Lexer.Token (Lexer.TargetString $$) (_)}
  not {Lexer.Token Lexer.Not (_)}
- number {Lexer.Token (Lexer.Number $$) (_) {-This is going to need a projection function probably??-}}
+ number {Lexer.Token (Lexer.Number _) $$  {-This is going to need a projection function probably??-}}
  or {Lexer.Token Lexer.Or (_)}
  permanent {Lexer.Token Lexer.Permanent (_)}
  product {Lexer.Token Lexer.Product (_)}
  quotient {Lexer.Token Lexer.Quotient (_)}
- range {Lexer.Token Lexer.Range (_)}
+ range {Lexer.Token Lexer.Range $$}
  rbracket {Lexer.Token Lexer.Rbracket (_)}
  rparen {Lexer.Token Lexer.Rparen (_)}
  select {Lexer.Token Lexer.Select (_)}
@@ -96,7 +96,7 @@ import Text.EditDistance
  soul {Lexer.Token Lexer.SoulSkill (_)}
  soulPoints {Lexer.Token Lexer.SoulPoints (_)}
  spawn {Lexer.Token Lexer.SpawnSkill (_)}
- speed {Lexer.Token Lexer.Speed (_)}
+ speed {Lexer.Token Lexer.Speed $$}
  spell {Lexer.Token Lexer.Spell (_)}
  start {Lexer.Token Lexer.StartSkill (_)}
  stretch {Lexer.Token Lexer.Stretch (_)}
@@ -109,7 +109,7 @@ import Text.EditDistance
  unit {Lexer.Token Lexer.Unit (_)}
  var {Lexer.Token (Lexer.Identifier $$) (_)}
  where {Lexer.Token Lexer.Where (_)}
- word {Lexer.Token (Lexer.Word _) (_)}
+ word {Lexer.Token (Lexer.Word _) $$}
  {-else {Lexer.Token Lexer.Else (_)}-}
  {-lex_error {Lexer.Token (Lexer.Error $$) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
  {-string {Lexer.Token (Lexer.TargetString $$) (_)}-}
@@ -148,7 +148,7 @@ Spells : {[]}
 Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit undefined $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell undefined $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats undefined $1 $4 $7 $10 $13 $16 $19 $22}
-School : word {Knowledge undefined $1}
+School : word {Knowledge $1}
 Schools : {NoSchools undefined }
         | word {OneSchool undefined $1}
         | word word {TwoSchools undefined $1 $2}
@@ -169,7 +169,7 @@ Actions : {[]}
 Action : action colon Skill {Action undefined $3}
 Soul : soul colon Skill {Soul undefined $3}
 Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill undefined $1 $2 $3}
-OptionalCost : {Constant undefined "0"}
+OptionalCost : {Constant undefined undefined {-it does not make sense to have surface data here.... as there is no syntax...-}}
              | cost colon number {Constant undefined $3}
 OptionalCondition : {Always undefined }
                   | condition colon Expr {$3}
@@ -299,7 +299,7 @@ data File = File Lexer.SurfaceData [Unit] [Spell]
 
 data Unit = Unit Lexer.SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
             deriving Show
-data Spell = Spell Lexer.SurfaceData String Knowledge String Skill {-name, school, level, skill-}
+data Spell = Spell Lexer.SurfaceData String Knowledge Lexer.SurfaceData Skill {-name, school, level, skill-}
              deriving Show
 
 data Skill = AutomaticSkill Lexer.SurfaceData Expr Expr Automatic
@@ -352,7 +352,7 @@ data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] Expr Automati
 data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
                deriving Show
 
-data Stats = Stats Lexer.SurfaceData Schools Stat Stat Stat Stat Stat Stat Stat
+data Stats = Stats Lexer.SurfaceData Schools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
            deriving Show
 data Start = Start Lexer.SurfaceData Skill
            deriving Show
@@ -398,13 +398,13 @@ data Engagement = Engagement Lexer.SurfaceData
 
 
 
-data Knowledge = Knowledge Lexer.SurfaceData String
+data Knowledge = Knowledge Lexer.SurfaceData
                deriving Show
 
 
 data Schools = NoSchools Lexer.SurfaceData {-tricky to have surface data here as its nullable...-}
-             | OneSchool Lexer.SurfaceData String
-             | TwoSchools Lexer.SurfaceData String String
+             | OneSchool Lexer.SurfaceData Lexer.SurfaceData
+             | TwoSchools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
              deriving Show
 
 
@@ -417,7 +417,7 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant Lexer.SurfaceData String
+data Expr = Constant Lexer.SurfaceData Lexer.SurfaceData
           | ThoughtsExpr Lexer.SurfaceData Side
           | KnowledgeExpr Lexer.SurfaceData Knowledge Side
           | Self Lexer.SurfaceData Field
@@ -472,7 +472,7 @@ main = pure (){-do
 
 
 extractSurface :: Lexer.Token -> String
-extractSurface (Lexer.Token _ _ _ s) = s
+extractSurface (Lexer.Token _ (Lexer.SurfaceData _ _ s)) = s
 
 prettyPrint :: [String] -> String
 prettyPrint [] = ""
