@@ -259,7 +259,7 @@ RelativeSet : field {Field undefined}
 
 
 
-getFileSurfaceData :: [Unit] -> [Spell] -> SurfaceData
+getFileSurfaceData :: [Unit] -> [Spell] -> Lexer.SurfaceData
 getFileSurfaceData = undefined
 
 
@@ -294,15 +294,15 @@ parseError tokens = do
 
 
 
-data File = File SurfaceData [Unit] [Spell]
+data File = File Lexer.SurfaceData [Unit] [Spell]
              deriving Show
 
-data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
+data Unit = Unit Lexer.SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
             deriving Show
-data Spell = Spell SurfaceData String Knowledge String Skill {-name, school, level, skill-}
+data Spell = Spell Lexer.SurfaceData String Knowledge String Skill {-name, school, level, skill-}
              deriving Show
 
-data Skill = AutomaticSkill SurfaceData Expr Expr Automatic
+data Skill = AutomaticSkill Lexer.SurfaceData Expr Expr Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
@@ -321,121 +321,121 @@ This allows for better errors messages to be printed.
 -}
 
 
-data VariableBindings = VariableBindings SurfaceData [([String], Set)]
+data VariableBindings = VariableBindings Lexer.SurfaceData [([String], Set)]
 
 
-data Side = Friendly SurfaceData
-          | Enemy SurfaceData
+data Side = Friendly Lexer.SurfaceData
+          | Enemy Lexer.SurfaceData
           deriving Show
             
 
-data RelativeSet = Field SurfaceData
-                 | Hand SurfaceData
-                 | Graveyard SurfaceData
-                 | Banished SurfaceData
-                 | SpawnLocation SurfaceData
+data RelativeSet = Field Lexer.SurfaceData
+                 | Hand Lexer.SurfaceData
+                 | Graveyard Lexer.SurfaceData
+                 | Banished Lexer.SurfaceData
+                 | SpawnLocation Lexer.SurfaceData
                  deriving Show
 
 
-data Set = SimpleSet SurfaceData Side RelativeSet
-         | UnionSet SurfaceData Set Set
+data Set = SimpleSet Lexer.SurfaceData Side RelativeSet
+         | UnionSet Lexer.SurfaceData Set Set
          deriving Show
 
 
 
-data SkillEffect = Assignment SurfaceData [Expr] Mutator Expr
+data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
                  deriving Show
 
-data Nonautomatic = Nonautomatic SurfaceData [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-}
+data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-}
                   | TerminatedSkillComponent
                   deriving Show
-data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
+data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
                deriving Show
 
-data Stats = Stats SurfaceData Schools Stat Stat Stat Stat Stat Stat Stat
+data Stats = Stats Lexer.SurfaceData Schools Stat Stat Stat Stat Stat Stat Stat
            deriving Show
-data Start = Start SurfaceData Skill
+data Start = Start Lexer.SurfaceData Skill
            deriving Show
-data End = End SurfaceData Skill
+data End = End Lexer.SurfaceData Skill
            deriving Show
-data Counter = Counter SurfaceData Skill
+data Counter = Counter Lexer.SurfaceData Skill
             deriving Show
-data Spawn = Spawn SurfaceData Skill
+data Spawn = Spawn Lexer.SurfaceData Skill
             deriving Show
-data Death = Death SurfaceData Skill
+data Death = Death Lexer.SurfaceData Skill
             deriving Show
-data Auto = Auto SurfaceData Skill
+data Auto = Auto Lexer.SurfaceData Skill
            deriving Show
-data Action = Action SurfaceData Skill
+data Action = Action Lexer.SurfaceData Skill
             deriving Show
-data Soul = Soul SurfaceData Skill
+data Soul = Soul Lexer.SurfaceData Skill
            deriving Show
 
-data Stat = Attack SurfaceData
-          | Defense SurfaceData 
-          | Speed SurfaceData
-          | Range SurfaceData
-          | Level SurfaceData 
+data Stat = Attack Lexer.SurfaceData
+          | Defense Lexer.SurfaceData 
+          | Speed Lexer.SurfaceData
+          | Range Lexer.SurfaceData
+          | Level Lexer.SurfaceData 
           deriving Show
-data Mutator = Increment SurfaceData
-             | Decrement SurfaceData
-             | Stretch SurfaceData
-             | Crush SurfaceData
-             | Contort SurfaceData
-             | Set SurfaceData
+data Mutator = Increment Lexer.SurfaceData
+             | Decrement Lexer.SurfaceData
+             | Stretch Lexer.SurfaceData
+             | Crush Lexer.SurfaceData
+             | Contort Lexer.SurfaceData
+             | Set Lexer.SurfaceData
              deriving Show
-data Temporality = Temporary SurfaceData
-                 | Permanent SurfaceData
-                 | Base SurfaceData
+data Temporality = Temporary Lexer.SurfaceData
+                 | Permanent Lexer.SurfaceData
+                 | Base Lexer.SurfaceData
                  deriving Show
-data HpStat = CurrentHp SurfaceData
-            | MaxHp SurfaceData
-            | BaseHp SurfaceData
+data HpStat = CurrentHp Lexer.SurfaceData
+            | MaxHp Lexer.SurfaceData
+            | BaseHp Lexer.SurfaceData
             deriving Show
-data Engagement = Engagement SurfaceData
+data Engagement = Engagement Lexer.SurfaceData
                 deriving Show
 
 
 
 
-data Knowledge = Knowledge SurfaceData String
+data Knowledge = Knowledge Lexer.SurfaceData String
                deriving Show
 
 
-data Schools = NoSchools SurfaceData {-tricky to have surface data here as its nullable...-}
-             | OneSchool SurfaceData String
-             | TwoSchools SurfaceData String String
+data Schools = NoSchools Lexer.SurfaceData {-tricky to have surface data here as its nullable...-}
+             | OneSchool Lexer.SurfaceData String
+             | TwoSchools Lexer.SurfaceData String String
              deriving Show
 
 
-data Field = StatField SurfaceData Stat Temporality
-           | HpStatField SurfaceData HpStat
-           | EngagementField SurfaceData
+data Field = StatField Lexer.SurfaceData Stat Temporality
+           | HpStatField Lexer.SurfaceData HpStat
+           | EngagementField Lexer.SurfaceData
            deriving Show
 
 {-Effects that happen to two units simultaneously trigger resulting effects by order of field position, with
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant SurfaceData String
-          | ThoughtsExpr SurfaceData Side
-          | KnowledgeExpr SurfaceData Knowledge Side
-          | Self SurfaceData Field
-          | Var SurfaceData Field String
-          | Sum SurfaceData Expr Expr
-          | Difference SurfaceData Expr Expr
-          | Product SurfaceData Expr Expr
-          | Quotient SurfaceData Expr Expr
-          | Mod SurfaceData Expr Expr
-          | Always SurfaceData {-add more booleans later.....    again... nullable.-}
-          | GT SurfaceData Expr Expr
-          | GEQ SurfaceData Expr Expr
-          | LT SurfaceData Expr Expr
-          | LEQ SurfaceData Expr Expr
-          | EQ SurfaceData Expr Expr
-          | And SurfaceData Expr Expr
-          | Or SurfaceData Expr Expr
-          | Not SurfaceData Expr
+data Expr = Constant Lexer.SurfaceData String
+          | ThoughtsExpr Lexer.SurfaceData Side
+          | KnowledgeExpr Lexer.SurfaceData Knowledge Side
+          | Self Lexer.SurfaceData Field
+          | Var Lexer.SurfaceData Field String
+          | Sum Lexer.SurfaceData Expr Expr
+          | Difference Lexer.SurfaceData Expr Expr
+          | Product Lexer.SurfaceData Expr Expr
+          | Quotient Lexer.SurfaceData Expr Expr
+          | Mod Lexer.SurfaceData Expr Expr
+          | Always Lexer.SurfaceData {-add more booleans later.....    again... nullable.-}
+          | GT Lexer.SurfaceData Expr Expr
+          | GEQ Lexer.SurfaceData Expr Expr
+          | LT Lexer.SurfaceData Expr Expr
+          | LEQ Lexer.SurfaceData Expr Expr
+          | EQ Lexer.SurfaceData Expr Expr
+          | And Lexer.SurfaceData Expr Expr
+          | Or Lexer.SurfaceData Expr Expr
+          | Not Lexer.SurfaceData Expr
            deriving Show
 
 
@@ -484,14 +484,8 @@ prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
 
 generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
 generateTokenLocation [] = HashMap.empty
-generateTokenLocation ((Lexer.Token tokenValue (SurfaceData line column surface)):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
+generateTokenLocation ((Lexer.Token tokenValue (Lexer.SurfaceData line column surface)):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
 
 
 }
-
-
-
-
-
-
 
