@@ -139,12 +139,14 @@ data Context = EmptyContext
              | ExtendContext Context Judgement
              deriving Show
 
-data Set = SimpleSet SurfaceData Side RelativeSet
+data Set = SimpleSet SurfaceData Parser.Side RelativeSet
          | UnionSet SurfaceData Set Set
          deriving Show
+         {-
 data Side = Friendly SurfaceData
           | Enemy SurfaceData
           deriving Show
+-}
 data RelativeSet = Field SurfaceData
                  | Hand SurfaceData
                  | Graveyard SurfaceData
@@ -157,7 +159,8 @@ data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more sk
                  deriving Show
 data Assignment = Assignment SurfaceData [Judgement] Mutator RExpr
                 deriving Show
-data LExpr = LExpr SurfaceData {-None yet-}
+data LExpr = LThoughtsExpr SurfaceData Parser.Side
+           | LKnowledgeExpr SurfaceData Knowledge Parser.Side
            deriving Show
 data RExpr = RExpr SurfaceData {-None yet-}
            deriving Show
@@ -228,9 +231,20 @@ schoolFromKnowledge knowledge =
 
 
 
+
+
+
+
+errorPrefix :: Int -> Int -> String
+errorPrefix line column = "Syntax error on line " ++ (show line) ++ ", column " ++ (show column) ++ ": "
+
+errorPrefix' :: Lexer.SurfaceData -> String
+errorPrefix' (Lexer.SurfaceData line column surface) = errorPrefix line column
+
+
 typeCheckSchool :: Lexer.SurfaceData -> TC Knowledge
-typeCheckSchool (Lexer.SurfaceData row column surface) =
- let surfaceData = (Lexer.SurfaceData row column surface) in
+typeCheckSchool (Lexer.SurfaceData line column surface) =
+ let surfaceData = (Lexer.SurfaceData line column surface) in
  case surface of
   "earth" -> pure . Earth $ surfaceData
   "fire" -> pure . Fire $ surfaceData
@@ -240,12 +254,10 @@ typeCheckSchool (Lexer.SurfaceData row column surface) =
   "void" -> pure . Void $ surfaceData
   otherwise ->
    let recommendations = getDistanceMessages otherwise ["earth", "fire", "water", "air", "spirit", "void"] in
+   let prefix = errorPrefix line column in
    case recommendations of
-    [] -> putErr $ otherwise ++ " is not a valid school."
-    _ -> putErr $ otherwise ++ " is not a valid school. Did you mean " ++ (concat recommendations)
-  {-
-{-SHOULD INCLUDE SURFACE DATA INFORMATION IN ERROR REPORT..-}
--}
+    [] -> putErr $ prefix ++ otherwise ++ " is not a valid school."
+    _ -> putErr $ prefix ++ otherwise ++ " is not a valid school. Did you mean " ++ (concat recommendations)
 
 showKnowledge :: Knowledge -> String
 showKnowledge knowledge =
@@ -257,6 +269,16 @@ showKnowledge knowledge =
   Spirit surfaceData -> "spirit"
   Void surfaceData -> "void"
 
+{-could be made a typeclass-}
+getSurface :: Knowledge -> Lexer.SurfaceData
+getSurface knowledge =
+ case knowledge of
+  Earth surfaceData -> surfaceData
+  Fire surfaceData -> surfaceData
+  Water surfaceData -> surfaceData
+  Air surfaceData -> surfaceData
+  Spirit surfaceData -> surfaceData
+  Void surfaceData -> surfaceData
 
 schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
 schoolsFromKnowledge school1 school2 =
@@ -266,12 +288,14 @@ schoolsFromKnowledge school1 school2 =
   (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ undefined
   (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ undefined
   (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ undefined
-  _ ->
+  (k1,k2) ->
+   let ((Lexer.SurfaceData line1 column1 surface1),(Lexer.SurfaceData line2 column2 surface2)) = (getSurface k1, getSurface k2) in
+   let prefix = errorPrefix line1 column1 in
    if school1 == school2
     then
-     putErr "Units cannot belong to two identical schools" {-I should keep the line,column numbers along with the type checker AST, so I can output errors better there...-}
+     putErr $ prefix ++ "Units cannot belong to two identical schools" {-I should keep the line,column numbers along with the type checker AST, so I can output errors better there...-}
     else
-     putErr ("Invalid pair of schools: " ++ (showKnowledge school1) ++ " " ++ (showKnowledge school2) ++ ". Did you mean " ++ (showKnowledge school2) ++ " " ++ (showKnowledge school1))
+     putErr $ prefix ++ ("Invalid pair of schools: " ++ (showKnowledge school1) ++ " " ++ (showKnowledge school2) ++ ". Did you mean " ++ (showKnowledge school2) ++ " " ++ (showKnowledge school1))
   
 
 
@@ -323,28 +347,47 @@ checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition t
 
 
 
+
+lExprError' :: String -> String
+lExprError' s = s ++ " is not a valid L expression."
+
+lExprError :: Lexer.SurfaceData -> String
+lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
+
+
+
+{-Somewhere I want a rule that you cannot project onto soul points.....-}
+
+{-currently no warnings if you try to set a value to a number outside its bound (which would set to the bound instead)-}
 {-If there's an error here, I will not look any further at subexpressions for further problems.-}
 buildLExpr :: Context -> Parser.Expr -> TC LExpr
 buildLExpr context expr =
  case expr of
-  Parser.ThoughtsExpr side surfaceData -> pure undefined
-  Parser.KnowledgeExpr surfaceData knowledge side -> pure undefined
+  Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
+  Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
   Parser.Self surfaceData field -> undefined
   Parser.Var surfaceData field string -> undefined
   Parser.Sum surfaceData _ _ -> undefined {-need appropriate error message. Similarly on other cases.-}
   Parser.Difference surfaceData _ _ -> undefined
-  Parser.Product surfaceData _ _ -> putErr undefined
-  Parser.Quotient surfaceData _ _ -> putErr undefined
-  Parser.Mod surfaceData _ _ -> putErr undefined
-  Parser.Always surfaceData -> putErr undefined {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
-  Parser.GT surfaceData _ _ -> putErr undefined
-  Parser.GEQ surfaceData _ _ -> putErr undefined
-  Parser.LT surfaceData _ _ -> putErr undefined
-  Parser.LEQ surfaceData _ _ -> putErr undefined
-  Parser.EQ surfaceData _ _ -> putErr undefined
-  Parser.And surfaceData _ _ -> putErr undefined
-  Parser.Or surfaceData _ _ -> putErr undefined
-  Parser.Not surfaceData _ -> putErr undefined
+  Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
+  Parser.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
+  Parser.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
+  Parser.Always surfaceData -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
+  Parser.GT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.GEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.LT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.LEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.EQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.And surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Or surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Not surfaceData _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+
+
+
+
+
+
+
 
 
 {-
