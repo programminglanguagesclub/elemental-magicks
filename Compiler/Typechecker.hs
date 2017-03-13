@@ -39,7 +39,7 @@ data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Count
           deriving Show
 data Spell = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
            deriving Show
-data Skill = Skill SurfaceData RNat RBool Automatic
+data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
            deriving Show
 data Start = Start SurfaceData Skill
            deriving Show
@@ -59,7 +59,7 @@ data Soul = Soul SurfaceData Skill
           deriving Show
 
 
-data RNat = RNat SurfaceData Int
+data RInt = RInt SurfaceData Int
           deriving Show
 data RBool = RBool SurfaceData Bool
            deriving Show
@@ -367,11 +367,11 @@ buildLExpr context expr =
   Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
   Parser.Self surfaceData field -> undefined
   Parser.Var surfaceData field string -> undefined
-  Parser.Sum surfaceData _ _ -> undefined {-need appropriate error message. Similarly on other cases.-}
-  Parser.Difference surfaceData _ _ -> undefined
-  Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
-  Parser.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
-  Parser.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ undefined
+  Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Always surfaceData -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
   Parser.GT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.GEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
@@ -494,7 +494,8 @@ typeCheckSchools (Parser.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKno
 
 
 
-
+typeCheckNumber :: Parser.Expr -> TC RInt
+typeCheckNumber = undefined
 
 typeCheckCondition :: Parser.Expr -> TC RBool
 typeCheckCondition = undefined
