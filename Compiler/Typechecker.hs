@@ -59,7 +59,41 @@ data Soul = Soul SurfaceData Skill
           deriving Show
 
 
-data RInt = RInt SurfaceData Int
+{-
+buildLExpr :: Context -> Parser.Expr -> TC LExpr
+buildLExpr context expr =
+ case expr of
+  Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
+  Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
+  Parser.Self surfaceData field -> LSelfProjection surfaceData <$> typeCheckLStat field
+  Parser.Var surfaceData field variable -> LVarProjection surfaceData variable <$> typeCheckLStat field {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
+  Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Always surfaceData -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
+  Parser.GT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.GEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.LT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.LEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.EQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.And surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Or surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  Parser.Not surfaceData _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+-}
+
+
+
+data RInt = RThoughts SurfaceData Parser.Side
+          | RKnowledge SurfaceData Parser.Knowledge Parser.Side
+          | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
+          | RVarProjection SurfaceData RStat Variable
+          | RSum SurfaceData RInt RInt
+          | RDifference SurfaceData RInt RInt
+          | RProduct SurfaceData RInt RInt
+          | RQuotient SurfaceData RInt RInt
+          | RMod SurfaceData RInt RInt
           deriving Show
 data RBool = RBool SurfaceData Bool
            deriving Show
@@ -156,6 +190,8 @@ data RelativeSet = Field SurfaceData
 
 data LStat = LStat {-unimplemented-}
            deriving Show
+data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
+            deriving Show
 typeCheckLStat :: Parser.Field -> TC LStat
 typeCheckLStat = undefined
 {-
