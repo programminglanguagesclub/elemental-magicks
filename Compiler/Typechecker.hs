@@ -187,7 +187,7 @@ typeCheckLStat = undefined
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Judgement] Mutator RExpr
+data Assignment = Assignment SurfaceData [Judgement] Mutator RInt
                 deriving Show
 data LExpr = LThoughtsExpr SurfaceData Parser.Side
            | LKnowledgeExpr SurfaceData Knowledge Parser.Side
@@ -406,7 +406,7 @@ buildLExpr context expr =
   Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
   Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
   Parser.Self surfaceData field -> LSelfProjection surfaceData <$> typeCheckLStat field
-  Parser.Var surfaceData field variable -> LVarProjection surfaceData variable <$> typeCheckLStat field {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
+  Parser.Var surfaceData field variable -> LVarProjection surfaceData (Variable surfaceData variable) <$> typeCheckLStat field {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
   Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
