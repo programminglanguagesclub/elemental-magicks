@@ -154,6 +154,19 @@ data RelativeSet = Field SurfaceData
                  | SpawnLocation SurfaceData
                  deriving Show
 
+data LStat = LStat {-unimplemented-}
+           deriving Show
+typeCheckLStat :: Parser.Field -> TC LStat
+typeCheckLStat = undefined
+{-
+ -
+ - .... Level MaxHp BaseAttack BaseDefense BaseSpeed BaseRange
+ -
+ -
+ - also engagement...
+-}
+
+
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
@@ -161,6 +174,15 @@ data Assignment = Assignment SurfaceData [Judgement] Mutator RExpr
                 deriving Show
 data LExpr = LThoughtsExpr SurfaceData Parser.Side
            | LKnowledgeExpr SurfaceData Knowledge Parser.Side
+           | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
+           | LVarProjection SurfaceData Variable LStat
+           {- Cardinality not implemented... -}
+
+{-
+   Parser.Self surfaceData field -> undefined
+      Parser.Var surfaceData field string -> undefined
+-}
+
            deriving Show
 data RExpr = RExpr SurfaceData {-None yet-}
            deriving Show
@@ -365,7 +387,7 @@ buildLExpr context expr =
  case expr of
   Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
   Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
-  Parser.Self surfaceData field -> undefined
+  Parser.Self surfaceData field -> LSelfProjection
   Parser.Var surfaceData field string -> undefined
   Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
