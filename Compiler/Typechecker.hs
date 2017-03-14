@@ -400,13 +400,21 @@ lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
 
 {-currently no warnings if you try to set a value to a number outside its bound (which would set to the bound instead)-}
 {-If there's an error here, I will not look any further at subexpressions for further problems.-}
+
+
+
+typeCheckVariable :: Context -> Variable -> TC Variable
+typeCheckVariable = undefined
+
+
+
 buildLExpr :: Context -> Parser.Expr -> TC LExpr
 buildLExpr context expr =
  case expr of
   Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
   Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side -> LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge <*> pure side
   Parser.Self surfaceData field -> LSelfProjection surfaceData <$> typeCheckLStat field
-  Parser.Var surfaceData field variable -> LVarProjection surfaceData (Variable surfaceData variable) <$> typeCheckLStat field {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
+  Parser.Var surfaceData field variable -> LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable) <*> typeCheckLStat field {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
   Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
   Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
