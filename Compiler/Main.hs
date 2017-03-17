@@ -1,4 +1,5 @@
 module Main where
+import System.IO
 import qualified Lexer
 import qualified Parser
 import qualified Typechecker
@@ -7,10 +8,19 @@ import Text.Read
 import qualified Data.Map.Strict as HashMap
 
 
+
+
+
+
+
+main :: IO ()
 main = do
  x <- getContents
  case Lexer.runAlex x Parser.calc of
-  Right y -> error $ show $ (Parser.prettyPrint $ map Parser.extractSurface (Parser.getTokens x)) {-show y-}
+  Right y ->
+   case Typechecker.typeCheck y of
+    (Typechecker.TC (Right z)) -> pure ()
+    (Typechecker.TC (Left errors)) -> mapM_ (hPutStrLn stderr) errors {-putStrLn $ show $ (Parser.prettyPrint $ map Parser.extractSurface (Parser.getTokens x)) {-show y-}-}
   Left y ->  {- assume no error in lexing... -}
    let tokens = Parser.getTokens x in
    let tokenLocation = Parser.generateTokenLocation tokens in
