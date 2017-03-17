@@ -1,4 +1,0 @@
-ffi lib
-include lib.h
-link lib.o
-effectful Lib.counter
