@@ -174,7 +174,10 @@ data LStat = LStat {-unimplemented-}
 data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
             deriving Show
 typeCheckLStat :: Parser.Field -> TC LStat
-typeCheckLStat = undefined
+typeCheckLStat = error "lstat not implemented"
+ 
+
+
 {-
  -
  - .... Level MaxHp BaseAttack BaseDefense BaseSpeed BaseRange
