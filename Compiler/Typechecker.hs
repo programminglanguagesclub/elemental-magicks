@@ -35,7 +35,7 @@ Find the Levenshtein edit distance between two strings. That is to say, the numb
 
 data File = File SurfaceData [Unit] [Spell]
           deriving Show
-data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
+data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe SpawnUnit) (Maybe Death) (Maybe Auto) [Action] Soul
           deriving Show
 data Spell = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
            deriving Show
@@ -47,8 +47,8 @@ data End = End SurfaceData Skill
          deriving Show
 data Counter = Counter SurfaceData Skill
              deriving Show
-data Spawn = Spawn SurfaceData Skill
-           deriving Show
+data SpawnUnit = SpawnUnit SurfaceData Skill
+               deriving Show
 data Death = Death SurfaceData Skill
            deriving Show
 data Auto = Auto SurfaceData Skill
@@ -373,10 +373,14 @@ getSet :: Context -> Variable ->
 
 
 checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
-checkAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = undefined {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
+checkAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = error "checkAutomatic not implemented"
+
+
+
+{-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
 
 checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
-checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = undefined
+checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = error "checkNonautomatic not implemented"
 
 
 
@@ -489,7 +493,7 @@ And/Or maybe I should just convert to LExprs here.
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
-  (Parser.Assignment surfaceData exprs mutator rExpr) -> undefined
+  (Parser.Assignment surfaceData exprs mutator rExpr) -> error "checkSkillEffect case Parser.Assignment not implemented"
 
 {-
  - THE difference between Judgements in contexts here, and sets in the parser, is for convenience we might want to additionally allow the soul to be an additional area to select, even though
@@ -513,7 +517,7 @@ checkSet = undefined
 
 
 
-
+{-
 checkStart :: Parser.Skill -> [String]
 checkStart = undefined
 checkEnd :: Parser.Skill -> [String]
@@ -528,7 +532,7 @@ checkAction :: Parser.Skill -> [String]
 checkAction = undefined
 checkSoul :: Parser.Skill -> [String]
 checkSoul = undefined
-
+-}
 {-Should use a phantom type for some of these?-}
 
 
@@ -540,12 +544,64 @@ typeCheckSchools (Parser.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKno
 
 
 
-typeCheckNumber :: Parser.Expr -> TC RInt
-typeCheckNumber = undefined
+getLocationMessage :: Lexer.SurfaceData -> String
+getLocationMessage (Lexer.SurfaceData lineNumber columnNumber _) =
+ "on line " ++ (show lineNumber) ++ ", column " ++ (show columnNumber) ++ "\n"
+getSurfaceSyntax :: Lexer.SurfaceData -> String
+getSurfaceSyntax (Lexer.SurfaceData _ _ surfaceSyntax) = surfaceSyntax ++ "\n"
 
-typeCheckCondition :: Parser.Expr -> TC RBool
-typeCheckCondition = undefined
 
+typeCheckNumber :: Parser.Expr -> TC RInt {-called typecheckrint below...-}
+typeCheckNumber = error "do not use this function"
+
+
+{-should add isDead to conditions?-}
+typeCheckCondition :: Parser.Expr -> TC RBool {-call typeCheckRBool?-}
+typeCheckCondition expr =
+ case expr of
+  Parser.Constant surfaceData value ->
+    TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of int literal) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.ThoughtsExpr surfaceData side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
+    TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of thoughts) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.KnowledgeExpr surfaceData knowledge side ->
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of knowledge) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Self surfaceData field ->
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of projection from self) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Var surfaceData field var -> undefined
+  Parser.Sum surfaceData expr1 expr2 ->
+    TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (+) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]    
+  Parser.Difference surfaceData expr1 expr2 ->
+    TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (-) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Product surfaceData expr1 expr2 ->
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (*) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Quotient surfaceData expr1 expr2 ->
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (/) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Mod surfaceData expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+  Parser.Always surfaceData -> undefined {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
+  Parser.GT surfaceData expr1 expr2 ->
+   RGT surfaceData <$> typeCheckRInt expr1
+                   <*> typeCheckRInt expr2
+  Parser.GEQ surfaceData expr1 expr2 ->
+   RGEQ surfaceData <$> typeCheckRInt expr1
+                    <*> typeCheckRInt expr2
+  Parser.LT surfaceData expr1 expr2 ->
+   RLT surfaceData <$> typeCheckRInt expr1
+                   <*> typeCheckRInt expr2
+  Parser.LEQ surfaceData expr1 expr2 ->
+   RLEQ surfaceData <$> typeCheckRInt expr1
+                    <*> typeCheckRInt expr2
+  Parser.EQ surfaceData expr1 expr2 ->
+   REQ surfaceData <$> typeCheckRInt expr1
+                   <*> typeCheckRInt expr2
+  Parser.And surfaceData expr1 expr2 ->
+   RAnd surfaceData <$> typeCheckCondition expr1
+                    <*> typeCheckCondition expr2
+  Parser.Or surfaceData expr1 expr2 ->
+   ROr surfaceData <$> typeCheckCondition expr1
+                   <*> typeCheckCondition expr2
+  Parser.Not surfaceData expr ->
+   RNot surfaceData <$> typeCheckCondition expr
 
 typeCheckSkill :: Parser.Skill -> TC Skill
 typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = undefined
@@ -554,31 +610,51 @@ typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = un
 
 typeCheckStart :: Maybe Parser.Start -> TC (Maybe Start)
 typeCheckStart Nothing = pure Nothing
-typeCheckStart (Just start) = undefined
+typeCheckStart (Just (Parser.Start surfaceData skill)) =
+ trace "typeCheckStart not implemented" $
+ Just <$> Start surfaceData
+      <$> typeCheckSkill skill
 
 typeCheckEnd :: Maybe Parser.End -> TC (Maybe End)
 typeCheckEnd Nothing = pure Nothing
-typeCheckEnd (Just end) = undefined
+typeCheckEnd (Just (Parser.End surfaceData skill)) =
+ trace "typecheckEnd not implemented" $
+ Just <$> End surfaceData
+      <$> typeCheckSkill skill
 
 
 typeCheckCounter :: Maybe Parser.Counter -> TC (Maybe Counter)
 typeCheckCounter Nothing = pure Nothing
-typeCheckCounter (Just counter) = undefined
+typeCheckCounter (Just (Parser.Counter surfaceData skill)) =
+ trace "typecheckCounter not implemented" $
+ Just <$> Counter surfaceData
+      <$> typeCheckSkill skill
 
-typeCheckSpawnUnit :: Maybe Parser.Spawn -> TC (Maybe Spawn)
+typeCheckSpawnUnit :: Maybe Parser.Spawn -> TC (Maybe SpawnUnit)
 typeCheckSpawnUnit Nothing = pure Nothing
-typeCheckSpawnUnit (Just spawn) = undefined
+typeCheckSpawnUnit (Just (Parser.Spawn surfaceData skill)) =
+ trace "typecheckSpawnUnit not implemented" $
+ Just <$> SpawnUnit surfaceData
+      <$> typeCheckSkill skill
 
 typeCheckDeath :: Maybe Parser.Death -> TC (Maybe Death)
 typeCheckDeath Nothing = pure Nothing
-typeCheckDeath (Just (Parser.Death surfaceData skill)) = trace "typecheckDeath not implemented" $ Just <$> Death surfaceData <$> typeCheckSkill skill
+typeCheckDeath (Just (Parser.Death surfaceData skill)) =
+ trace "typecheckDeath not implemented" $
+ Just <$> Death surfaceData
+      <$> typeCheckSkill skill
 
 typeCheckAuto :: Maybe Parser.Auto -> TC (Maybe Auto)
 typeCheckAuto Nothing = pure Nothing
-typeCheckAuto (Just (Parser.Auto surfaceData skill)) = trace "typecheckauto not implemented" $ Just <$> Auto surfaceData <$> typeCheckSkill skill
+typeCheckAuto (Just (Parser.Auto surfaceData skill)) =
+ trace "typecheckauto not implemented" $
+ Just <$> Auto surfaceData
+      <$> typeCheckSkill skill
 
 typeCheckAction :: Parser.Action -> TC Action
-typeCheckAction (Parser.Action surfaceData skill) = trace "typeCheckAction not implemented" $ Action surfaceData <$> typeCheckSkill skill
+typeCheckAction (Parser.Action surfaceData skill) =
+ trace "typeCheckAction not implemented" $
+ Action surfaceData <$> typeCheckSkill skill
 
 typeCheckActions :: [Parser.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
@@ -616,6 +692,11 @@ typeCheckInt s name lowerBound upperBound =
    if i < lowerBound then putErr $ name ++ " must be at least " ++ (show lowerBound)
    else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
    else pure i
+
+
+typeCheckRInt :: Parser.Expr -> TC RInt
+typeCheckRInt = error "typeCheckRInt not implemented"
+
 
 
 {-Again... need to pass row and column to typecheckint... can actually pass entire surface syntax to it...-}
