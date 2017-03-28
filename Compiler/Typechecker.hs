@@ -326,11 +326,11 @@ getSurface knowledge =
 schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
 schoolsFromKnowledge school1 school2 =
  case (school1,school2) of
-  (Earth surfaceData1, Fire surfaceData2) -> pure . EarthFire $ undefined
-  (Earth surfaceData1, Water surfaceData2) -> pure . EarthWater $ undefined
-  (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ undefined
-  (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ undefined
-  (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ undefined
+  (Earth surfaceData1, Fire surfaceData2) -> pure . EarthFire $ error "earthfire not implemented"
+  (Earth surfaceData1, Water surfaceData2) -> pure . EarthWater $ error "earthwater not implemented"
+  (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ error "earthair not implemented"
+  (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ error "earthspirit not implemented"
+  (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ error "earthvoid not implemented"
   (k1,k2) ->
    let ((Lexer.SurfaceData line1 column1 surface1),(Lexer.SurfaceData line2 column2 surface2)) = (getSurface k1, getSurface k2) in
    let prefix = errorPrefix line1 column1 in
@@ -340,7 +340,7 @@ schoolsFromKnowledge school1 school2 =
     else
      putErr $ prefix ++ ("Invalid pair of schools: " ++ (showKnowledge school1) ++ " " ++ (showKnowledge school2) ++ ". Did you mean " ++ (showKnowledge school2) ++ " " ++ (showKnowledge school1))
   
-
+{-THERE ARE CASES MISSING-}
 
 
 
@@ -411,7 +411,7 @@ lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
 
 
 typeCheckVariable :: Context -> Variable -> TC Variable
-typeCheckVariable = undefined
+typeCheckVariable = error "typeCheckVariable not implemented"
 
 
 
@@ -567,7 +567,8 @@ typeCheckCondition expr =
    TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of knowledge) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
   Parser.Self surfaceData field ->
    TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of projection from self) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Var surfaceData field var -> undefined
+  Parser.Var surfaceData field var ->
+   TC $ Left ["Type mismatch between Boolean (expected type) and Int (type of projection from variable " ++ var ++ ") in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
   Parser.Sum surfaceData expr1 expr2 ->
     TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (+) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]    
   Parser.Difference surfaceData expr1 expr2 ->
@@ -604,7 +605,7 @@ typeCheckCondition expr =
    RNot surfaceData <$> typeCheckCondition expr
 
 typeCheckSkill :: Parser.Skill -> TC Skill
-typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = undefined
+typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = error "typecheckskill not implemented"
 
 
 
