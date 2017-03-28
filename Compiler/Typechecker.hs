@@ -9,7 +9,7 @@ import Text.Read
 import Text.EditDistance
 import Data.Monoid
 import Control.Monad(join)
- 
+import Debug.Trace 
   
    
 
@@ -553,32 +553,32 @@ typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = un
 
 
 typeCheckStart :: Maybe Parser.Start -> TC (Maybe Start)
-typeCheckStart Nothing = undefined
+typeCheckStart Nothing = pure Nothing
 typeCheckStart (Just start) = undefined
 
 typeCheckEnd :: Maybe Parser.End -> TC (Maybe End)
-typeCheckEnd Nothing = undefined
+typeCheckEnd Nothing = pure Nothing
 typeCheckEnd (Just end) = undefined
 
 
 typeCheckCounter :: Maybe Parser.Counter -> TC (Maybe Counter)
-typeCheckCounter Nothing = undefined
+typeCheckCounter Nothing = pure Nothing
 typeCheckCounter (Just counter) = undefined
 
 typeCheckSpawnUnit :: Maybe Parser.Spawn -> TC (Maybe Spawn)
-typeCheckSpawnUnit Nothing = undefined
+typeCheckSpawnUnit Nothing = pure Nothing
 typeCheckSpawnUnit (Just spawn) = undefined
 
 typeCheckDeath :: Maybe Parser.Death -> TC (Maybe Death)
-typeCheckDeath Nothing = undefined
-typeCheckDeath (Just death) = undefined
+typeCheckDeath Nothing = pure Nothing
+typeCheckDeath (Just (Parser.Death surfaceData skill)) = trace "typecheckDeath not implemented" $ Just <$> Death surfaceData <$> typeCheckSkill skill
 
 typeCheckAuto :: Maybe Parser.Auto -> TC (Maybe Auto)
-typeCheckAuto Nothing = undefined
-typeCheckAuto (Just auto) = undefined
+typeCheckAuto Nothing = pure Nothing
+typeCheckAuto (Just (Parser.Auto surfaceData skill)) = trace "typecheckauto not implemented" $ Just <$> Auto surfaceData <$> typeCheckSkill skill
 
 typeCheckAction :: Parser.Action -> TC Action
-typeCheckAction action = undefined
+typeCheckAction (Parser.Action surfaceData skill) = trace "typeCheckAction not implemented" $ Action surfaceData <$> typeCheckSkill skill
 
 typeCheckActions :: [Parser.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
@@ -586,10 +586,10 @@ typeCheckActions = traverse typeCheckAction
 
 
 noSelfReferences :: Parser.Skill -> [String]
-noSelfReferences skill = undefined
+noSelfReferences skill = trace "noSelfReferences not implemented" []
 
 typeCheckSoul :: Parser.Soul -> TC Soul
-typeCheckSoul soul = undefined
+typeCheckSoul (Parser.Soul surfaceData skill) = trace "typeCheckSoul not implemented" $ Soul surfaceData <$> typeCheckSkill skill
 
 
 
@@ -647,7 +647,7 @@ typeCheckStats (Parser.Stats surfaceData schools level hp attack defense speed r
 
 
 typeCheckSpawnSpell :: Parser.Skill -> TC Skill
-typeCheckSpawnSpell _ = undefined
+typeCheckSpawnSpell skill = trace "typeCheckSpawnSpell not implemented" $ typeCheckSkill skill
 
 typeCheckSpell :: Parser.Spell -> TC Spell
 typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool) level skill) =
