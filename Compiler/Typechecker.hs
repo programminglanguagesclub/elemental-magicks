@@ -504,37 +504,7 @@ checkSkillEffect context skillEffect =
  - -}
 
 
-
-{-
-checkSet :: Parser.Set -> [String]
-checkSet = undefined
--}
-
-
-
-
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
-
-
-
-{-
-checkStart :: Parser.Skill -> [String]
-checkStart = undefined
-checkEnd :: Parser.Skill -> [String]
-checkEnd = undefined
-checkCounter :: Parser.Skill -> [String]
-checkCounter = undefined
-checkDeath :: Parser.Skill -> [String]
-checkDeath = undefined
-checkAuto :: Parser.Skill -> [String]
-checkAuto = undefined
-checkAction :: Parser.Skill -> [String]
-checkAction = undefined
-checkSoul :: Parser.Skill -> [String]
-checkSoul = undefined
--}
-{-Should use a phantom type for some of these?-}
-
 
 typeCheckSchools :: Parser.Schools -> TC Schools
 typeCheckSchools (Parser.NoSchools surfaceData) = pure $ NoSchools
@@ -579,7 +549,7 @@ typeCheckCondition expr =
    TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of (/) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
   Parser.Mod surfaceData expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
    TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Always surfaceData -> undefined {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
+  Parser.Always surfaceData -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
   Parser.GT surfaceData expr1 expr2 ->
    RGT surfaceData <$> typeCheckRInt expr1
                    <*> typeCheckRInt expr2
