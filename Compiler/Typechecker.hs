@@ -705,16 +705,6 @@ typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
   Parser.Var surfaceData field variable ->
    RVarProjection surfaceData <$> typeCheckRStatVar field
                               <*> typeCheckVariable context (Variable surfaceData variable)
-                            
-
-{-
-
-  Parser.Var surfaceData field variable ->
-   LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable)
-                              <*> typeCheckLStat field
--}
-
-
   Parser.Sum surfaceData expr1 expr2 ->
    RSum surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
@@ -732,50 +722,33 @@ typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
                     <*> typeCheckRInt context expr2
   Parser.Always surfaceData -> error "always should not exist, much less as an integer"
   Parser.GT surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of (>) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>)"]
   Parser.GEQ surfaceData expr1 expr2 ->
-    TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of (>=) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>=)"]
   Parser.LT surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of (<) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<)"]
   Parser.LEQ surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of (<=) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<=)"]
   Parser.EQ surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of (=) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(=)"]
   Parser.And surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of and operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "and"]
   Parser.Or surfaceData expr1 expr2 ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of or operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "or"]
   Parser.Not surfaceData expr ->
-   TC $ Left ["Type mismatch between Integer (required type) and Boolean (result type of not operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "not"]
 
-{-
-
-TC $ Left ["Type mismatch between Boolean (expected type) and Int (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-
-
-data Expr = Constant Lexer.SurfaceData [Char]
-          | ThoughtsExpr Lexer.SurfaceData Side
-          | KnowledgeExpr Lexer.SurfaceData Knowledge Side
-          | Self Lexer.SurfaceData Field
-          | Var Lexer.SurfaceData Field String
-          | Sum Lexer.SurfaceData Expr Expr
-          | Difference Lexer.SurfaceData Expr Expr
-          | Product Lexer.SurfaceData Expr Expr
-          | Quotient Lexer.SurfaceData Expr Expr
-          | Mod Lexer.SurfaceData Expr Expr
-          | Always Lexer.SurfaceData {-add more booleans later.....    again... nullable.-}
-          | GT Lexer.SurfaceData Expr Expr
-          | GEQ Lexer.SurfaceData Expr Expr
-          | LT Lexer.SurfaceData Expr Expr
-          | LEQ Lexer.SurfaceData Expr Expr
-          | EQ Lexer.SurfaceData Expr Expr
-          | And Lexer.SurfaceData Expr Expr
-          | Or Lexer.SurfaceData Expr Expr
-          | Not Lexer.SurfaceData Expr
-           deriving Show
-
-
--}
+typeMismatchMessage :: Lexer.SurfaceData -> String -> String -> String -> String
+typeMismatchMessage surfaceData requiredType resultType operator =
+ "Type mismatch between " ++
+ requiredType ++
+ " (required type) and " ++
+ resultType ++
+ " (result type of " ++
+ operator ++
+ ") in subexpression:\n" ++
+ (getSurfaceSyntax surfaceData) ++
+ (getLocationMessage surfaceData)
 
 
 
