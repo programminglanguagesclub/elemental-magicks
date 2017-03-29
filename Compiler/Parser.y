@@ -171,8 +171,8 @@ Soul : soul colon Skill {Soul dummySurfaceData $3}
 Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
 OptionalCost : {Constant dummySurfaceData "0" {-it does not make sense to have surface data here.... as there is no syntax...-}}
              | cost colon number {Constant dummySurfaceData "LALALA"}
-OptionalCondition : {Always dummySurfaceData}
-                  | condition colon Expr {$3}
+OptionalCondition : {Nothing}
+                  | condition colon Expr {Just ($3)}
 OptionalFilter : {Always dummySurfaceData}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent}
@@ -208,8 +208,8 @@ ListExpr : {[]}
          | Expr comma ListExprCommas {$1 : $3}
 ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
-NullableExpr : {Always dummySurfaceData}
-             | Expr {$1}
+NullableExpr : {Nothing}
+             | Expr {Just ($1)}
 Expr : number {Constant dummySurfaceData "LLALALA"}
      | Field self {Self dummySurfaceData $1}
      | Field var {Var dummySurfaceData $1 $2}
@@ -342,12 +342,17 @@ data Set = SimpleSet Lexer.SurfaceData Side RelativeSet
          | UnionSet Lexer.SurfaceData Set Set
          deriving Show
 
+{-
+Don't need both condition and nullable expression.
 
 
+Either skill effects, or automatic should be allowed to have conditions and/or ifs.
+
+-}
 data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
                  deriving Show
 
-data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] Expr Automatic Automatic Automatic {-variables, where condition-}
+data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-variables, where condition-}
                   | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
