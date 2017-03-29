@@ -178,8 +178,8 @@ data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
 typeCheckLStat :: Parser.Field -> TC LStat
 typeCheckLStat = error "lstat not implemented"
  
-typeCheckRStatSelf :: Parser.Field -> TC RStat
-typeCheckRStatSelf field = error "typecheckRStatSelf not implemented"
+typeCheckRStatSelf :: Parser.Field -> TC LStat
+typeCheckRStatSelf = typeCheckLStat
 
 typeCheckRStatVar :: Parser.Field -> TC RStat
 typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
@@ -700,7 +700,8 @@ typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
   Parser.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
   Parser.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
   Parser.KnowledgeExpr surfaceData knowledge side -> pure $ RKnowledge surfaceData knowledge side
-  Parser.Self surfaceData field -> undefined
+  Parser.Self surfaceData field ->
+   RSelfProjection surfaceData <$> typeCheckRStatSelf field
   Parser.Var surfaceData field variable ->
    RVarProjection surfaceData <$> typeCheckRStatVar field
                               <*> typeCheckVariable context (Variable surfaceData variable)
