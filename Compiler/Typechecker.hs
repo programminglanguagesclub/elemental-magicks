@@ -15,7 +15,8 @@ import Debug.Trace
 
 maxInt :: Int
 maxInt = 1000
-
+minInt :: Int
+minInt = (-1000)
 
 {-
 levenshteinDistance
@@ -58,7 +59,8 @@ data Action = Action SurfaceData Skill
 data Soul = Soul SurfaceData Skill
           deriving Show
 
-data RInt = RThoughts SurfaceData Parser.Side
+data RInt = RConstant SurfaceData Int
+          | RThoughts SurfaceData Parser.Side
           | RKnowledge SurfaceData Parser.Knowledge Parser.Side
           | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
           | RVarProjection SurfaceData RStat Variable
@@ -198,10 +200,6 @@ data LExpr = LThoughtsExpr SurfaceData Parser.Side
            | LVarProjection SurfaceData Variable LStat
            {- Cardinality not implemented... -}
 
-{-
-   Parser.Self surfaceData field -> undefined
-      Parser.Var surfaceData field string -> undefined
--}
 
            deriving Show
 
@@ -372,8 +370,8 @@ getSet :: Context -> Variable ->
 
 
 
-checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
-checkAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = error "checkAutomatic not implemented"
+typeCheckAutomatic :: Context -> Parser.Automatic -> TC Automatic
+typeCheckAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = error "checkAutomatic not implemented"
 
 
 
@@ -463,21 +461,21 @@ isValidBinding context expr =
   Parser.ThoughtsExpr side -> []
   Parser.KnowledgeExpr knowledge side -> []
   Parser.Self field -> [] {-extra check elsewhere that soul and spawn skills don't do this.-}
-  Parser.Var field string -> undefined
+  Parser.Var field string -> 
   Parser.Sum expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2) {-check for LExpr rejects this..-}
   Parser.Difference expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
   Parser.Product expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
   Parser.Quotient expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
   Parser.Mod expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
-  Parser.Always -> undefined
-  Parser.GT expr1 expr2 -> undefined
-  Parser.GEQ expr1 expr2 -> undefined
-  Parser.LT expr1 expr2 -> undefined
-  Parser.LEQ expr1 expr2 -> undefined
-  Parser.EQ expr1 expr2 -> undefined
-  Parser.And expr1 expr2 -> undefined
-  Parser.Or expr1 expr2 -> undefined
-  Parser.Not expr -> undefined
+  Parser.Always ->
+  Parser.GT expr1 expr2 -> 
+  Parser.GEQ expr1 expr2 -> 
+  Parser.LT expr1 expr2 -> 
+  Parser.LEQ expr1 expr2 -> 
+  Parser.EQ expr1 expr2 -> 
+  Parser.And expr1 expr2 -> 
+  Parser.Or expr1 expr2 -> 
+  Parser.Not expr -> 
 -}
 
 
@@ -575,8 +573,18 @@ typeCheckCondition expr =
    RNot surfaceData <$> typeCheckCondition expr
 
 typeCheckSkill :: Parser.Skill -> TC Skill
-typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) = error "typecheckskill not implemented"
+typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) =
+ trace "typecheckskill not implemented"
+ Skill surfaceData <$> typeCheckRInt cost
+                   <*> typeCheckCondition condition
+                   <*> typeCheckAutomatic EmptyContext automatic
 
+{-
+checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
+data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
+ 
+
+-}
 
 
 typeCheckStart :: Maybe Parser.Start -> TC (Maybe Start)
@@ -664,9 +672,59 @@ typeCheckInt s name lowerBound upperBound =
    else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
    else pure i
 
+typeCheckConstant :: String -> TC Int
+typeCheckConstant s = typeCheckInt s "constant expression" minInt maxInt
 
 typeCheckRInt :: Parser.Expr -> TC RInt
-typeCheckRInt = error "typeCheckRInt not implemented"
+typeCheckRInt expr = {-error "typeCheckRInt not implemented"-}
+ case expr of
+  Parser.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
+  Parser.ThoughtsExpr surfaceData side -> undefined
+  Parser.KnowledgeExpr surfaceData knowledge side -> undefined
+  Parser.Self surfaceData field -> undefined
+  Parser.Var surfaceData field var -> undefined
+  Parser.Sum surfaceData expr1 expr2 -> undefined
+  Parser.Difference surfaceData expr1 expr2 -> undefined
+  Parser.Product surfaceData expr1 expr2 -> undefined
+  Parser.Quotient surfaceData expr1 expr2 -> undefined
+  Parser.Mod surfaceData expr1 expr2 -> undefined
+  Parser.Always surfaceData -> undefined
+  Parser.GT surfaceData expr1 expr2 -> undefined
+  Parser.GEQ surfaceData expr1 expr2 -> undefined
+  Parser.LT surfaceData expr1 expr2 -> undefined
+  Parser.LEQ surfaceData expr1 expr2 -> undefined
+  Parser.EQ surfaceData expr1 expr2 -> undefined
+  Parser.And surfaceData expr1 expr2 -> undefined
+  Parser.Or surfaceData expr1 expr2 -> undefined
+  Parser.Not surfaceData expr -> undefined
+
+{-
+
+
+
+data Expr = Constant Lexer.SurfaceData [Char]
+          | ThoughtsExpr Lexer.SurfaceData Side
+          | KnowledgeExpr Lexer.SurfaceData Knowledge Side
+          | Self Lexer.SurfaceData Field
+          | Var Lexer.SurfaceData Field String
+          | Sum Lexer.SurfaceData Expr Expr
+          | Difference Lexer.SurfaceData Expr Expr
+          | Product Lexer.SurfaceData Expr Expr
+          | Quotient Lexer.SurfaceData Expr Expr
+          | Mod Lexer.SurfaceData Expr Expr
+          | Always Lexer.SurfaceData {-add more booleans later.....    again... nullable.-}
+          | GT Lexer.SurfaceData Expr Expr
+          | GEQ Lexer.SurfaceData Expr Expr
+          | LT Lexer.SurfaceData Expr Expr
+          | LEQ Lexer.SurfaceData Expr Expr
+          | EQ Lexer.SurfaceData Expr Expr
+          | And Lexer.SurfaceData Expr Expr
+          | Or Lexer.SurfaceData Expr Expr
+          | Not Lexer.SurfaceData Expr
+           deriving Show
+
+
+-}
 
 
 
@@ -703,21 +761,22 @@ typeCheckSpawnSpell skill = trace "typeCheckSpawnSpell not implemented" $ typeCh
 
 typeCheckSpell :: Parser.Spell -> TC Spell
 typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool) level skill) =
- Spell surfaceData <$> (TC . Right $ name) <*> (typeCheckSchool surfaceDataSchool) <*> (typeCheckBaseLevel $ level) <*> (typeCheckSpawnSpell skill)
+ Spell surfaceData name <$> typeCheckSchool surfaceDataSchool
+                        <*> typeCheckBaseLevel level
+                        <*> typeCheckSpawnSpell skill
 
 
 typeCheckUnit :: Parser.Unit -> TC Unit
 typeCheckUnit (Parser.Unit surfaceData name stats start end counter spawn death auto actions soul) =
- Unit surfaceData <$> pure "name"  {- Unit name <$> all the other stuff -}
-                  <*> typeCheckStats stats
-                  <*> typeCheckStart start 
-                  <*> typeCheckEnd end
-                  <*> typeCheckCounter counter
-                  <*> typeCheckSpawnUnit spawn
-                  <*> typeCheckDeath death
-                  <*> typeCheckAuto auto
-                  <*> typeCheckActions actions 
-                  <*> typeCheckSoul soul
+ Unit surfaceData name <$> typeCheckStats stats
+                       <*> typeCheckStart start 
+                       <*> typeCheckEnd end
+                       <*> typeCheckCounter counter
+                       <*> typeCheckSpawnUnit spawn
+                       <*> typeCheckDeath death
+                       <*> typeCheckAuto auto
+                       <*> typeCheckActions actions 
+                       <*> typeCheckSoul soul
 
 
 typeCheckUnits :: [Parser.Unit] -> TC [Unit]
