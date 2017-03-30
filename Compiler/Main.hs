@@ -1,6 +1,7 @@
 module Main where
 import System.IO
 import qualified Lexer
+import qualified ParseTree
 import qualified Parser
 import qualified Typechecker
 import qualified Codegen
@@ -22,8 +23,8 @@ main = do
     (Typechecker.TC (Right z)) -> pure ()
     (Typechecker.TC (Left errors)) -> mapM_ (hPutStrLn stderr) errors {-putStrLn $ show $ (Parser.prettyPrint $ map Parser.extractSurface (Parser.getTokens x)) {-show y-}-}
   Left y ->  {- assume no error in lexing... -}
-   let tokens = Parser.getTokens x in
-   let tokenLocation = Parser.generateTokenLocation tokens in
+   let tokens = ParseTree.getTokens x in
+   let tokenLocation = ParseTree.generateTokenLocation tokens in
     case (readMaybe y :: Maybe (Int,Int)) of
      Nothing -> error "Line, column numbers caused unexpected fatal error. Sorry."
      Just (line,column) -> let v = HashMap.lookup (line,column+1) tokenLocation in

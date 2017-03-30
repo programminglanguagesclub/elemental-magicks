@@ -4,6 +4,7 @@
 module Typechecker where    
 import qualified Lexer
 import qualified Parser
+import qualified ParseTree
 import Lexer(SurfaceData)
 import Text.Read
 import Text.EditDistance
@@ -60,8 +61,8 @@ data Soul = Soul SurfaceData Skill
           deriving Show
 
 data RInt = RConstant SurfaceData Int
-          | RThoughts SurfaceData Parser.Side
-          | RKnowledge SurfaceData Parser.Knowledge Parser.Side
+          | RThoughts SurfaceData ParseTree.Side
+          | RKnowledge SurfaceData ParseTree.Knowledge ParseTree.Side
           | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
           | RVarProjection SurfaceData RStat Variable
           | RSum SurfaceData RInt RInt
@@ -107,10 +108,10 @@ data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
 -}
 
 
-typeCheckSkillEffect :: Context -> Parser.SkillEffect -> TC SkillEffect
+typeCheckSkillEffect :: Context -> ParseTree.SkillEffect -> TC SkillEffect
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
-  Parser.Assignment surfaceData lExprs mutator rExpr -> error "assignment not implemented"
+  ParseTree.Assignment surfaceData lExprs mutator rExpr -> error "assignment not implemented"
    
 
 
@@ -169,7 +170,7 @@ data Context = EmptyContext
              | ExtendContext Context Judgement
              deriving Show
 
-data Set = SimpleSet SurfaceData Parser.Side RelativeSet
+data Set = SimpleSet SurfaceData ParseTree.Side RelativeSet
          | UnionSet SurfaceData Set Set
          deriving Show
          {-
@@ -188,13 +189,13 @@ data LStat = LStat {-unimplemented-}
            deriving Show
 data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
             deriving Show
-typeCheckLStat :: Parser.Field -> TC LStat
+typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat = error "lstat not implemented"
  
-typeCheckRStatSelf :: Parser.Field -> TC LStat
+typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
 
-typeCheckRStatVar :: Parser.Field -> TC RStat
+typeCheckRStatVar :: ParseTree.Field -> TC RStat
 typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
 
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
@@ -219,8 +220,8 @@ data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more sk
                  deriving Show
 data Assignment = Assignment SurfaceData [Judgement] Mutator RInt
                 deriving Show
-data LExpr = LThoughtsExpr SurfaceData Parser.Side
-           | LKnowledgeExpr SurfaceData Knowledge Parser.Side
+data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
+           | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
            | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
            | LVarProjection SurfaceData Variable LStat
            {- Cardinality not implemented... -}
@@ -395,32 +396,34 @@ getSet :: Context -> Variable ->
 
 
 
-typeCheckAutomatic :: Context -> Parser.Automatic -> TC Automatic
+typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 typeCheckAutomatic context automatic  =
  Automatic surfaceData <$> traverse (typeCheckSkillEffect context) skillEffects
                        <*> typeCheckNonautomatic context nonautomatic
- where Parser.Automatic surfaceData skillEffects nonautomatic = automatic
+ where ParseTree.Automatic surfaceData skillEffects nonautomatic = automatic
 
 
 
 
-extendContext :: [(String, Parser.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
+extendContext :: [(String, ParseTree.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
 extendContext = error "extend context not implemented"
 
-typeCheckNonautomatic :: Context -> Parser.Nonautomatic -> TC Nonautomatic
+typeCheckNonautomatic :: Context -> ParseTree.Nonautomatic -> TC Nonautomatic
 typeCheckNonautomatic context nonautomatic =
  case nonautomatic of
-  Parser.Nonautomatic surfaceData variables condition thenBranch elseBranch nextBranch ->
+  ParseTree.Nonautomatic surfaceData variables condition thenBranch elseBranch nextBranch ->
    Selection surfaceData
    <$> undefined
    <*> typeCheckCondition condition
    <*> typeCheckAutomatic (extendContext variables context) thenBranch
    <*> typeCheckAutomatic (extendContext variables context) elseBranch
-   <*> undefined {-error "nonautomatic not implemented"-}
-  Parser.TerminatedSkillComponent -> error "terminated skill component not implemented"
+   <*> typeCheckAutomatic context nextBranch {-error "nonautomatic not implemented"-}
+  ParseTree.TerminatedSkillComponent -> error "terminated skill component not implemented"
 
 
-
+{-
+Also need to know that variables in the next branch are disjoint from the then and else branches 
+-}
 
 
 {-
@@ -440,8 +443,8 @@ Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-v
 
 
 {-
-checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
-checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = error "checkNonautomatic not implemented"
+checkNonautomatic :: Context -> ParseTree.Nonautomatic -> [String]
+checkNonautomatic context (ParseTree.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = error "checkNonautomatic not implemented"
 
 
 -}
@@ -476,40 +479,40 @@ typeCheckVariable = error "typeCheckVariable not implemented"
 
 
 
-buildLExpr :: Context -> Parser.Expr -> TC LExpr
+buildLExpr :: Context -> ParseTree.Expr -> TC LExpr
 buildLExpr context expr =
  case expr of
-  Parser.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
-  Parser.KnowledgeExpr surfaceData (Parser.Knowledge knowledge) side ->
+  ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
+  ParseTree.KnowledgeExpr surfaceData (ParseTree.Knowledge knowledge) side ->
    LKnowledgeExpr surfaceData <$> typeCheckSchool knowledge
                               <*> pure side
-  Parser.Self surfaceData field -> LSelfProjection surfaceData <$> typeCheckLStat field
-  Parser.Var surfaceData field variable ->
+  ParseTree.Self surfaceData field -> LSelfProjection surfaceData <$> typeCheckLStat field
+  ParseTree.Var surfaceData field variable ->
    LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable)
                               <*> typeCheckLStat field
 
 {-I need to check the variable somewhere to make sure that the var is length 1? or is that done in the parser?-}
 
-  Parser.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Always surfaceData -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
-  Parser.GT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.GEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.LT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.LEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.EQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.And surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Or surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
-  Parser.Not surfaceData _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Sum surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Difference surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Product surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Quotient surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Mod surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Always surfaceData -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData {-Should not have surfaceData here, as the user cannot write always (at least...should not be able to..)-}
+  ParseTree.GT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.GEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.LT surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.LEQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.EQ surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.And surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Or surfaceData _ _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
+  ParseTree.Not surfaceData _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
 
 
 
 
 {-
-isInt :: Context -> Parser.Expr -> 
+isInt :: Context -> ParseTree.Expr -> 
 
 isBool....
 
@@ -525,27 +528,27 @@ Maybe when I make LExprs and RExprs... I should just put the type in the datatyp
 
 
  {-
-isValidBinding :: Context -> Parser.Expr -> [String]
+isValidBinding :: Context -> ParseTree.Expr -> [String]
 isValidBinding context expr =
  case expr of
-  Parser.ThoughtsExpr side -> []
-  Parser.KnowledgeExpr knowledge side -> []
-  Parser.Self field -> [] {-extra check elsewhere that soul and spawn skills don't do this.-}
-  Parser.Var field string -> 
-  Parser.Sum expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2) {-check for LExpr rejects this..-}
-  Parser.Difference expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
-  Parser.Product expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
-  Parser.Quotient expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
-  Parser.Mod expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
-  Parser.Always ->
-  Parser.GT expr1 expr2 -> 
-  Parser.GEQ expr1 expr2 -> 
-  Parser.LT expr1 expr2 -> 
-  Parser.LEQ expr1 expr2 -> 
-  Parser.EQ expr1 expr2 -> 
-  Parser.And expr1 expr2 -> 
-  Parser.Or expr1 expr2 -> 
-  Parser.Not expr -> 
+  ParseTree.ThoughtsExpr side -> []
+  ParseTree.KnowledgeExpr knowledge side -> []
+  ParseTree.Self field -> [] {-extra check elsewhere that soul and spawn skills don't do this.-}
+  ParseTree.Var field string -> 
+  ParseTree.Sum expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2) {-check for LExpr rejects this..-}
+  ParseTree.Difference expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  ParseTree.Product expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  ParseTree.Quotient expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  ParseTree.Mod expr1 expr2 -> (isValidBinding context expr1) ++ (isValidBinding context expr2)
+  ParseTree.Always ->
+  ParseTree.GT expr1 expr2 -> 
+  ParseTree.GEQ expr1 expr2 -> 
+  ParseTree.LT expr1 expr2 -> 
+  ParseTree.LEQ expr1 expr2 -> 
+  ParseTree.EQ expr1 expr2 -> 
+  ParseTree.And expr1 expr2 -> 
+  ParseTree.Or expr1 expr2 -> 
+  ParseTree.Not expr -> 
 -}
 
 
@@ -563,10 +566,10 @@ And/Or maybe I should just convert to LExprs here.
 
 
 {-
-checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
+checkSkillEffect :: Context -> ParseTree.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
-  (Parser.Assignment surfaceData exprs mutator rExpr) -> error "checkSkillEffect case Parser.Assignment not implemented"
+  (ParseTree.Assignment surfaceData exprs mutator rExpr) -> error "checkSkillEffect case ParseTree.Assignment not implemented"
 -}
 
 
@@ -584,10 +587,10 @@ checkSkillEffect context skillEffect =
 
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
 
-typeCheckSchools :: Parser.Schools -> TC Schools
-typeCheckSchools (Parser.NoSchools surfaceData) = pure $ NoSchools
-typeCheckSchools (Parser.OneSchool surfaceData s) = schoolFromKnowledge <$> typeCheckSchool surfaceData
-typeCheckSchools (Parser.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
+typeCheckSchools :: ParseTree.Schools -> TC Schools
+typeCheckSchools (ParseTree.NoSchools surfaceData) = pure $ NoSchools
+typeCheckSchools (ParseTree.OneSchool surfaceData s) = schoolFromKnowledge <$> typeCheckSchool surfaceData
+typeCheckSchools (ParseTree.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
 
 
 
@@ -599,61 +602,61 @@ getSurfaceSyntax :: Lexer.SurfaceData -> String
 getSurfaceSyntax (Lexer.SurfaceData _ _ surfaceSyntax) = surfaceSyntax ++ "\n"
 
 
-typeCheckNumber :: Parser.Expr -> TC RInt {-called typecheckrint below...-}
+typeCheckNumber :: ParseTree.Expr -> TC RInt {-called typecheckrint below...-}
 typeCheckNumber = error "do not use this function"
 
 
 {-should add isDead to conditions?-}
-typeCheckRBool :: Context -> Parser.Expr -> TC RBool {-call typeCheckRBool?-}
+typeCheckRBool :: Context -> ParseTree.Expr -> TC RBool {-call typeCheckRBool?-}
 typeCheckRBool context expr =
  case expr of
-  Parser.Constant surfaceData value ->
+  ParseTree.Constant surfaceData value ->
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of integer literal) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.ThoughtsExpr surfaceData side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
+  ParseTree.ThoughtsExpr surfaceData side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of thoughts) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.KnowledgeExpr surfaceData knowledge side ->
+  ParseTree.KnowledgeExpr surfaceData knowledge side ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of knowledge) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Self surfaceData field ->
+  ParseTree.Self surfaceData field ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from self) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Var surfaceData field var ->
+  ParseTree.Var surfaceData field var ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from variable " ++ var ++ ") in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Sum surfaceData expr1 expr2 ->
+  ParseTree.Sum surfaceData expr1 expr2 ->
     TC $ Left ["Type mismatch between Boolean (requied type) and Integer (result type of (+) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]    
-  Parser.Difference surfaceData expr1 expr2 ->
+  ParseTree.Difference surfaceData expr1 expr2 ->
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (-) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Product surfaceData expr1 expr2 ->
+  ParseTree.Product surfaceData expr1 expr2 ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (*) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Quotient surfaceData expr1 expr2 ->
+  ParseTree.Quotient surfaceData expr1 expr2 ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (/) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Mod surfaceData expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
+  ParseTree.Mod surfaceData expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  Parser.Always surfaceData -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
-  Parser.GT surfaceData expr1 expr2 ->
+  ParseTree.Always surfaceData -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
+  ParseTree.GT surfaceData expr1 expr2 ->
    RGT surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  Parser.GEQ surfaceData expr1 expr2 ->
+  ParseTree.GEQ surfaceData expr1 expr2 ->
    RGEQ surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  Parser.LT surfaceData expr1 expr2 ->
+  ParseTree.LT surfaceData expr1 expr2 ->
    RLT surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  Parser.LEQ surfaceData expr1 expr2 ->
+  ParseTree.LEQ surfaceData expr1 expr2 ->
    RLEQ surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  Parser.EQ surfaceData expr1 expr2 ->
+  ParseTree.EQ surfaceData expr1 expr2 ->
    REQ surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  Parser.And surfaceData expr1 expr2 ->
+  ParseTree.And surfaceData expr1 expr2 ->
    RAnd surfaceData <$> typeCheckRBool context expr1
                     <*> typeCheckRBool context expr2
-  Parser.Or surfaceData expr1 expr2 ->
+  ParseTree.Or surfaceData expr1 expr2 ->
    ROr surfaceData <$> typeCheckRBool context expr1
                    <*> typeCheckRBool context expr2
-  Parser.Not surfaceData expr ->
+  ParseTree.Not surfaceData expr ->
    RNot surfaceData <$> typeCheckRBool context expr
 
-typeCheckSkill :: Parser.Skill -> TC Skill
-typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) =
+typeCheckSkill :: ParseTree.Skill -> TC Skill
+typeCheckSkill (ParseTree.AutomaticSkill surfaceData cost condition automatic) =
  trace "typecheckskill not implemented"
  Skill surfaceData <$> typeCheckCost cost
                    <*> typeCheckCondition condition
@@ -662,82 +665,82 @@ typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) =
 
 
 
-typeCheckCost :: Maybe Parser.Expr -> TC (Maybe RInt)
+typeCheckCost :: Maybe ParseTree.Expr -> TC (Maybe RInt)
 typeCheckCost Nothing = pure Nothing
 typeCheckCost (Just expr) = Just <$> typeCheckRInt EmptyContext expr
 
 
-typeCheckCondition :: Maybe Parser.Expr -> TC (Maybe RBool)
+typeCheckCondition :: Maybe ParseTree.Expr -> TC (Maybe RBool)
 typeCheckCondition Nothing = pure Nothing
 typeCheckCondition (Just expr) = Just <$> typeCheckRBool EmptyContext expr
 
 
 {-
-checkAutomatic :: Context -> Parser.Automatic -> TC Automatic
+checkAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
  
 
 -}
 
 
-typeCheckStart :: Maybe Parser.Start -> TC (Maybe Start)
+typeCheckStart :: Maybe ParseTree.Start -> TC (Maybe Start)
 typeCheckStart Nothing = pure Nothing
-typeCheckStart (Just (Parser.Start surfaceData skill)) =
+typeCheckStart (Just (ParseTree.Start surfaceData skill)) =
  trace "typeCheckStart not implemented" $
  Just <$> Start surfaceData
       <$> typeCheckSkill skill
 
-typeCheckEnd :: Maybe Parser.End -> TC (Maybe End)
+typeCheckEnd :: Maybe ParseTree.End -> TC (Maybe End)
 typeCheckEnd Nothing = pure Nothing
-typeCheckEnd (Just (Parser.End surfaceData skill)) =
+typeCheckEnd (Just (ParseTree.End surfaceData skill)) =
  trace "typecheckEnd not implemented" $
  Just <$> End surfaceData
       <$> typeCheckSkill skill
 
 
-typeCheckCounter :: Maybe Parser.Counter -> TC (Maybe Counter)
+typeCheckCounter :: Maybe ParseTree.Counter -> TC (Maybe Counter)
 typeCheckCounter Nothing = pure Nothing
-typeCheckCounter (Just (Parser.Counter surfaceData skill)) =
+typeCheckCounter (Just (ParseTree.Counter surfaceData skill)) =
  trace "typecheckCounter not implemented" $
  Just <$> Counter surfaceData
       <$> typeCheckSkill skill
 
-typeCheckSpawnUnit :: Maybe Parser.Spawn -> TC (Maybe SpawnUnit)
+typeCheckSpawnUnit :: Maybe ParseTree.Spawn -> TC (Maybe SpawnUnit)
 typeCheckSpawnUnit Nothing = pure Nothing
-typeCheckSpawnUnit (Just (Parser.Spawn surfaceData skill)) =
+typeCheckSpawnUnit (Just (ParseTree.Spawn surfaceData skill)) =
  trace "typecheckSpawnUnit not implemented" $
  Just <$> SpawnUnit surfaceData
       <$> typeCheckSkill skill
 
-typeCheckDeath :: Maybe Parser.Death -> TC (Maybe Death)
+typeCheckDeath :: Maybe ParseTree.Death -> TC (Maybe Death)
 typeCheckDeath Nothing = pure Nothing
-typeCheckDeath (Just (Parser.Death surfaceData skill)) =
+typeCheckDeath (Just (ParseTree.Death surfaceData skill)) =
  trace "typecheckDeath not implemented" $
  Just <$> Death surfaceData
       <$> typeCheckSkill skill
 
-typeCheckAuto :: Maybe Parser.Auto -> TC (Maybe Auto)
+typeCheckAuto :: Maybe ParseTree.Auto -> TC (Maybe Auto)
 typeCheckAuto Nothing = pure Nothing
-typeCheckAuto (Just (Parser.Auto surfaceData skill)) =
+typeCheckAuto (Just (ParseTree.Auto surfaceData skill)) =
  trace "typecheckauto not implemented" $
  Just <$> Auto surfaceData
       <$> typeCheckSkill skill
 
-typeCheckAction :: Parser.Action -> TC Action
-typeCheckAction (Parser.Action surfaceData skill) =
+typeCheckAction :: ParseTree.Action -> TC Action
+typeCheckAction (ParseTree.Action surfaceData skill) =
  trace "typeCheckAction not implemented" $
  Action surfaceData <$> typeCheckSkill skill
 
-typeCheckActions :: [Parser.Action] -> TC [Action]
+typeCheckActions :: [ParseTree.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
 
 
 
-noSelfReferences :: Parser.Skill -> [String]
+noSelfReferences :: ParseTree.Skill -> [String]
 noSelfReferences skill = trace "noSelfReferences not implemented" []
 
-typeCheckSoul :: Parser.Soul -> TC Soul
-typeCheckSoul (Parser.Soul surfaceData skill) = trace "typeCheckSoul not implemented" $ Soul surfaceData <$> typeCheckSkill skill
+typeCheckSoul :: ParseTree.Soul -> TC Soul
+typeCheckSoul (ParseTree.Soul surfaceData skill) = trace "typeCheckSoul not implemented" $ Soul surfaceData <$> typeCheckSkill skill
 
 
 
@@ -768,48 +771,48 @@ typeCheckInt s name lowerBound upperBound =
 typeCheckConstant :: String -> TC Int
 typeCheckConstant s = typeCheckInt s "constant expression" minInt maxInt
 
-typeCheckRInt :: Context -> Parser.Expr -> TC RInt
+typeCheckRInt :: Context -> ParseTree.Expr -> TC RInt
 typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
  case expr of
-  Parser.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
-  Parser.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
-  Parser.KnowledgeExpr surfaceData knowledge side -> pure $ RKnowledge surfaceData knowledge side
-  Parser.Self surfaceData field ->
+  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
+  ParseTree.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
+  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ RKnowledge surfaceData knowledge side
+  ParseTree.Self surfaceData field ->
    RSelfProjection surfaceData <$> typeCheckRStatSelf field
-  Parser.Var surfaceData field variable ->
+  ParseTree.Var surfaceData field variable ->
    RVarProjection surfaceData <$> typeCheckRStatVar field
                               <*> typeCheckVariable context (Variable surfaceData variable)
-  Parser.Sum surfaceData expr1 expr2 ->
+  ParseTree.Sum surfaceData expr1 expr2 ->
    RSum surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  Parser.Difference surfaceData expr1 expr2 ->
+  ParseTree.Difference surfaceData expr1 expr2 ->
    RDifference surfaceData <$> typeCheckRInt context expr1
                            <*> typeCheckRInt context expr2
-  Parser.Product surfaceData expr1 expr2 ->
+  ParseTree.Product surfaceData expr1 expr2 ->
    RProduct surfaceData <$> typeCheckRInt context expr1
                         <*> typeCheckRInt context expr2
-  Parser.Quotient surfaceData expr1 expr2 ->
+  ParseTree.Quotient surfaceData expr1 expr2 ->
    RQuotient surfaceData <$> typeCheckRInt context expr1
                          <*> typeCheckRInt context expr2
-  Parser.Mod surfaceData expr1 expr2 ->
+  ParseTree.Mod surfaceData expr1 expr2 ->
    RMod surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  Parser.Always surfaceData -> error "always should not exist, much less as an integer"
-  Parser.GT surfaceData expr1 expr2 ->
+  ParseTree.Always surfaceData -> error "always should not exist, much less as an integer"
+  ParseTree.GT surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>)"]
-  Parser.GEQ surfaceData expr1 expr2 ->
+  ParseTree.GEQ surfaceData expr1 expr2 ->
     TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>=)"]
-  Parser.LT surfaceData expr1 expr2 ->
+  ParseTree.LT surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<)"]
-  Parser.LEQ surfaceData expr1 expr2 ->
+  ParseTree.LEQ surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<=)"]
-  Parser.EQ surfaceData expr1 expr2 ->
+  ParseTree.EQ surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(=)"]
-  Parser.And surfaceData expr1 expr2 ->
+  ParseTree.And surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "and"]
-  Parser.Or surfaceData expr1 expr2 ->
+  ParseTree.Or surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "or"]
-  Parser.Not surfaceData expr ->
+  ParseTree.Not surfaceData expr ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "not"]
 
 typeMismatchMessage :: Lexer.SurfaceData -> String -> String -> String -> String
@@ -839,8 +842,8 @@ typeCheckBaseRange (Lexer.SurfaceData row column surface) =
 typeCheckBaseSoulPoints :: SurfaceData -> TC BaseSoulPoints
 typeCheckBaseSoulPoints (Lexer.SurfaceData row column surface) =
  BaseSoulPoints (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base soul points" 1 2)
-typeCheckStats :: Parser.Stats -> TC Stats
-typeCheckStats (Parser.Stats surfaceData schools level hp attack defense speed range soulPoints) =
+typeCheckStats :: ParseTree.Stats -> TC Stats
+typeCheckStats (ParseTree.Stats surfaceData schools level hp attack defense speed range soulPoints) =
  Stats surfaceData <$> typeCheckSchools schools
                    <*> typeCheckBaseLevel level
                    <*> typeCheckBaseHp hp
@@ -854,18 +857,18 @@ typeCheckStats (Parser.Stats surfaceData schools level hp attack defense speed r
 
 
 
-typeCheckSpawnSpell :: Parser.Skill -> TC Skill
+typeCheckSpawnSpell :: ParseTree.Skill -> TC Skill
 typeCheckSpawnSpell skill = trace "typeCheckSpawnSpell not implemented" $ typeCheckSkill skill
 
-typeCheckSpell :: Parser.Spell -> TC Spell
-typeCheckSpell (Parser.Spell surfaceData name (Parser.Knowledge surfaceDataSchool) level skill) =
+typeCheckSpell :: ParseTree.Spell -> TC Spell
+typeCheckSpell (ParseTree.Spell surfaceData name (ParseTree.Knowledge surfaceDataSchool) level skill) =
  Spell surfaceData name <$> typeCheckSchool surfaceDataSchool
                         <*> typeCheckBaseLevel level
                         <*> typeCheckSpawnSpell skill
 
 
-typeCheckUnit :: Parser.Unit -> TC Unit
-typeCheckUnit (Parser.Unit surfaceData name stats start end counter spawn death auto actions soul) =
+typeCheckUnit :: ParseTree.Unit -> TC Unit
+typeCheckUnit (ParseTree.Unit surfaceData name stats start end counter spawn death auto actions soul) =
  Unit surfaceData name <$> typeCheckStats stats
                        <*> typeCheckStart start 
                        <*> typeCheckEnd end
@@ -877,10 +880,10 @@ typeCheckUnit (Parser.Unit surfaceData name stats start end counter spawn death 
                        <*> typeCheckSoul soul
 
 
-typeCheckUnits :: [Parser.Unit] -> TC [Unit]
+typeCheckUnits :: [ParseTree.Unit] -> TC [Unit]
 typeCheckUnits = traverse typeCheckUnit
 
-typeCheckSpells :: [Parser.Spell] -> TC [Spell]
+typeCheckSpells :: [ParseTree.Spell] -> TC [Spell]
 typeCheckSpells = traverse typeCheckSpell
 
 
@@ -889,8 +892,8 @@ assumeFailure (Left s) = s
 assumeFailure (Right _) = []
 
 
-typeCheck :: Parser.File -> TC File
-typeCheck (Parser.File surfaceData units spells) =
+typeCheck :: ParseTree.File -> TC File
+typeCheck (ParseTree.File surfaceData units spells) =
  File surfaceData <$> (typeCheckUnits units)
       <*> (typeCheckSpells spells)
 
