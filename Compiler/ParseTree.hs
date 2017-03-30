@@ -16,34 +16,6 @@ getFileSurfaceData = undefined
 
 getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = error "what is getFoo??"
-{-
-type P a = Lexer.Alex a
-
-
-
-thenP = (>>=)
-
-returnP = return
-{-
-failP = fail
--}
-catchP m c = fail "catch not implemented"
-
-
-
-
-
-
-
-lexer :: (Lexer.Token -> P a) -> P a
-lexer = (Lexer.alexMonadScan >>=)
-
-
-parseError tokens = do
- i <- Lexer.getLineNumber
- Lexer.alexError $ show i
-
--}
 
 data File = File Lexer.SurfaceData [Unit] [Spell]
              deriving Show
@@ -199,34 +171,6 @@ getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
 getTokens s = case Lexer.runAlex s Lexer.gather of Left _ -> []
                                                    Right x -> x {-(map fst x)-}
 
-
-{-
-getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
-getTokens s = case Lexer.runAlex s Lexer.gather of
-                   Left _ -> []
-                   Right x -> (map fst x)
--}
-
-{-
-programPrint :: File -> IO ()
-programPrint p = print p
--}
-
-{-
-getProgram :: IO File
-getProgram = do
-             s <- getContents
-             pure (calc $ getTokens s)
--}
-
-{-
-main = pure (){-do
-       x <- getProgram
-       programPrint x
-       -}
--}
-
-
 extractSurface :: Lexer.Token -> String
 extractSurface (Lexer.Token _ (Lexer.SurfaceData _ _ s)) = s
 
@@ -234,8 +178,6 @@ prettyPrint :: [String] -> String
 prettyPrint [] = ""
 prettyPrint (x:[]) = x
 prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
-
-
 
 
 generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
