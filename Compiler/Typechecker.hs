@@ -40,7 +40,7 @@ data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Count
           deriving Show
 data Spell = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
            deriving Show
-data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
+data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
            deriving Show
 data Start = Start SurfaceData Skill
            deriving Show
@@ -543,8 +543,8 @@ typeCheckNumber = error "do not use this function"
 
 
 {-should add isDead to conditions?-}
-typeCheckCondition :: Context -> Parser.Expr -> TC RBool {-call typeCheckRBool?-}
-typeCheckCondition context expr =
+typeCheckRBool :: Context -> Parser.Expr -> TC RBool {-call typeCheckRBool?-}
+typeCheckRBool context expr =
  case expr of
   Parser.Constant surfaceData value ->
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of integer literal) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
@@ -583,20 +583,33 @@ typeCheckCondition context expr =
    REQ surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
   Parser.And surfaceData expr1 expr2 ->
-   RAnd surfaceData <$> typeCheckCondition context expr1
-                    <*> typeCheckCondition context expr2
+   RAnd surfaceData <$> typeCheckRBool context expr1
+                    <*> typeCheckRBool context expr2
   Parser.Or surfaceData expr1 expr2 ->
-   ROr surfaceData <$> typeCheckCondition context expr1
-                   <*> typeCheckCondition context expr2
+   ROr surfaceData <$> typeCheckRBool context expr1
+                   <*> typeCheckRBool context expr2
   Parser.Not surfaceData expr ->
-   RNot surfaceData <$> typeCheckCondition context expr
+   RNot surfaceData <$> typeCheckRBool context expr
 
 typeCheckSkill :: Parser.Skill -> TC Skill
 typeCheckSkill (Parser.AutomaticSkill surfaceData cost condition automatic) =
  trace "typecheckskill not implemented"
- Skill surfaceData <$> typeCheckRInt EmptyContext cost
-                   <*> typeCheckCondition EmptyContext condition
+ Skill surfaceData <$> typeCheckCost cost
+                   <*> typeCheckCondition condition
                    <*> typeCheckAutomatic EmptyContext automatic
+
+
+
+
+typeCheckCost :: Maybe Parser.Expr -> TC (Maybe RInt)
+typeCheckCost Nothing = pure Nothing
+typeCheckCost (Just expr) = Just <$> typeCheckRInt EmptyContext expr
+
+
+typeCheckCondition :: Maybe Parser.Expr -> TC (Maybe RBool)
+typeCheckCondition Nothing = pure Nothing
+typeCheckCondition (Just expr) = Just <$> typeCheckRBool EmptyContext expr
+
 
 {-
 checkAutomatic :: Context -> Parser.Automatic -> TC Automatic

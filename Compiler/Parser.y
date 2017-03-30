@@ -168,11 +168,11 @@ Actions : {[]}
         | Action Actions {$1 : $2}
 Action : action colon Skill {Action dummySurfaceData $3}
 Soul : soul colon Skill {Soul dummySurfaceData $3}
-Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData (Just $1) $2 $3}
-OptionalCost : {Constant dummySurfaceData "0" {-it does not make sense to have surface data here.... as there is no syntax...-}}
-             | cost colon number {Constant dummySurfaceData "LALALA"}
-OptionalCondition : {undefined}
-                  | condition colon Expr {undefined}
+Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
+OptionalCost : {Nothing}
+             | cost colon number {Just $ Constant dummySurfaceData "LALALA"}
+OptionalCondition : {Nothing}
+                  | condition colon Expr {Just $3}
 OptionalFilter : {Always dummySurfaceData}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent}
@@ -303,7 +303,7 @@ data Unit = Unit Lexer.SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe
 data Spell = Spell Lexer.SurfaceData String Knowledge Lexer.SurfaceData Skill {-name, school, level, skill-}
              deriving Show
 
-data Skill = AutomaticSkill Lexer.SurfaceData (Maybe Expr) Expr Automatic
+data Skill = AutomaticSkill Lexer.SurfaceData (Maybe Expr) (Maybe Expr) Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
