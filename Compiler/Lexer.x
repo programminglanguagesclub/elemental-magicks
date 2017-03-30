@@ -196,9 +196,6 @@ data TokenInner =
   | EOFToken
   deriving (Eq,Show)
 alexEOF = return (Token EOFToken $ SurfaceData (-1) (-1) "EOF")
-fooPrint :: Either String String -> IO ()
-fooPrint (Left s) = putStrLn s
-fooPrint (Right s) = hPutStrLn stderr s
 getLineNumber :: Alex (Int,Int)
 getLineNumber = Alex $ \s -> Right (s, myGetLineNumber $ alex_pos s)
 myGetLineNumber (AlexPn _ s column) = (s,column)
