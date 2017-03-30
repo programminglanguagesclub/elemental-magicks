@@ -116,7 +116,7 @@ typeCheckSkillEffect context skillEffect =
 
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
-data Nonautomatic = Selection SurfaceData [Judgement] RBool Automatic Automatic
+data Nonautomatic = Selection SurfaceData [Judgement] (Maybe RBool) Automatic Automatic Automatic
                   deriving Show
 data Stats = Stats SurfaceData Schools BaseLevel BaseHp BaseAttack BaseDefense BaseSpeed BaseRange BaseSoulPoints
            deriving Show
@@ -403,8 +403,37 @@ typeCheckAutomatic context automatic  =
 
 
 
+
+extendContext :: [(String, Parser.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
+extendContext = error "extend context not implemented"
+
 typeCheckNonautomatic :: Context -> Parser.Nonautomatic -> TC Nonautomatic
-typeCheckNonautomatic = undefined
+typeCheckNonautomatic context nonautomatic =
+ case nonautomatic of
+  Parser.Nonautomatic surfaceData variables condition thenBranch elseBranch nextBranch ->
+   Selection surfaceData
+   <$> undefined
+   <*> typeCheckCondition condition
+   <*> typeCheckAutomatic (extendContext variables context) thenBranch
+   <*> typeCheckAutomatic (extendContext variables context) elseBranch
+   <*> undefined {-error "nonautomatic not implemented"-}
+  Parser.TerminatedSkillComponent -> error "terminated skill component not implemented"
+
+
+
+
+
+{-
+
+
+Selection SurfaceData [Judgement] RBool Automatic Automatic Automatic
+                  deriving Show
+
+Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-variables, where condition-}
+                  | TerminatedSkillComponent
+
+
+-}
 
 
 {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
