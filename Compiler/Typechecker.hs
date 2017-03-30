@@ -100,6 +100,19 @@ instance Eq Knowledge where
 
 
 
+{-
+data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
+                 deriving Show
+
+-}
+
+
+typeCheckSkillEffect :: Context -> Parser.SkillEffect -> TC SkillEffect
+typeCheckSkillEffect context skillEffect =
+ case skillEffect of
+  Parser.Assignment surfaceData lExprs mutator rExpr -> error "assignment not implemented"
+   
+
 
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
@@ -383,17 +396,26 @@ getSet :: Context -> Variable ->
 
 
 typeCheckAutomatic :: Context -> Parser.Automatic -> TC Automatic
-typeCheckAutomatic context (Parser.Automatic surfaceData skillEffects nonautomatic) = error "checkAutomatic not implemented"
+typeCheckAutomatic context automatic  =
+ Automatic surfaceData <$> traverse (typeCheckSkillEffect context) skillEffects
+                       <*> typeCheckNonautomatic context nonautomatic
+ where Parser.Automatic surfaceData skillEffects nonautomatic = automatic
 
+
+
+typeCheckNonautomatic :: Context -> Parser.Nonautomatic -> TC Nonautomatic
+typeCheckNonautomatic = undefined
 
 
 {-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
 
+
+{-
 checkNonautomatic :: Context -> Parser.Nonautomatic -> [String]
 checkNonautomatic context (Parser.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = error "checkNonautomatic not implemented"
 
 
-
+-}
 
 
 
@@ -507,10 +529,20 @@ And/Or maybe I should just convert to LExprs here.
 
 
 
+
+
+
+
+{-
 checkSkillEffect :: Context -> Parser.SkillEffect -> [String]
 checkSkillEffect context skillEffect =
  case skillEffect of
   (Parser.Assignment surfaceData exprs mutator rExpr) -> error "checkSkillEffect case Parser.Assignment not implemented"
+-}
+
+
+
+
 
 {-
  - THE difference between Judgements in contexts here, and sets in the parser, is for convenience we might want to additionally allow the soul to be an additional area to select, even though
