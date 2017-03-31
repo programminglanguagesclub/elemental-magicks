@@ -101,17 +101,29 @@ instance Eq Knowledge where
 
 
 
+
 {-
-data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
+
+
+data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
+data Assignment = Assignment SurfaceData [Judgment] Mutator RInt
+                deriving Show
+
 
 -}
-
 
 typeCheckSkillEffect :: Context -> ParseTree.SkillEffect -> TC SkillEffect
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
-  ParseTree.Assignment surfaceData lExprs mutator rExpr -> error "assignment not implemented"
+  ParseTree.Assignment surfaceData lExprs mutator rExpr ->
+   SkillEffectAssignment surfaceData assignment
+
+
+
+BLARG!!!
+
+error "assignment not implemented"
    
 
 
