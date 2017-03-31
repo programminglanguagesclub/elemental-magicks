@@ -209,9 +209,9 @@ tryExtendContext :: TC Context -> (Variable, ParseTree.Set) -> TC Context
 tryExtendContext context (variable,set) = joinTC $ tryVarPut variable set <$> context
  
 
-tryExtendContextMultiple :: TC Context -> [(Variable, ParseTree.Set)] -> TC (TC Context)
-tryExtendContextMultiple context [] = undefined {-context-}
-tryExtendContextMultiple context (x:xs) = tryExtendContext <$> context <*> pure x
+tryExtendContextMultiple :: TC Context -> [(Variable, ParseTree.Set)] -> TC Context
+tryExtendContextMultiple context [] = context
+tryExtendContextMultiple context (x:xs) = joinTC $ tryExtendContext context <$> pure x
 
 
 
