@@ -400,6 +400,19 @@ schoolsFromKnowledge school1 school2 =
   (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ error "earthair not implemented"
   (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ error "earthspirit not implemented"
   (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ error "earthvoid not implemented"
+  (Fire surfaceData1, Water surfaceData2) -> pure . FireWater $ error "firewater not implemented"
+  (Fire surfaceData1, Air surfaceData2) -> pure . FireAir $ error "fireair not implemented"
+  (Fire surfaceData1, Spirit surfaceData2) -> pure . FireSpirit $ error "firespirit not implemented"
+  (Fire surfaceData1, Void surfaceData2) -> pure . FireVoid $ error "firevoid not implemented"
+  (Water surfaceData1, Air surfaceData2) -> pure . WaterAir $ error "waterair not implemented"
+  (Water surfaceData1, Spirit surfaceData2) -> pure . WaterSpirit $ error "waterspirit not implemented"
+  (Water surfaceData1, Void surfaceData2) -> pure . WaterVoid $ error "watervoid not implemented"
+  (Air surfaceData1, Spirit surfaceData2) -> pure . AirSpirit $ error "airspirit not implemented"
+  (Air surfaceData1, Void surfaceData2) -> pure . AirVoid $ error "airvoid not implemented"
+  (Spirit surfaceData1, Void surfaceData2) -> pure . SpiritVoid $ error "spiritvoid not implemented"
+
+
+
   (k1,k2) ->
    let ((Lexer.SurfaceData line1 column1 surface1),(Lexer.SurfaceData line2 column2 surface2)) = (getSurface k1, getSurface k2) in
    let prefix = errorPrefix line1 column1 in
@@ -409,7 +422,7 @@ schoolsFromKnowledge school1 school2 =
     else
      putErr $ prefix ++ ("Invalid pair of schools: " ++ (showKnowledge school1) ++ " " ++ (showKnowledge school2) ++ ". Did you mean " ++ (showKnowledge school2) ++ " " ++ (showKnowledge school1))
   
-{-THERE ARE CASES MISSING-}
+
 
 
 
