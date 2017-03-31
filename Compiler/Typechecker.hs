@@ -161,7 +161,7 @@ data BaseSoulPoints = BaseSoulPoints SurfaceData Int
 
 
 {- bad -}
-data Judgment = Judgment (Variable,Set)
+data Judgment = Judgment (Variable,ParseTree.Set)
                deriving Show
 
 data Variable = Variable SurfaceData String {-String of length 1-}
@@ -188,16 +188,22 @@ tryVarPut var set (ExtendContext context judgment) =
  where (Judgment (var2, set)) = judgment
        (Variable _ varName) = var
 
-tryExtendContext :: Context -> (Variable, ParseTree.Set) -> TC Context
-tryExtendContext context (variable,set) = tryVarPut variable set context
+tryExtendContext :: Context -> Judgment -> TC Context
+tryExtendContext context judgment =
+ tryVarPut variable set context
+ where Judgment (variable, set) = judgment
  
 
-tryExtendContextMultiple :: Context -> [(Variable, ParseTree.Set)] -> TC Context
+tryExtendContextMultiple :: Context -> [Judgment] -> TC Context
 tryExtendContextMultiple context [] = pure context
-tryExtendContextMultiple context (x:xs) = joinTC $ tryExtendContextMultiple <$> tryExtendContext context x <*> pure xs
+tryExtendContextMultiple context (x:xs) =
+ joinTC $
+ tryExtendContextMultiple
+ <$> tryExtendContext context x
+ <*> pure xs
 
 
-
+{-
 data Set = SimpleSet SurfaceData ParseTree.Side RelativeSet
          | UnionSet SurfaceData Set Set
          deriving Show
@@ -212,7 +218,7 @@ data RelativeSet = Field SurfaceData
                  | Banished SurfaceData
                  | SpawnLocation SurfaceData
                  deriving Show
-
+-}
 data LStat = LStat {-unimplemented-}
            deriving Show
 data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
