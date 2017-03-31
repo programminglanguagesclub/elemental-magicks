@@ -117,7 +117,7 @@ typeCheckSkillEffect context skillEffect =
 
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
                deriving Show
-data Nonautomatic = Selection SurfaceData [Judgement] (Maybe RBool) Automatic Automatic Automatic
+data Nonautomatic = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
                   deriving Show
 data Stats = Stats SurfaceData Schools BaseLevel BaseHp BaseAttack BaseDefense BaseSpeed BaseRange BaseSoulPoints
            deriving Show
@@ -161,14 +161,47 @@ data BaseSoulPoints = BaseSoulPoints SurfaceData Int
 
 
 {- bad -}
-data Judgement = Judgement SurfaceData (Variable,Set)
+data Judgment = Judgment SurfaceData (Variable,Set)
                deriving Show
 
 data Variable = Variable SurfaceData String {-String of length 1-}
               deriving Show
 data Context = EmptyContext
-             | ExtendContext Context Judgement
+             | ExtendContext Context Judgment
              deriving Show
+
+
+varMatches :: Variable -> Variable -> Bool
+varMatches var1 var2 =
+ varName1 == varName2
+ where Variable _ varName1 = var1
+       Variable _ varName2 = var2
+
+
+
+varIn :: Variable -> Context -> TC Context
+varIn _ EmptyContext = pure EmptyContext
+varIn var (ExtendContext context judgment) =
+ ExtendContext
+ <$> pure context
+ <*> if varMatches var var2 then TC $ Left $ ["variable " ++ varName ++ " already bound to " ++ (show set)] else pure judgment
+  where (Judgment _ (var2, set)) = judgment
+        (Variable _ varName) = var
+        
+ 
+
+{-
+
+Need to think about where I'm putting the set information, etc..........
+
+
+-}
+
+tryExtendContext :: (Variable, ParseTree.Set) -> TC Context -> TC Context
+tryExtendContext (variable,set) context = joinTC $ varIn variable <$> context
+ 
+
+
 
 data Set = SimpleSet SurfaceData ParseTree.Side RelativeSet
          | UnionSet SurfaceData Set Set
@@ -218,7 +251,7 @@ typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Judgement] Mutator RInt
+data Assignment = Assignment SurfaceData [Judgment] Mutator RInt
                 deriving Show
 data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
            | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
