@@ -205,9 +205,13 @@ Need to think about where I'm putting the set information, etc..........
 
 -}
 
-tryExtendContext :: (Variable, ParseTree.Set) -> TC Context -> TC Context
-tryExtendContext (variable,set) context = joinTC $ tryVarPut variable set <$> context
+tryExtendContext :: TC Context -> (Variable, ParseTree.Set) -> TC Context
+tryExtendContext context (variable,set) = joinTC $ tryVarPut variable set <$> context
  
+
+tryExtendContextMultiple :: TC Context -> [(Variable, ParseTree.Set)] -> TC (TC Context)
+tryExtendContextMultiple context [] = undefined {-context-}
+tryExtendContextMultiple context (x:xs) = tryExtendContext <$> context <*> pure x
 
 
 
