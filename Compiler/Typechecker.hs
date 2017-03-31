@@ -161,7 +161,7 @@ data BaseSoulPoints = BaseSoulPoints SurfaceData Int
 
 
 {- bad -}
-data Judgment = Judgment SurfaceData (Variable,Set)
+data Judgment = Judgment (Variable,Set)
                deriving Show
 
 data Variable = Variable SurfaceData String {-String of length 1-}
@@ -179,16 +179,24 @@ varMatches var1 var2 =
 
 
 
-varIn :: Variable -> Context -> TC Context
-varIn _ EmptyContext = pure EmptyContext
-varIn var (ExtendContext context judgment) =
- ExtendContext
- <$> pure context
- <*> if varMatches var var2 then TC $ Left $ ["variable " ++ varName ++ " already bound to " ++ (show set)] else pure judgment
+tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
+tryVarPut _ _ EmptyContext = pure EmptyContext
+tryVarPut var set (ExtendContext context judgment) =
+ if varMatches var var2
+  then TC $ Left $ ["variable " ++ varName ++ " already bound to " ++ (show set)]
+  else pure $ ExtendContext (ExtendContext context judgment) $ Judgment (var,set)
+ where (Judgment (var2, set)) = judgment
+       (Variable _ varName) = var
+
+ {-
+ ExtendContext context
+ <$> if varMatches var var2
+      then TC $ Left $ ["variable " ++ varName ++ " already bound to " ++ (show set)]
+      else pure $ ExtendContext (ExtendContext context judgment) undefined
   where (Judgment _ (var2, set)) = judgment
         (Variable _ varName) = var
-        
- 
+     
+ -}
 
 {-
 
@@ -198,7 +206,7 @@ Need to think about where I'm putting the set information, etc..........
 -}
 
 tryExtendContext :: (Variable, ParseTree.Set) -> TC Context -> TC Context
-tryExtendContext (variable,set) context = joinTC $ varIn variable <$> context
+tryExtendContext (variable,set) context = joinTC $ tryVarPut variable set <$> context
  
 
 
