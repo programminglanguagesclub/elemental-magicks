@@ -188,30 +188,13 @@ tryVarPut var set (ExtendContext context judgment) =
  where (Judgment (var2, set)) = judgment
        (Variable _ varName) = var
 
- {-
- ExtendContext context
- <$> if varMatches var var2
-      then TC $ Left $ ["variable " ++ varName ++ " already bound to " ++ (show set)]
-      else pure $ ExtendContext (ExtendContext context judgment) undefined
-  where (Judgment _ (var2, set)) = judgment
-        (Variable _ varName) = var
-     
- -}
-
-{-
-
-Need to think about where I'm putting the set information, etc..........
-
-
--}
-
-tryExtendContext :: TC Context -> (Variable, ParseTree.Set) -> TC Context
-tryExtendContext context (variable,set) = joinTC $ tryVarPut variable set <$> context
+tryExtendContext :: Context -> (Variable, ParseTree.Set) -> TC Context
+tryExtendContext context (variable,set) = tryVarPut variable set context
  
 
-tryExtendContextMultiple :: TC Context -> [(Variable, ParseTree.Set)] -> TC Context
-tryExtendContextMultiple context [] = context
-tryExtendContextMultiple context (x:xs) = joinTC $ tryExtendContext context <$> pure x
+tryExtendContextMultiple :: Context -> [(Variable, ParseTree.Set)] -> TC Context
+tryExtendContextMultiple context [] = pure context
+tryExtendContextMultiple context (x:xs) = joinTC $ tryExtendContextMultiple <$> tryExtendContext context x <*> pure xs
 
 
 
