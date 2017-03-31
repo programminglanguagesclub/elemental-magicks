@@ -164,6 +164,10 @@ data BaseSoulPoints = BaseSoulPoints SurfaceData Int
 data Judgment = Judgment (Variable,ParseTree.Set)
                deriving Show
 
+
+mkJudgment (string, set) =
+ Judgment (Variable (Lexer.SurfaceData 0 0 "DUMMY") string, set)
+
 data Variable = Variable SurfaceData String {-String of length 1-}
               deriving Show
 data Context = EmptyContext
@@ -178,7 +182,7 @@ varMatches var1 var2 =
        Variable _ varName2 = var2
 
 
-
+{-does not display surface data in error message-}
 tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
 tryVarPut _ _ EmptyContext = pure EmptyContext
 tryVarPut var set (ExtendContext context judgment) =
@@ -455,15 +459,17 @@ typeCheckAutomatic context automatic  =
 extendContext :: [(String, ParseTree.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
 extendContext = error "extend context not implemented"
 
+
+
+{-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
 typeCheckNonautomatic :: Context -> ParseTree.Nonautomatic -> TC Nonautomatic
 typeCheckNonautomatic context nonautomatic =
  case nonautomatic of
-  ParseTree.Nonautomatic surfaceData variables condition thenBranch elseBranch nextBranch ->
-   Selection surfaceData
-   <$> undefined
-   <*> typeCheckCondition condition
-   <*> typeCheckAutomatic (extendContext variables context) thenBranch
-   <*> typeCheckAutomatic (extendContext variables context) elseBranch
+  ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
+   Selection surfaceData (map mkJudgment newBindings)
+   <$> typeCheckCondition condition
+   <*> typeCheckAutomatic (extendContext newBindings context) thenBranch
+   <*> typeCheckAutomatic (extendContext newBindings context) elseBranch
    <*> typeCheckAutomatic context nextBranch {-error "nonautomatic not implemented"-}
   ParseTree.TerminatedSkillComponent -> error "terminated skill component not implemented"
 
