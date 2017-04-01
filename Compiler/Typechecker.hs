@@ -111,19 +111,26 @@ data Assignment = Assignment SurfaceData [Judgment] Mutator RInt
                 deriving Show
 
 
+
+
+
+from parser:
+data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
+                 deriving Show
 -}
+
 
 typeCheckSkillEffect :: Context -> ParseTree.SkillEffect -> TC SkillEffect
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
   ParseTree.Assignment surfaceData lExprs mutator rExpr ->
-   SkillEffectAssignment surfaceData assignment
+   trace "skill effect assignment not implemented" $
+   SkillEffectAssignment surfaceData <$> typeCheckAssignment context surfaceData lExprs mutator rExpr
 
 
-
-BLARG!!!
-
-error "assignment not implemented"
+typeCheckAssignment :: Context -> Lexer.SurfaceData -> [ParseTree.Expr] -> ParseTree.Mutator -> ParseTree.Expr -> TC Assignment
+typeCheckAssignment context surfaceData lExpr mutator rExpr =
+ error "assignment not implemented!"
    
 
 
