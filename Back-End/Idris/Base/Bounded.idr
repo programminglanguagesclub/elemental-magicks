@@ -1,10 +1,7 @@
 module Base.Bounded
-
 import Data.Vect
 import Data.So
-{-
-import public Base.Utility
--}
+
 %access public export
 %default total
 
@@ -13,6 +10,7 @@ data Bounded : Integer -> Integer -> Type where
 
 syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh))
 
+{-rename and change to not be exported-}
 foo12 : Bounded 0 31
 foo12 = >> 21 <<
 
@@ -25,11 +23,14 @@ my_lte_reflexive : (a : Integer) -> So(a<=a)
 my_lte_reflexive a = believe_me Oh
 
 integerToBounded : Integer -> (lower : Integer) -> (upper : Integer) -> Maybe (Bounded lower upper)
-integerToBounded m lower upper = case (choose (m <= upper)) of
-                                      Left proofUpperBounded => case (choose (lower <= m)) of
-                                                                     Left proofLowerBounded => Just $ MkBounded (m ** (proofLowerBounded,proofUpperBounded))
-                                                                     Right _ => Nothing
-                                      Right _ => Nothing
+integerToBounded m lower upper =
+ case (choose (m <= upper)) of
+  Left proofUpperBounded =>
+   case (choose (lower <= m)) of
+    Left proofLowerBounded =>
+     Just $ MkBounded (m ** (proofLowerBounded,proofUpperBounded))
+    Right _ => Nothing
+  Right _ => Nothing
 
 
 
@@ -90,14 +91,17 @@ I'm not sure this does that.
 
 
 extendLowerBound : Bounded a b -> So(a' <= a) -> Bounded a' b
-extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend = MkBounded (n ** ((my_lte_transitive prf_extend prf_lower_n),prf_n_upper))
+extendLowerBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend =
+ MkBounded (n ** ((my_lte_transitive prf_extend prf_lower_n),prf_n_upper))
 
 extendUpperBound : Bounded a b -> So(b <= b') -> Bounded a b'
-extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend = MkBounded (n ** (prf_lower_n,(my_lte_transitive prf_n_upper prf_extend)))
+extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend =
+ MkBounded (n ** (prf_lower_n,(my_lte_transitive prf_n_upper prf_extend)))
 
 
 extendBounds : Bounded a b -> So(a' <= a) -> So(b <= b') -> Bounded a' b'
-extendBounds (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend_lower prf_extend_upper = MkBounded (n ** ((my_lte_transitive prf_extend_lower prf_lower_n),(my_lte_transitive prf_n_upper prf_extend_upper)))
+extendBounds (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend_lower prf_extend_upper =
+ MkBounded (n ** ((my_lte_transitive prf_extend_lower prf_lower_n),(my_lte_transitive prf_n_upper prf_extend_upper)))
 
 
 
