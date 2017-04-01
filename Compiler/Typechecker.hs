@@ -135,7 +135,9 @@ typeCheckAssignment context surfaceData lExprs mutator rExpr =
  <*> pure mutator
  <*> typeCheckRInt context rExpr
 
-   
+
+
+
 
 
 data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
@@ -369,6 +371,12 @@ errorPrefix line column = "Syntax error on line " ++ (show line) ++ ", column " 
 errorPrefix' :: Lexer.SurfaceData -> String
 errorPrefix' (Lexer.SurfaceData line column surface) = errorPrefix line column
 
+
+
+typeCheckKnowledge :: ParseTree.Knowledge -> TC Knowledge
+typeCheckKnowledge knowledge =
+ typeCheckSchool surfaceData
+ where ParseTree.Knowledge surfaceData = knowledge
 
 typeCheckSchool :: Lexer.SurfaceData -> TC Knowledge
 typeCheckSchool (Lexer.SurfaceData line column surface) =
@@ -853,12 +861,15 @@ typeCheckLInt context expr =
   ParseTree.Constant surfaceData value ->
    TC $ Left ["cannot assign to constant"]
   ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
-  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ LKnowledgeExpr surfaceData knowledge side
+  ParseTree.KnowledgeExpr surfaceData knowledge side ->
+   LKnowledgeExpr surfaceData
+   <$> typeCheckKnowledge knowledge
+   <*> pure side
   ParseTree.Self surfaceData field ->
    LSelfProjection surfaceData <$> typeCheckRStatSelf field
   ParseTree.Var surfaceData field variable ->
-   LVarProjection surfaceData <$> typeCheckRStatSelf field
-                              <*> typeCheckVariable context (Variable surfaceData variable)
+   LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable)
+                              <*> typeCheckRStatSelf field
   ParseTree.Sum surfaceData expr1 expr2 ->
    TC $ Left ["cannot assign to sum result"]
   ParseTree.Difference surfaceData expr1 expr2 ->
@@ -894,7 +905,10 @@ typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
  case expr of
   ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
   ParseTree.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
-  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ RKnowledge surfaceData knowledge side
+  ParseTree.KnowledgeExpr surfaceData knowledge side -> 
+   RKnowledge surfaceData
+   <$> typeCheckKnowledge knowledge
+   <*> pure side
   ParseTree.Self surfaceData field ->
    RSelfProjection surfaceData <$> typeCheckRStatSelf field
   ParseTree.Var surfaceData field variable ->
