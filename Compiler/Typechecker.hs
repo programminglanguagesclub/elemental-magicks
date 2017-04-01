@@ -248,12 +248,80 @@ data RelativeSet = Field SurfaceData
                  | SpawnLocation SurfaceData
                  deriving Show
 -}
-data LStat = LStat {-unimplemented-}
-           deriving Show
-data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
+data LStat
+ = LStatField LStatField
+ | LHpStat LHpStat
+ | LEngagement
+ deriving Show
+
+data LStatField
+ = Attack
+ | Defense
+ | Speed
+ | Range
+ | Level
+ deriving Show
+
+data LHpStat
+ = CurrentHp
+ | MaxHp
+ | BaseHp
+ deriving Show
+
+
+{-data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
             deriving Show
+-}
+
 typeCheckLStat :: ParseTree.Field -> TC LStat
-typeCheckLStat = error "lstat not implemented"
+typeCheckLStat field =
+ case field of
+  ParseTree.StatField surfaceData stat temporality ->
+   error "statfield case not implemented"
+  ParseTree.HpStatField surfaceData hpStat ->
+   error "hpstatfield case not implemented"
+  ParseTree.EngagementField surfaceData ->
+   error "engagementfield case not implemented"
+
+
+
+
+{-
+
+
+from parsetree
+
+
+data Stat = Attack Lexer.SurfaceData
+          | Defense Lexer.SurfaceData 
+          | Speed Lexer.SurfaceData
+          | Range Lexer.SurfaceData
+          | Level Lexer.SurfaceData 
+          deriving Show
+data Mutator = Increment Lexer.SurfaceData
+             | Decrement Lexer.SurfaceData
+             | Stretch Lexer.SurfaceData
+             | Crush Lexer.SurfaceData
+             | Contort Lexer.SurfaceData
+             | Set Lexer.SurfaceData
+             deriving Show
+data Temporality = Temporary Lexer.SurfaceData
+                 | Permanent Lexer.SurfaceData
+                 | Base Lexer.SurfaceData
+                 deriving Show
+data HpStat = CurrentHp Lexer.SurfaceData
+            | MaxHp Lexer.SurfaceData
+            | BaseHp Lexer.SurfaceData
+            deriving Show
+data Engagement = Engagement Lexer.SurfaceData
+                deriving Show
+
+data Field = StatField Lexer.SurfaceData Stat Temporality
+           | HpStatField Lexer.SurfaceData HpStat
+           | EngagementField Lexer.SurfaceData
+           deriving Show
+
+-}
  
 typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
