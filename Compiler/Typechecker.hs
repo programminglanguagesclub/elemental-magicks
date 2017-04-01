@@ -107,7 +107,7 @@ instance Eq Knowledge where
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Judgment] Mutator RInt
+data Assignment = Assignment SurfaceData [Variable] Mutator RInt
                 deriving Show
 
 
@@ -129,8 +129,12 @@ typeCheckSkillEffect context skillEffect =
 
 
 typeCheckAssignment :: Context -> Lexer.SurfaceData -> [ParseTree.Expr] -> ParseTree.Mutator -> ParseTree.Expr -> TC Assignment
-typeCheckAssignment context surfaceData lExpr mutator rExpr =
- error "assignment not implemented!"
+typeCheckAssignment context surfaceData lExprs mutator rExpr =
+ Assignment surfaceData
+ <$> traverse typeCheckLInt lExprs
+ <*> pure mutator
+ <*> typeCheckRInt context rExpr
+
    
 
 
@@ -275,7 +279,7 @@ typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Judgment] Mutator RInt
+data Assignment = Assignment SurfaceData [Variable] ParseTree.Mutator RInt
                 deriving Show
 data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
            | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
@@ -287,13 +291,13 @@ data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
            deriving Show
 
       
-                   
+{-                   
 data Mutator = Increment SurfaceData
              | Decrement SurfaceData
              | Assign SurfaceData
              deriving Show
 
-
+-}
 
 
 
@@ -843,6 +847,47 @@ typeCheckInt s name lowerBound upperBound =
 typeCheckConstant :: String -> TC Int
 typeCheckConstant s = typeCheckInt s "constant expression" minInt maxInt
 
+typeCheckLInt :: Context -> ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
+typeCheckLInt context expr =
+ case expr of
+  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
+  ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughts surfaceData side
+  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ LKnowledge surfaceData knowledge side
+  ParseTree.Self surfaceData field ->
+   LSelfProjection surfaceData <$> typeCheckLStatSelf field
+  ParseTree.Var surfaceData field variable ->
+   LVarProjection surfaceData <$> typeCheckLStatVar field
+                              <*> typeCheckVariable context (Variable surfaceData variable)
+  ParseTree.Sum surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to sum result"]
+  ParseTree.Difference surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to difference result"]
+  ParseTree.Product surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to product result"]
+  ParseTree.Quotient surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to quotient result"]
+  ParseTree.Mod surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to modulus result"]
+  ParseTree.Always surfaceData -> error "always should not exist, much less as an integer"
+  ParseTree.GT surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to inequality check"]
+  ParseTree.GEQ surfaceData expr1 expr2 ->
+    TC $ Left ["cannot assign to inequality check"]
+  ParseTree.LT surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to inequality check"]
+  ParseTree.LEQ surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to inequality check"]
+  ParseTree.EQ surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to equality check"]
+  ParseTree.And surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to and result"]
+  ParseTree.Or surfaceData expr1 expr2 ->
+   TC $ Left ["cannot assign to or result"]
+  ParseTree.Not surfaceData expr ->
+   TC $ Left ["cannot assign to not result"]
+
+
+
 typeCheckRInt :: Context -> ParseTree.Expr -> TC RInt
 typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
  case expr of
@@ -869,6 +914,9 @@ typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
   ParseTree.Mod surfaceData expr1 expr2 ->
    RMod surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
+
+{-PARSE TREE ALWAYS STILL EXISTS!??!?!?!?!?!?!?!??!?!?!?!?!?-}
+
   ParseTree.Always surfaceData -> error "always should not exist, much less as an integer"
   ParseTree.GT surfaceData expr1 expr2 ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>)"]
