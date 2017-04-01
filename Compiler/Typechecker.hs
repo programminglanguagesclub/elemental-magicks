@@ -62,7 +62,7 @@ data Soul = Soul SurfaceData Skill
 
 data RInt = RConstant SurfaceData Int
           | RThoughts SurfaceData ParseTree.Side
-          | RKnowledge SurfaceData ParseTree.Knowledge ParseTree.Side
+          | RKnowledge SurfaceData Knowledge ParseTree.Side
           | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
           | RVarProjection SurfaceData RStat Variable
           | RSum SurfaceData RInt RInt
@@ -107,7 +107,7 @@ instance Eq Knowledge where
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Variable] Mutator RInt
+data Assignment = Assignment SurfaceData [LExpr] Mutator RInt
                 deriving Show
 
 
@@ -131,7 +131,7 @@ typeCheckSkillEffect context skillEffect =
 typeCheckAssignment :: Context -> Lexer.SurfaceData -> [ParseTree.Expr] -> ParseTree.Mutator -> ParseTree.Expr -> TC Assignment
 typeCheckAssignment context surfaceData lExprs mutator rExpr =
  Assignment surfaceData
- <$> traverse typeCheckLInt lExprs
+ <$> traverse (typeCheckLInt context) lExprs
  <*> pure mutator
  <*> typeCheckRInt context rExpr
 
@@ -279,7 +279,7 @@ typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
 
 data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
                  deriving Show
-data Assignment = Assignment SurfaceData [Variable] ParseTree.Mutator RInt
+data Assignment = Assignment SurfaceData [LExpr] ParseTree.Mutator RInt
                 deriving Show
 data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
            | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
@@ -850,13 +850,14 @@ typeCheckConstant s = typeCheckInt s "constant expression" minInt maxInt
 typeCheckLInt :: Context -> ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
 typeCheckLInt context expr =
  case expr of
-  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
-  ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughts surfaceData side
-  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ LKnowledge surfaceData knowledge side
+  ParseTree.Constant surfaceData value ->
+   TC $ Left ["cannot assign to constant"]
+  ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
+  ParseTree.KnowledgeExpr surfaceData knowledge side -> pure $ LKnowledgeExpr surfaceData knowledge side
   ParseTree.Self surfaceData field ->
-   LSelfProjection surfaceData <$> typeCheckLStatSelf field
+   LSelfProjection surfaceData <$> typeCheckRStatSelf field
   ParseTree.Var surfaceData field variable ->
-   LVarProjection surfaceData <$> typeCheckLStatVar field
+   LVarProjection surfaceData <$> typeCheckRStatSelf field
                               <*> typeCheckVariable context (Variable surfaceData variable)
   ParseTree.Sum surfaceData expr1 expr2 ->
    TC $ Left ["cannot assign to sum result"]
