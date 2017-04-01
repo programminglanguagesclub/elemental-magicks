@@ -180,7 +180,8 @@ transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
- getCardDraw playerA playerB >>= \turn =>
+ getCardDraw playerA playerB >>= \turn => {-this use of the monad, and also in the case below,
+                                              seems incorrect, as getting Nothing here means an error, rather than no update needed.-}
  if yourTurnToDraw turn actor then
   case fst turn of
        Soul => Just $ Right (drawToSoulNotHand, playerId)
