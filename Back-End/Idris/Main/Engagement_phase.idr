@@ -9,6 +9,9 @@ import Base.Skill_dsl_data
 %access public export
 %default total
 
+
+
+{-these can be refactored-}
 _allUnitsDead : List (Maybe Monster) -> Bool
 _allUnitsDead (Nothing::tl) = _allUnitsDead tl
 _allUnitsDead ((Just m)::tl) with (aliveness (basic m))

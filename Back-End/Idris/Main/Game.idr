@@ -5,8 +5,15 @@ import Base.Phase
 import Base.Clientupdates
 %access public export
 %default total
-data WhichPlayer = PlayerA | PlayerB
-data Round = FirstRound | SecondRound
+
+data WhichPlayer
+ = PlayerA
+ | PlayerB
+
+data Round
+ = FirstRound
+ | SecondRoundOriginalPlayerAWonFirstRound
+ | SecondRoundOriginalPlayerBWonFirstRound
 
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
@@ -21,8 +28,6 @@ Actually I'm going to put this in them..
 -}
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
- player_A : Player
- player_B : Player
  phase : Phase
  
 
@@ -39,10 +44,10 @@ playerOnMove : Game -> WhichPlayer
 
 record Battle where
  constructor MkBattle
- round                : Round
+ round : Round
  originalPlayerAToken : String
  originalPlayerBToken : String
- game                 : Game
+ game : Game
 
 getPlayer : Game -> WhichPlayer -> Player
 getPlayer game PlayerA = player_A game

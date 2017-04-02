@@ -29,6 +29,9 @@ Selection game (board, hand, graveyard) with (skillHead game)
  | skill = ?hole
  -}
 
+
+
+{- SHOULD FOLD HERE -}
 foo7312016 : Maybe Monster -> Integer
 foo7312016 Nothing = 0
 foo7312016 (Just m) with (soulPoints ( basic(m) ))
