@@ -5,6 +5,10 @@ import qualified Data.Map.Strict as HashMap
 
 
 
+
+data Augmented a = Augmented Lexer.SurfaceData a
+
+
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"
 
