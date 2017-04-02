@@ -174,21 +174,27 @@ drawHandCard cardId playerId cardFactory player =
 
 
 
+{-
+I also need to refactor all of my code to use Left for errors and Right for the nonfailing case
 
+-}
 transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> Maybe (Either (Player, List ClientUpdate) (String, String))
 transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
  getCardDraw playerA playerB >>= \turn => {-this use of the monad, and also in the case below,
-                                              seems incorrect, as getting Nothing here means an error, rather than no update needed.-}
- if yourTurnToDraw turn actor then
+                                              seems incorrect, as getting Nothing here means an error, rather than no update needed.
+                                              I guess nothing means internal error..
+                                              -}
+ if yourTurnToDraw turn actor
+  then
   case fst turn of
-       Soul => Just $ Right (drawToSoulNotHand, playerId)
-       Hand =>
-        case index' cardId cardList of
-             Nothing => Just $ Right (cardInvalid, playerId)
-             Just cardFactory => Just $ Left $ drawHandCard cardsDrawn playerId cardFactory player
+   Soul => Just $ Right (drawToSoulNotHand, playerId)
+   Hand =>
+    case index' cardId cardList of
+     Nothing => Just $ Right (cardInvalid, playerId)
+     Just cardFactory => Just $ Left $ drawHandCard cardsDrawn playerId cardFactory player
  else
   Just $ Right (notYourTurn, playerId)
 
