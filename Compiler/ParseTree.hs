@@ -5,7 +5,7 @@ import qualified Data.Map.Strict as HashMap
 
 
 
-
+{-
 --data Augmented a = Augmented Lexer.SurfaceData a deriving Functor
 newtype Augmented a = Augmented {runAugmented :: (Lexer.SurfaceData,a)} deriving Functor
 
@@ -36,7 +36,7 @@ that allows datatypes to be constructed from their components,
 with surface data also filled out correctly....
 
 -}
-
+-}
 
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"

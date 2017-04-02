@@ -124,8 +124,8 @@ typeCheckSkillEffect :: Context -> ParseTree.SkillEffect -> TC SkillEffect
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
   ParseTree.Assignment surfaceData lExprs mutator rExpr ->
-   trace "skill effect assignment not implemented" $
-   SkillEffectAssignment surfaceData <$> typeCheckAssignment context surfaceData lExprs mutator rExpr
+   SkillEffectAssignment surfaceData
+   <$> typeCheckAssignment context surfaceData lExprs mutator rExpr
 
 
 typeCheckAssignment :: Context -> Lexer.SurfaceData -> [ParseTree.Expr] -> ParseTree.Mutator -> ParseTree.Expr -> TC Assignment
