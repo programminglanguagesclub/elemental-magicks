@@ -927,10 +927,13 @@ typeCheckActions = traverse typeCheckAction
 
 
 
+
+noSelfReferencesSkill :: Skill -> TC Skill
+noSelfReferencesSkill skill = error "noSelfReferencesSkill not implemented"
+
 noSelfReferences :: (Skill -> a) -> Skill -> TC a
 noSelfReferences f skill =
- trace "noSelfReferences not implemented" $
- error "really no self references not implemented"
+ f <$> noSelfReferencesSkill skill
 
 typeCheckSoul :: ParseTree.Soul -> TC Soul
 typeCheckSoul (ParseTree.Soul surfaceData skill) =
