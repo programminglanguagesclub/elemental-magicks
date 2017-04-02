@@ -9,6 +9,8 @@ import Base.Card
 %access public export
 %default total
 
+
+{-
 record Player where
  constructor MkPlayer
  {- board : Vect 9 (Maybe Monster)-}
@@ -23,7 +25,7 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
-
+ -}
 
 record NormalPlayer where
  constructor MkNormalPlayer
