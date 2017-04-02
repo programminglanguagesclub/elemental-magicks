@@ -201,6 +201,13 @@ data Context = EmptyContext
              | ExtendContext Context Judgment
              deriving Show
 
+varIn :: Variable -> Context -> Bool
+varIn var context =
+ case context of
+  EmptyContext -> False
+  ExtendContext context' judgment ->
+   (varMatches var var') || (varIn var context')
+   where Judgment (var', _) = judgment
 
 varMatches :: Variable -> Variable -> Bool
 varMatches var1 var2 =
@@ -636,7 +643,7 @@ lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
 {-If there's an error here, I will not look any further at subexpressions for further problems.-}
 
 
-
+{-currently, am not checking for how a variable is used (certain stats cannot be accessed or set based on where the card is)-}
 typeCheckVariable :: Context -> Variable -> TC Variable
 typeCheckVariable = error "typeCheckVariable not implemented"
 
