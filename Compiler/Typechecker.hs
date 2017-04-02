@@ -350,11 +350,24 @@ typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
 
 typeCheckRStatVar :: ParseTree.Field -> TC RStat
-typeCheckRStatVar field = error "typeCheckRStatVar not implemented"
+typeCheckRStatVar field =
+ case field of
+  ParseTree.StatField surfaceData stat temporality -> error "statField case not implemented"
+  ParseTree.HpStatField surfaceData hpStat -> error "hpstatfield case not implemented"
+  ParseTree.EngagementField surfaceData -> error "engagementfield case not implemented"
+
+
 
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
 
+{-
 
+
+data Field = StatField Lexer.SurfaceData Stat Temporality
+           | HpStatField Lexer.SurfaceData HpStat
+           | EngagementField Lexer.SurfaceData
+           deriving Show
+-}
 
 
 
@@ -946,8 +959,8 @@ typeCheckInt s name lowerBound upperBound =
    else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
    else pure i
 
-typeCheckConstant :: String -> TC Int
-typeCheckConstant s = typeCheckInt s "constant expression" minInt maxInt
+typeCheckConstant :: Lexer.SurfaceData -> String -> TC Int
+typeCheckConstant (Lexer.SurfaceData row column surfaceSyntax) s = typeCheckInt s ("at position " ++ (show row) ++ "," ++ (show column) ++ ", " ++ "constant expression" ++ " " ++ surfaceSyntax) minInt maxInt
 
 typeCheckLInt :: Context -> ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
 typeCheckLInt context expr =
@@ -997,7 +1010,7 @@ typeCheckLInt context expr =
 typeCheckRInt :: Context -> ParseTree.Expr -> TC RInt
 typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
  case expr of
-  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant value
+  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant surfaceData value
   ParseTree.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
   ParseTree.KnowledgeExpr surfaceData knowledge side -> 
    RKnowledge surfaceData
