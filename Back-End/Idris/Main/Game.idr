@@ -21,12 +21,14 @@ Actually I'm going to put this in them..
 -}
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ {-
  player_A : Player
  player_B : Player
+ -}
  phase : Phase
  
 
-{- This is out of date... -}
+{- This is REALLY out of date... -}
 syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [] [] (new player playerAId) (new player playerBId) DrawPhase
 
 {-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}
