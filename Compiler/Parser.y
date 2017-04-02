@@ -132,7 +132,7 @@ Stats : Schools level colon number hp colon number attack colon number defense c
 School : word {Knowledge $1}
 Schools : {NoSchools dummySurfaceData }
         | word {OneSchool $1 $1}
-        | word word {TwoSchools dummySurfaceData $1 $2}
+        | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 Start : {Nothing}
       | start colon Skill {Just $ Start dummySurfaceData $3}
 End : {Nothing}
@@ -191,7 +191,7 @@ ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
 NullableExpr : {Nothing}
              | Expr {Just ($1)}
-Expr : number {Constant dummySurfaceData "LLALALA"}
+Expr : number {Constant dummySurfaceData (getSurfaceSyntax $1)}
      | Field self {Self dummySurfaceData $1}
      | Field var {Var dummySurfaceData $1 $2}
      | Side School {KnowledgeExpr dummySurfaceData $2 $1}

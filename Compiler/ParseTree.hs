@@ -8,6 +8,15 @@ import qualified Data.Map.Strict as HashMap
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"
 
+getSurfaceSyntax :: Lexer.SurfaceData -> String
+getSurfaceSyntax surfaceData = surfaceSyntax
+ where Lexer.SurfaceData row column surfaceSyntax = surfaceData
+
+unionSurfaceData :: Lexer.SurfaceData -> Lexer.SurfaceData -> Lexer.SurfaceData
+unionSurfaceData surfaceData surfaceData' =
+ Lexer.SurfaceData row column $ surfaceSyntax ++ " " ++ surfaceSyntax'
+ where Lexer.SurfaceData row column surfaceSyntax = surfaceData
+       Lexer.SurfaceData _ _ surfaceSyntax' = surfaceData'
 
 
 getFileSurfaceData :: [Unit] -> [Spell] -> Lexer.SurfaceData
