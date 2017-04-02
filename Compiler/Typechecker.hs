@@ -927,12 +927,16 @@ typeCheckActions = traverse typeCheckAction
 
 
 
-noSelfReferences :: ParseTree.Skill -> [String]
-noSelfReferences skill = trace "noSelfReferences not implemented" []
+noSelfReferences :: (Skill -> a) -> Skill -> TC a
+noSelfReferences f skill =
+ trace "noSelfReferences not implemented" $
+ error "really no self references not implemented"
 
 typeCheckSoul :: ParseTree.Soul -> TC Soul
-typeCheckSoul (ParseTree.Soul surfaceData skill) = trace "typeCheckSoul not implemented" $ Soul surfaceData <$> typeCheckSkill skill
-
+typeCheckSoul (ParseTree.Soul surfaceData skill) =
+ trace "typeCheckSoul not implemented" $
+ joinTC $ noSelfReferences (Soul surfaceData)
+ <$> typeCheckSkill skill
 
 
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
