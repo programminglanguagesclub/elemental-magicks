@@ -201,6 +201,10 @@ data Context = EmptyContext
              | ExtendContext Context Judgment
              deriving Show
 
+
+
+
+
 varIn :: Variable -> Context -> Bool
 varIn var context =
  case context of
@@ -231,6 +235,7 @@ tryExtendContext context judgment =
  tryVarPut variable set context
  where Judgment (variable, set) = judgment
  
+
 
 tryExtendContextMultiple :: Context -> [Judgment] -> TC Context
 tryExtendContextMultiple context [] = pure context
@@ -572,10 +577,10 @@ typeCheckAutomatic context automatic  =
 
 
 
-
+{-
 extendContext :: [(String, ParseTree.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
 extendContext = error "extend context not implemented"
-
+-}
 
 
 {-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
@@ -585,8 +590,8 @@ typeCheckNonautomatic context nonautomatic =
   ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
    Selection surfaceData (map mkJudgment newBindings)
    <$> typeCheckCondition condition
-   <*> typeCheckAutomatic (extendContext newBindings context) thenBranch
-   <*> typeCheckAutomatic (extendContext newBindings context) elseBranch
+   <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure thenBranch)
+   <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure elseBranch)
    <*> typeCheckAutomatic context nextBranch {-error "nonautomatic not implemented"-}
   ParseTree.TerminatedSkillComponent -> error "terminated skill component not implemented"
 
@@ -645,7 +650,10 @@ lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
 
 {-currently, am not checking for how a variable is used (certain stats cannot be accessed or set based on where the card is)-}
 typeCheckVariable :: Context -> Variable -> TC Variable
-typeCheckVariable = error "typeCheckVariable not implemented"
+typeCheckVariable context var=
+ case varIn var context of
+  True -> pure var
+  False -> TC $ Left $ ["variable not defined"]
 
 
 
