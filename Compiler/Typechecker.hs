@@ -287,7 +287,10 @@ typeCheckLStat field =
   ParseTree.StatField surfaceData stat temporality ->
    error "statfield case not implemented"
   ParseTree.HpStatField surfaceData hpStat ->
-   error "hpstatfield case not implemented"
+   case hpStat of
+    ParseTree.CurrentHp surfaceData' -> pure $ LHpStat LCurrentHp
+    ParseTree.MaxHp surfaceData' -> pure $ LHpStat LMaxHp
+    ParseTree.BaseHp surfaceData' -> pure $ LHpStat LBaseHp
   ParseTree.EngagementField surfaceData ->
    error "engagementfield case not implemented"
 
