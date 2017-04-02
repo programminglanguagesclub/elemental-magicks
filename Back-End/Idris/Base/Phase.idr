@@ -6,16 +6,21 @@ import Base.Player
 public export
 
 data Phase
- = DrawPhase DrawPlayer {-dependent pair....  remember to take player out of game...-}
- | SpawnPhase NormalPlayer
- | SpellPhase NormalPlayer
- | RemovalPhase NormalPlayer
- | StartPhase NormalPlayer {-Let's damage soul at the start of this phase!-}
- | EngagementPhase NormalPlayer
- | EndPhase NormalPlayer
- | RevivalPhase NormalPlayer
- | DeploymentPhase NormalPlayer
-           
+ = DrawPhase DrawPlayer DrawPlayer {-dependent pair....  remember to take player out of game record...-}
+ | SpawnPhase NormalPlayer NormalPlayer
+ | SpellPhase NormalPlayer NormalPlayer
+ | RemovalPhase NormalPlayer NormalPlayer
+ | StartPhase NormalPlayer NormalPlayer {-Let's damage soul at the start of this phase!-}
+ | EngagementPhase NormalPlayer NormalPlayer
+ | EndPhase NormalPlayer NormalPlayer
+ | RevivalPhase NormalPlayer NormalPlayer
+ | DeploymentPhase NormalPlayer NormalPlayer
+ 
+
+ {-
+ I can put into the constructor to drawplayer a counter which keeps track of the number of
+  soul cards that have been added (or are left to add), and then only allow drawplayer to be constructed via accessing those constructors.
+ -}
 {-
 data Phase : Type where
  DrawPhase : DrawPlayer -> Phase
@@ -35,15 +40,15 @@ numNothing = ?hole
 
 public export
 nextPhase : Phase -> (Phase,ClientUpdate) {-am I ever going to use this function???? Perhaps this should return the appropriate client update too?-}
-nextPhase (DrawPhase drawPlayer) = (SpawnPhase ?hole,DrawPhaseToSpawnPhase)
-nextPhase (SpawnPhase normalPlayer) = (SpellPhase ?hole,SpawnPhaseToSpellPhase)
-nextPhase (SpellPhase normalPlayer) = (RemovalPhase ?hole,SpellPhaseToRemovalPhase)
-nextPhase (RemovalPhase normalPlayer) = (StartPhase ?hole,RemovalPhaseToStartPhase)
-nextPhase (StartPhase normalPlayer) = (EngagementPhase ?hole,StartPhaseToEngagementPhase)
-nextPhase (EngagementPhase normalPlayer) = (EndPhase ?hole,EngagementPhaseToEndPhase)
-nextPhase (EndPhase normalPlayer) = (RevivalPhase ?hole,EndPhaseToRevivalPhase)
-nextPhase (RevivalPhase normalPlayer) = (DeploymentPhase ?hole,RevivalPhaseToDeploymentPhase)
-nextPhase (DeploymentPhase normalPlayer) = (SpawnPhase ?hole,DeploymentPhaseToSpawnPhase)
+nextPhase (DrawPhase playerA playerB) = (SpawnPhase ?hole ?hole,DrawPhaseToSpawnPhase)
+nextPhase (SpawnPhase playerA playerB) = (SpellPhase ?hole ?hole,SpawnPhaseToSpellPhase)
+nextPhase (SpellPhase playerA playerB) = (RemovalPhase ?hole ?hole,SpellPhaseToRemovalPhase)
+nextPhase (RemovalPhase playerA playerB) = (StartPhase ?hole ?hole,RemovalPhaseToStartPhase)
+nextPhase (StartPhase playerA playerB) = (EngagementPhase ?hole ?hole,StartPhaseToEngagementPhase)
+nextPhase (EngagementPhase playerA playerB) = (EndPhase ?hole ?hole,EngagementPhaseToEndPhase)
+nextPhase (EndPhase playerA playerB) = (RevivalPhase ?hole ?hole,EndPhaseToRevivalPhase)
+nextPhase (RevivalPhase playerA playerB) = (DeploymentPhase ?hole ?hole,RevivalPhaseToDeploymentPhase)
+nextPhase (DeploymentPhase playerA playerB) = (SpawnPhase ?hole ?hole,DeploymentPhaseToSpawnPhase)
 
 {-I believe the relative order of Revival and Deployment does not matter, but I find this version more ergonomic-}
 
