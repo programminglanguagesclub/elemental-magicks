@@ -169,6 +169,8 @@ data Schools = NoSchools
              | AirVoid SurfaceData
              | SpiritVoid SurfaceData
              deriving Show
+
+
 data BaseLevel = BaseLevel SurfaceData Int
                deriving Show
 data BaseHp = BaseHp SurfaceData Int
@@ -249,29 +251,35 @@ data RelativeSet = Field SurfaceData
                  deriving Show
 -}
 data LStat
- = LStatField LStatField
+ = LStatField Modifier LStatField
  | LHpStat LHpStat
  | LEngagement
  deriving Show
 
+
+data Modifier
+ = Temporary
+ | Permanent
+ | Base
+ deriving Show
 data LStatField
- = Attack
- | Defense
- | Speed
- | Range
- | Level
+ = LAttack
+ | LDefense
+ | LSpeed
+ | LRange
+ | LLevel
  deriving Show
 
 data LHpStat
- = CurrentHp
- | MaxHp
- | BaseHp
+ = LCurrentHp
+ | LMaxHp
+ | LBaseHp
  deriving Show
 
 
-{-data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
-            deriving Show
--}
+data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
+           deriving Show
+
 
 typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat field =
