@@ -6,7 +6,36 @@ import qualified Data.Map.Strict as HashMap
 
 
 
-data Augmented a = Augmented Lexer.SurfaceData a
+--data Augmented a = Augmented Lexer.SurfaceData a deriving Functor
+newtype Augmented a = Augmented {runAugmented :: (Lexer.SurfaceData,a)} deriving Functor
+
+{-
+should just use the normal decorated AST thing.
+
+-}
+
+instance Applicative Augmented where
+ pure = undefined
+
+{-
+
+instance Applicative TC where
+ pure = TC . Right
+ (TC (Right f)) <*> (TC (Right x)) = TC . Right . f $ x
+ m <*> n = TC . Left $ (getErr m) <> (getErr n)
+
+
+
+fuseAugmented
+
+
+
+This can be made into an applicative functor
+that allows datatypes to be constructed from their components,
+
+with surface data also filled out correctly....
+
+-}
 
 
 dummySurfaceData :: Lexer.SurfaceData
