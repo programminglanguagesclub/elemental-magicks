@@ -928,6 +928,30 @@ typeCheckActions = traverse typeCheckAction
 
 
 
+
+{-
+
+
+data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
+           deriving Show
+
+
+-}
+
+
+noSelfReferencesCost :: Maybe RInt -> TC (Maybe RInt)
+noSelfReferencesCost = undefined
+
+noSelfReferencesCondition :: Maybe RBool -> TC (Maybe RBool)
+noSelfReferencesCondition = undefined
+
+noSelfReferencesAutomatic :: Automatic -> TC Automatic
+noSelfReferencesAutomatic = undefined
+
+noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
+noSelfReferencesNonautomatic = undefined
+
+
 noSelfReferencesSkill :: Skill -> TC Skill
 noSelfReferencesSkill skill = error "noSelfReferencesSkill not implemented"
 
