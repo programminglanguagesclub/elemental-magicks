@@ -7,14 +7,14 @@ public export
 
 data Phase
  = DrawPhase DrawPlayer DrawPlayer {-dependent pair....  remember to take player out of game record...-}
- | SpawnPhase NormalPlayer NormalPlayer
- | SpellPhase NormalPlayer NormalPlayer
- | RemovalPhase NormalPlayer NormalPlayer
- | StartPhase NormalPlayer NormalPlayer {-Let's damage soul at the start of this phase!-}
- | EngagementPhase NormalPlayer NormalPlayer
- | EndPhase NormalPlayer NormalPlayer
- | RevivalPhase NormalPlayer NormalPlayer
- | DeploymentPhase NormalPlayer NormalPlayer
+ | SpawnPhase Player Player
+ | SpellPhase Player Player
+ | RemovalPhase Player Player
+ | StartPhase Player Player {-Let's damage soul at the start of this phase!-}
+ | EngagementPhase Player Player
+ | EndPhase Player Player
+ | RevivalPhase Player Player
+ | DeploymentPhase Player Player
  
 
  {-

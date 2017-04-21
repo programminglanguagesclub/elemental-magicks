@@ -27,8 +27,8 @@ record Player where
  temporaryId : String
  -}
 
-record NormalPlayer where
- constructor MkNormalPlayer
+record Player where
+ constructor MkPlayer
  board : Vect 3 (Vect 3 (Maybe Monster))
  rowTarget : Vect 3 (Fin 3)
  hand : List Card
