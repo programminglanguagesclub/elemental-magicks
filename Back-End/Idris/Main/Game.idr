@@ -18,6 +18,37 @@ data Round
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 
+
+
+
+
+{-
+
+
+
+Currently I have the draw phase as a phase.
+
+I don't know if I like this.
+
+
+the problem is that I have the same type of player for all other phases,
+
+and so I would like to maybe have different games for if we're in the draw phase or not....
+
+
+
+
+
+
+
+
+
+-}
+
+
+
+
+
 record Game where
  constructor MkGame
  initiative : WhichPlayer
@@ -49,20 +80,28 @@ record Battle where
  originalPlayerBToken : String
  game : Game
 
+
+{-
 getPlayer : Game -> WhichPlayer -> Player
 getPlayer game PlayerA = player_A game
 getPlayer game PlayerB = player_B game
+-}
 
 
+{-
 updatePlayer : Game -> WhichPlayer -> (Player -> (Player,List ClientUpdate)) -> (Game, List ClientUpdate)
 updatePlayer game PlayerA f = let (playerA',updates) = f $ player_A game in
                                   (record {player_A = playerA'} game, updates)
 updatePlayer game PlayerB f = let (playerB',updates) = f $ player_B game in
                                   (record {player_B = playerB'} game, updates)
 
+
+
+
+
 opponent : WhichPlayer -> WhichPlayer
 opponent PlayerA = PlayerB
 opponent PlayerB = PlayerA
 
-
+-}
 
