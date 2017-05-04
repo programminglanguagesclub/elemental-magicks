@@ -29,12 +29,14 @@ Selection game (board, hand, graveyard) with (skillHead game)
  | skill = ?hole
  -}
 
-foo7312016 : Maybe Monster -> Integer
-foo7312016 Nothing = 0
-foo7312016 (Just m) with (soulPoints ( basic(m) ))
+
+
+{- SHOULD FOLD HERE -}
+foo7312016 : Monster -> Integer
+foo7312016 m with (soulPoints ( basic(m) ))
   | (MkBounded (current ** _),_) = current
 
-getPointsFromSoul : Vect 5 (Maybe Monster) -> Integer
+getPointsFromSoul : Vect 5 Monster -> Integer
 getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
 
 
@@ -122,7 +124,7 @@ transformPlayer (game,updateAcc) PlayerB transform =
 
 
 
-spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
+spendThoughts : Player -> Integer -> (Player List ClientUpdate)
 spendThoughts player val = ((record {thoughtsResource = {- (\t => t - val) -} ( >> 0 << ) {-(thoughts player)-} } player), [{-UpdateThoughts (thoughts player) (temporaryId player)-}])
 
 

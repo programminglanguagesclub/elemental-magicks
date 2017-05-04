@@ -1,4 +1,0 @@
-compile code in lib folder with make;
-compile code in this directory with urweb app
-run code in this directory with ./app.exe
-visit http://localhost:8080/Main/main in browser.
