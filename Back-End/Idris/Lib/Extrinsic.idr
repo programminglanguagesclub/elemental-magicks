@@ -1,6 +1,8 @@
 
 module RedBlackTree.Extrinsic
 
+%default total
+
 data Color : Type where
  Red : Color
  Black : Color
@@ -71,8 +73,8 @@ blackenRoot_bh Empty n h = (1 ** HBH_Empty)
 blackenRoot_bh (Node Red k v l r) n (HBH_Node_Red n k v l r hl hr) = ((S n) ** (HBH_Node_Black n k v l r hl hr))
 blackenRoot_bh (Node Black k v l r) (S n) (HBH_Node_Black n k v l r hl hr) = ((S n) ** (HBH_Node_Black n k v l r hl hr))
 
-
-
+ins_bh : {k : keyType} -> Ord keyType => {v : valueType} -> {t : Tree keyType valueType} -> {n : Nat} -> HasBH t n -> HasBH (ins k v t) n
+ins_bh HBH_Empty = ?hole
 
 
 
