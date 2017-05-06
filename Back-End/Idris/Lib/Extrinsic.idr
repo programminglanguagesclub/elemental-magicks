@@ -9,9 +9,9 @@ data Color : Type where
 
 data Tree : (keyType : Type) -> (valueType : Type) -> Type where
  Empty : Tree keyType valueType
- Node : Ord keyType => Color -> (key : keyType) -> (value : valueType) -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
+ Node : Color -> (key : keyType) -> (value : valueType) -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
 
-balance : Color -> keyType -> Ord keyType => valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
+balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
 balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
@@ -43,8 +43,6 @@ data ColorHeight : Color -> Nat -> Nat -> Type where
 data HasBH : Tree keyType valueType -> Nat -> Type where
  HBH_Empty : HasBH Empty 1
  HBH_Node :
-  {k : keyType} ->
-  Ord keyType =>
   HasBH l n ->
   ColorHeight c n m ->
   HasBH r n ->
@@ -57,7 +55,6 @@ data HasBH : Tree keyType valueType -> Nat -> Type where
  HBH_Node_Red :
   (n : Nat) ->
   (k : keyType) ->
-  Ord keyType =>
   (v : valueType) ->
   (l : Tree keyType valueType) ->
   (r : Tree keyType valueType) ->
@@ -69,7 +66,6 @@ data HasBH : Tree keyType valueType -> Nat -> Type where
  HBH_Node_Black :
   (n : Nat) ->
   (k : keyType) ->
-  Ord keyType =>
   (v : valueType) ->
   (l : Tree keyType valueType) ->
   (r : Tree keyType valueType) ->
@@ -83,7 +79,6 @@ data HasBH : Tree keyType valueType -> Nat -> Type where
 blackenRoot_bh : HasBH t n -> (m ** (HasBH (blackenRoot t) m))
 blackenRoot_bh HBH_Empty = (1 ** HBH_Empty)
 blackenRoot_bh (HBH_Node hl hc hr) = (_ ** (HBH_Node hl CH_Black hr))
- 
 
 {-
 blackenRoot_bh : (t : Tree keyType valueType) -> (n : Nat) -> HasBH t n -> (m ** (HasBH (blackenRoot t) m))
@@ -101,6 +96,24 @@ ins_bh HBH_Empty = ?hole
 {-
 blackenRoot_bh (Node Black k v l r) n h = (n **(    ))
 -}
+
+-------------------------------------------------------
+
+balance_bh :
+ {c : Color} ->
+ {k : keyType} ->
+ {v : valueType} ->
+ {l : Tree keyType valueType} ->
+ {r : Tree keyType valueType} ->
+ {n : Nat} ->
+ {m : Nat} ->
+ HasBH l n ->
+ ColorHeight c n m ->
+ HasBH r n ->
+ HasBH (balance c k v l r) m
+
+
+
 
 
 
