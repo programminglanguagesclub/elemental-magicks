@@ -82,7 +82,7 @@ data HasBH : Tree keyType valueType -> Nat -> Type where
 ----------------------------------------------------
 blackenRoot_bh : HasBH t n -> (m ** (HasBH (blackenRoot t) m))
 blackenRoot_bh HBH_Empty = (1 ** HBH_Empty)
-blackenRoot_bh (HBH_Node hl hc hr) = (?hole ** (HBH_Node hl CH_Black hr))
+blackenRoot_bh (HBH_Node hl hc hr) = (_ ** (HBH_Node hl CH_Black hr))
  
 
 {-
