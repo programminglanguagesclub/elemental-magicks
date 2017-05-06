@@ -112,8 +112,13 @@ balance_bh :
  HasBH r n ->
  HasBH (balance c k v l r) m
 
+balance_bh {c} {k} {v} {(Node Red yk yv (Node Red xk xv a b) c)} {r} {n} {m} hbhl ch hbhr =
+{-
 
-
+balance_bh {c} {k} {v} {l} {r} {n} {m} hbhl ch hbhr =
+balance_bh {c} {k} {v} {l} {r} {n} {m} hbhl ch hbhr =
+balance_bh {c} {k} {v} {l} {r} {n} {m} hbhl ch hbhr =
+-}
 
 
 
