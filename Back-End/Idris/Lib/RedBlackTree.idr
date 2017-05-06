@@ -16,9 +16,8 @@ data RedBlackTree : (keyType : Type) -> (Ord keyType) => Type -> Color -> Nat ->
  TreeBlack : Ord keyType => RedBlackTree keyType valueType color1 n -> (key : keyType) -> (value : valueType) -> RedBlackTree keyType valueType color2 n -> RedBlackTree keyType valueType Black (S n)
 
 
-
-
+{-
 insert : RedBlackTree keyType valueType color blackHeight -> keyType -> valueType -> RedBlackTree`
-
+-}
 
 
