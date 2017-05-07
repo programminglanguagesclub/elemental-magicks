@@ -186,11 +186,16 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
 
 
 insert_lc : (key : keyType) -> Ord keyType => (value : valueType) -> (t : Tree keyType valueType) -> Level_Correct t n -> (m ** (Level_Correct (insert key value t) m))
-insert_lc key value Leaf Level_Corect_Leaf = (1 ** Level_Correct_Branch_No_Right_Grandchild 1 key value Leaf (the (Level_Correct Leaf 0) Level_Correct_Leaf) Refl (Right Refl))
+insert_lc key value Leaf Level_Correct_Leaf = (1 ** Level_Correct_Branch_No_Right_Grandchild 1 key value Leaf (the (Level_Correct Leaf 0) Level_Correct_Leaf) Refl (Right Refl))
 
-insert_lc key value (Branch n k v l r) prf = ?hole
+insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l xxxx blarg fooooo) = ?hole
+insert_lc key value (Branch n k v l (Branch n2 k2 v2 l2 r2)) (Level_Correct_Branch_With_Right_Grandchild n k v l n2 k2 v2 l2 r2 x10 x11 x12 x13 x14 x15 x16) = ?hole
 
-
+{-
+        Level_Correct (Branch x1 x2 x3 x4 (Branch x5 x6 x7 x8 x9)) x1
+and
+        Level_Correct (Branch n k v l (Branch n2 k2 v2 l2 r2)) n
+-}
 
 {-insert key value Leaf = Branch 1 key value Leaf Leaf
 -}
