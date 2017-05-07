@@ -200,7 +200,7 @@ insert_lc key value Leaf Level_Correct_Leaf =
 insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l xxxx blarg fooooo) with (compare key k)
  | LT = ?hole
  | EQ = (n ** (Level_Correct_Branch_No_Right_Grandchild n key value l xxxx blarg fooooo))
- | GT = ?hole
+ | GT = (n ** (Level_Correct_Branch_With_Right_Grandchild n ?hole2 ?hole3 ?hole4 ?hole5 ?hole6 ?hole7 ?hole8 ?hole9 ?hole10 ?hole11 ?hole12 ?hole13 ?hole14 ?hole15 ?hole16))
 insert_lc key value (Branch n k v l (Branch n2 k2 v2 l2 r2)) (Level_Correct_Branch_With_Right_Grandchild n k v l n2 k2 v2 l2 r2 x10 x11 x12 x13 x14 x15 x16) = ?hole
 
 {-
