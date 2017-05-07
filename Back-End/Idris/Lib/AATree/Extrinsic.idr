@@ -122,14 +122,71 @@ show (Branch n k v l r) =
 
 
 
+-------------------------------------------------------------------------------
+
+-- Extrinsic verification
+
+{-
+
+From Wikipedia (https://en.wikipedia.org/wiki/AA_tree)
+
+1. The level of every leaf node is one.
+2. The level of every left child is exactly one less than that of its parent.
+3. The level of every right child is equal to or one less than that of its parent.
+4. The level of every right grandchild is strictly less than that of its grandparent.
+5. Every node of level greater than one has two children.
+
+Note that rule 5 is already intrinsic.
+-}
+
+data Level_Correct : Tree keyType valueType -> Nat -> Type where
+
+--Inference Rule 1. 
+ Level_Correct_Leaf :
+ 
+  --------------------
+  Level_Correct Leaf 1
+
+--Inference Rule 2. Assuming no right grandchild.
+ Level_Correct_Branch_No_Right_Grandchild :
+
+ (p : Nat) ->
+ (k : keyType) ->
+ (v : valueType) ->
+ (l : Tree keyType valueType) ->
+ Level_Correct l n ->
+ p = (S n) -> -- Wikipedia Rule 2.
+ Either (p = 1) (p = 2) -> -- Wikipedia Rule 3.
+ --------------------------------
+ Level_Correct (Branch p k v l Leaf) p
+ 
+--Inference Rule 2. Assuming the presence of a right grandchild.
+ Level_Correct_Branch_With_Right_Grandchild :
+
+ (p1 : Nat) ->
+ (k1 : keyType) ->
+ (v1 : valueType) ->
+ (l : Tree keyType valueType) ->
+ (p2 : Nat) ->
+ (k2 : keyType) ->
+ (v2 : valueType) ->
+ (rl : Tree keyType valueType) ->
+ (rr : Tree keyType valueType) ->
+ Level_Correct l n1 ->
+ Level_Correct (Branch p2 k2 v2 rl rr) p2 ->
+ Level_Correct rl n2 ->
+ Level_Correct rr n3 ->
+ p = S n1 -> -- Wikipedia Rule 2.
+ Either (p = p2) (p = S p2) -> -- Wikipedia Rule 3.
+ LT n3 p1 -> -- Wikipedia Rule 4.
+ ------------------------------------------------------------
+ Level_Correct (Branch p1 k1 v1 l (Branch p2 k2 v2 rl rr)) p1
+ 
+-------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
+insert_lc : (k : keyType) -> Ord keyType => (v : valueType) -> (t : Tree keyType valueType) -> Level_Correct t n -> (m ** (Level_Correct (insert k v t) m))
+insert_lc k v Leaf _ = ?hole
 
 
 
