@@ -145,7 +145,7 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
  Level_Correct_Leaf :
  
   --------------------
-  Level_Correct Leaf 1
+  Level_Correct Leaf 0
 
 --Inference Rule 2. Assuming no right grandchild.
  Level_Correct_Branch_No_Right_Grandchild :
@@ -156,7 +156,7 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
  (l : Tree keyType valueType) ->
  Level_Correct l n ->
  p = (S n) -> -- Wikipedia Rule 2.
- Either (p = 1) (p = 2) -> -- Wikipedia Rule 3.
+ Either (p = 0) (p = 1) -> -- Wikipedia Rule 3.
  --------------------------------
  Level_Correct (Branch p k v l Leaf) p
  
@@ -185,11 +185,15 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
 -------------------------------------------------------------------------------
 
 
-insert_lc : (k : keyType) -> Ord keyType => (v : valueType) -> (t : Tree keyType valueType) -> Level_Correct t n -> (m ** (Level_Correct (insert k v t) m))
-insert_lc k v Leaf _ = ?hole
+insert_lc : (key : keyType) -> Ord keyType => (value : valueType) -> (t : Tree keyType valueType) -> Level_Correct t n -> (m ** (Level_Correct (insert key value t) m))
+insert_lc key value Leaf Level_Corect_Leaf = (1 ** Level_Correct_Branch_No_Right_Grandchild 1 key value Leaf (the (Level_Correct Leaf 0) Level_Correct_Leaf) Refl (Right Refl))
+
+insert_lc key value (Branch n k v l r) prf = ?hole
 
 
 
+{-insert key value Leaf = Branch 1 key value Leaf Leaf
+-}
 
 
 
