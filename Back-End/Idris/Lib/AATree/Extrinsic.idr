@@ -185,16 +185,35 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
 -------------------------------------------------------------------------------
 
 
-insert_lc : (key : keyType) -> Ord keyType => (value : valueType) -> (t : Tree keyType valueType) -> Level_Correct t n -> (m ** (Level_Correct (insert key value t) m))
-insert_lc key value Leaf Level_Correct_Leaf = (1 ** Level_Correct_Branch_No_Right_Grandchild 1 key value Leaf (the (Level_Correct Leaf 0) Level_Correct_Leaf) Refl (Right Refl))
+insert_lc :
+ (key : keyType) ->
+ Ord keyType =>
+ (value : valueType) ->
+ (t : Tree keyType valueType) ->
+ Level_Correct t n ->
+ (m ** (Level_Correct (insert key value t) m))
 
-insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l xxxx blarg fooooo) = ?hole
+insert_lc key value Leaf Level_Correct_Leaf =
+ (_ ** Level_Correct_Branch_No_Right_Grandchild _ key value Leaf Level_Correct_Leaf Refl (Right Refl))
+
+
+insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l xxxx blarg fooooo) with (compare key k)
+ | LT = ?hole
+ | EQ = (n ** (Level_Correct_Branch_No_Right_Grandchild n key value l xxxx blarg fooooo))
+ | GT = ?hole
 insert_lc key value (Branch n k v l (Branch n2 k2 v2 l2 r2)) (Level_Correct_Branch_With_Right_Grandchild n k v l n2 k2 v2 l2 r2 x10 x11 x12 x13 x14 x15 x16) = ?hole
 
 {-
-        Level_Correct (Branch x1 x2 x3 x4 (Branch x5 x6 x7 x8 x9)) x1
-and
-        Level_Correct (Branch n k v l (Branch n2 k2 v2 l2 r2)) n
+
+(m : Nat ** Level_Correct (split (skew (Branch n k v (insert key value l) Leaf))) m) is not a numeric type
+
+
+insert key value (Branch n k v l r) with (compare key k)
+ | LT = split $ skew $ Branch n k v (insert key value l) r
+ | EQ = Branch n key value l r
+ | GT = split $ skew $ Branch n k v l (insert key value r)
+
+
 -}
 
 {-insert key value Leaf = Branch 1 key value Leaf Leaf
