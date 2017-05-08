@@ -48,10 +48,9 @@ split :
 split Leaf = Leaf
 split (Branch n k v l Leaf) = Branch n k v l Leaf
 split (Branch n k1 v1 l (Branch m k2 v2 rl Leaf)) = Branch n k1 v1 l (Branch m k2 v2 rl Leaf)
-split (Branch n k1 v1 l (Branch m k2 v2 rl rr)) =
- case decEq n (level rr) of
-  Yes _ => Branch (S m) k2 v2 (Branch n k1 v1 l rl) rr
-  No _ => Branch n k1 v1 l (Branch m k2 v2 rl rr)
+split (Branch n k1 v1 l (Branch m k2 v2 rl rr)) with (decEq n (level rr))
+ | Yes _ = Branch (S m) k2 v2 (Branch n k1 v1 l rl) rr
+ | No _ = Branch n k1 v1 l (Branch m k2 v2 rl rr)
 -------------------------------------------------------------------------------
 insert :
  (key : keyType) ->
@@ -185,6 +184,8 @@ data Level_Correct : Tree keyType valueType -> Nat -> Type where
 -------------------------------------------------------------------------------
 
 
+
+
 insert_lc :
  (key : keyType) ->
  Ord keyType =>
@@ -197,15 +198,110 @@ insert_lc key value Leaf Level_Correct_Leaf =
  (_ ** Level_Correct_Branch_No_Right_Grandchild _ key value Leaf Level_Correct_Leaf Refl (Right Refl))
 
 
-insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l xxxx blarg fooooo) with (compare key k)
- | LT = ?hole
- | EQ = (n ** (Level_Correct_Branch_No_Right_Grandchild n key value l xxxx blarg fooooo))
- | GT = (n ** (Level_Correct_Branch_With_Right_Grandchild n ?hole2 ?hole3 ?hole4 ?hole5 ?hole6 ?hole7 ?hole8 ?hole9 ?hole10 ?hole11 ?hole12 ?hole13 ?hole14 ?hole15 ?hole16))
+insert_lc key value (Branch n k v l Leaf) (Level_Correct_Branch_No_Right_Grandchild n k v l level_correct_l n_S_level_l n_0_or_1) with (compare key k)
+ | LT = ?LTHOLE
+ | EQ = (n ** (Level_Correct_Branch_No_Right_Grandchild n key value l level_correct_l n_S_level_l n_0_or_1))
+ | GT = ?GTHOLE {- with (case decEq n 1)
+      | Yes _ = ?hole {-(n ** (Level_Correct_Branch_With_Right_Grandchild n ?hole2 ?hole3 ?hole4 ?hole5 ?hole6 ?hole7 ?hole8 ?hole9 ?hole10 ?hole11 ?hole12 ?hole13 ?hole14 ?hole15 ?hole16))-}
+      | No _ = ?hole
+-}
+
 insert_lc key value (Branch n k v l (Branch n2 k2 v2 l2 r2)) (Level_Correct_Branch_With_Right_Grandchild n k v l n2 k2 v2 l2 r2 x10 x11 x12 x13 x14 x15 x16) = ?hole
 
-{-
 
-(m : Nat ** Level_Correct (split (skew (Branch n k v (insert key value l) Leaf))) m) is not a numeric type
+
+
+
+
+
+splitLemma :
+ (ll : Tree keyType valueType) ->
+ (lr : Tree keyType valueType) ->
+ (r : Tree keyType valueType) ->
+ 
+
+ 
+ -------------------------------- might have either or something here..
+ Level_Correct (Branch n k1 v1 (Branch m k2 v2 ll lr) r) n
+
+
+{-
+split :
+ Tree keyType valueType ->
+ Tree keyType valueType
+
+split Leaf = Leaf
+split (Branch n k v l Leaf) = Branch n k v l Leaf
+split (Branch n k1 v1 l (Branch m k2 v2 rl Leaf)) = Branch n k1 v1 l (Branch m k2 v2 rl Leaf)
+split (Branch n k1 v1 l (Branch m k2 v2 rl rr)) with (decEq n (level rr))
+ | Yes _ = Branch (S m) k2 v2 (Branch n k1 v1 l rl) rr
+ | No _ = Branch n k1 v1 l (Branch m k2 v2 rl rr)
+-}
+
+
+
+
+
+{-
+ 
+
+n : Nat
+  n_0_or_1 : Either (n = 0) (n = 1)
+  valueType : Type
+  value : valueType
+  v : valueType
+  keyType : Type
+  key : keyType
+  k : keyType
+  l : Tree keyType valueType
+  constraint : Ord keyType
+  n1 : Nat
+  n_S_level_l : n = S n1
+  level_correct_l : Level_Correct l n1
+--------------------------------------
+GTHOLE : (m : Nat ** Level_Correct (split (skew (Branch n k v l (Branch 1 key value Leaf Leaf)))) m)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(m : Nat ** Level_Correct (split (skew (Branch n k v l (insert key value Leaf)))) m) is not a numeric type
+(m : Nat ** Level_Correct (split (skew (Branch n k v l (insert key value Leaf)))) m) is not a numeric type
+
+
+
+ GT
+ 
+ split (skew (Branch n k v l (Branch 1 key value Leaf Leaf)))
+
+
+
+skew :
+ Tree keyType valueType ->
+ Tree keyType valueType
+
+skew Leaf = Leaf
+skew (Branch n k v Leaf r) = Branch n k v Leaf r
+skew (Branch n k1 v1 (Branch m k2 v2 ll lr) r) =
+ case decEq n m of
+  Yes _ => Branch m k2 v2 ll (Branch n k1 v1 lr r)
+  No _ => Branch n k1 v1 (Branch m k2 v2 ll lr) r
+
+
+
 
 
 insert key value (Branch n k v l r) with (compare key k)
