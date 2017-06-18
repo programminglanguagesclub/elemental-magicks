@@ -119,27 +119,6 @@ balance_bh key value l r hc hl hr = ?hole
 ins_bh : (key : keyType) -> Ord keyType => (value : valueType) -> (t : Tree keyType valueType) -> HasBH t n -> HasBH (ins key value t) n
 ins_bh key value Empty h {n=S Z} = HBH_Node HBH_Empty CH_Red HBH_Empty
 ins_bh key value (Node color k v l r) (HBH_Node hl hc hr) {n=n} with (compare key k)
-{-
- {-| (LT, Node Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d) = ?hole
- | (LT, Node Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d) = ?hole
- | (LT, Node Black xk xv a (Node Red zk zv (Node Red yk yv b c) d)) = ?hole
- | (LT, Node Black xk xv a (Node Red yk yv b (Node Red zk zv c d))) = ?hole-}
- | (LT, Node c' k' v' l' r') = believe_me (HBH_Node (ins_bh key value l hl) _ hr) -- WRONG
-
-
-{-
-  let ins_l_bh = the (HasBH (ins key value l) _) (ins_bh key value l hl) in
-  let l' = ins key value l in
-  case l' of
-   (Node Red yk yv (Node Red xk xv a b) c) => ?hole
-   (Node Red xk xv a (Node Red yk yv b c)) => ?hole
-   a =>
-    case r of
-     (Node Red zk zv (Node Red yk yv b c) d) => ?hole
-     (Node Red yk yv b (Node Red zk zv c d)) => ?hole
-     _ => HBH_Node (the (HasBH (ins key value l) _) ins_l_bh) hc hr
--}-} 
-
  | LT = balance_bh k v (ins key value l) r hc (ins_bh key value l hl) hr
  | EQ = HBH_Node hl hc hr
  | GT = balance_bh k v l (ins key value r) hc hl (ins_bh key value r hr)
@@ -156,8 +135,6 @@ ins_bh key value (Node color k v l r) (HBH_Node hl hc hr) {n=n} with (compare ke
 
 
 -}
-
-
 
 {-
 
