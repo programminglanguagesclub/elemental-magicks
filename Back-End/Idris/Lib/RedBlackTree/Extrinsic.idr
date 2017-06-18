@@ -140,11 +140,9 @@ ins_bh key value (Node color k v l r) (HBH_Node hl hc hr) {n=n} with (compare ke
      _ => HBH_Node (the (HasBH (ins key value l) _) ins_l_bh) hc hr
 -}-} 
 
- | LT =
-  let l' = ins key value l in
-  balance_bh k v l' r hc ?hole hr
+ | LT = balance_bh k v (ins key value l) r hc (ins_bh key value l hl) hr
  | EQ = HBH_Node hl hc hr
- | GT = ?hole
+ | GT = balance_bh k v l (ins key value r) hc hl (ins_bh key value r hr)
 
 
 {-
