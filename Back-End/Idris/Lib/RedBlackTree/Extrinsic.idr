@@ -112,29 +112,30 @@ balance_bh :
  HasBH (balance c key value l r) m
 
 
-balance_bh key value (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
+balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
  HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
-balance_bh key value (Node Red _ _  (Node Black _ _ _ _) (Node Red _ _ _ _ )) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
+
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _)) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
  HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
 
-balance_bh key value (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Red _ _ _ _ ) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Red _ _ _ _ ) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
+ HBH_Node (HBH_Node hl CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
+balance_bh _ _ (Node Black _ _ _ _) (Node Red _ _ (Node Red _ _ _ _) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
  HBH_Node (HBH_Node hl CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
 
-{-
-balance_bh key value (Node Black ak av al ar) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
-balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _)) CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
+ HBH_Node (HBH_Node hl CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 
-balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Red zk zv (Node Black yk yv b c) d) CH_Black hl hr =
- HBH_Node hl CH_Black hr
-
-balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Black zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
-balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Black zk zv (Node Black yk yv b c) d) CH_Black hl hr = ?hole
-
-balance_bh key value l r hc hl hr = ?hole
--}
 
 
 {-
+
+
+Type mismatch between
+                Node Red k1 v2 (Node Black k3 v4 (Node Red key5 value6 (Node Black key7 value8 _ _) (Node Black key11 value12 _ _)) _) (Node Black k v _ _)
+        and
+                balance Black key16 value17 (Node Red key5 value6 (Node Black key7 value8 _ _) (Node Black key11 value12 _ _)) (Node Red key18 value19 _ (Node Red key value _ _))
+
 
 balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 
@@ -146,9 +147,9 @@ balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (
                 balance Black key value (Node Red xk xv a (Node Red yk yv b c)) d
 
 
-balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+--balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+--balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+--balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance c k v l r = Node c k v l r
 -}
