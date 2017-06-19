@@ -125,7 +125,8 @@ balance_bh _ _ (Node Black _ _ _ _) (Node Red _ _ (Node Red _ _ _ _) _) CH_Black
 
 balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _)) CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
  HBH_Node (HBH_Node hl CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
-
+balance_bh _ _ (Node Black _ _ _ _) (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _)) CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
+ HBH_Node (HBH_Node hl CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 
 
 {-
