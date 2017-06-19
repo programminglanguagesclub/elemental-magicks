@@ -112,12 +112,12 @@ balance_bh :
  HasBH (balance c key value l r) m
 
 
-balance_bh key value (Node Red yk yv (Node Red xk xv a b) c) d CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
+balance_bh key value (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
  HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
-balance_bh key value (Node Red xk xv (Node Black ak av al ar) (Node Red yk yv b c)) d CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
+balance_bh key value (Node Red _ _  (Node Black _ _ _ _) (Node Red _ _ _ _ )) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
  HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
 
-balance_bh key value (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
+balance_bh key value (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Red _ _ _ _ ) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
  HBH_Node (HBH_Node hl CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
 
 {-
