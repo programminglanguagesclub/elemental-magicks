@@ -116,13 +116,28 @@ balance_bh key value (Node Red yk yv (Node Red xk xv a b) c) d CH_Black (HBH_Nod
  HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
 balance_bh key value (Node Red xk xv (Node Black ak av al ar) (Node Red yk yv b c)) d CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
  HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
-balance_bh key value a (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr =
- HBH_Node _ _ _ 
-balance_bh key value l r hc hl hr = ?hole
 
+balance_bh key value (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
+ HBH_Node (HBH_Node hl CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
+
+{-
+balance_bh key value (Node Black ak av al ar) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
+balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
+
+balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Red zk zv (Node Black yk yv b c) d) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+
+balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Black zk zv (Node Red yk yv b c) d) CH_Black hl hr = ?hole
+balance_bh key value (Node Red ak av (Node Black ak' av' al' ar') (Node Black ak'' av'' al'' ar'')) (Node Black zk zv (Node Black yk yv b c) d) CH_Black hl hr = ?hole
+
+balance_bh key value l r hc hl hr = ?hole
+-}
 
 
 {-
+
+balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+
 
 
         Type mismatch between
