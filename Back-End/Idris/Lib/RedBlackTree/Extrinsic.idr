@@ -146,6 +146,42 @@ balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) Empty CH_Black hl hr =
 balance_bh _ _ (Node Red _ _ Empty Empty) Empty CH_Black hl hr =
  HBH_Node hl CH_Black hr
 
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty Empty) (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) (Node Red _ _ Empty Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty Empty) (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty Empty) (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) (Node Red _ _ Empty Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) (Node Red _ _ Empty Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+balance_bh _ _ (Node Red _ _ Empty Empty) (Node Red _ _ Empty Empty) CH_Black hl hr =
+ HBH_Node hl CH_Black hr
+
+
+
+
 balance_bh _ _ (Node Black _ _ _ _) (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
  HBH_Node hl CH_Black hr
 balance_bh _ _ Empty (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _)) CH_Black hl hr =
@@ -187,7 +223,7 @@ also all empty, etc.
 
 
 *Extrinsic> :missing balance_bh
-balance_bh key
+lance_bh key
            value
            (Node Black key value (Node Red k v l r) _)
            (Node Red key value Empty (Node Red key value _ _))
@@ -197,101 +233,45 @@ balance_bh key
 balance_bh key
            value
            (Node Red key value (Node Black key value _ _) (Node Black key value _ _))
-           (Node Red key value (Node Black k v l r) (Node Black k v l r))
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) (Node Black key value _ _))
-           (Node Red key value (Node Black k v l r) Empty)
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) (Node Black key value _ _))
-           (Node Red key value Empty (Node Red k v l r))
+           (Node Red key value Empty (Node Red key value _ _))
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
-           (Node Red key value (Node Black key value _ _) (Node Black key value _ _))
-           (Node Red key value Empty (Node Black k v l r))
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) (Node Black key value _ _))
-           (Node Red key value Empty Empty)
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-balance_bh key
-           value
            (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Red k v l r) (Node Red k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Red k v l r))
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Red k v l r) (Node Black k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Black k v l r))
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Black _))
 balance_bh key
            value
            (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Red k v l r) Empty)
+           (Node Red key value (Node Red key value _ _) Empty)
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red HBH_Empty)
 balance_bh key
            value
            (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Black k v l r) (Node Red k v l r))
+           (Node Red key value (Node Black key value _ _) (Node Red key value _ _))
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Black k v l r) (Node Black k v l r))
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value (Node Black k v l r) Empty)
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value Empty (Node Red k v l r))
+           (Node Red key value Empty (Node Red key value _ _))
            CH_Black
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Red _))
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value Empty (Node Black k v l r))
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value (Node Black key value _ _) Empty)
-           (Node Red key value Empty Empty)
-           CH_Black
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
 balance_bh key
            value
            (Node Red key value Empty (Node Red key value _ _))
@@ -366,129 +346,73 @@ balance_bh key value (Node Red key value Empty (Node Red key value _ _)) Empty C
 balance_bh key
            value
            (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Red k v l r) (Node Red k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Red k v l r))
            CH_Black
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Red k v l r) (Node Black k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Black k v l r))
            CH_Black
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Black _))
 balance_bh key
            value
            (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Red k v l r) Empty)
+           (Node Red key value (Node Red key value _ _) Empty)
            CH_Black
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red HBH_Empty)
 balance_bh key
            value
            (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Black k v l r) (Node Red k v l r))
+           (Node Red key value (Node Black key value _ _) (Node Red key value _ _))
            CH_Black
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Black k v l r) (Node Black k v l r))
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value (Node Black k v l r) Empty)
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-balance_bh key
-           value
-           (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value Empty (Node Red k v l r))
+           (Node Red key value Empty (Node Red key value _ _))
            CH_Black
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
-           (Node Red key value Empty (Node Black key value _ _))
-           (Node Red key value Empty (Node Black k v l r))
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value Empty (Node Black key value _ _))
            (Node Red key value Empty Empty)
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-balance_bh key
-           value
-           (Node Red key value Empty Empty)
-           (Node Red key value (Node Red k v l r) (Node Red k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Red k v l r))
            CH_Black
            (HBH_Node HBH_Empty CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value Empty Empty)
-           (Node Red key value (Node Red k v l r) (Node Black k v l r))
+           (Node Red key value (Node Red key value _ _) (Node Black k v l r))
            CH_Black
            (HBH_Node HBH_Empty CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red (HBH_Node _ CH_Black _))
 balance_bh key
            value
            (Node Red key value Empty Empty)
-           (Node Red key value (Node Red k v l r) Empty)
+           (Node Red key value (Node Red key value _ _) Empty)
            CH_Black
            (HBH_Node HBH_Empty CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Red _) CH_Red HBH_Empty)
 balance_bh key
            value
            (Node Red key value Empty Empty)
-           (Node Red key value (Node Black k v l r) (Node Red k v l r))
+           (Node Red key value (Node Black key value _ _) (Node Red key value _ _))
            CH_Black
            (HBH_Node HBH_Empty CH_Red HBH_Empty)
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key
            value
            (Node Red key value Empty Empty)
-           (Node Red key value (Node Black k v l r) (Node Black k v l r))
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value Empty Empty)
-           (Node Red key value (Node Black k v l r) Empty)
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-           (HBH_Node (HBH_Node _ CH_Black _) CH_Red HBH_Empty)
-balance_bh key
-           value
-           (Node Red key value Empty Empty)
-           (Node Red key value Empty (Node Red k v l r))
+           (Node Red key value Empty (Node Red key value _ _))
            CH_Black
            (HBH_Node HBH_Empty CH_Red HBH_Empty)
            (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Red _))
-balance_bh key
-           value
-           (Node Red key value Empty Empty)
-           (Node Red key value Empty (Node Black k v l r))
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-           (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Black _))
-balance_bh key
-           value
-           (Node Red key value Empty Empty)
-           (Node Red key value Empty Empty)
-           CH_Black
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
-           (HBH_Node HBH_Empty CH_Red HBH_Empty)
 balance_bh key
            value
            Empty
@@ -512,13 +436,6 @@ balance_bh key
            HBH_Empty
            (HBH_Node (HBH_Node _ CH_Black _) CH_Red (HBH_Node _ CH_Red _))
 balance_bh key value Empty (Node Red key value Empty (Node Red key value _ _)) CH_Black HBH_Empty (HBH_Node HBH_Empty CH_Red (HBH_Node _ CH_Red _))
-
-
-
-
-
-
-
 
 
 
