@@ -114,8 +114,10 @@ balance_bh :
 
 balance_bh key value (Node Red yk yv (Node Red xk xv a b) c) d CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
  HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
-balance_bh key value (Node Red xk xv a (Node Red yk yv b c)) d CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
+balance_bh key value (Node Red xk xv (Node Black ak av al ar) (Node Red yk yv b c)) d CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
  HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
+balance_bh key value a (Node Red zk zv (Node Red yk yv b c) d) CH_Black hl hr =
+ HBH_Node _ _ _ 
 balance_bh key value l r hc hl hr = ?hole
 
 
