@@ -32,10 +32,12 @@ writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
 
 getPlayerByTemporaryId : String -> Game -> Maybe Player
-getPlayerByTemporaryId playerTemporaryId game = if (temporaryId (player_A game)) == playerTemporaryId then Just (player_A game) else if (temporaryId (player_B game)) == playerTemporaryId then Just (player_B game) else Nothing
+getPlayerByTemporaryId = ?hole {-playerTemporaryId game = if (temporaryId (player_A game)) == playerTemporaryId then Just (player_A game) else if (temporaryId (player_B game)) == playerTemporaryId then Just (player_B game) else Nothing
+-}
+
 
 createNewGame : List Game -> String -> String -> List Game
-createNewGame games originalPlayerA originalPlayerB = games ++ [new game originalPlayerA originalPlayerB]
+createNewGame = ?hole {-games originalPlayerA originalPlayerB = games ++ [new game originalPlayerA originalPlayerB]-}
 
 
 {-

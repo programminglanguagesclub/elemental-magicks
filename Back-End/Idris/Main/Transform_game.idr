@@ -44,7 +44,7 @@ import Main.Step_game
 
 partial
 transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
-transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
+transformGame' = ?hole {-game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
  | DrawPhase =
    case transformDrawPhase actor (player_A game) (player_B game) serverUpdate of
     Nothing => (game,[GameLogicError])
@@ -89,7 +89,7 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
     Right (errorMessage, playerId) => ?hole
     Left (playerA', playerB', deathQueue', updates) => ?hole
 
- 
+ -}
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 
 

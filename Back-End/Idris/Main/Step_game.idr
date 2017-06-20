@@ -116,13 +116,19 @@ mutual {- drag along a boolean argument which says if we're done stepping -}
   continueStep (game,updates,Just clientInstruction) = (game,updates,clientInstruction)
   continueStep (game,updates,Nothing) = stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
-  stepGameNoSkills (initiative, turnNumber, deathQueue, playerA, playerB, phase,acc) with (phase)
-    | DrawPhase =
+ 
+  stepGameNoSkills = ?hole
+ 
+ {-
+ 
+ stepGameNoSkills (initiative, turnNumber, deathQueue, playerA, playerB, phase,acc) with (phase)
+    | DrawPhase = ?hole {-
       case stepDrawPhase playerA playerB of
        Nothing =>
-        let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc) in
+                 let (game',acc') = {-goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc)-} ?hole in
         continueStep (game', acc', Nothing)
        Just clientInstruction => continueStep (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc, Just clientInstruction)
+       -}
     
     | SpawnPhase =
       case stepSpawnPhase initiative playerA playerB of
@@ -145,9 +151,9 @@ mutual {- drag along a boolean argument which says if we're done stepping -}
     | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
     
     | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
-  
-  stepGame (g,acc) with (skillHead g, skillQueue g)
+    -} 
+  stepGame  = ?hole {-(g,acc) with (skillHead g, skillQueue g)
     | (TerminatedSkillComponent, []) = assert_total $ stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
     | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = assert_total ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
     | _ = ?hole
-
+    -}
