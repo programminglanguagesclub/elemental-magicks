@@ -110,6 +110,8 @@ getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
 
 
 transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
+transformPlayer = ?hole
+{-
 transformPlayer (game,updateAcc) PlayerA transform =
  let (player,updates) = transform (player_A game) in
  let game' = record {player_A = player} game in
@@ -121,10 +123,10 @@ transformPlayer (game,updateAcc) PlayerB transform =
  let game' = record {player_B = player} game in
  let updateAcc' = updateAcc ++ updates in
  (game', updateAcc')
+-}
 
 
-
-spendThoughts : Player -> Integer -> (Player List ClientUpdate)
+spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
 spendThoughts player val = ((record {thoughtsResource = {- (\t => t - val) -} ( >> 0 << ) {-(thoughts player)-} } player), [{-UpdateThoughts (thoughts player) (temporaryId player)-}])
 
 
