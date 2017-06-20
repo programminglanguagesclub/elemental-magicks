@@ -1,6 +1,7 @@
 module Base.Phase
 import Base.Clientupdates
 import Data.Vect
+import Data.Fin
 import Base.Player
 
 
@@ -17,7 +18,7 @@ data PhaseCycle
 
 public export
 data Phase
- = DrawPhase DrawPlayer DrawPlayer
+ = DrawPhase DrawPlayer DrawPlayer (Fin 60)
  | MkPhaseCycle PhaseCycle Player Player
 
 

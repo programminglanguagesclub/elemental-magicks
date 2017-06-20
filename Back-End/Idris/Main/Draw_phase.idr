@@ -82,9 +82,12 @@ getPlayerAPlayerB PlayerA theActor theNonactor = (theActor, theNonactor)
 getPlayerAPlayerB PlayerB theActor theNonactor = (theNonactor, theActor)
 
 
+{-
 getCardDraw : Player -> Player -> Maybe (CardDraw, WhichPlayer)
 getCardDraw playerA playerB = List.index' (List.length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) drawSequence
- 
+ -}
+
+
  {-let cardsDrawn = length (doIt (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB)) in
  case strengthen cardsDrawn of
       Left sameCardsDrawn => Nothing
@@ -95,8 +98,10 @@ getCardDraw playerA playerB = List.index' (List.length $ getAllCardsDrawn (soulC
 
 
 stepDrawPhase : Player -> Player -> Maybe ClientInstruction
-stepDrawPhase playerA playerB =
+{-stepDrawPhase playerA playerB =
  map (\x => MkClientInstruction (serializeSequence x PlayerA, serializeSequence x PlayerB)) $ getCardDraw playerA playerB
+-}
+
 
 {-not sure where I handle whose turn it is...-}
 
@@ -160,9 +165,10 @@ instantiateCardFactory cardId playerId (MonsterCardFactory MonsterFactory) = Mon
 
 
 assignSoulSkill : Fin 5 -> Nat -> String -> MonsterFactory -> Player -> (Player, List ClientUpdate)
-assignSoulSkill soulIndex cardId playerId monsterFactory player =
+{-assignSoulSkill soulIndex cardId playerId monsterFactory player =
  let player' = record {soulCards $= (\s => replaceAt soulIndex (Just (instantiateMonster cardId playerId monsterFactory)) s)} player in
  (player', [DrawSoul cardId soulIndex playerId])
+-}
 
 drawHandCard : Nat -> String -> CardFactory -> Player -> (Player, List ClientUpdate)
 drawHandCard cardId playerId cardFactory player =
@@ -179,7 +185,7 @@ I also need to refactor all of my code to use Left for errors and Right for the 
 
 -}
 transformDrawPhase : WhichPlayer -> Player -> Player -> ServerUpdate -> Maybe (Either (Player, List ClientUpdate) (String, String))
-transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
+{-transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
  let cardsDrawn = length $ getAllCardsDrawn (soulCards playerA) (soulCards playerB) (hand playerA) (hand playerB) in
@@ -225,7 +231,7 @@ transformDrawPhase actor playerA playerB _  =
   then Just $ Right (invalidActionDrawPhase, playerId)
   else Just $ Right (notYourTurn, playerId)
 
-
+-}
 
 
 
