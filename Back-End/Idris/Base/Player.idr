@@ -9,24 +9,6 @@ import Base.Card
 %access public export
 %default total
 
-
-{-
-record Player where
- constructor MkPlayer
- {- board : Vect 9 (Maybe Monster)-}
- board : Vect 3 (Vect 3 (Maybe Monster))
- rowTarget : Vect 3 (Fin 3)
- {-hand : BoundedList 25 Card-}
- hand : List Card
- graveyard : List Card
- discard : List Card
- spawnCard : Maybe Card
- soulCards : Vect 5 (Maybe Monster)
- thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
- knowledge : Vect 6 (Bounded 0 9)
- temporaryId : String
- -}
-
 record Player where
  constructor MkPlayer
  board : Vect 3 (Vect 3 (Maybe Monster))
@@ -45,7 +27,6 @@ record DrawPlayer where
  hand : BoundedList 25 Card
  soulCards : Vect 5 (Maybe Monster)
  temporaryId : String
-
 
 
 {-
