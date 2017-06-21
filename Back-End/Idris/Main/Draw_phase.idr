@@ -97,7 +97,7 @@ getCardDraw playerA playerB = List.index' (List.length $ getAllCardsDrawn (soulC
 
 
 
-stepDrawPhase : Player -> Player -> Maybe ClientInstruction
+stepDrawPhase : DrawPlayer -> DrawPlayer -> Maybe ClientInstruction
 {-stepDrawPhase playerA playerB =
  map (\x => MkClientInstruction (serializeSequence x PlayerA, serializeSequence x PlayerB)) $ getCardDraw playerA playerB
 -}

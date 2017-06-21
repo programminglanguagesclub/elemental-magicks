@@ -111,30 +111,37 @@ getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQue
 {-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
 {-also mutual with stepGameNoSkills and stepGame -}
 mutual {- drag along a boolean argument which says if we're done stepping -}
-  continueStep : (Game, List ClientUpdate, Maybe ClientInstruction) -> (Game, List ClientUpdate, ClientInstruction)
-  stepGameNoSkills : (WhichPlayer, Nat, List Nat, Phase, List ClientUpdate) -> (Game, List ClientUpdate, ClientInstruction)
-  stepGame : (Game, List ClientUpdate) -> (Game, List ClientUpdate, ClientInstruction)
-  continueStep (game,updates,Just clientInstruction) = (game,updates,clientInstruction)
-  continueStep (game,updates,Nothing) = stepGame (game,updates)
+  continueStep :
+   (Game, List ClientUpdate, Maybe ClientInstruction) ->
+   (Game, List ClientUpdate, ClientInstruction)
+  stepGameNoSkills :
+   (WhichPlayer, Nat, List Nat, Phase, List ClientUpdate) ->
+   (Game, List ClientUpdate, ClientInstruction)
+  stepGame :
+   (Game, List ClientUpdate) ->
+   (Game, List ClientUpdate, ClientInstruction)
+  continueStep (game,updates,Just clientInstruction) =
+   (game,updates,clientInstruction)
+  continueStep (game,updates,Nothing) =
+   stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
  
   stepGameNoSkills (initiative, turnNumber, deathQueue, phase, acc) with (phase)
-    | DrawPhase playerA playerB cardsDrawn = ?hole {-
+    | DrawPhase playerA playerB cardsDrawn =
       case stepDrawPhase playerA playerB of
        Nothing =>
-                 let (game',acc') = {-goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc)-} ?hole in
-        continueStep (game', acc', Nothing)
-       Just clientInstruction => continueStep (MkGame initiative 0 TerminatedSkill [] [] playerA playerB DrawPhase, acc, Just clientInstruction)
-       -}
-    
-    | MkPhaseCycle SpawnPhase playerA playerB = ?hole {-
-      case stepSpawnPhase initiative playerA playerB of
-       Nothing =>
-        let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue playerA playerB SpawnPhase, acc) in   
+        let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc) in
         continueStep (game', acc', Nothing)
        Just clientInstruction =>
-        continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue playerA playerB SpawnPhase, acc, Just clientInstruction)
-        -}
+        continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)
+    | MkPhaseCycle SpawnPhase playerA playerB =
+      case stepSpawnPhase initiative playerA playerB of
+       Nothing =>
+        let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue (MkPhaseCycle SpawnPhase playerA playerB), acc) in   
+        continueStep (game', acc', Nothing)
+       Just clientInstruction =>
+        continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue (MkPhaseCycle SpawnPhase playerA playerB), acc, Just clientInstruction)
+ 
     | MkPhaseCycle SpellPhase playerA playerB = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
     | MkPhaseCycle RemovalPhase playerA playerB = continueStep (stepRemovalPhase deathQueue playerA playerB)
