@@ -18,54 +18,18 @@ data Round
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 
-
-
-
-
-{-
-
-
-
-Currently I have the draw phase as a phase.
-
-I don't know if I like this.
-
-
-the problem is that I have the same type of player for all other phases,
-
-and so I would like to maybe have different games for if we're in the draw phase or not....
-
-
-
-
-
-
-
-
-
--}
-
-
-
-
-
 record Game where
  constructor MkGame
  initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Nonautomatic {-
- currentEvoker : Nat {-this would be better in skillHead but that is somewhat invasive when I create skills..-}
-Actually I'm going to put this in them..
--}
+ skillHead : Nonautomatic
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
  
 
-{- This is REALLY out of date... -}
-syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [] [] (new player playerAId) (new player playerBId) DrawPhase
+syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase (MkDrawPlayer [] [] playerAId) (MkDrawPlayer [] [] playerBId)) DrawPhase
 
-{-MIGHT WANT THE PLAYERS IN A TUPLE OF PLAYERS-}
 
 playerOnMove : Game -> WhichPlayer
 

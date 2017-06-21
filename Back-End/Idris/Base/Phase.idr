@@ -21,20 +21,6 @@ data Phase
  = DrawPhase DrawPlayer DrawPlayer (Fin 60)
  | MkPhaseCycle PhaseCycle Player Player
 
-
-
-
- {-
- I can put into the constructor to drawplayer a counter which keeps track of the number of
-  soul cards that have been added (or are left to add), and then only allow drawplayer to be constructed via accessing those constructors.
- -}
-
-numNothing : Vect n (Maybe a) -> Nat
-numNothing = ?hole
-
-
-{-This does not perform any actions which should be performed at the start or end of a phase. It just performs the transition... for now at least... -}
-
 public export
 nextPhase : PhaseCycle -> PhaseCycle
 nextPhase SpawnPhase = SpellPhase
