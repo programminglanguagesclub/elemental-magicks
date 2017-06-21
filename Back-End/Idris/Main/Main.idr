@@ -132,9 +132,11 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
     True =>
      let (battle', reply) = processServerUpdate' (MkBattle round game) PlayerB serverUpdate in
      (battle' ++ battles, reply)
-    False => {-DO NOT THROW BATTLES AWAY!!-}processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
+    False =>
+     let (battles', reply) = processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId) in
+     ((MkBattle round game)::battles', reply)
 
-{-assuming not the same token for both...-}
+{-assuming not the same token for both players...-}
  
 
 
