@@ -43,7 +43,7 @@ createNewBattle battles originalPlayerA originalPlayerB = battles ++ ?hole {-[ne
 
 
 
-processServerUpdateOnGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+processServerUpdateOnGame : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
 processServerUpdateOnGame = transformGame
 
 
@@ -77,13 +77,17 @@ processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about oppon
 processServerUpdate ((MkBattle round originalPlayerAToken originalPlayerBToken game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
  case (originalPlayerAToken == playerId) of
   True =>
-   let (game', clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
-   ((MkBattle ?hole originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+   let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
+   case transformedGame of
+    Left winner => ((MkBattle ?hole originalPlayerAToken originalPlayerBToken ?hole)::battles, ?hole)
+    Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
   False =>
    case (originalPlayerBToken == playerId) of
     True =>
-     let (game', clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
-     ((MkBattle ?hole originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+     let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
+     case transformedGame of
+      Left winner => ((MkBattle ?hole originalPlayerAToken originalPlayerBToken ?hole)::battles, ?hole)
+      Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
     False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
 
 {-assuming not the same token for both...-}

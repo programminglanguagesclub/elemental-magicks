@@ -34,57 +34,57 @@ import Main.Step_game
 {-returned values need to allow for transitions between phases causing further changes to the game outside of fields set in the current phase...-}
 
 partial
-transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
 transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
  | DrawPhase playerA playerB cardsDrawn =
    case transformDrawPhase actor playerA playerB serverUpdate of
-    Nothing => (game,[GameLogicError])
-    Just $ Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Nothing => (Right game,[GameLogicError])
+    Just $ Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Just $ Right (player', updates) =>
      case actor of
-      PlayerA => (record {phase = DrawPhase player' playerB ?hole} game, updates)
-      PlayerB => (record {phase = DrawPhase playerA player' ?hole} game, updates)
+      PlayerA => (Right $ record {phase = DrawPhase player' playerB ?hole} game, updates)
+      PlayerB => (Right $ record {phase = DrawPhase playerA player' ?hole} game, updates)
  
  | MkPhaseCycle SpawnPhase playerA playerB =
    case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right ((playerA', playerB'), updates) => ?hole
  
  | MkPhaseCycle SpellPhase playerA playerB =
    case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
  
  | MkPhaseCycle RemovalPhase playerA playerB =
    case transformRemovalPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
  
  | MkPhaseCycle StartPhase playerA playerB =
    case transformStartPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle EngagementPhase playerA playerB =
    case transformEngagementPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle EndPhase playerA playerB =
    case transformEndPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle RevivalPhase playerA playerB =
    case transformRevivalPhase actor playerA playerB (initiative game) (deathQueue game) of
-    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', deathQueue', updates) => ?hole
 
 
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 
 
-transformGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+transformGame : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
 transformGame = assert_total transformGame'
 
 
