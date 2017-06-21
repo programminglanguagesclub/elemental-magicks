@@ -1,7 +1,11 @@
 module Main.Game
+import Data.Fin
+import Data.Vect
+import Base.BoundedList
 import Base.Skill_dsl_data
 import Base.Player
 import Base.Phase
+import Base.Card
 import Base.Clientupdates
 %access public export
 %default total
@@ -32,8 +36,35 @@ syntax "new" "game" [playerAId] [playerBId] =
  MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase (MkDrawPlayer [] (replicate 5 Nothing) playerAId) (MkDrawPlayer [] (replicate 5 Nothing) playerBId) 0)
 
 
+switchSides : Game -> Game
+switchSides game with (phase game)
+ | (DrawPhase _ _ _) = ?hole {-error case!!-}
+ | (MkPhaseCycle _ playerA playerB) = new game (temporaryId playerB) (temporaryId playerA)
+
+{-
+{-this is another case where I would like to drill into game having already pattern matched away the possibility that I can't access phase the way I want (pattern matching...)-}
+switchSides (MkGame _ _ _ _ _ (MkPhaseCycle _ playerA playerB)) = new game (temporaryId playerB) (temporaryId playerA)
+-}
+
 playerOnMove : Game -> WhichPlayer
 
+
+
+{-
+
+constructor MkPlayer
+ board : Vect 3 (Vect 3 (Maybe Monster))
+ rowTarget : Vect 3 (Fin 3)
+ hand : List Card
+ graveyard : List Card
+ discard : List Card
+ spawnCard : Maybe Card
+ soulCards : Vect 5 Monster
+ thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+ knowledge : Vect 6 (Bounded 0 9)
+ temporaryId : String
+
+-}
 
 
 

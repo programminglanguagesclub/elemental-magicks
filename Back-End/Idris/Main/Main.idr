@@ -61,7 +61,18 @@ record Battle where
  originalPlayerBToken : String
  game : Game
 
+
+data Round
+ = FirstRound
+ | SecondRoundOriginalPlayerAWonFirstRound
+ | SecondRoundOriginalPlayerBWonFirstRound
+
 -}
+
+
+nextRound : (winner : WhichPlayer) -> Round
+nextRound PlayerA = SecondRoundOriginalPlayerAWonFirstRound
+nextRound PlayerB = SecondRoundOriginalPlayerBWonFirstRound
 
 correctForRound : Round -> WhichPlayer -> WhichPlayer
 correctForRound FirstRound PlayerA = PlayerA
@@ -79,14 +90,14 @@ processServerUpdate ((MkBattle round originalPlayerAToken originalPlayerBToken g
   True =>
    let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
    case transformedGame of
-    Left winner => ((MkBattle ?hole originalPlayerAToken originalPlayerBToken ?hole)::battles, ?hole)
+    Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
     Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
   False =>
    case (originalPlayerBToken == playerId) of
     True =>
      let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
      case transformedGame of
-      Left winner => ((MkBattle ?hole originalPlayerAToken originalPlayerBToken ?hole)::battles, ?hole)
+      Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
       Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
     False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
 
