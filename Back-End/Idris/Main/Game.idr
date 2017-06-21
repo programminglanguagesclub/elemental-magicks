@@ -74,9 +74,20 @@ constructor MkPlayer
 record Battle where
  constructor MkBattle
  round : Round
- originalPlayerAToken : String
- originalPlayerBToken : String
  game : Game
+
+
+getOriginalPlayerTemporaryId : WhichPlayer -> Game -> String
+getOriginalPlayerTemporaryId whichPlayer game with (phase game)
+ | DrawPhase playerA playerB _ =
+  case whichPlayer of
+   PlayerA => temporaryId playerA
+   PlayerB => temporaryId playerB
+ | MkPhaseCycle _ playerA playerB =
+  case whichPlayer of
+   PlayerA => temporaryId playerA
+   PlayerB => temporaryId playerB
+  
 
 
 {-

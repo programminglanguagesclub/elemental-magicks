@@ -31,15 +31,11 @@ writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
 
-getPlayerByTemporaryId : String -> Game -> Maybe Player
-getPlayerByTemporaryId = ?hole {-playerTemporaryId game = if (temporaryId (player_A game)) == playerTemporaryId then Just (player_A game) else if (temporaryId (player_B game)) == playerTemporaryId then Just (player_B game) else Nothing
--}
-
-
 
 {-might want to not use tokens for temporary ids...-}
+{-related: no facility for reconnecting yet.. maybe Ur/Web is giving us the players ID, rather than their tokens.. that would make sense.-}
 createNewBattle : List Battle -> String -> String -> List Battle
-createNewBattle battles originalPlayerA originalPlayerB = battles ++ ?hole {-[new game originalPlayerA originalPlayerB]-}
+createNewBattle battles originalPlayerA originalPlayerB = battles ++ [MkBattle FirstRound (new game originalPlayerA originalPlayerB)]
 
 
 
@@ -49,7 +45,6 @@ processServerUpdateOnGame = transformGame
 
 
 
--- transformGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
 
 
 {-
@@ -57,8 +52,6 @@ processServerUpdateOnGame = transformGame
 record Battle where
  constructor MkBattle
  round : Round
- originalPlayerAToken : String
- originalPlayerBToken : String
  game : Game
 
 
@@ -100,20 +93,22 @@ replyWith clientUpdates playerId opponentId = ?hole {-
 
 processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
-processServerUpdate ((MkBattle round originalPlayerAToken originalPlayerBToken game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
- case (originalPlayerAToken == playerId) of
+processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
+ let originalPlayerAId = getOriginalPlayerTemporaryId PlayerA game in
+ let originalPlayerBId = getOriginalPlayerTemporaryId PlayerB game in
+ case (originalPlayerAId == playerId) of
   True =>
    let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
    case transformedGame of
-    Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
-    Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, replyWith clientUpdates originalPlayerAToken originalPlayerBToken)
+    Left winner => ((MkBattle (nextRound winner) (switchSides game))::battles, ?hole)
+    Right game' => ((MkBattle round game')::battles, replyWith clientUpdates originalPlayerAId originalPlayerBId)
   False =>
-   case (originalPlayerBToken == playerId) of
+   case (originalPlayerBId == playerId) of
     True =>
      let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
      case transformedGame of
-      Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
-      Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, replyWith clientUpdates originalPlayerBToken originalPlayerAToken)
+      Left winner => ((MkBattle (nextRound winner) (switchSides game))::battles, ?hole)
+      Right game' => ((MkBattle round game')::battles, replyWith clientUpdates originalPlayerBId originalPlayerAId)
     False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
 
 {-assuming not the same token for both...-}
