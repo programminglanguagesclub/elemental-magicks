@@ -105,12 +105,7 @@ getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQue
   | DeploymentPhase = getMessageDeploymentPhase initiative playerA playerB
 -}
 
-
-{-STEP GAME IS ASSERTED TO BE TOTAL WITHOUT PROOF. PROVING STEP GAME IS TOTAL MAY BE A SOMEWHAT MAJOR PROJECT -}
-
-{-Note that I have to be careful that I am not adding update messages which tell the user what to do, and cause an infinite recursion here.-}
-{-also mutual with stepGameNoSkills and stepGame -}
-mutual {- drag along a boolean argument which says if we're done stepping -}
+mutual
   continueStep :
    (Game, List ClientUpdate, Maybe ClientInstruction) ->
    (Game, List ClientUpdate, ClientInstruction)

@@ -28,7 +28,8 @@ record Game where
  phase : Phase
  
 
-syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase (MkDrawPlayer [] [] playerAId) (MkDrawPlayer [] [] playerBId)) DrawPhase
+syntax "new" "game" [playerAId] [playerBId] =
+ MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase (MkDrawPlayer [] (replicate 5 Nothing) playerAId) (MkDrawPlayer [] (replicate 5 Nothing) playerBId) 0)
 
 
 playerOnMove : Game -> WhichPlayer

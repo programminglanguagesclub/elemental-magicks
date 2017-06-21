@@ -31,17 +31,7 @@ import Main.Step_game
 
 {- if two units die the same time on the same number square, have the unit of the player with the initiative die first -}
 
-
-
-{- some of the responsibilities (and thus the data sent and received) may change when I decide how much of executing skills transformGame and stepGame each perform -}
-
-{-might want to refactor this type into a binary datatype and a server update so that I don't have a fail case that I already ruled out... (no player with that temporaryId)-}
-{-transformGame : Game -> ServerUpdateWrapper -> (Game, List ClientUpdate)-}
-
-
-
-
-{- I can change the others to be maybes later... -}
+{-returned values need to allow for transitions between phases causing further changes to the game outside of fields set in the current phase...-}
 
 partial
 transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
@@ -52,42 +42,42 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
     Just $ Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Just $ Right (player', updates) =>
      case actor of
-      PlayerA => {-(record {player_A = player'} game, updates)-} ?hole
-      PlayerB => {-(record {player_B = player'} game, updates)-} ?hole
+      PlayerA => (record {phase = DrawPhase player' playerB ?hole} game, updates)
+      PlayerB => (record {phase = DrawPhase playerA player' ?hole} game, updates)
  
  | MkPhaseCycle SpawnPhase playerA playerB =
    case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right ((playerA', playerB'), updates) => ?hole
  
  | MkPhaseCycle SpellPhase playerA playerB =
    case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
  
  | MkPhaseCycle RemovalPhase playerA playerB =
    case transformRemovalPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
  
  | MkPhaseCycle StartPhase playerA playerB =
    case transformStartPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle EngagementPhase playerA playerB =
    case transformEngagementPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle EndPhase playerA playerB =
    case transformEndPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
  
  | MkPhaseCycle RevivalPhase playerA playerB =
    case transformRevivalPhase actor playerA playerB (initiative game) (deathQueue game) of
-    Left (errorMessage, playerId) => ?hole
+    Left (errorMessage, playerId) => (game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', deathQueue', updates) => ?hole
 
 
@@ -96,6 +86,9 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
 
 transformGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
 transformGame = assert_total transformGame'
+
+
+
 
 
 

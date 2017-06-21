@@ -12,13 +12,7 @@ import Base.Card
 %access public export
 %default total
 
-damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Game, List ClientUpdate)
-
-
-
-updatePlayer : Game -> Player -> (Player -> Player) -> Game {-applies update to player_A or player_B, as appropriate-}
-
-
+damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Maybe Game, List ClientUpdate)
 
 {-I think some places I used Bounded 0 25 for hand index. Should change that if I did-}
 
@@ -108,10 +102,9 @@ Also have to possibly decrement soul points depending on what turn it is.
 
 getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
 
-
-transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
-transformPlayer = ?hole
 {-
+transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
+
 transformPlayer (game,updateAcc) PlayerA transform =
  let (player,updates) = transform (player_A game) in
  let game' = record {player_A = player} game in

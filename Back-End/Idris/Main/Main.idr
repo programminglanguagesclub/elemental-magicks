@@ -36,19 +36,61 @@ getPlayerByTemporaryId = ?hole {-playerTemporaryId game = if (temporaryId (playe
 -}
 
 
-createNewGame : List Game -> String -> String -> List Game
-createNewGame = ?hole {-games originalPlayerA originalPlayerB = games ++ [new game originalPlayerA originalPlayerB]-}
+
+{-might want to not use tokens for temporary ids...-}
+createNewBattle : List Battle -> String -> String -> List Battle
+createNewBattle battles originalPlayerA originalPlayerB = battles ++ ?hole {-[new game originalPlayerA originalPlayerB]-}
+
+
+
+processServerUpdateOnGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
+processServerUpdateOnGame = transformGame
+
+
+
+
+-- transformGame : Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
 
 
 {-
-processServerUpdateOnGame : Game -> Player -> Player -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)
-processServerUpdateOnGame = transformGame
+
+record Battle where
+ constructor MkBattle
+ round : Round
+ originalPlayerAToken : String
+ originalPlayerBToken : String
+ game : Game
+
 -}
 
-processServerUpdate : List Game -> ServerUpdateWrapper -> (List Game, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
-processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
-processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) = let x = transformGame ?hole ?hole ?hole in ?hole
+correctForRound : Round -> WhichPlayer -> WhichPlayer
+correctForRound FirstRound PlayerA = PlayerA
+correctForRound FirstRound PlayerB = PlayerB
+correctForRound _ PlayerA = PlayerB
+correctForRound _ PlayerB = PlayerA
 
+
+{-How do I propagate changes to the round?-}
+
+processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
+processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
+processServerUpdate ((MkBattle round originalPlayerAToken originalPlayerBToken game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
+ case (originalPlayerAToken == playerId) of
+  True =>
+   let (game', clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
+   ((MkBattle ?hole originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+  False =>
+   case (originalPlayerBToken == playerId) of
+    True =>
+     let (game', clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
+     ((MkBattle ?hole originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+    False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
+
+{-assuming not the same token for both...-}
+ 
+ {- let x = transformGame ?hole serverUpdate in
+ ?hole
+-}
 
 {-Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)-}
 
@@ -57,17 +99,20 @@ processServerUpdate (game::games) (MkServerUpdateWrapper serverUpdate playerId) 
 
 
 
-processMessage : List Game -> String -> (List Game, String)
-processMessage games message =
-  case parseJson message of
-       InvalidRequest => (games, ?hole) {- should maybe handle the message for this in client updates -}
-       NewGameMessage playerId opponentId => (createNewGame games playerId opponentId, ?hole) {-similarly probably want a game started client update-}
-       ServerUpdateMessage serverUpdate => processServerUpdate games serverUpdate
+processMessage : List Battle -> String -> (List Battle, String)
+processMessage battles message =
+ case parseJson message of
+  InvalidRequest =>
+   (battles, ?hole) {- should maybe handle the message for this in client updates -}
+  NewGameMessage playerId opponentId =>
+   (createNewBattle battles playerId opponentId, ?hole) {-similarly probably want a game started and battle started client update-}
+  ServerUpdateMessage serverUpdate =>
+   processServerUpdate battles serverUpdate
 
 
 partial
-statefulBackend : List Game -> IO ()
-statefulBackend games = reader >>= (\rawServerMessage => let (games',clientPayloads) = processMessage games rawServerMessage in (writer clientPayloads) >>= (\_ => statefulBackend games'))
+statefulBackend : List Battle -> IO ()
+statefulBackend battles = reader >>= (\rawServerMessage => let (battles',clientPayloads) = processMessage battles rawServerMessage in (writer clientPayloads) >>= (\_ => statefulBackend battles'))
 
 partial
 main' : IO () {- switch to this when I'm ready... -}
