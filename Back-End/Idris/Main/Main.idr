@@ -63,9 +63,18 @@ data Round
 -}
 
 
-nextRound : (winner : WhichPlayer) -> Round
-nextRound PlayerA = SecondRoundOriginalPlayerAWonFirstRound
-nextRound PlayerB = SecondRoundOriginalPlayerBWonFirstRound
+data Result
+ = Tie
+ | OriginalPlayerAWon
+ | OriginalPlayerBWon
+
+nextRound : (winner : WhichPlayer) -> Round -> Either Result Round
+nextRound PlayerA FirstRound = Right SecondRoundOriginalPlayerAWonFirstRound
+nextRound PlayerB FirstRound = Right SecondRoundOriginalPlayerBWonFirstRound
+nextRound PlayerA SecondRoundOriginalPlayerAWonFirstRound = Left Tie
+nextRound PlayerB SecondRoundOriginalPlayerAWonFirstRound = Left OriginalPlayerAWon
+nextRound PlayerA SecondRoundOriginalPlayerBWonFirstRound = Left OriginalPlayerBWon
+nextRound PlayerB SecondRoundOriginlaPlayerBWonFirstRound = Left Tie
 
 correctForRound : Round -> WhichPlayer -> WhichPlayer
 correctForRound FirstRound PlayerA = PlayerA
@@ -91,6 +100,24 @@ replyWith clientUpdates playerId opponentId = ?hole {-
 
 {-NEED TO ADD updates for going to the next round, and also need to handle the case where the game has ended due to the second round ending....-}
 
+
+playerIdOpponentId : WhichPlayer -> String -> String -> (String,String)
+playerIdOpponentId PlayerA a b = (a,b)
+playerIdOpponentId PlayerB a b = (b,a)
+
+processServerUpdate' : Battle -> WhichPlayer -> ServerUpdate -> (List Battle, String)
+processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
+ let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round whichPlayer) serverUpdate in
+  case transformedGame of
+   Left winner =>
+    case nextRound winner round of
+     Left result => ([], ?hole)
+     Right round' => ([MkBattle round' (switchSides game)], ?hole)
+   Right game' =>
+    let (playerId, opponentId) = playerIdOpponentId whichPlayer (getOriginalPlayerTemporaryId PlayerA game) (getOriginalPlayerTemporaryId PlayerB game) in
+    ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
+
+
 processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
 processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
@@ -98,18 +125,14 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
  let originalPlayerBId = getOriginalPlayerTemporaryId PlayerB game in
  case (originalPlayerAId == playerId) of
   True =>
-   let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
-   case transformedGame of
-    Left winner => ((MkBattle (nextRound winner) (switchSides game))::battles, ?hole)
-    Right game' => ((MkBattle round game')::battles, replyWith clientUpdates originalPlayerAId originalPlayerBId)
+   let (battle', reply) = processServerUpdate' (MkBattle round game) PlayerA serverUpdate in
+   (battle' ++ battles, reply)
   False =>
    case (originalPlayerBId == playerId) of
     True =>
-     let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
-     case transformedGame of
-      Left winner => ((MkBattle (nextRound winner) (switchSides game))::battles, ?hole)
-      Right game' => ((MkBattle round game')::battles, replyWith clientUpdates originalPlayerBId originalPlayerAId)
-    False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
+     let (battle', reply) = processServerUpdate' (MkBattle round game) PlayerB serverUpdate in
+     (battle' ++ battles, reply)
+    False => {-DO NOT THROW BATTLES AWAY!!-}processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
 
 {-assuming not the same token for both...-}
  
