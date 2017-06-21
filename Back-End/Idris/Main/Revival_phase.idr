@@ -88,4 +88,25 @@ stepRevivalPhase : Player -> Player -> (Game, List ClientUpdate, Maybe ClientIns
 stepRevivalPhase player opponent = ?hole
 
 
-transformRevivalPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> List Nat -> Either (Player, Player, List Nat, List ClientUpdate) (String, String)
+transformRevivalPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ WhichPlayer ->
+ List Nat ->
+ Either (String,String) (Player, Player, List Nat, List ClientUpdate)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -34,6 +34,8 @@ syntax "new" "game" [playerAId] [playerBId] = MkGame PlayerA 0 TerminatedSkill [
 playerOnMove : Game -> WhichPlayer
 
 
+
+
 {-I'm using tokens to identify players. I should abstract this. It's okay if it's the same data but I should not depend on this being the case.-}
 {-This is particularly the case as I'll probably store the player identifier in skills to keep track of the owner. This means that when a player reconnects they need to still be matched even if they have a new token, etc-}
 

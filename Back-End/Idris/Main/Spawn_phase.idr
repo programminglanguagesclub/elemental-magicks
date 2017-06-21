@@ -91,7 +91,7 @@ and the message for the player with and without the initiative-}
 
 -}
 
-transformSpawnPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> ServerUpdate -> Either ((Player,Player),List ClientUpdate) (String,String)
+transformSpawnPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> ServerUpdate -> Either (String, String) ((Player,Player),List ClientUpdate)
 
 
 

@@ -26,6 +26,13 @@ stepRemovalPhase deathQueue player opponent = ?hole
 
 
 
-transformRemovalPhase : WhichPlayer -> Player -> Player -> Nonautomatic -> List Automatic -> List Nat -> Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String, String)
+transformRemovalPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ Nonautomatic ->
+ List Automatic ->
+ List Nat ->
+ Either (String, String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
 
 

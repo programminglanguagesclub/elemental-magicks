@@ -21,6 +21,13 @@ stepSpellPhase initiative turnNumber deathQueue player opponent = ?hole
                      Left ((playerA', playerB', skillHead', skillQueue', deathQueue'), updates) => ?hole
 -}
 
-transformSpellPhase : WhichPlayer -> Player -> Player -> Nonautomatic -> List Automatic -> List Nat -> Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String,String)
+transformSpellPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ Nonautomatic ->
+ List Automatic ->
+ List Nat ->
+ Either (String,String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
 
 

@@ -11,8 +11,15 @@ stepEndPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List Client
 stepEndPhase initiative deathQueue player opponent = ?hole
 
 
-transformEndPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> Nonautomatic -> List Automatic -> List Nat ->
- Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String, String)
+transformEndPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ WhichPlayer ->
+ Nonautomatic ->
+ List Automatic ->
+ List Nat ->
+ Either (String, String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
 
 
 {-

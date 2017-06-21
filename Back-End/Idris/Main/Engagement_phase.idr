@@ -38,5 +38,12 @@ stepEngagementPhase initiative deathQueue player opponent = ?hole
 
 
 
-transformEngagementPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> Nonautomatic -> List Automatic -> List Nat ->
- Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String, String)
+transformEngagementPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ WhichPlayer ->
+ Nonautomatic ->
+ List Automatic ->
+ List Nat ->
+ Either (String, String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)

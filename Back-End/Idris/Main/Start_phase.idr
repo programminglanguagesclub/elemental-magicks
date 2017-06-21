@@ -20,8 +20,16 @@ stepStartPhase initiative deathQueue player opponent = ?hole
 -}
 
 
-transformStartPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> Nonautomatic -> List Automatic -> List Nat ->
- Either (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate) (String, String)
+transformStartPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ WhichPlayer ->
+ Nonautomatic ->
+ List Automatic ->
+ List Nat ->
+ Either (String,String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
+
 transformStartPhase = ?hole
 
 

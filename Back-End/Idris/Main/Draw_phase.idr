@@ -194,7 +194,7 @@ getActor PlayerB a b = b
 
 
 
-transformDrawPhase : WhichPlayer -> DrawPlayer -> DrawPlayer -> ServerUpdate -> Maybe (Either (DrawPlayer, List ClientUpdate) (String, String))
+transformDrawPhase : WhichPlayer -> DrawPlayer -> DrawPlayer -> ServerUpdate -> Maybe (Either (String, String) (DrawPlayer, List ClientUpdate))
 transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
@@ -206,13 +206,13 @@ transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  if yourTurnToDraw turn actor
   then
   case fst turn of
-   Soul => Just $ Right (drawToSoulNotHand, playerId)
+   Soul => Just $ Left (drawToSoulNotHand, playerId)
    Hand =>
     case index' cardId cardList of
-     Nothing => Just $ Right (cardInvalid, playerId)
-     Just cardFactory => Just $ Left $ drawHandCard cardsDrawn playerId cardFactory player
+     Nothing => Just $ Left (cardInvalid, playerId)
+     Just cardFactory => Just $ Right $ drawHandCard cardsDrawn playerId cardFactory player
  else
-  Just $ Right (notYourTurn, playerId)
+  Just $ Left (notYourTurn, playerId)
 
 
 transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
@@ -223,28 +223,28 @@ transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
  if yourTurnToDraw turn actor then
   case fst turn of
    Hand =>
-    Just $ Right (drawToHandNotSoul, playerId)
+    Just $ Left (drawToHandNotSoul, playerId)
    Soul =>
     case index' cardId cardList of
      Nothing =>
-      Just $ Right (cardInvalid, playerId)
+      Just $ Left (cardInvalid, playerId)
      Just $ SpellCardFactory _ =>
-      Just $ Right (noSpellsInSoul, playerId) 
+      Just $ Left (noSpellsInSoul, playerId) 
      Just $ MonsterCardFactory monsterFactory => 
       case Vect.index soulIndex (soulCards player) of
        Just _ =>
-        Just $ Right (soulCardAlreadyDrawn, playerId)
+        Just $ Left (soulCardAlreadyDrawn, playerId)
        Nothing =>
-        Just $ Left $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
+        Just $ Right $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
  else
-  Just $ Right (notYourTurn, playerId)
+  Just $ Left (notYourTurn, playerId)
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
  getCardDraw playerA playerB >>= \turn =>
  if yourTurnToDraw turn actor
-  then Just $ Right (invalidActionDrawPhase, playerId)
-  else Just $ Right (notYourTurn, playerId)
+  then Just $ Left (invalidActionDrawPhase, playerId)
+  else Just $ Left (notYourTurn, playerId)
 
 
 
