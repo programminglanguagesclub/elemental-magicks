@@ -81,7 +81,22 @@ correctForRound _ PlayerA = PlayerB
 correctForRound _ PlayerB = PlayerA
 
 
+replyWith : List ClientUpdate -> String -> String -> String
+replyWith clientUpdates playerId opponentId = ?hole {-
+ case payload clientUpdates playerId opponentId of
+  Just x => x
+  Nothing => ?hole {-should payload be able to produce Nothing?-}
+-}
+{- payload only takes one update :/ -}
+
 {-How do I propagate changes to the round?-}
+
+
+
+
+
+
+{-NEED TO ADD updates for going to the next round, and also need to handle the case where the game has ended due to the second round ending....-}
 
 processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
@@ -91,26 +106,18 @@ processServerUpdate ((MkBattle round originalPlayerAToken originalPlayerBToken g
    let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerA) serverUpdate in
    case transformedGame of
     Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
-    Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+    Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, replyWith clientUpdates originalPlayerAToken originalPlayerBToken)
   False =>
    case (originalPlayerBToken == playerId) of
     True =>
      let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round PlayerB) serverUpdate in
      case transformedGame of
       Left winner => ((MkBattle (nextRound winner) originalPlayerAToken originalPlayerBToken (switchSides game))::battles, ?hole)
-      Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, ?hole)
+      Right game' => ((MkBattle round originalPlayerAToken originalPlayerBToken game')::battles, replyWith clientUpdates originalPlayerBToken originalPlayerAToken)
     False => processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId)
 
 {-assuming not the same token for both...-}
  
- {- let x = transformGame ?hole serverUpdate in
- ?hole
--}
-
-{-Game -> WhichPlayer -> ServerUpdate -> (Game, List ClientUpdate)-}
-
-{- THE ABOVE IS JUST TO TRIGGER TRANSFORM GAME TO BE TYPECHECKED. STILL NEED CORRECT CODE FOR TRAVERSING THIS. -}
-
 
 
 
@@ -135,18 +142,18 @@ main' = statefulBackend []
 
 
 partial
-mainHelper : IO ()
-mainHelper = do {
+mainDummy : IO ()
+mainDummy = do {
 x <- reader;
 writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
-mainHelper;
+mainDummy;
 }
 
 partial
 main : IO ()
 main = do {
 _ <- init;
-mainHelper;
+main';
 }
 
 {-units now should become engaged AFTER their skills finish (if that's not too hard) actually that might be too hard...-}
