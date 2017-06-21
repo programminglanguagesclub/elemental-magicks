@@ -92,16 +92,16 @@ filterVectMaybeToList [] = []
 filterVectMaybeToList (Nothing::xs) = filterVectMaybeToList xs
 filterVectMaybeToList ((Just x)::xs) = x :: (filterVectMaybeToList xs)
 
-getAllList : Vect n1 (Maybe Monster) -> Vect n2 (Maybe Monster) -> List Card -> List Card -> (Monster -> Card) -> List Card
+getAllList : Vect n1 (Maybe Monster) -> Vect n2 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> (Monster -> Card) -> List Card
 
-getAllList v1 v2 l1 l2 f =
+getAllList v1 v2 l1 l2 f = ?hole {-
  let x1 = filterVectMaybeToList v1 in
  let x2 = filterVectMaybeToList v2 in
  let x3 = map f (x2 ++ x1) in
  let x4 = l2 ++ l1 in
- x4 ++ x3
+ x4 ++ x3-}
 
-getAllCardsDrawn : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> List Card -> List Card -> List Card
+getAllCardsDrawn : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> List Card
 getAllCardsDrawn soulA soulB handA handB = getAllList soulA soulB handA handB (\x => MonsterCard x)
 
 
@@ -147,12 +147,6 @@ finSum4 : Fin n1 -> Fin n2 -> Fin n3 -> Fin n4 -> Fin (n1 + (n2 + (n3 + n4)))
 -}
 
 
-{- might want to integrate this -}
-record DrawPhasePlayer where
- constructor MkDrawPhasePlayer
- hand : BoundedList 25 Card
- soulCards : Vect 5 (Maybe Monster)
- temporaryId : String
 
 
 flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
