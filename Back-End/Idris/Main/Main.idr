@@ -104,7 +104,7 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
    Left winner =>
     case nextRound winner round of
      Left result => ([], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), MatchTerminated result]) playerId opponentId)
-     Right round' => ([MkBattle round' (switchSides game)], ?hole)
+     Right round' => ([MkBattle round' (switchSides game)], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), GameStart]) playerId opponentId)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
 

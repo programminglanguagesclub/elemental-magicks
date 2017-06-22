@@ -16,6 +16,8 @@ data ClientUpdate = GameLogicError
                  -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
                   | GameTerminated String {-id of winning player-}
                   | MatchTerminated Result {-this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners-}
+                  | GameStart {-Not sure about arguments-}
+                  | MatchStart String String {-playerA, playerB-}
                   | DrawPhaseToSpawnPhase
                   | SpawnPhaseToSpellPhase
                   | SpellPhaseToRemovalPhase
