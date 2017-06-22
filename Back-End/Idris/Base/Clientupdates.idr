@@ -57,7 +57,7 @@ augment : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
 augment marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
 marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
 marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" []
-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}
+{-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}-}
 marshallClientUpdate DrawPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
 marshallClientUpdate SpawnPhaseToSpellPhase _ = Just $ MkMarshalledClientUpdate "spawnPhaseToSpellPhase" []
 marshallClientUpdate SpellPhaseToRemovalPhase _ = Just $ MkMarshalledClientUpdate "spellPhaseToRemovalphase" []

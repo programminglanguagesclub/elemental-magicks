@@ -71,10 +71,16 @@ correctForRound FirstRound PlayerB = PlayerB
 correctForRound _ PlayerA = PlayerB
 correctForRound _ PlayerB = PlayerA
 -------------------------------------------------------------------------------
+{-
+ unless I can prove that ClientUpdates never produce errors when run with payload,
+ I should traverse the list of client updates and return an internal server error
+ if payload of any of them produces Nothing.
+-}
+-------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
 
-replyWith clientUpdates playerId opponentId = ?hole {-
- case payload clientUpdates playerId opponentId of
+replyWith clientUpdates playerId opponentId = ?hole
+{- case payload clientUpdates playerId opponentId of
   Just x => x
   Nothing => ?hole {-should payload be able to produce Nothing?-}-}
 {- payload only takes one update :/ -}
@@ -182,8 +188,8 @@ processMessage battles message =
   InvalidRequest =>
    pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
-   randomlyDecidePlayer >>=
-   \whichPlayer => pure $ addBattle playerId opponentId whichPlayer battles
+   randomlyDecidePlayer >>= \whichPlayer =>
+   pure $ addBattle playerId opponentId whichPlayer battles
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
    pure $ processServerUpdate battles serverUpdate
