@@ -99,3 +99,19 @@ char * reader(){
   writerHelper(response);
   return readerHelper(size);
 }
+
+
+
+
+int getRandom(){
+// Eventually make this random, so that players do not predictably start as playerA or playerB.
+// For now, randomness is not implemented (but this will still work)
+
+    return 0;
+
+
+}
+
+
+
+

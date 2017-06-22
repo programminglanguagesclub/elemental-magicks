@@ -34,6 +34,11 @@ writer : String -> IO Unit
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
 
+--Idris supports random numbers, but using C anyway
+--Unimplemented
+getRandom : IO Int
+getRandom = foreign FFI_C "getRandom" (IO Int)
+
 
 {-might want to not use tokens for temporary ids...-}
 {-related: no facility for reconnecting yet.. maybe Ur/Web is giving us the players ID, rather than their tokens.. that would make sense.-}
@@ -135,23 +140,13 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
 
 {-assuming not the same token for both players...-}
 -------------------------------------------------------------------------------
-{-randomlyDecideIfPlayerA : -}
+randomlyDecideIfPlayerA : IO Bool
+randomlyDecideIfPlayerA =
+ do{
+  x <- getRandom;
+  pure (if x == 0 then True else False);
+ }
 
-SELECT : EFFECT
-
-select : List a -> Eff a [SELECT]
-
-Handler Selection Maybe where { ... }
-Handler Selection List where { ... }
-
-triple : Int -> Eff (Int, Int, Int) [SELECT, EXCEPTION String]
-triple max = ?hole {-do z <- select [1..max]
-                y <- select [1..z]
-                x <- select [1..y]
-                if (x * x + y * y == z * z)
-                   then pure (x, y, z)
-                   else raise "No triple"
--}
 -------------------------------------------------------------------------------
 processMessage : List Battle -> String -> (List Battle, String)
 processMessage battles message =
