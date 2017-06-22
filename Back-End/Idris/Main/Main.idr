@@ -170,9 +170,7 @@ processMessage battles message =
    pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
    randomlyDecidePlayer >>=
-   (\whichPlayer => pure $ createNewBattle' playerId opponentId whichPlayer battles {-case whichPlayer of
-    PlayerA => pure (createNewBattle battles playerId opponentId, replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
-    PlayerB => pure (createNewBattle battles opponentId playerId, replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId) -})
+   \whichPlayer => pure $ createNewBattle' playerId opponentId whichPlayer battles
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
    pure $ processServerUpdate battles serverUpdate
@@ -181,12 +179,10 @@ partial
 statefulBackend : List Battle -> IO ()
 
 statefulBackend battles =
- reader >>=
- (\rawServerMessage =>
-  processMessage battles rawServerMessage >>=
-  (\(battles', clientPayloads) => 
-   (writer clientPayloads) >>=
-    (\_ => statefulBackend battles')))
+ reader >>= \rawServerMessage =>
+ processMessage battles rawServerMessage >>= \(battles', clientPayloads) => 
+ writer clientPayloads >>= \_ =>
+ statefulBackend battles'
 -------------------------------------------------------------------------------
 partial
 mainDummy : IO ()
