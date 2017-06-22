@@ -153,8 +153,10 @@ createNewBattle' :
  WhichPlayer ->
  (Battle, String)
 
-createNewBattle' playerId opponentId PlayerA = ?hole {-[MkBattle FirstRound (new game playerId opponentId)]-}
-createNewBattle' playerId opponentId PlayerB = ?hole {-[MkBattle FirstRound (new game opponentId playerId)]-}
+createNewBattle' playerId opponentId PlayerA =
+ (MkBattle FirstRound (new game playerId opponentId), replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
+createNewBattle' playerId opponentId PlayerB =
+ (MkBattle FirstRound (new game opponentId playerId), replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId)
 -------------------------------------------------------------------------------
 processMessage :
  List Battle ->
