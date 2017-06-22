@@ -41,15 +41,6 @@ getRandom : IO Int
 
 getRandom = foreign FFI_C "getRandom" (IO Int)
 -------------------------------------------------------------------------------
-createNewBattle :
- List Battle ->
- String ->
- String ->
- List Battle
-
-createNewBattle battles originalPlayerA originalPlayerB =
- battles ++ [MkBattle FirstRound (new game originalPlayerA originalPlayerB)]
--------------------------------------------------------------------------------
 processServerUpdateOnGame :
  Game ->
  WhichPlayer ->
@@ -147,17 +138,39 @@ randomlyDecidePlayer =
   pure (if x == 0 then PlayerA else PlayerB);
  }
 -------------------------------------------------------------------------------
-createNewBattle' :
+createBattle :
+ String ->
+ String ->
+ WhichPlayer ->
+ Battle
+
+createBattle playerId opponentId PlayerA =
+ MkBattle FirstRound (new game playerId opponentId)
+createBattle playerId opponentId PlayerB =
+ MkBattle FirstRound (new game opponentId playerId)
+-------------------------------------------------------------------------------
+createBattleMessage :
+ String ->
+ String ->
+ WhichPlayer ->
+ String
+
+createBattleMessage playerId opponentId PlayerA =
+ replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId
+createBattleMessage playerId opponentId PlayerB =
+ replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId
+-------------------------------------------------------------------------------
+addBattle :
  String ->
  String ->
  WhichPlayer ->
  List Battle ->
  (List Battle, String)
 
-createNewBattle' playerId opponentId PlayerA battles =
- (battles ++ [MkBattle FirstRound (new game playerId opponentId)], replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
-createNewBattle' playerId opponentId PlayerB battles =
- (battles ++ [MkBattle FirstRound (new game opponentId playerId)], replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId)
+addBattle playerId opponentId whichPlayer battles =
+ let battle = createBattle playerId opponentId whichPlayer in
+ let message = createBattleMessage playerId opponentId whichPlayer in
+ (battles ++ [battle], message)
 -------------------------------------------------------------------------------
 processMessage :
  List Battle ->
@@ -170,7 +183,7 @@ processMessage battles message =
    pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
    randomlyDecidePlayer >>=
-   \whichPlayer => pure $ createNewBattle' playerId opponentId whichPlayer battles
+   \whichPlayer => pure $ addBattle playerId opponentId whichPlayer battles
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
    pure $ processServerUpdate battles serverUpdate
