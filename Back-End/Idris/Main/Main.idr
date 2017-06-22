@@ -34,40 +34,42 @@ writer x = foreign FFI_C "writer" (String -> IO Unit) x
 
 {-might want to not use tokens for temporary ids...-}
 {-related: no facility for reconnecting yet.. maybe Ur/Web is giving us the players ID, rather than their tokens.. that would make sense.-}
-createNewBattle : List Battle -> String -> String -> List Battle
-createNewBattle battles originalPlayerA originalPlayerB = battles ++ [MkBattle FirstRound (new game originalPlayerA originalPlayerB)]
+
+createNewBattle :
+ List Battle ->
+ String ->
+ String ->
+ List Battle
+
+createNewBattle battles originalPlayerA originalPlayerB =
+ battles ++ [MkBattle FirstRound (new game originalPlayerA originalPlayerB)]
 
 
 
-processServerUpdateOnGame : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
+processServerUpdateOnGame :
+ Game ->
+ WhichPlayer ->
+ ServerUpdate ->
+ (Either WhichPlayer Game, List ClientUpdate)
+
 processServerUpdateOnGame = transformGame
 
 
 
 
-
-
 {-
-
-record Battle where
- constructor MkBattle
- round : Round
- game : Game
-
-
-data Round
- = FirstRound
- | SecondRoundOriginalPlayerAWonFirstRound
- | SecondRoundOriginalPlayerBWonFirstRound
+   | GameTerminated String {-id of winning player-}
+                  | MatchTerminated Result {-this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners-}
 
 -}
 
 
+{-
 data Result
  = Tie
  | OriginalPlayerAWon
  | OriginalPlayerBWon
-
+-}
 nextRound : (winner : WhichPlayer) -> Round -> Either Result Round
 nextRound PlayerA FirstRound = Right SecondRoundOriginalPlayerAWonFirstRound
 nextRound PlayerB FirstRound = Right SecondRoundOriginalPlayerBWonFirstRound
@@ -82,53 +84,41 @@ correctForRound FirstRound PlayerB = PlayerB
 correctForRound _ PlayerA = PlayerB
 correctForRound _ PlayerB = PlayerA
 
-
 replyWith : List ClientUpdate -> String -> String -> String
 replyWith clientUpdates playerId opponentId = ?hole {-
  case payload clientUpdates playerId opponentId of
   Just x => x
-  Nothing => ?hole {-should payload be able to produce Nothing?-}
--}
+  Nothing => ?hole {-should payload be able to produce Nothing?-}-}
 {- payload only takes one update :/ -}
-
-{-How do I propagate changes to the round?-}
-
-
-
-
-
-
-{-NEED TO ADD updates for going to the next round, and also need to handle the case where the game has ended due to the second round ending....-}
-
 
 playerIdOpponentId : WhichPlayer -> String -> String -> (String,String)
 playerIdOpponentId PlayerA a b = (a,b)
 playerIdOpponentId PlayerB a b = (b,a)
 
+
 processServerUpdate' : Battle -> WhichPlayer -> ServerUpdate -> (List Battle, String)
 processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
+ let (playerId, opponentId) = playerIdOpponentId whichPlayer (getPlayerTemporaryId PlayerA game) (getPlayerTemporaryId PlayerB game) in
  let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round whichPlayer) serverUpdate in
   case transformedGame of
    Left winner =>
     case nextRound winner round of
-     Left result => ([], ?hole)
+     Left result => ([], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), MatchTerminated result]) playerId opponentId)
      Right round' => ([MkBattle round' (switchSides game)], ?hole)
    Right game' =>
-    let (playerId, opponentId) = playerIdOpponentId whichPlayer (getOriginalPlayerTemporaryId PlayerA game) (getOriginalPlayerTemporaryId PlayerB game) in
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
-
 
 processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
 processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
- let originalPlayerAId = getOriginalPlayerTemporaryId PlayerA game in
- let originalPlayerBId = getOriginalPlayerTemporaryId PlayerB game in
- case (originalPlayerAId == playerId) of
+ let playerAId = getPlayerTemporaryId PlayerA game in
+ let playerBId = getPlayerTemporaryId PlayerB game in
+ case (playerAId == playerId) of
   True =>
    let (battle', reply) = processServerUpdate' (MkBattle round game) PlayerA serverUpdate in
    (battle' ++ battles, reply)
   False =>
-   case (originalPlayerBId == playerId) of
+   case (playerBId == playerId) of
     True =>
      let (battle', reply) = processServerUpdate' (MkBattle round game) PlayerB serverUpdate in
      (battle' ++ battles, reply)
@@ -154,7 +144,11 @@ processMessage battles message =
 
 partial
 statefulBackend : List Battle -> IO ()
-statefulBackend battles = reader >>= (\rawServerMessage => let (battles',clientPayloads) = processMessage battles rawServerMessage in (writer clientPayloads) >>= (\_ => statefulBackend battles'))
+statefulBackend battles =
+ reader >>=
+  (\rawServerMessage =>
+    let (battles',clientPayloads) = processMessage battles rawServerMessage in
+    (writer clientPayloads) >>= (\_ => statefulBackend battles'))
 
 partial
 main' : IO () {- switch to this when I'm ready... -}

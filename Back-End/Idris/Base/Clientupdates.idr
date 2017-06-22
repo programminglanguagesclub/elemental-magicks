@@ -5,10 +5,17 @@ import Base.Bounded
 %access public export
 %default total
 
+data Result
+ = Tie
+ | OriginalPlayerAWon
+ | OriginalPlayerBWon
+
 data ClientInstruction = MkClientInstruction (String,String) {- not integrated yet -}
 
 data ClientUpdate = GameLogicError
-                  | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
+                 -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
+                  | GameTerminated String {-id of winning player-}
+                  | MatchTerminated Result {-this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners-}
                   | DrawPhaseToSpawnPhase
                   | SpawnPhaseToSpellPhase
                   | SpellPhaseToRemovalPhase

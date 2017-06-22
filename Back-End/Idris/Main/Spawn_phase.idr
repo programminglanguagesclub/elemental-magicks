@@ -36,6 +36,7 @@ serializeSequence SB PlayerB = yourSoul
 
 
 {-players with and without initiative-}
+{-Should this be here????-}
 getPlayer : WhichPlayer -> Player -> Player -> Player
 getPlayer PlayerA playerA playerB = playerA
 getPlayer PlayerB playerA playerB = playerB

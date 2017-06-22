@@ -13,6 +13,9 @@ import Base.Clientupdates
 data WhichPlayer
  = PlayerA
  | PlayerB
+getOpponent : WhichPlayer -> WhichPlayer
+getOpponent PlayerA = PlayerB
+getOpponent PlayerB = PlayerA
 
 data Round
  = FirstRound
@@ -77,8 +80,8 @@ record Battle where
  game : Game
 
 
-getOriginalPlayerTemporaryId : WhichPlayer -> Game -> String
-getOriginalPlayerTemporaryId whichPlayer game with (phase game)
+getPlayerTemporaryId : WhichPlayer -> Game -> String
+getPlayerTemporaryId whichPlayer game with (phase game)
  | DrawPhase playerA playerB _ =
   case whichPlayer of
    PlayerA => temporaryId playerA
