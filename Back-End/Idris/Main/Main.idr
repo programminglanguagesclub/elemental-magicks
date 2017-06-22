@@ -139,39 +139,51 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
 
 {-assuming not the same token for both players...-}
 -------------------------------------------------------------------------------
-randomlyDecideIfPlayerA : IO Bool
+randomlyDecidePlayer : IO WhichPlayer
 
-randomlyDecideIfPlayerA =
+randomlyDecidePlayer =
  do{
   x <- getRandom;
-  pure (if x == 0 then True else False);
+  pure (if x == 0 then PlayerA else PlayerB);
  }
 -------------------------------------------------------------------------------
-processMessage : List Battle -> String -> (List Battle, String)
+createNewBattle' :
+ String ->
+ String ->
+ WhichPlayer ->
+ (Battle, String)
+
+createNewBattle' playerId opponentId PlayerA = ?hole {-[MkBattle FirstRound (new game playerId opponentId)]-}
+createNewBattle' playerId opponentId PlayerB = ?hole {-[MkBattle FirstRound (new game opponentId playerId)]-}
+-------------------------------------------------------------------------------
+processMessage :
+ List Battle ->
+ String ->
+ IO (List Battle, String)
 
 processMessage battles message =
  case parseJson message of
   InvalidRequest =>
-   (battles, ?hole) {- should maybe handle the message for this in client updates -}
+   pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
-   (createNewBattle battles playerId opponentId, replyWith [MatchStart ?hole ?hole, GameStart] playerId opponentId)
+   randomlyDecidePlayer >>=
+   (\whichPlayer => case whichPlayer of
+    PlayerA => pure (createNewBattle battles playerId opponentId, replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
+    PlayerB => pure (createNewBattle battles opponentId playerId, replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId))
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
-   processServerUpdate battles serverUpdate
+   pure $ processServerUpdate battles serverUpdate
 -------------------------------------------------------------------------------
 partial
 statefulBackend : List Battle -> IO ()
 
 statefulBackend battles =
  reader >>=
-  (\rawServerMessage =>
-    let (battles',clientPayloads) = processMessage battles rawServerMessage in
-    (writer clientPayloads) >>= (\_ => statefulBackend battles'))
--------------------------------------------------------------------------------
-partial
-main' : IO ()
-
-main' = statefulBackend []
+ (\rawServerMessage =>
+  processMessage battles rawServerMessage >>=
+  (\(battles', clientPayloads) => 
+   (writer clientPayloads) >>=
+    (\_ => statefulBackend battles')))
 -------------------------------------------------------------------------------
 partial
 mainDummy : IO ()
@@ -187,7 +199,7 @@ main : IO ()
 
 main = do {
  _ <- init;
- main';
+ statefulBackend [];
 }
 -------------------------------------------------------------------------------
 
