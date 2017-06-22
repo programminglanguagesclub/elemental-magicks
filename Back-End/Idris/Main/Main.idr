@@ -13,6 +13,9 @@ import Main.Transform_game
 import Base.Skill_dsl_data
 import Base.Phase
 import Base.Clientupdates
+import Effects
+import Effect.Select
+
 
 %access public export
 %default total
@@ -43,9 +46,7 @@ createNewBattle :
 
 createNewBattle battles originalPlayerA originalPlayerB =
  battles ++ [MkBattle FirstRound (new game originalPlayerA originalPlayerB)]
-
-
-
+-------------------------------------------------------------------------------
 processServerUpdateOnGame :
  Game ->
  WhichPlayer ->
@@ -53,50 +54,51 @@ processServerUpdateOnGame :
  (Either WhichPlayer Game, List ClientUpdate)
 
 processServerUpdateOnGame = transformGame
+-------------------------------------------------------------------------------
+nextRound :
+ (winner : WhichPlayer) ->
+ Round ->
+ Either Result Round
 
-
-
-
-{-
-   | GameTerminated String {-id of winning player-}
-                  | MatchTerminated Result {-this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners-}
-
--}
-
-
-{-
-data Result
- = Tie
- | OriginalPlayerAWon
- | OriginalPlayerBWon
--}
-nextRound : (winner : WhichPlayer) -> Round -> Either Result Round
 nextRound PlayerA FirstRound = Right SecondRoundOriginalPlayerAWonFirstRound
 nextRound PlayerB FirstRound = Right SecondRoundOriginalPlayerBWonFirstRound
 nextRound PlayerA SecondRoundOriginalPlayerAWonFirstRound = Left Tie
 nextRound PlayerB SecondRoundOriginalPlayerAWonFirstRound = Left OriginalPlayerAWon
 nextRound PlayerA SecondRoundOriginalPlayerBWonFirstRound = Left OriginalPlayerBWon
 nextRound PlayerB SecondRoundOriginlaPlayerBWonFirstRound = Left Tie
+-------------------------------------------------------------------------------
+correctForRound :
+ Round ->
+ WhichPlayer ->
+ WhichPlayer
 
-correctForRound : Round -> WhichPlayer -> WhichPlayer
 correctForRound FirstRound PlayerA = PlayerA
 correctForRound FirstRound PlayerB = PlayerB
 correctForRound _ PlayerA = PlayerB
 correctForRound _ PlayerB = PlayerA
-
+-------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
 replyWith clientUpdates playerId opponentId = ?hole {-
  case payload clientUpdates playerId opponentId of
   Just x => x
   Nothing => ?hole {-should payload be able to produce Nothing?-}-}
 {- payload only takes one update :/ -}
+-------------------------------------------------------------------------------
+playerIdOpponentId :
+ WhichPlayer ->
+ String ->
+ String ->
+ (String,String)
 
-playerIdOpponentId : WhichPlayer -> String -> String -> (String,String)
 playerIdOpponentId PlayerA a b = (a,b)
 playerIdOpponentId PlayerB a b = (b,a)
+-------------------------------------------------------------------------------
+processServerUpdate' :
+ Battle ->
+ WhichPlayer ->
+ ServerUpdate ->
+ (List Battle, String)
 
-
-processServerUpdate' : Battle -> WhichPlayer -> ServerUpdate -> (List Battle, String)
 processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
  let (playerId, opponentId) = playerIdOpponentId whichPlayer (getPlayerTemporaryId PlayerA game) (getPlayerTemporaryId PlayerB game) in
  let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round whichPlayer) serverUpdate in
@@ -107,8 +109,13 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
      Right round' => ([MkBattle round' (switchSides game)], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), GameStart]) playerId opponentId)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
+-------------------------------------------------------------------------------
+processServerUpdate :
+ List Battle ->
+ ServerUpdateWrapper ->
+ (List Battle, String)
 
-processServerUpdate : List Battle -> ServerUpdateWrapper -> (List Battle, String) {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
+{-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
 processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serverUpdate playerId) =
  let playerAId = getPlayerTemporaryId PlayerA game in
@@ -127,20 +134,36 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
      ((MkBattle round game)::battles', reply)
 
 {-assuming not the same token for both players...-}
- 
+-------------------------------------------------------------------------------
+{-randomlyDecideIfPlayerA : -}
 
+SELECT : EFFECT
 
+select : List a -> Eff a [SELECT]
 
+Handler Selection Maybe where { ... }
+Handler Selection List where { ... }
+
+triple : Int -> Eff (Int, Int, Int) [SELECT, EXCEPTION String]
+triple max = ?hole {-do z <- select [1..max]
+                y <- select [1..z]
+                x <- select [1..y]
+                if (x * x + y * y == z * z)
+                   then pure (x, y, z)
+                   else raise "No triple"
+-}
+-------------------------------------------------------------------------------
 processMessage : List Battle -> String -> (List Battle, String)
 processMessage battles message =
  case parseJson message of
   InvalidRequest =>
    (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
-   (createNewBattle battles playerId opponentId, ?hole) {-similarly probably want a game started and battle started client update-}
+   (createNewBattle battles playerId opponentId, replyWith [MatchStart ?hole ?hole, GameStart] playerId opponentId)
+{-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
    processServerUpdate battles serverUpdate
-
+-------------------------------------------------------------------------------
 
 partial
 statefulBackend : List Battle -> IO ()
