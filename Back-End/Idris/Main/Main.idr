@@ -151,12 +151,13 @@ createNewBattle' :
  String ->
  String ->
  WhichPlayer ->
- (Battle, String)
+ List Battle ->
+ (List Battle, String)
 
-createNewBattle' playerId opponentId PlayerA =
- (MkBattle FirstRound (new game playerId opponentId), replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
-createNewBattle' playerId opponentId PlayerB =
- (MkBattle FirstRound (new game opponentId playerId), replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId)
+createNewBattle' playerId opponentId PlayerA battles =
+ (battles ++ [MkBattle FirstRound (new game playerId opponentId)], replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
+createNewBattle' playerId opponentId PlayerB battles =
+ (battles ++ [MkBattle FirstRound (new game opponentId playerId)], replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId)
 -------------------------------------------------------------------------------
 processMessage :
  List Battle ->
@@ -169,9 +170,9 @@ processMessage battles message =
    pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
    randomlyDecidePlayer >>=
-   (\whichPlayer => case whichPlayer of
+   (\whichPlayer => pure $ createNewBattle' playerId opponentId whichPlayer battles {-case whichPlayer of
     PlayerA => pure (createNewBattle battles playerId opponentId, replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId)
-    PlayerB => pure (createNewBattle battles opponentId playerId, replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId))
+    PlayerB => pure (createNewBattle battles opponentId playerId, replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId) -})
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
    pure $ processServerUpdate battles serverUpdate
