@@ -22,27 +22,25 @@ import Effect.Select
 
 %include C "../Glue/idrisFFI.h"
 %link C "../Glue/idrisFFI.o"
-
-
+-------------------------------------------------------------------------------
 init : IO ()
+
 init = foreign FFI_C "init" (IO ())
-
+-------------------------------------------------------------------------------
 reader : IO String
+
 reader = foreign FFI_C "reader" (IO String)
-
+-------------------------------------------------------------------------------
 writer : String -> IO Unit
+
 writer x = foreign FFI_C "writer" (String -> IO Unit) x
-
-
+-------------------------------------------------------------------------------
 --Idris supports random numbers, but using C anyway
 --Unimplemented
 getRandom : IO Int
+
 getRandom = foreign FFI_C "getRandom" (IO Int)
-
-
-{-might want to not use tokens for temporary ids...-}
-{-related: no facility for reconnecting yet.. maybe Ur/Web is giving us the players ID, rather than their tokens.. that would make sense.-}
-
+-------------------------------------------------------------------------------
 createNewBattle :
  List Battle ->
  String ->
@@ -83,6 +81,7 @@ correctForRound _ PlayerA = PlayerB
 correctForRound _ PlayerB = PlayerA
 -------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
+
 replyWith clientUpdates playerId opponentId = ?hole {-
  case payload clientUpdates playerId opponentId of
   Just x => x
@@ -141,14 +140,15 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
 {-assuming not the same token for both players...-}
 -------------------------------------------------------------------------------
 randomlyDecideIfPlayerA : IO Bool
+
 randomlyDecideIfPlayerA =
  do{
   x <- getRandom;
   pure (if x == 0 then True else False);
  }
-
 -------------------------------------------------------------------------------
 processMessage : List Battle -> String -> (List Battle, String)
+
 processMessage battles message =
  case parseJson message of
   InvalidRequest =>
@@ -159,34 +159,41 @@ processMessage battles message =
   ServerUpdateMessage serverUpdate =>
    processServerUpdate battles serverUpdate
 -------------------------------------------------------------------------------
-
 partial
 statefulBackend : List Battle -> IO ()
+
 statefulBackend battles =
  reader >>=
   (\rawServerMessage =>
     let (battles',clientPayloads) = processMessage battles rawServerMessage in
     (writer clientPayloads) >>= (\_ => statefulBackend battles'))
-
+-------------------------------------------------------------------------------
 partial
-main' : IO () {- switch to this when I'm ready... -}
+main' : IO ()
+
 main' = statefulBackend []
-
-
+-------------------------------------------------------------------------------
 partial
 mainDummy : IO ()
-mainDummy = do {
-x <- reader;
-writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
-mainDummy;
-}
 
+mainDummy = do {
+ x <- reader;
+ writer (x ++ " was received via Idris, the god of languages. This game is ready to be built in god mode!");
+ mainDummy;
+}
+-------------------------------------------------------------------------------
 partial
 main : IO ()
+
 main = do {
-_ <- init;
-main';
+ _ <- init;
+ main';
 }
+-------------------------------------------------------------------------------
+
+
+
+
 
 {-units now should become engaged AFTER their skills finish (if that's not too hard) actually that might be too hard...-}
 
