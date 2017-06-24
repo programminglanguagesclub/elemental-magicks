@@ -37,26 +37,45 @@ record Game where
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
 -------------------------------------------------------------------------------
+initialInitiative : WhichPlayer
+initialInitiative = PlayerA
+-------------------------------------------------------------------------------
+initialTurnNumber : Nat
+initialTurnNumber = Z
+-------------------------------------------------------------------------------
+initialSkillHead : Nonautomatic
+initialSkillHead = TerminatedSkill
+-------------------------------------------------------------------------------
+initialSkillQueue : List Automatic
+initialSkillQueue = []
+-------------------------------------------------------------------------------
+initialDeathQueue : List Nat
+initialDeathQueue = []
+-------------------------------------------------------------------------------
+initialPhase :
+ String ->
+ String ->
+ Phase
+
+initialPhase playerAId playerBId =
+ let playerA = newDrawPlayer playerAId in
+ let playerB = newDrawPlayer playerBId in
+ DrawPhase playerA playerB 0
+-------------------------------------------------------------------------------
 newGame :
  String ->
  String ->
  Game
 
 newGame playerAId playerBId =
- let playerA = newDrawPlayer playerAId in
- let playerB = newDrawPlayer playerBId in
- MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase playerA playerB 0)
+ MkGame
+  initialInitiative
+  initialTurnNumber
+  initialSkillHead
+  initialSkillQueue
+  initialDeathQueue
+  (initialPhase playerAId playerBId) 
 -------------------------------------------------------------------------------
-
-switchSides : Game -> Game
-switchSides game with (phase game)
- | (DrawPhase _ _ _) = ?hole {-error case!!-}
- | (MkPhaseCycle _ playerA playerB) = newGame (temporaryId playerB) (temporaryId playerA)
-
-{-
-{-this is another case where I would like to drill into game having already pattern matched away the possibility that I can't access phase the way I want (pattern matching...)-}
-switchSides (MkGame _ _ _ _ _ (MkPhaseCycle _ playerA playerB)) = new game (temporaryId playerB) (temporaryId playerA)
--}
 
 playerOnMove : Game -> WhichPlayer
 

@@ -34,35 +34,27 @@ record DrawPlayer where
  temporaryId : String
 -------------------------------------------------------------------------------
 initialRowTarget : Vect 3 (Fin 3)
-
 initialRowTarget = replicate 3 FZ
 -------------------------------------------------------------------------------
 initialKnowledge : Vect 6 (Bounded 0 9)
-
 initialKnowledge = replicate 6 (>> 0 <<)
 -------------------------------------------------------------------------------
 initialThoughts : Bounded 0 Preliminaries.absoluteUpperBound
-
 initialThoughts = >> 5 <<
 -------------------------------------------------------------------------------
 emptyDiscard : List Card
-
 emptyDiscard = []
 -------------------------------------------------------------------------------
 emptyGraveyard : List Card
-
 emptyGraveyard = []
 -------------------------------------------------------------------------------
 emptyBoard : Vect 3 (Vect 3 (Maybe Monster))
-
 emptyBoard = replicate 3 $ replicate 3 Nothing
 -------------------------------------------------------------------------------
 emptySoul : Vect 5 (Maybe Monster)
-
 emptySoul = replicate 5 Nothing
 -------------------------------------------------------------------------------
 emptySpawn : Maybe Card
-
 emptySpawn = Nothing
 -------------------------------------------------------------------------------
 newPlayer :

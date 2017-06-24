@@ -129,7 +129,7 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
       let beginSecondRound = [GameTerminated winnerId, GameStart] in
       let clientUpdates' = clientUpdates ++ beginSecondRound in
       let serverResponse = replyWith clientUpdates' playerId opponentId in
-      ([MkBattle round' (switchSides game)], serverResponse)
+      ([MkBattle round' (newGame bId aId)], serverResponse)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
 -------------------------------------------------------------------------------
