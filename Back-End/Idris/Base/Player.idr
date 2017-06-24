@@ -1,4 +1,6 @@
 module Base.Player
+
+import Data.So
 import Data.Vect
 import Base.BoundedList
 import Base.Bounded
@@ -6,12 +8,14 @@ import Base.Preliminaries
 import Base.Objects_basic
 import Base.Clientupdates
 import Base.Card
+
 %access public export
 %default total
 
+-------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
- board : Vect 3 (Vect 3 (Maybe Monster))
+ board : Vect 3 (Vect 3 (Maybe Monster)) -- should wrap this in a datatype, and/or use matrix..
  rowTarget : Vect 3 (Fin 3)
  hand : List Card
  graveyard : List Card
@@ -21,10 +25,11 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
+-- should add proof that the total number of cards controlled is 30.
 
 record DrawPlayer where
  constructor MkDrawPlayer
- hand : BoundedList 25 Card
+ hand : BoundedList 25 Card -- might want to make this a normal list.
  soulCards : Vect 5 (Maybe Monster)
  temporaryId : String
 -------------------------------------------------------------------------------
@@ -39,15 +44,48 @@ newGame playerAId playerBId =
 syntax "new" "player" [playerId] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) playerId
 -}
 
+-------------------------------------------------------------------------------
+initialRowTarget : Vect 3 (Fin 3)
+initialRowTarget = replicate 3 FZ
+-------------------------------------------------------------------------------
+initialKnowledge : Vect 6 (Bounded 0 9)
+initialKnowledge = replicate 6 (>> 0 <<)
+-------------------------------------------------------------------------------
+initialThoughts : Bounded 0 Preliminaries.absoluteUpperBound
+initialThoughts = >> 5 <<
+-------------------------------------------------------------------------------
+emptyDiscard : List Card
+emptyDiscard = []
+-------------------------------------------------------------------------------
+emptyGraveyard : List Card
+emptyGraveyard = []
+-------------------------------------------------------------------------------
+emptyBoard : Vect 3 (Vect 3 (Maybe Monster))
+emptyBoard = ?hole
+-------------------------------------------------------------------------------
 emptySoul : Vect 5 (Maybe Monster)
 emptySoul = replicate 5 Nothing
-
+-------------------------------------------------------------------------------
+emptySpawn : Maybe Card
+emptySpawn = Nothing
+-------------------------------------------------------------------------------
 newPlayer : String -> Vect 5 Monster -> Vect 30 Card -> Player
-newPlayer playerId soul hand = ?hole
-
+newPlayer playerId soul hand =
+ MkPlayer
+  emptyBoard
+  initialRowTarget
+  (toList hand)
+  emptyGraveyard
+  emptyDiscard
+  emptySpawn
+  soul
+  initialThoughts
+  initialKnowledge
+  playerId
+-------------------------------------------------------------------------------
 newDrawPlayer : String -> DrawPlayer
-newDrawPlayer playerId = ?hole
-
+newDrawPlayer playerId = MkDrawPlayer [] emptySoul playerId
+-------------------------------------------------------------------------------
 
 
 {-
