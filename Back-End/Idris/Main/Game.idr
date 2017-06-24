@@ -76,9 +76,9 @@ newGame playerAId playerBId =
   initialDeathQueue
   (initialPhase playerAId playerBId) 
 -------------------------------------------------------------------------------
-
 playerOnMove : Game -> WhichPlayer
 
+playerOnMove = ?hole
 -------------------------------------------------------------------------------
 record Battle where
  constructor MkBattle
@@ -100,12 +100,23 @@ getPlayerTemporaryId whichPlayer game with (phase game)
    PlayerA => temporaryId playerA
    PlayerB => temporaryId playerB
 -------------------------------------------------------------------------------
-{-
-updatePlayer : Game -> WhichPlayer -> (Player -> (Player,List ClientUpdate)) -> (Game, List ClientUpdate)
-updatePlayer game PlayerA f = let (playerA',updates) = f $ player_A game in
-                                  (record {player_A = playerA'} game, updates)
-updatePlayer game PlayerB f = let (playerB',updates) = f $ player_B game in
-                                  (record {player_B = playerB'} game, updates)
+updatePlayer :
+ PhaseCycle ->
+ Player ->
+ Player ->
+ WhichPlayer ->
+ (Player -> (Player, List ClientUpdate)) ->
+ (Phase, List ClientUpdate)
 
--}
+updatePlayer phase playerA playerB PlayerA mutator =
+ let (playerA', clientUpdates) = mutator playerA in
+ (MkPhaseCycle phase playerA' playerB, clientUpdates)
+updatePlayer phase playerA playerB PlayerB mutator =
+ let (playerB', clientUpdates) = mutator playerB in
+ (MkPhaseCycle phase playerA playerB', clientUpdates)
+-------------------------------------------------------------------------------
+
+
+
+
 
