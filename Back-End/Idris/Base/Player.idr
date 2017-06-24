@@ -8,6 +8,7 @@ import Base.Preliminaries
 import Base.Objects_basic
 import Base.Clientupdates
 import Base.Card
+import Base.Skill_dsl_data
 
 %access public export
 %default total
@@ -158,30 +159,7 @@ getAllCardsDrawn soulA soulB handA handB = getAllList soulA soulB handA handB (\
 
 
 {-concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m (S n) in x::(concatBoundedList xs l2)-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------------------------------------
 
 
 
@@ -197,7 +175,7 @@ finSum3 (FS k) x y = FS (finSum3 k x y)
 
 finSum4 : Fin n1 -> Fin n2 -> Fin n3 -> Fin n4 -> Fin (n1 + (n2 + (n3 + n4)))
 -}
-
+-------------------------------------------------------------------------------
 
 
 
@@ -206,26 +184,40 @@ flattenBoard [row0, row1, row2] = row0 ++ row1 ++ row2
 
 unflattenBoard : Vect 9 (Maybe Monster) -> Vect 3 (Vect 3 (Maybe Monster))
 unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] = [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
+-------------------------------------------------------------------------------
+idMatches :
+ Nat ->
+ Maybe Monster ->
+ Bool
 
-idMatches : Nat -> Maybe Monster -> Bool
 idMatches monsterId Nothing = False
 idMatches monsterId (Just monster) = (id $ basic monster) == monsterId
+-------------------------------------------------------------------------------
+findBoardMonsterIndex :
+ Nat ->
+ Vect 3 (Vect 3 (Maybe Monster)) ->
+ Maybe (Fin 9)
 
-findBoardMonsterIndex : Nat -> Vect 3 (Vect 3 (Maybe Monster)) -> Maybe (Fin 9)
 findBoardMonsterIndex monsterId board = findIndex (idMatches monsterId) (flattenBoard board)
+-------------------------------------------------------------------------------
+findBoardMonster :
+ Nat ->
+ Vect 3 (Vect 3 (Maybe Monster)) ->
+ Maybe Monster
 
-findBoardMonster : Nat -> Vect 3 (Vect 3 (Maybe Monster)) -> Maybe Monster
-findBoardMonster monsterId board = case findBoardMonsterIndex monsterId board of
-                                        Nothing => Nothing
-                                        Just monsterIndex => Vect.index monsterIndex (flattenBoard board)
-
+findBoardMonster monsterId board =
+ case findBoardMonsterIndex monsterId board of
+  Nothing => Nothing
+  Just monsterIndex => Vect.index monsterIndex (flattenBoard board)
+-------------------------------------------------------------------------------
 getLiving : Maybe Monster -> Bool
+
 getLiving Nothing = False
 getLiving (Just m) with (aliveness (basic m))
  | Alive = True
  | DeadFresh = False
  | DeadStale = False
-
+-------------------------------------------------------------------------------
 
 
 
@@ -331,28 +323,57 @@ findIndexFrom p (FS k) (x :: xs) = FS <$> findIndexFrom p k xs
 findIndexPreferentiallyFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
 findIndexPreferentiallyFrom p FZ xs =  findIndex p xs
 findIndexPreferentiallyFrom p (FS k) (x :: xs) = if p x then FS <$> findIndexFrom p k xs <|> Just FZ else FS <$> findIndexPreferentiallyFrom p k xs
-
-
+-------------------------------------------------------------------------------
 actualAlive : Maybe Monster -> Bool
+
 actualAlive Nothing = False
 actualAlive (Just monster) with (aliveness $ basic monster)
   | DeadFresh = False
   | DeadStale = False
   | Alive = True
+-------------------------------------------------------------------------------
+findNextLivingMonster :
+ Fin n ->
+ Vect n (Maybe Monster) ->
+ Maybe (Fin n)
 
-findNextLivingMonster : Fin n -> Vect n (Maybe Monster) -> Maybe (Fin n)
 findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
+-------------------------------------------------------------------------------
+getCanUseSkill :
+ (Monster -> Maybe Skill) ->
+ Monster ->
+ Bool
 
+getCanUseSkill accessor monster with (accessor monster)
+ | Nothing = True
+ | Just (_, used, _, _) = used
+-------------------------------------------------------------------------------
+getCanUseDeathSkill : Monster -> Bool
 
+getCanUseDeathSkill = getCanUseSkill deathSkill
+-------------------------------------------------------------------------------
+getCanUseCounterSkill : Monster -> Bool
 
+getCanUseCounterSkill = getCanUseSkill counterSkill
+-------------------------------------------------------------------------------
+getCanUseAutoSkill : Monster -> Bool
 
+getCanUseAutoSkill = getCanUseSkill autoSkill
+-------------------------------------------------------------------------------
+getCanUseStartSkill : Monster -> Bool
 
+getCanUseStartSkill = getCanUseSkill startSkill
+-------------------------------------------------------------------------------
+getCanUseEndSkill : Monster -> Bool
 
+getCanUseEndSkill = getCanUseSkill endSkill
+-------------------------------------------------------------------------------
+getCanUseSpawnSkill : Monster -> Bool
 
-usedDeathSkill : Monster -> Bool
-usedCounterSkill : Monster -> Bool
-
+getCanUseSpawnSkill = getCanUseSkill spawnSkill
+-------------------------------------------------------------------------------
 damageCard' : Integer -> Monster -> Monster
+damageCard' = ?hole
 
 indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe Monster
 damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
