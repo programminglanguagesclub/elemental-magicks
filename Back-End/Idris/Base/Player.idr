@@ -27,6 +27,27 @@ record DrawPlayer where
  hand : BoundedList 25 Card
  soulCards : Vect 5 (Maybe Monster)
  temporaryId : String
+-------------------------------------------------------------------------------
+
+{-
+newGame playerAId playerBId =
+ let emptySoul = the (Vect 5 (Maybe Monster)) (replicate 5 Nothing) in
+ let playerA = MkDrawPlayer [] emptySoul playerAId in -- move to Player.idr
+ let playerB = MkDrawPlayer [] emptySoul playerBId in
+ MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase playerA playerB 0)
+
+syntax "new" "player" [playerId] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) playerId
+-}
+
+emptySoul : Vect 5 (Maybe Monster)
+emptySoul = replicate 5 Nothing
+
+newPlayer : String -> Vect 5 Monster -> Vect 30 Card -> Player
+newPlayer playerId soul hand = ?hole
+
+newDrawPlayer : String -> DrawPlayer
+newDrawPlayer playerId = ?hole
+
 
 
 {-
@@ -338,6 +359,4 @@ goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
  | _ = player
 -}
 
-
-syntax "new" "player" [playerId] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) playerId
 
