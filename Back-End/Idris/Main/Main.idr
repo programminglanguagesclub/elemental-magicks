@@ -77,18 +77,27 @@ correctForRound _ PlayerB = PlayerA
  if payload of any of them produces Nothing.
 -}
 -------------------------------------------------------------------------------
-replyWith : List ClientUpdate -> String -> String -> String
+replyWith' : List ClientUpdate -> String -> String -> Either Unit String
 
-replyWith [] playerId opponentId = ""
-replyWith [x] playerId opponentId =
+replyWith' [] playerId opponentId = Right ""
+replyWith' [x] playerId opponentId =
  case payload x playerId opponentId of
-  Just p => p
-  Nothing => ?hole -- error??
-replyWith (x1::x2::xs) playerId opponentId =
+  Just p => Right p
+  Nothing => Left ()
+{-
+replyWith' (x1::x2::xs) playerId opponentId =
  case payload x1 playerId opponentId of
-  Just p => p ++ "|" ++ (replyWith (x2::xs) playerId opponentId)
+  Just p => p ++ "|" ++ (replyWith' (x2::xs) playerId opponentId)
   Nothing => ?hole --error??
 -- can use traversal to have any error make the entire thing error.
+-}
+
+-------------------------------------------------------------------------------
+replyWith : List ClientUpdate -> String -> String -> String
+replyWith clientUpdates playerId opponentId =
+ case replyWith' clientUpdates playerId opponentId of
+  Left _ => ?hole -- can probably make this impossible (by making updates have playerIds in their type?)
+  Right serverResponse => serverResponse
 -------------------------------------------------------------------------------
 playerIdOpponentId :
  WhichPlayer ->
