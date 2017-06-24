@@ -173,9 +173,9 @@ createBattle :
  Battle
 
 createBattle playerId opponentId PlayerA =
- MkBattle FirstRound (new game playerId opponentId)
+ MkBattle FirstRound (newGame playerId opponentId)
 createBattle playerId opponentId PlayerB =
- MkBattle FirstRound (new game opponentId playerId)
+ MkBattle FirstRound (newGame opponentId playerId)
 -------------------------------------------------------------------------------
 createBattleMessage :
  String ->
