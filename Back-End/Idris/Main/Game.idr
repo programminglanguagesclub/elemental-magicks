@@ -43,9 +43,8 @@ newGame :
  Game
 
 newGame playerAId playerBId =
- let emptySoul = the (Vect 5 (Maybe Monster)) (replicate 5 Nothing) in
- let playerA = MkDrawPlayer [] emptySoul playerAId in -- move to Player.idr
- let playerB = MkDrawPlayer [] emptySoul playerBId in
+ let playerA = newDrawPlayer playerAId in
+ let playerB = newDrawPlayer playerBId in
  MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase playerA playerB 0)
 -------------------------------------------------------------------------------
 

@@ -33,43 +33,44 @@ record DrawPlayer where
  soulCards : Vect 5 (Maybe Monster)
  temporaryId : String
 -------------------------------------------------------------------------------
-
-{-
-newGame playerAId playerBId =
- let emptySoul = the (Vect 5 (Maybe Monster)) (replicate 5 Nothing) in
- let playerA = MkDrawPlayer [] emptySoul playerAId in -- move to Player.idr
- let playerB = MkDrawPlayer [] emptySoul playerBId in
- MkGame PlayerA 0 TerminatedSkill [] [] (DrawPhase playerA playerB 0)
-
-syntax "new" "player" [playerId] = MkPlayer (Vect.replicate 3 (Vect.replicate 3 Nothing)) [FZ,FZ,FZ] [] [] [] Nothing (Vect.replicate 5 Nothing) (>> 0 <<) (Vect.replicate 6 (>> 0 <<)) playerId
--}
-
--------------------------------------------------------------------------------
 initialRowTarget : Vect 3 (Fin 3)
+
 initialRowTarget = replicate 3 FZ
 -------------------------------------------------------------------------------
 initialKnowledge : Vect 6 (Bounded 0 9)
+
 initialKnowledge = replicate 6 (>> 0 <<)
 -------------------------------------------------------------------------------
 initialThoughts : Bounded 0 Preliminaries.absoluteUpperBound
+
 initialThoughts = >> 5 <<
 -------------------------------------------------------------------------------
 emptyDiscard : List Card
+
 emptyDiscard = []
 -------------------------------------------------------------------------------
 emptyGraveyard : List Card
+
 emptyGraveyard = []
 -------------------------------------------------------------------------------
 emptyBoard : Vect 3 (Vect 3 (Maybe Monster))
-emptyBoard = ?hole
+
+emptyBoard = replicate 3 $ replicate 3 Nothing
 -------------------------------------------------------------------------------
 emptySoul : Vect 5 (Maybe Monster)
+
 emptySoul = replicate 5 Nothing
 -------------------------------------------------------------------------------
 emptySpawn : Maybe Card
+
 emptySpawn = Nothing
 -------------------------------------------------------------------------------
-newPlayer : String -> Vect 5 Monster -> Vect 30 Card -> Player
+newPlayer :
+ String ->
+ Vect 5 Monster ->
+ Vect 30 Card ->
+ Player
+
 newPlayer playerId soul hand =
  MkPlayer
   emptyBoard
