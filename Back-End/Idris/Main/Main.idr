@@ -41,13 +41,13 @@ getRandom : IO Int
 
 getRandom = foreign FFI_C "getRandom" (IO Int)
 -------------------------------------------------------------------------------
-processServerUpdateOnGame :
+{-processServerUpdateOnGame :
  Game ->
  WhichPlayer ->
  ServerUpdate ->
  (Either WhichPlayer Game, List ClientUpdate)
 
-processServerUpdateOnGame = transformGame
+processServerUpdateOnGame = transformGame-}
 -------------------------------------------------------------------------------
 nextRound :
  (winner : WhichPlayer) ->
@@ -101,13 +101,26 @@ processServerUpdate' :
  (List Battle, String)
 
 processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
- let (playerId, opponentId) = playerIdOpponentId whichPlayer (getPlayerTemporaryId PlayerA game) (getPlayerTemporaryId PlayerB game) in
- let (transformedGame, clientUpdates) = processServerUpdateOnGame game (correctForRound round whichPlayer) serverUpdate in
+ let aId = getPlayerTemporaryId PlayerA game in
+ let bId = getPlayerTemporaryId PlayerB game in
+ let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
+ let whichPlayer' = correctForRound round whichPlayer in
+ let gameTransformationResult = transformGame game whichPlayer' serverUpdate in
+ let (transformedGame, clientUpdates) = gameTransformationResult in
   case transformedGame of
    Left winner =>
+    let winnerId = getPlayerTemporaryId winner game in
     case nextRound winner round of
-     Left result => ([], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), MatchTerminated result]) playerId opponentId)
-     Right round' => ([MkBattle round' (switchSides game)], replyWith (clientUpdates ++ [GameTerminated (getPlayerTemporaryId winner game), GameStart]) playerId opponentId)
+     Left result =>
+      let matchOver = [GameTerminated winnerId, MatchTerminated result] in
+      let clientUpdates' = clientUpdates ++ matchOver in
+      let serverResponse = replyWith clientUpdates' playerId opponentId in
+      ([], serverResponse)
+     Right round' =>
+      let beginSecondRound = [GameTerminated winnerId, GameStart] in
+      let clientUpdates' = clientUpdates ++ beginSecondRound in
+      let serverResponse = replyWith clientUpdates' playerId opponentId in
+      ([MkBattle round' (switchSides game)], serverResponse)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
 -------------------------------------------------------------------------------
