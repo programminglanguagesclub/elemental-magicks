@@ -84,13 +84,12 @@ replyWith' [x] playerId opponentId =
  case payload x playerId opponentId of
   Just p => Right p
   Nothing => Left ()
-{-
 replyWith' (x1::x2::xs) playerId opponentId =
  case payload x1 playerId opponentId of
-  Just p => p ++ "|" ++ (replyWith' (x2::xs) playerId opponentId)
+  Just p => p ++ "|" ++ <$> (replyWith' (x2::xs) playerId opponentId)
   Nothing => ?hole --error??
 -- can use traversal to have any error make the entire thing error.
--}
+
 
 -------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
