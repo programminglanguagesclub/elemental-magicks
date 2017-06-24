@@ -71,4 +71,49 @@ instantiateSpell cardId playerId spellFactory =
 
 data CardFactory = SpellCardFactory SpellFactory | MonsterCardFactory MonsterFactory
 data Card = SpellCard Spell | MonsterCard Monster
+-------------------------------------------------------------------------------
+getLiving : Maybe Monster -> Bool
+
+getLiving Nothing = False
+getLiving (Just m) with (aliveness (basic m))
+ | Alive = True
+ | DeadFresh = False
+ | DeadStale = False
+-------------------------------------------------------------------------------
+getCanUseSkill :
+ (Monster -> Maybe Skill) ->
+ Monster ->
+ Bool
+
+getCanUseSkill accessor monster with (accessor monster)
+ | Nothing = True
+ | Just (_, used, _, _) = used
+-------------------------------------------------------------------------------
+getCanUseDeathSkill : Monster -> Bool
+
+getCanUseDeathSkill = getCanUseSkill deathSkill
+-------------------------------------------------------------------------------
+getCanUseCounterSkill : Monster -> Bool
+
+getCanUseCounterSkill = getCanUseSkill counterSkill
+-------------------------------------------------------------------------------
+getCanUseAutoSkill : Monster -> Bool
+
+getCanUseAutoSkill = getCanUseSkill autoSkill
+-------------------------------------------------------------------------------
+getCanUseStartSkill : Monster -> Bool
+
+getCanUseStartSkill = getCanUseSkill startSkill
+-------------------------------------------------------------------------------
+getCanUseEndSkill : Monster -> Bool
+
+getCanUseEndSkill = getCanUseSkill endSkill
+-------------------------------------------------------------------------------
+getCanUseSpawnSkill : Monster -> Bool
+
+getCanUseSpawnSkill = getCanUseSkill spawnSkill
+-------------------------------------------------------------------------------
+
+
+
 

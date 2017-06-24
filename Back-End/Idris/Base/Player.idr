@@ -210,14 +210,6 @@ findBoardMonster monsterId board =
   Nothing => Nothing
   Just monsterIndex => Vect.index monsterIndex (flattenBoard board)
 -------------------------------------------------------------------------------
-getLiving : Maybe Monster -> Bool
-
-getLiving Nothing = False
-getLiving (Just m) with (aliveness (basic m))
- | Alive = True
- | DeadFresh = False
- | DeadStale = False
--------------------------------------------------------------------------------
 
 
 
@@ -339,47 +331,11 @@ findNextLivingMonster :
 
 findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
 -------------------------------------------------------------------------------
-getCanUseSkill :
- (Monster -> Maybe Skill) ->
- Monster ->
- Bool
 
-getCanUseSkill accessor monster with (accessor monster)
- | Nothing = True
- | Just (_, used, _, _) = used
--------------------------------------------------------------------------------
-getCanUseDeathSkill : Monster -> Bool
-
-getCanUseDeathSkill = getCanUseSkill deathSkill
--------------------------------------------------------------------------------
-getCanUseCounterSkill : Monster -> Bool
-
-getCanUseCounterSkill = getCanUseSkill counterSkill
--------------------------------------------------------------------------------
-getCanUseAutoSkill : Monster -> Bool
-
-getCanUseAutoSkill = getCanUseSkill autoSkill
--------------------------------------------------------------------------------
-getCanUseStartSkill : Monster -> Bool
-
-getCanUseStartSkill = getCanUseSkill startSkill
--------------------------------------------------------------------------------
-getCanUseEndSkill : Monster -> Bool
-
-getCanUseEndSkill = getCanUseSkill endSkill
--------------------------------------------------------------------------------
-getCanUseSpawnSkill : Monster -> Bool
-
-getCanUseSpawnSkill = getCanUseSkill spawnSkill
--------------------------------------------------------------------------------
-damageCard' : Integer -> Monster -> Monster
-damageCard' = ?hole
 
 indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe Monster
-damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
-damageCard val row column player with (indexMonster row column player)
-  | Nothing = ([], player)
-  | Just monster = let damagedMonster = damageCard' val monster in ?hole {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
+indexMonster = ?hole
+
 
 {-This requires loading skills onto the skillQueue, so it really needs more than just a player as input...
  This should be changed to have Game and WhichPlayer as input.
@@ -388,8 +344,6 @@ damageCard val row column player with (indexMonster row column player)
 
 
 
-applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
-applyAttack atk row defendingPlayer = ?hole
 
 
 

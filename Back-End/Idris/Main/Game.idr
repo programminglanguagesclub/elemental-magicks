@@ -116,6 +116,18 @@ updatePlayer phase playerA playerB PlayerB mutator =
  (MkPhaseCycle phase playerA playerB', clientUpdates)
 -------------------------------------------------------------------------------
 
+damageCard' : Integer -> Monster -> Monster
+damageCard' = ?hole
+
+
+damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
+damageCard val row column player with (indexMonster row column player)
+  | Nothing = ([], player)
+  | Just monster = let damagedMonster = damageCard' val monster in ?hole {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
+
+
+applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
+applyAttack atk row defendingPlayer = ?hole
 
 
 
