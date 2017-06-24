@@ -77,26 +77,22 @@ correctForRound _ PlayerB = PlayerA
  if payload of any of them produces Nothing.
 -}
 -------------------------------------------------------------------------------
-replyWith' : List ClientUpdate -> String -> String -> Either Unit String
+trivial : (String -> String -> String) -> Maybe String -> Maybe String -> Maybe String
+--trivial f a b = f <$> a <*> b -- THIS IS CAUSING COMPILE ISSUE WITH IMPLICITS
+-------------------------------------------------------------------------------
+replyWith' : List ClientUpdate -> String -> String -> Maybe String
 
-replyWith' [] playerId opponentId = Right ""
-replyWith' [x] playerId opponentId =
- case payload x playerId opponentId of
-  Just p => Right p
-  Nothing => Left ()
+replyWith' [] playerId opponentId = Just "" -- this is probably an error case.
+replyWith' [x] playerId opponentId = payload x playerId opponentId
 replyWith' (x1::x2::xs) playerId opponentId =
- case payload x1 playerId opponentId of
-  Just p => p ++ "|" ++ <$> (replyWith' (x2::xs) playerId opponentId)
-  Nothing => ?hole --error??
--- can use traversal to have any error make the entire thing error.
-
-
+ let firstPayload = ((++) "|") <$> (payload x1 playerId opponentId) in
+ trivial (++) firstPayload (replyWith' (x2::xs) playerId opponentId)
 -------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
 replyWith clientUpdates playerId opponentId =
  case replyWith' clientUpdates playerId opponentId of
-  Left _ => ?hole -- can probably make this impossible (by making updates have playerIds in their type?)
-  Right serverResponse => serverResponse
+  Nothing => ?hole -- can probably make this impossible (by making updates have playerIds in their type?)
+  Just serverResponse => serverResponse
 -------------------------------------------------------------------------------
 playerIdOpponentId :
  WhichPlayer ->
