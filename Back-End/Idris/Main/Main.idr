@@ -79,11 +79,16 @@ correctForRound _ PlayerB = PlayerA
 -------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
 
-replyWith clientUpdates playerId opponentId = ?hole
-{- case payload clientUpdates playerId opponentId of
-  Just x => x
-  Nothing => ?hole {-should payload be able to produce Nothing?-}-}
-{- payload only takes one update :/ -}
+replyWith [] playerId opponentId = ""
+replyWith [x] playerId opponentId =
+ case payload x playerId opponentId of
+  Just p => p
+  Nothing => ?hole -- error??
+replyWith (x1::x2::xs) playerId opponentId =
+ case payload x1 playerId opponentId of
+  Just p => p ++ "|" ++ (replyWith (x2::xs) playerId opponentId)
+  Nothing => ?hole --error??
+-- can use traversal to have any error make the entire thing error.
 -------------------------------------------------------------------------------
 playerIdOpponentId :
  WhichPlayer ->
@@ -105,8 +110,8 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
  let bId = getPlayerTemporaryId PlayerB game in
  let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
  let whichPlayer' = correctForRound round whichPlayer in
- let gameTransformationResult = transformGame game whichPlayer' serverUpdate in
- let (transformedGame, clientUpdates) = gameTransformationResult in
+ let transformGameResult = transformGame game whichPlayer' serverUpdate in
+ let (transformedGame, clientUpdates) = transformGameResult in
   case transformedGame of
    Left winner =>
     let winnerId = getPlayerTemporaryId winner game in
