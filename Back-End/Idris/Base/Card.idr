@@ -102,33 +102,41 @@ getLiving (Just m) with (aliveness (basic m))
 getCanUseSkill :
  (Monster -> Maybe Skill) ->
  Monster ->
- Bool
+ Maybe Skill
 
 getCanUseSkill accessor monster with (accessor monster)
- | Nothing = True
- | Just (_, used, _, _) = used
+ | Nothing = Nothing
+ | Just (automatic, True, cost, condition) = Just (automatic, True, cost, condition)
+ | Just (_,False,_,_) = Nothing
+
+
+
+
+--(Automatic, Bool, Nat, Condition)
+-- the used flag is not in a good place. 
+
 -------------------------------------------------------------------------------
-getCanUseDeathSkill : Monster -> Bool
+getCanUseDeathSkill : Monster -> Maybe Skill
 
 getCanUseDeathSkill = getCanUseSkill deathSkill
 -------------------------------------------------------------------------------
-getCanUseCounterSkill : Monster -> Bool
+getCanUseCounterSkill : Monster -> Maybe Skill
 
 getCanUseCounterSkill = getCanUseSkill counterSkill
 -------------------------------------------------------------------------------
-getCanUseAutoSkill : Monster -> Bool
+getCanUseAutoSkill : Monster -> Maybe Skill
 
 getCanUseAutoSkill = getCanUseSkill autoSkill
 -------------------------------------------------------------------------------
-getCanUseStartSkill : Monster -> Bool
+getCanUseStartSkill : Monster -> Maybe Skill
 
 getCanUseStartSkill = getCanUseSkill startSkill
 -------------------------------------------------------------------------------
-getCanUseEndSkill : Monster -> Bool
+getCanUseEndSkill : Monster -> Maybe Skill
 
 getCanUseEndSkill = getCanUseSkill endSkill
 -------------------------------------------------------------------------------
-getCanUseSpawnSkill : Monster -> Bool
+getCanUseSpawnSkill : Monster -> Maybe Skill
 
 getCanUseSpawnSkill = getCanUseSkill spawnSkill
 -------------------------------------------------------------------------------

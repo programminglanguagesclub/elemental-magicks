@@ -1,7 +1,13 @@
 module Main.Game
 import Data.Fin
 import Data.Vect
+import Base.Bounded
+import Base.Bounded_then_integer
+import Base.Integer_then_bounded
+import Base.Hp
+import Base.Preliminaries
 import Base.BoundedList
+import Base.Objects_basic
 import Base.Skill_dsl_data
 import Base.Player
 import Base.Phase
@@ -115,20 +121,65 @@ updatePlayer phase playerA playerB PlayerB mutator =
  let (playerB', clientUpdates) = mutator playerB in
  (MkPhaseCycle phase playerA playerB', clientUpdates)
 -------------------------------------------------------------------------------
+-- Move these helper functions to card. These also get used in the DSL.
 
-damageCard' : Integer -> Monster -> Monster
-damageCard' = ?hole
+modifyHp :
+ (Integer -> Integer) ->
+ Monster ->
+ Monster
 
+modifyHp mutator monster =
+ record {basic -> hp $= transformHp mutator} monster
+-------------------------------------------------------------------------------
+subtractHp :
+ Integer ->
+ Monster ->
+ Monster
 
-damageCard : Integer -> Fin 3 -> Fin 3 -> Player -> (List ClientUpdate, Player)
+subtractHp value monster = modifyHp (\x => x - value) monster
+-------------------------------------------------------------------------------
+fatallyDamaged : Monster -> Bool
+
+fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
+-------------------------------------------------------------------------------
+damageCard :
+ Integer ->
+ Fin 3 ->
+ Fin 3 ->
+ Player ->
+ (List ClientUpdate, Player)
+
 damageCard val row column player with (indexMonster row column player)
-  | Nothing = ([], player)
-  | Just monster = let damagedMonster = damageCard' val monster in ?hole {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
+ | Nothing = ([], player)
+ | Just monster =
+  let damagedMonster = subtractHp val monster in
+  case fatallyDamaged damagedMonster of
+   True =>
+    case getCanUseDeathSkill damagedMonster of
+     Nothing => ?hole
+     Just skill => ?hole
+   False =>
+    case getCanUseCounterSkill damagedMonster of
+     Nothing => ?hole
+     Just skill => ?hole
+
+  {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
 
-applyAttack : Bounded 0 Preliminaries.absoluteUpperBound -> Fin 3 -> Player -> (List ClientUpdate, Player)
+-- this function probably needs to be able to modify more things..
+
+-------------------------------------------------------------------------------
+applyAttack :
+ Bounded 0 Preliminaries.absoluteUpperBound ->
+ Fin 3 ->
+ Player ->
+ (List ClientUpdate, Player)
+
 applyAttack atk row defendingPlayer = ?hole
 
+-- this function also probably needs to be able to modify more things.
+
+-------------------------------------------------------------------------------
 
 
 
