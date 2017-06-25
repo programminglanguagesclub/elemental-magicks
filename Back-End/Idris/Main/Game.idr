@@ -157,11 +157,15 @@ damageCard val row column player with (indexMonster row column player)
    True =>
     case getCanUseDeathSkill damagedMonster of
      Nothing => ?hole
-     Just skill => ?hole
+     Just skill =>
+      let damagedMonster' = setCanUseDeathSkill damagedMonster False in
+      ?hole
    False =>
     case getCanUseCounterSkill damagedMonster of
      Nothing => ?hole
-     Just skill => ?hole
+     Just skill =>
+      let damagedMonster' = setCanUseCounterSkill damagedMonster False in
+      ?hole
 
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
