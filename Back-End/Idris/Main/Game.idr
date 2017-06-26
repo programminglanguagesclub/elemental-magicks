@@ -91,6 +91,13 @@ record Battle where
  round : Round
  game : Game
 -------------------------------------------------------------------------------
+--getPlayer :
+-- Game ->
+-- WhichPlayer ->
+-- Player
+
+
+-------------------------------------------------------------------------------
 getPlayerTemporaryId :
  WhichPlayer ->
  Game ->
@@ -147,10 +154,12 @@ damageCard :
  Nat ->
  Fin 3 ->
  Fin 3 ->
- Player ->
- (List ClientUpdate, Player)
+ Game ->
+ WhichPlayer ->
+ (List ClientUpdate, Game)
 
-damageCard damage row column player with (indexMonster row column player)
+{-
+damageCard damage row column game whichPlayer with (indexMonster row column player)
  | Nothing = ([], player)
  | Just monster =
   let defenderDefense = getTemporary $ defense $ basic monster in
@@ -170,7 +179,7 @@ damageCard damage row column player with (indexMonster row column player)
      Just skill =>
       let damagedMonster' = setCanUseCounterSkill damagedMonster False in
       ?hole
- 
+-} 
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
 
