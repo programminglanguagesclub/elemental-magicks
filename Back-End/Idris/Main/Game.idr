@@ -144,32 +144,33 @@ fatallyDamaged : Monster -> Bool
 fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 -------------------------------------------------------------------------------
 damageCard :
- Integer ->
+ Nat ->
  Fin 3 ->
  Fin 3 ->
  Player ->
  (List ClientUpdate, Player)
 
-damageCard val row column player with (indexMonster row column player)
+damageCard damage row column player with (indexMonster row column player)
  | Nothing = ([], player)
  | Just monster =
-  let defenderDefense = ?hole in
-  ?hole {-
-  let damagedMonster = subtractHp val monster in
-  case fatallyDamaged damagedMonster of
+  let defenderDefense = getTemporary $ defense $ basic monster in
+  let hpLost = removeUpperBound ((toIntegerNat damage) - defenderDefense) in -- this will not allow for extra damage outside the bound of defense.... wrong code.
+  let (fatallyDamaged, damagedMonster) = subtractHp hpLost monster in
+  let damagedCardUpdate = the ClientUpdate ?hole in
+  case fatallyDamaged of
    True =>
     case getCanUseDeathSkill damagedMonster of
-     Nothing => ?hole
+     Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
       let damagedMonster' = setCanUseDeathSkill damagedMonster False in
       ?hole
    False =>
     case getCanUseCounterSkill damagedMonster of
-     Nothing => ?hole
+     Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
       let damagedMonster' = setCanUseCounterSkill damagedMonster False in
       ?hole
-      -}
+ 
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
 

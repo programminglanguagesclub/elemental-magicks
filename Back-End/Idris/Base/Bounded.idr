@@ -104,7 +104,9 @@ extendBounds (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend_lower prf_
  MkBounded (n ** ((my_lte_transitive prf_extend_lower prf_lower_n),(my_lte_transitive prf_n_upper prf_extend_upper)))
 
 
-
+removeUpperBound : Bounded 0 b -> Nat
+removeUpperBound (MkBounded (n ** (_, prf_n_upper))) = {-with (compare n 0)-}
+ fromIntegerNat n -- this is not very type correct, but it works.
 
 
 
