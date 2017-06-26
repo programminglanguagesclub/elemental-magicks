@@ -34,14 +34,26 @@ data Round
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 -------------------------------------------------------------------------------
-record Game where
- constructor MkGame
+record GameCycle where
+ constructor MkGameCycle
  initiative : WhichPlayer
  turnNumber : Nat
  skillHead : Nonautomatic
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ playerA : Player
+ playerB : Player
  phase : Phase
+-------------------------------------------------------------------------------
+record DrawPhase where
+ constructor MkDrawPhase
+ playerA : DrawPlayer
+ playerB : DrawPlayer
+ turnNumber : Fin 60
+-------------------------------------------------------------------------------
+data Game
+ = GameCycleGame GameCycle
+ | DrawPhaseGame DrawPhase
 -------------------------------------------------------------------------------
 initialInitiative : WhichPlayer
 initialInitiative = PlayerA

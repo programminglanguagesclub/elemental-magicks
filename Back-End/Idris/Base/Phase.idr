@@ -6,7 +6,7 @@ import Base.Player
 
 
 public export
-data PhaseCycle
+data Phase
  = SpawnPhase
  | SpellPhase
  | RemovalPhase
@@ -17,12 +17,7 @@ data PhaseCycle
  | DeploymentPhase
 
 public export
-data Phase
- = DrawPhase DrawPlayer DrawPlayer (Fin 60)
- | MkPhaseCycle PhaseCycle Player Player
-
-public export
-nextPhase : PhaseCycle -> PhaseCycle
+nextPhase : Phase -> Phase
 nextPhase SpawnPhase = SpellPhase
 nextPhase SpellPhase = RemovalPhase
 nextPhase RemovalPhase = StartPhase
