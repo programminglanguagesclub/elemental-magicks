@@ -34,16 +34,16 @@ data Round
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 -------------------------------------------------------------------------------
-record GameCycle where
- constructor MkGameCycle
+record Game where
+ constructor MkGame
  initiative : WhichPlayer
  turnNumber : Nat
  skillHead : Nonautomatic
  skillQueue : List Automatic
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ phase : Phase
  playerA : Player
  playerB : Player
- phase : Phase
 -------------------------------------------------------------------------------
 record DrawPhase where
  constructor MkDrawPhase
@@ -51,9 +51,9 @@ record DrawPhase where
  playerB : DrawPlayer
  turnNumber : Fin 60
 -------------------------------------------------------------------------------
-data Game
- = GameCycleGame GameCycle
- | DrawPhaseGame DrawPhase
+data FullGame
+ = MkFullGameGame Game
+ | MkFullGameDrawPhase DrawPhase
 -------------------------------------------------------------------------------
 initialInitiative : WhichPlayer
 initialInitiative = PlayerA
@@ -70,29 +70,28 @@ initialSkillQueue = []
 initialDeathQueue : List Nat
 initialDeathQueue = []
 -------------------------------------------------------------------------------
-initialPhase :
- String ->
- String ->
- Phase
-
-initialPhase playerAId playerBId =
- let playerA = newDrawPlayer playerAId in
- let playerB = newDrawPlayer playerBId in
- DrawPhase playerA playerB 0
+initialPhase : Phase
+initialPhase = SpawnPhase
 -------------------------------------------------------------------------------
 newGame :
  String ->
+ Vect 5 Monster ->
+ Vect 30 Card ->
  String ->
+ Vect 5 Monster ->
+ Vect 30 Card ->
  Game
 
-newGame playerAId playerBId =
+newGame aId aHand aSoul bId bHand bSoul =
  MkGame
   initialInitiative
   initialTurnNumber
   initialSkillHead
   initialSkillQueue
   initialDeathQueue
-  (initialPhase playerAId playerBId) 
+  initialPhase
+  (newPlayer aId aHand aSoul)
+  (newPlayer bId bHand bSoul)
 -------------------------------------------------------------------------------
 playerOnMove : Game -> WhichPlayer
 
@@ -101,44 +100,36 @@ playerOnMove = ?hole
 record Battle where
  constructor MkBattle
  round : Round
- game : Game
+ game : FullGame
 -------------------------------------------------------------------------------
---getPlayer :
--- Game ->
--- WhichPlayer ->
--- Player
+getPlayer :
+ WhichPlayer ->
+ Game ->
+ Player
 
-
+getPlayer PlayerA game = playerA game
+getPlayer PlayerB game = playerB game
 -------------------------------------------------------------------------------
 getPlayerTemporaryId :
  WhichPlayer ->
  Game ->
  String
 
-getPlayerTemporaryId whichPlayer game with (phase game)
- | DrawPhase playerA playerB _ =
-  case whichPlayer of
-   PlayerA => temporaryId playerA
-   PlayerB => temporaryId playerB
- | MkPhaseCycle _ playerA playerB =
-  case whichPlayer of
-   PlayerA => temporaryId playerA
-   PlayerB => temporaryId playerB
+getPlayerTemporaryId whichPlayer gameCycle = temporaryId $ getPlayer whichPlayer gameCycle
 -------------------------------------------------------------------------------
 updatePlayer :
- PhaseCycle ->
- Player ->
- Player ->
  WhichPlayer ->
+ Game ->
  (Player -> (Player, List ClientUpdate)) ->
- (Phase, List ClientUpdate)
-
+ (Game, List ClientUpdate)
+{-
 updatePlayer phase playerA playerB PlayerA mutator =
  let (playerA', clientUpdates) = mutator playerA in
  (MkPhaseCycle phase playerA' playerB, clientUpdates)
 updatePlayer phase playerA playerB PlayerB mutator =
  let (playerB', clientUpdates) = mutator playerB in
  (MkPhaseCycle phase playerA playerB', clientUpdates)
+-}
 -------------------------------------------------------------------------------
 -- Move these helper functions to card. These also get used in the DSL.
 
