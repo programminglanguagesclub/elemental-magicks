@@ -36,7 +36,8 @@ import Main.Step_game
 partial
 transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
 transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
- | DrawPhase playerA playerB cardsDrawn =
+ | _ = ?hole
+{- | DrawPhase playerA playerB cardsDrawn =
    case transformDrawPhase actor playerA playerB serverUpdate of
     Nothing => (Right game,[GameLogicError])
     Just $ Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
@@ -44,8 +45,9 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
      case actor of
       PlayerA => (Right $ record {phase = DrawPhase player' playerB ?hole} game, updates)
       PlayerB => (Right $ record {phase = DrawPhase playerA player' ?hole} game, updates)
- 
- | MkPhaseCycle SpawnPhase playerA playerB =
+ -}
+{-
+ | SpawnPhase =
    case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
     Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right ((playerA', playerB'), updates) => ?hole
@@ -80,7 +82,7 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
     Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
     Right (playerA', playerB', deathQueue', updates) => ?hole
 
-
+-}
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 
 

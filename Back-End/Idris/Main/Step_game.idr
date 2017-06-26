@@ -105,53 +105,58 @@ getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQue
   | DeploymentPhase = getMessageDeploymentPhase initiative playerA playerB
 -}
 
+-------------------------------------------------------------------------------
 mutual
-  continueStep :
-   (Game, List ClientUpdate, Maybe ClientInstruction) ->
-   (Game, List ClientUpdate, ClientInstruction)
-  stepGameNoSkills :
-   (WhichPlayer, Nat, List Nat, Phase, List ClientUpdate) ->
-   (Game, List ClientUpdate, ClientInstruction)
-  stepGame :
-   (Game, List ClientUpdate) ->
-   (Game, List ClientUpdate, ClientInstruction)
-  continueStep (game,updates,Just clientInstruction) =
-   (game,updates,clientInstruction)
-  continueStep (game,updates,Nothing) =
-   stepGame (game,updates)
+-------------------------------------------------------------------------------
+ continueStep :
+  (Game, List ClientUpdate, Maybe ClientInstruction) ->
+  (Game, List ClientUpdate, ClientInstruction)
+-------------------------------------------------------------------------------
+ stepGameNoSkills :
+  (WhichPlayer, Nat, List Nat, Phase, Player, Player, List ClientUpdate) ->
+  (Game, List ClientUpdate, ClientInstruction)
+-------------------------------------------------------------------------------  
+ stepGame :
+  (Game, List ClientUpdate) ->
+  (Game, List ClientUpdate, ClientInstruction)
+-------------------------------------------------------------------------------
+ continueStep (game,updates,Just clientInstruction) =
+  (game,updates,clientInstruction)
+ continueStep (game,updates,Nothing) =
+  stepGame (game,updates)
   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
  
-  stepGameNoSkills (initiative, turnNumber, deathQueue, phase, acc) with (phase)
-    | DrawPhase playerA playerB cardsDrawn =
+ stepGameNoSkills (initiative, turnNumber, deathQueue, phase, playerA, playerB, acc) with (phase)
+   {-| DrawPhase playerA playerB cardsDrawn =
       case stepDrawPhase playerA playerB of
        Nothing =>
         let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc) in
         continueStep (game', acc', Nothing)
        Just clientInstruction =>
-        continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)
-    | MkPhaseCycle SpawnPhase playerA playerB =
+        continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)-}
+    | SpawnPhase =
       case stepSpawnPhase initiative playerA playerB of
        Nothing =>
-        let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue (MkPhaseCycle SpawnPhase playerA playerB), acc) in   
+        let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
         continueStep (game', acc', Nothing)
        Just clientInstruction =>
-        continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue (MkPhaseCycle SpawnPhase playerA playerB), acc, Just clientInstruction)
+        continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
  
-    | MkPhaseCycle SpellPhase playerA playerB = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
+    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
-    | MkPhaseCycle RemovalPhase playerA playerB = continueStep (stepRemovalPhase deathQueue playerA playerB)
+    | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
     
-    | MkPhaseCycle StartPhase playerA playerB = continueStep (stepStartPhase initiative deathQueue playerA playerB)
+    | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
     
-    | MkPhaseCycle EngagementPhase playerA playerB = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
+    | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
     
-    | MkPhaseCycle EndPhase playerA playerB = continueStep (stepEndPhase initiative deathQueue playerA playerB)
+    | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
     
-    | MkPhaseCycle RevivalPhase playerA playerB = continueStep (stepRevivalPhase playerA playerB)
+    | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
     
-    | MkPhaseCycle DeploymentPhase playerA playerB = continueStep (stepDeploymentPhase playerA playerB)
+    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
      
-  stepGame  = ?hole {-(g,acc) with (skillHead g, skillQueue g)
+ stepGame  = ?hole {-(g,acc) with (skillHead g, skillQueue g)
     | (TerminatedSkillComponent, []) = assert_total $ stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
     | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = assert_total ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
     | _ = ?hole

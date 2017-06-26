@@ -93,6 +93,12 @@ newGame aId aHand aSoul bId bHand bSoul =
   (newPlayer aId aHand aSoul)
   (newPlayer bId bHand bSoul)
 -------------------------------------------------------------------------------
+initialCardsDrawn : Fin 60
+initialCardsDrawn = 0
+-------------------------------------------------------------------------------
+newDrawPhase : String -> String -> DrawPhase
+newDrawPhase aId bId = MkDrawPhase (newDrawPlayer aId) (newDrawPlayer bId) initialCardsDrawn
+-------------------------------------------------------------------------------
 playerOnMove : Game -> WhichPlayer
 
 playerOnMove = ?hole
@@ -115,7 +121,8 @@ getPlayerTemporaryId :
  Game ->
  String
 
-getPlayerTemporaryId whichPlayer gameCycle = temporaryId $ getPlayer whichPlayer gameCycle
+getPlayerTemporaryId whichPlayer gameCycle =
+ temporaryId $ getPlayer whichPlayer gameCycle
 -------------------------------------------------------------------------------
 updatePlayer :
  WhichPlayer ->

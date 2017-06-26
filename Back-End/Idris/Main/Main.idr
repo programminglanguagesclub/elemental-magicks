@@ -109,7 +109,8 @@ processServerUpdate' :
  ServerUpdate ->
  (List Battle, String)
 
-processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
+processServerUpdate' (MkBattle round (MkFullGameGame game)) whichPlayer serverUpdate = ?hole
+{-
  let aId = getPlayerTemporaryId PlayerA game in
  let bId = getPlayerTemporaryId PlayerB game in
  let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
@@ -132,11 +133,17 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
       ([MkBattle round' (newGame bId aId)], serverResponse)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
+processServerUpdate' (MkBattle round (MkFullGameDrawPhase drawPhase)) whichPlayer serverUpdate = ?hole
+-}
+
 -------------------------------------------------------------------------------
 processServerUpdate :
  List Battle ->
  ServerUpdateWrapper ->
  (List Battle, String)
+
+
+{-
 
 {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
@@ -156,6 +163,9 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
      let (battles', reply) = processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId) in
      ((MkBattle round game)::battles', reply)
 
+-}
+
+
 {-assuming not the same token for both players...-}
 -------------------------------------------------------------------------------
 randomlyDecidePlayer : IO WhichPlayer
@@ -173,9 +183,9 @@ createBattle :
  Battle
 
 createBattle playerId opponentId PlayerA =
- MkBattle FirstRound (newGame playerId opponentId)
+ MkBattle FirstRound (MkFullGameDrawPhase $ newDrawPhase playerId opponentId)
 createBattle playerId opponentId PlayerB =
- MkBattle FirstRound (newGame opponentId playerId)
+ MkBattle FirstRound (MkFullGameDrawPhase $ newDrawPhase opponentId playerId)
 -------------------------------------------------------------------------------
 createBattleMessage :
  String ->
