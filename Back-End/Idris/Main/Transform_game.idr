@@ -32,9 +32,14 @@ import Main.Step_game
 {- if two units die the same time on the same number square, have the unit of the player with the initiative die first -}
 
 {-returned values need to allow for transitions between phases causing further changes to the game outside of fields set in the current phase...-}
-
+-------------------------------------------------------------------------------
 partial
-transformGame' : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
+transformGame' :
+ Game ->
+ WhichPlayer ->
+ ServerUpdate ->
+ (Either WhichPlayer Game, List ClientUpdate)
+
 transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
  | _ = ?hole
 {- | DrawPhase playerA playerB cardsDrawn =
@@ -173,5 +178,20 @@ transformGame = assert_total transformGame'
  | (RevivalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
 -}
 
+-------------------------------------------------------------------------------
+transformDrawPhase :
+ DrawPhase ->
+ WhichPlayer ->
+ ServerUpdate ->
+ (FullGame, List ClientUpdate)
+
+-------------------------------------------------------------------------------
+transformFullGame :
+ FullGame ->
+ WhichPlayer ->
+ ServerUpdate ->
+ (Either WhichPlayer FullGame, List ClientUpdate)
+
+-------------------------------------------------------------------------------
 
 
