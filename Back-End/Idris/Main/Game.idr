@@ -132,14 +132,15 @@ modifyHp mutator monster =
  record {basic -> hp $= transformHp mutator} monster
 -------------------------------------------------------------------------------
 subtractHp :
- Integer ->
+ Nat ->
  Monster ->
- Monster
+ (Bool, Monster)
 
-subtractHp value monster = modifyHp (\x => x - value) monster
+subtractHp value monster with (value)
+ | Z = (False, monster)
+ | S _ = (True, modifyHp (\x => x - (toIntegerNat value)) monster)
 -------------------------------------------------------------------------------
 fatallyDamaged : Monster -> Bool
-
 fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 -------------------------------------------------------------------------------
 damageCard :
@@ -152,6 +153,8 @@ damageCard :
 damageCard val row column player with (indexMonster row column player)
  | Nothing = ([], player)
  | Just monster =
+  let defenderDefense = ?hole in
+  ?hole {-
   let damagedMonster = subtractHp val monster in
   case fatallyDamaged damagedMonster of
    True =>
@@ -166,7 +169,7 @@ damageCard val row column player with (indexMonster row column player)
      Just skill =>
       let damagedMonster' = setCanUseCounterSkill damagedMonster False in
       ?hole
-
+      -}
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
 
