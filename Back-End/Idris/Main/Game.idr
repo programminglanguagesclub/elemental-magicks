@@ -176,12 +176,12 @@ fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 transformMonsterInGame :
  Fin 3 ->
  Fin 3 ->
- Game ->
  WhichPlayer ->
  (Monster -> Monster) ->
+ Game ->
  Game
 
-transformMonsterInGame row column game whichPlayer monsterMutator =
+transformMonsterInGame row column whichPlayer monsterMutator game =
  let playerMutator = transformMonster monsterMutator row column in
  transformPlayer playerMutator whichPlayer game
  
@@ -202,19 +202,20 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
   let hpLost = minus damage defenderDefense in
   let (fatallyDamaged, damagedMonster) = subtractHp hpLost monster in
   let damagedCardUpdate = the ClientUpdate ?hole in
-  let transformDefender = transformMonsterInGame row column game whichPlayer in
+  let transformDefender = transformMonsterInGame row column whichPlayer in
+  let game' = transformDefender (\m => damagedMonster) game in
   case fatallyDamaged of
    True =>
     case getCanUseDeathSkill damagedMonster of
      Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
-      let game' = transformDefender $ setCanUseDeathSkill False in
+      let game'' = transformDefender (setCanUseDeathSkill False) game' in
       ?hole
    False =>
     case getCanUseCounterSkill damagedMonster of
      Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
-      let game' = transformDefender $ setCanUseDeathSkill False in
+      let game'' = transformDefender (setCanUseCounterSkill False) game' in
       ?hole
 
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
