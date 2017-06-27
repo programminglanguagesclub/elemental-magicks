@@ -19,6 +19,7 @@ modules =
  Main.Step_game,
  Main.Transform_game_helpers,
  Main.Transform_game,
+ Main.Responsivity,
  Main.Main 
 
 opts = "-p effects" 

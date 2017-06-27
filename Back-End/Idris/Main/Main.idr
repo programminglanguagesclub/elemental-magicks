@@ -15,7 +15,7 @@ import Base.Phase
 import Base.Clientupdates
 import Effects
 import Effect.Select
-
+import Main.Responsivity
 
 %access public export
 %default total
@@ -226,8 +226,7 @@ processMessage battles message =
   ServerUpdateMessage serverUpdate =>
    pure $ processServerUpdate battles serverUpdate
 -------------------------------------------------------------------------------
-partial
-statefulBackend : List Battle -> IO ()
+statefulBackend : List Battle -> InfIO
 
 statefulBackend battles =
  reader >>= \rawServerMessage =>
@@ -244,12 +243,11 @@ mainDummy = do {
  mainDummy;
 }
 -------------------------------------------------------------------------------
-partial
 main : IO ()
 
 main = do {
  _ <- init;
- statefulBackend [];
+ runForever $ statefulBackend [];
 }
 -------------------------------------------------------------------------------
 
