@@ -109,5 +109,83 @@ removeUpperBound (MkBounded (n ** (_, prf_n_upper))) = {-with (compare n 0)-}
  fromIntegerNat n -- this is not very type correct, but it works.
 
 
+-------------------------------------------------------------------------------
+namespace Integer_then_bounded
+-------------------------------------------------------------------------------
+ (<) : Integer -> Bounded lower upper -> Bool
+ (<) x1 (MkBounded (x2 ** _)) = x1 < x2
+-------------------------------------------------------------------------------
+ (>) : Integer -> Bounded lower upper -> Bool
+ (>) x1 (MkBounded (x2 ** _)) = x1 > x2
+-------------------------------------------------------------------------------
+ (<=) : Integer -> Bounded lower upper -> Bool
+ (<=) x1 (MkBounded (x2 ** _)) = x1 <= x2
+-------------------------------------------------------------------------------
+ (>=) : Integer -> Bounded lower upper -> Bool
+ (>=) x1 (MkBounded (x2 ** _)) = x1 >= x2
+-------------------------------------------------------------------------------
+ (==) : Integer -> Bounded lower upper -> Bool
+ (==) x1 (MkBounded (x2 ** _)) = (x1 == x2)
+-------------------------------------------------------------------------------
+ (+) : Integer -> Bounded lower upper -> Bounded lower upper
+ (+) x1 x2 = transformBounded (\x2 => x1 + x2) x2
+-------------------------------------------------------------------------------
+ (-) : Integer -> Bounded lower upper -> Bounded lower upper
+ (-) x1 x2 = transformBounded (\x2 => x1 - x2) x2
+-------------------------------------------------------------------------------
+ (*) : Integer -> Bounded lower upper -> Bounded lower upper
+ (*) x1 x2 = transformBounded (\x2 => x1 * x2) x2
+-------------------------------------------------------------------------------
+ {-
+ mod : Nat -> Bounded lower upper -> Bounded lower upper
+ mod x1 x2 = transformBounded (\x2 => mod x1 x2) x2
+ -}
+ partial
+ div : Integer -> Bounded lower upper -> Bounded lower upper
+ div x1 x2 = transformBounded (\x2 => div x1 x2) x2
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+namespace Bounded_then_integer
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+ (<) : Bounded lower upper -> Integer -> Bool
+ (<) (MkBounded (x1 ** _)) x2 = x1 < x2
+-------------------------------------------------------------------------------
+ (>) : Bounded lower upper -> Integer -> Bool
+ (>) (MkBounded (x1 ** _)) x2 = x1 > x2
+-------------------------------------------------------------------------------
+ (<=) : Bounded lower upper -> Integer -> Bool
+ (<=) (MkBounded (x1 ** _)) x2 = x1 <= x2
+-------------------------------------------------------------------------------
+ (>=) : Bounded lower upper -> Integer -> Bool
+ (>=) (MkBounded (x1 ** _)) x2 = x1 >= x2
+-------------------------------------------------------------------------------
+ (==) : Bounded lower upper -> Integer -> Bool
+ (==) (MkBounded (x1 ** _)) x2 = (x1 == x2)
+-------------------------------------------------------------------------------
+ (+) : Bounded lower upper -> Integer -> Bounded lower upper
+ (+) x1 x2 = transformBounded (\x1 => x1 + x2) x1
+-------------------------------------------------------------------------------
+ (-) : Bounded lower upper -> Integer -> Bounded lower upper
+ (-) x1 x2 = transformBounded (\x1 => x1 - x2) x1
+-------------------------------------------------------------------------------
+ (*) : Bounded lower upper -> Integer -> Bounded lower upper
+ (*) x1 x2 = transformBounded (\x1 => x1 * x2) x1
+-------------------------------------------------------------------------------
+ infixr 4 :=
+ (:=) : Bounded lower upper -> Integer -> Bounded lower upper
+ (:=) x1 x2 = transformBounded (\x1 => x2) x1
+-------------------------------------------------------------------------------
+ {-
+ mod : Bounded lower upper -> Nat -> Bounded lower upper
+ mod x1 x2 = transformBounded (\x1 => mod x1 x2) x1
+ having trouble with integer mod nat currently.
+ -}
+ partial
+ div : Bounded lower upper -> Integer -> Bounded lower upper
+ div x1 x2 = transformBounded (\x1 => div x1 x2) x1
+-------------------------------------------------------------------------------
+
+
 
 

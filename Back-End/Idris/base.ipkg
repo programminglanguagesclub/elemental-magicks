@@ -4,8 +4,6 @@ modules =
  Base.BoundedList,
  Base.Utility,
  Base.Bounded,
- Base.Bounded_then_integer,
- Base.Integer_then_bounded,
  Base.Preliminaries, 
  Base.Hp,
  Base.Phase,
