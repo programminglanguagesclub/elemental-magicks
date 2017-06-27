@@ -43,11 +43,14 @@ record Game where
  playerA : Player
  playerB : Player
 -------------------------------------------------------------------------------
-pushSkill' : Automatic -> List Automatic -> List Automatic
-pushSkill' automatic skillQueue = skillQueue ++ [automatic]
+pushSkill'' : Automatic -> List Automatic -> List Automatic
+pushSkill'' automatic skillQueue = skillQueue ++ [automatic]
 -------------------------------------------------------------------------------
-pushSkill : Automatic -> Game -> Game
-pushSkill automatic game = record {skillQueue $= pushSkill' automatic} game
+pushSkill' : Automatic -> Game -> Game
+pushSkill' automatic game = record {skillQueue $= pushSkill'' automatic} game
+-------------------------------------------------------------------------------
+pushSkill : WhichPlayer -> Skill -> Game -> Game
+pushSkill whichPlayer (_,_,_,_) game = ?hole
 -------------------------------------------------------------------------------
 record DrawPhase where
  constructor MkDrawPhase
@@ -201,16 +204,17 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
   let defenderDefense = removeUpperBound $ getTemporary $ defense $ basic monster in
   let hpLost = minus damage defenderDefense in
   let (fatallyDamaged, damagedMonster) = subtractHp hpLost monster in
-  let damagedCardUpdate = the ClientUpdate ?hole in
+  let damagedCardUpdate = the ClientUpdate ?hole in -- do not kill the card at this point.
   let transformDefender = transformMonsterInGame row column whichPlayer in
   let game' = transformDefender (\m => damagedMonster) game in
   case fatallyDamaged of
    True =>
     case getCanUseDeathSkill damagedMonster of
-     Nothing => ([damagedCardUpdate], ?hole)
+     Nothing => ([damagedCardUpdate], game')
      Just skill =>
       let game'' = transformDefender (setCanUseDeathSkill False) game' in
-      ?hole
+      let game''' = pushSkill whichPlayer skill game'' in -- OH WAIT!!!! IF THEY CANNOT AFFORD THE SKILL DO NOT WANT TO SET CAN USE DEATH SKILL TO FALSE!!!
+      ([damagedCardUpdate], game''')
    False =>
     case getCanUseCounterSkill damagedMonster of
      Nothing => ([damagedCardUpdate], ?hole)
