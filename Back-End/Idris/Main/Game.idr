@@ -2,8 +2,6 @@ module Main.Game
 import Data.Fin
 import Data.Vect
 import Base.Bounded
-import Base.Bounded_then_integer
-import Base.Integer_then_bounded
 import Base.Hp
 import Base.Preliminaries
 import Base.BoundedList

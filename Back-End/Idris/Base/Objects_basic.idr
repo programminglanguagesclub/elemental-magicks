@@ -3,7 +3,6 @@ import Data.Vect
 import Data.So
 import Base.Preliminaries
 import Base.Bounded
-import Base.Bounded_then_integer
 import Base.Hp
 
 %access public export
