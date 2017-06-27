@@ -43,6 +43,12 @@ record Game where
  playerA : Player
  playerB : Player
 -------------------------------------------------------------------------------
+pushSkill' : Automatic -> List Automatic -> List Automatic
+pushSkill' automatic skillQueue = skillQueue ++ [automatic]
+-------------------------------------------------------------------------------
+pushSkill : Automatic -> Game -> Game
+pushSkill automatic game = record {skillQueue $= pushSkill' automatic} game
+-------------------------------------------------------------------------------
 record DrawPhase where
  constructor MkDrawPhase
  playerA : DrawPlayer
@@ -122,6 +128,15 @@ getPlayerTemporaryId :
 getPlayerTemporaryId whichPlayer gameCycle =
  temporaryId $ getPlayer whichPlayer gameCycle
 -------------------------------------------------------------------------------
+transformPlayer :
+ (Player -> Player) ->
+ WhichPlayer ->
+ Game ->
+ Game
+
+transformPlayer mutator PlayerA game = record {playerA $= mutator} game
+transformPlayer mutator PlayerB game = record {playerB $= mutator} game
+-------------------------------------------------------------------------------
 updatePlayer :
  WhichPlayer ->
  Game ->
@@ -158,6 +173,19 @@ subtractHp value monster with (value)
 fatallyDamaged : Monster -> Bool
 fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 -------------------------------------------------------------------------------
+transformMonsterInGame :
+ Fin 3 ->
+ Fin 3 ->
+ Game ->
+ WhichPlayer ->
+ (Monster -> Monster) ->
+ Game
+
+transformMonsterInGame row column game whichPlayer monsterMutator =
+ let playerMutator = transformMonster monsterMutator row column in
+ transformPlayer playerMutator whichPlayer game
+ 
+-------------------------------------------------------------------------------
 damageCard :
  Nat ->
  Fin 3 ->
@@ -166,28 +194,29 @@ damageCard :
  WhichPlayer ->
  (List ClientUpdate, Game)
 
-{-
-damageCard damage row column game whichPlayer with (indexMonster row column player)
- | Nothing = ([], player)
+
+damageCard damage row column game whichPlayer with (indexMonster row column (the Player ?defendingPlayer))
+ | Nothing = ([], game)
  | Just monster =
-  let defenderDefense = getTemporary $ defense $ basic monster in
-  let hpLost = removeUpperBound ((toIntegerNat damage) - defenderDefense) in -- this will not allow for extra damage outside the bound of defense.... wrong code.
+  let defenderDefense = removeUpperBound $ getTemporary $ defense $ basic monster in
+  let hpLost = minus damage defenderDefense in
   let (fatallyDamaged, damagedMonster) = subtractHp hpLost monster in
   let damagedCardUpdate = the ClientUpdate ?hole in
+  let transformDefender = transformMonsterInGame row column game whichPlayer in
   case fatallyDamaged of
    True =>
     case getCanUseDeathSkill damagedMonster of
      Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
-      let damagedMonster' = setCanUseDeathSkill damagedMonster False in
+      let game' = transformDefender $ setCanUseDeathSkill False in
       ?hole
    False =>
     case getCanUseCounterSkill damagedMonster of
      Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
-      let damagedMonster' = setCanUseCounterSkill damagedMonster False in
+      let game' = transformDefender $ setCanUseDeathSkill False in
       ?hole
--} 
+
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
 
 

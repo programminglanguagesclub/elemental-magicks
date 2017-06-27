@@ -108,6 +108,9 @@ removeUpperBound : Bounded 0 b -> Nat
 removeUpperBound (MkBounded (n ** (_, prf_n_upper))) = {-with (compare n 0)-}
  fromIntegerNat n -- this is not very type correct, but it works.
 
+removeBounds : Bounded a b -> Integer
+removeBounds (MkBounded (n ** _)) = n
+
 
 -------------------------------------------------------------------------------
 namespace Integer_then_bounded

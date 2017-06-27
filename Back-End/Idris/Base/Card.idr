@@ -136,32 +136,32 @@ getCanUseSpawnSkill = getCanUseSkill spawnSkill
 -------------------------------------------------------------------------------
 setCanUseSkill :
  (Monster -> Maybe Skill) ->
- Monster ->
  Bool ->
+ Monster ->
  Monster
 
-setCanUseSkill accessor monster value with (accessor monster)
+setCanUseSkill accessor value monster with (accessor monster)
  | Nothing = monster
  | Just (automatic, _, cost, condition) = ?hole -- set appropriately.
 -------------------------------------------------------------------------------
 -- Want setters for specific skills now.
 -------------------------------------------------------------------------------
-setCanUseDeathSkill : Monster -> Bool -> Monster
+setCanUseDeathSkill : Bool -> Monster -> Monster
 setCanUseDeathSkill = setCanUseSkill deathSkill
 -------------------------------------------------------------------------------
-setCanUseCounterSkill : Monster -> Bool -> Monster
+setCanUseCounterSkill : Bool -> Monster -> Monster
 setCanUseCounterSkill = setCanUseSkill counterSkill
 -------------------------------------------------------------------------------
-setCanUseAutoSkill : Monster -> Bool -> Monster
+setCanUseAutoSkill : Bool -> Monster -> Monster
 setCanUseAutoSkill = setCanUseSkill autoSkill
 -------------------------------------------------------------------------------
-setCanUseStartSkill : Monster -> Bool -> Monster
+setCanUseStartSkill : Bool -> Monster -> Monster
 setCanUseStartSkill = setCanUseSkill startSkill
 -------------------------------------------------------------------------------
-setCanUseEndSkill : Monster -> Bool -> Monster
+setCanUseEndSkill : Bool -> Monster -> Monster
 setCanUseEndSkill = setCanUseSkill endSkill
 -------------------------------------------------------------------------------
-setCanUseSpawnSkill : Monster -> Bool -> Monster
+setCanUseSpawnSkill : Bool -> Monster -> Monster
 setCanUseSpawnSkill = setCanUseSkill spawnSkill
 -------------------------------------------------------------------------------
 

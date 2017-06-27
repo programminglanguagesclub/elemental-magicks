@@ -365,4 +365,31 @@ goToNextRowTarget player n = case n of with (take 3 (drop (3)(board player)))
  | _ = player
 -}
 
+-------------------------------------------------------------------------------
+-- Does not generate any client updates
+transformMonster :
+ (Monster -> Monster) ->
+ Fin 3 ->
+ Fin 3 ->
+ Player ->
+ Player
+
+transformMonster mutator row column player = ?hole
+-------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
