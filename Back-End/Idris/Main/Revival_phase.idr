@@ -1,5 +1,6 @@
 module Main.Revival_phase
 import Data.Fin
+import Base.Preliminaries
 import Base.Objects_basic
 import Base.Card
 import Base.Player

@@ -194,10 +194,8 @@ createBattleMessage :
  WhichPlayer ->
  String
 
-createBattleMessage playerId opponentId PlayerA =
- replyWith [MatchStart playerId opponentId, GameStart] playerId opponentId
-createBattleMessage playerId opponentId PlayerB =
- replyWith [MatchStart opponentId playerId, GameStart] playerId opponentId
+createBattleMessage playerId opponentId whichPlayer =
+ replyWith [MatchStart whichPlayer, GameStart] playerId opponentId
 -------------------------------------------------------------------------------
 addBattle :
  String ->

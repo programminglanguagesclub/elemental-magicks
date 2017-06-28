@@ -186,15 +186,25 @@ data FixedStatEffect = MkFixedStatEffect Stat Mutator Temporality Integer
                      | MkFixedHpEffect Mutator HpStat Integer
                      | MkFixedEngagementEffect Mutator Integer
                      | FixedReviveEffect
+-------------------------------------------------------------------------------
+applyFixedStatEffect :
+ (Fin 9) ->
+ WhichPlayer ->
+ BasicMonster ->
+ FixedStatEffect ->
+ (BasicMonster, ClientUpdate)
 
-applyFixedStatEffect : (Fin 9) -> String -> BasicMonster -> FixedStatEffect -> (BasicMonster, ClientUpdate)
-applyFixedStatEffect monsterIndex playerId basic (MkFixedStatEffect stat mutator temporality value) = (basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) value) basic, ?hole)
-applyFixedStatEffect monsterIndex playerId basic (MkFixedHpEffect mutator hpStat x) = {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
-applyFixedStatEffect monsterIndex playerId basic (MkFixedEngagementEffect mutator x) = ?hole
+applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedStatEffect stat mutator temporality value) =
+ (basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) value) basic, ?hole)
+
+applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedHpEffect mutator hpStat x) =
+ {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
+
+applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedEngagementEffect mutator x) = ?hole
 
 {-(record {engagement $= (\e => 0 + (hpTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})-}
-applyFixedStatEffect monsterIndex playerId basic FixedReviveEffect = (revive basic, Revive monsterIndex playerId)
-
+applyFixedStatEffect monsterIndex whichPlayer basic FixedReviveEffect =
+ (revive basic, Revive monsterIndex whichPlayer)
 
 mutual
   data NonautomaticFactory = TerminatedSkillFactory 

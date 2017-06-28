@@ -1,5 +1,6 @@
 module Main.Draw_phase
 import Data.Vect
+import Base.Preliminaries
 import Main.Game
 import Base.BoundedList
 import Base.Player
