@@ -62,7 +62,8 @@ augment :
  MarshalledClientUpdate
 
 augment marshalledClientUpdate b =
- record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
+ let addPlayerInfo = (("player",if b then "player" else "opponent") ::) in
+ record {info $= addPlayerInfo} marshalledClientUpdate
 -------------------------------------------------------------------------------
 marshallClientUpdate :
  ClientUpdate ->
