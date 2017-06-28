@@ -5,13 +5,14 @@ import Base.Bounded
 %access public export
 %default total
 
+-------------------------------------------------------------------------------
 data Result
  = Tie
  | OriginalPlayerAWon
  | OriginalPlayerBWon
-
+-------------------------------------------------------------------------------
 data ClientInstruction = MkClientInstruction (String,String) {- not integrated yet -}
-
+-------------------------------------------------------------------------------
 data ClientUpdate = GameLogicError
                  -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
                   | GameTerminated String {-id of winning player-}
@@ -46,15 +47,22 @@ data ClientUpdate = GameLogicError
 
 
 {-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}
+-------------------------------------------------------------------------------
 getCardName : Nat -> Maybe String
 getCardName permanentId = ?hole {- index the list of all cards -}
-
+-------------------------------------------------------------------------------
 record MarshalledClientUpdate where
  constructor MkMarshalledClientUpdate 
  type : String
  info : List (String, String) {-name of field, value of field.. for now no uniqueness guarantee at the type level-}
-augment : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
-augment marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
+-------------------------------------------------------------------------------
+augment :
+ MarshalledClientUpdate ->
+ Bool ->
+ MarshalledClientUpdate
+
+augment marshalledClientUpdate b =
+ record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
 -------------------------------------------------------------------------------
 marshallClientUpdate :
  ClientUpdate ->
@@ -133,14 +141,29 @@ serializeInfo [] = ""
 serializeInfo ((k,v)::xs) = "," ++ k ++ ":" ++ v ++ (serializeInfo xs)
 -------------------------------------------------------------------------------
 serializeMarshalled : MarshalledClientUpdate -> String
-serializeMarshalled marshalledClientUpdate = "{updateType:" ++ (type marshalledClientUpdate) ++ (serializeInfo (info marshalledClientUpdate)) ++ "}" {-player token added by ur/web-}
+
+serializeMarshalled marshalledClientUpdate =
+ let header = "updateType:" ++ (type marshalledClientUpdate) in
+ let fields = serializeInfo (info marshalledClientUpdate) in
+ "{" ++ header ++ fields ++ "}"
+ 
+ {-player token added by ur/web-}
 -------------------------------------------------------------------------------
-serialize : ClientUpdate -> String -> String
+serialize :
+ ClientUpdate ->
+ String ->
+ String
+
 serialize clientUpdate playerId =
  let marshalledClientUpdate = marshallClientUpdate clientUpdate playerId in
  serializeMarshalled marshalledClientUpdate
 -------------------------------------------------------------------------------
-payload : ClientUpdate -> String -> String -> String
+payload :
+ ClientUpdate ->
+ String ->
+ String ->
+ String
+
 payload clientUpdate playerId opponentId =
  let playerMessage = serialize clientUpdate playerId in
  let opponentMessage = serialize clientUpdate opponentId in
