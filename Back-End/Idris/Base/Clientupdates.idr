@@ -74,22 +74,31 @@ marshallClientUpdate :
 marshallClientUpdate GameLogicError _ =
  MkMarshalledClientUpdate "gameLogicError" []
 {-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}-}
+
 marshallClientUpdate DrawPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
+
 marshallClientUpdate SpawnPhaseToSpellPhase _ =
  MkMarshalledClientUpdate "spawnPhaseToSpellPhase" []
+
 marshallClientUpdate SpellPhaseToRemovalPhase _ =
  MkMarshalledClientUpdate "spellPhaseToRemovalphase" []
+
 marshallClientUpdate RemovalPhaseToStartPhase _ =
  MkMarshalledClientUpdate "removalPhaseToStartPhase" []
+
 marshallClientUpdate StartPhaseToEngagementPhase _ =
  MkMarshalledClientUpdate "startPhaseToEngagementPhase" []
+
 marshallClientUpdate EngagementPhaseToEndPhase _ =
  MkMarshalledClientUpdate "engagementPhaseToEndPhase" []
+
 marshallClientUpdate EndPhaseToRevivalPhase _ =
  MkMarshalledClientUpdate "endPhaseToRevivalPhase" []
+
 marshallClientUpdate RevivalPhaseToDeploymentPhase _ =
  MkMarshalledClientUpdate "revivalPhaseToDeploymentPhase" []
+
 marshallClientUpdate DeploymentPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
 
@@ -102,37 +111,59 @@ marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
 
 
 marshallClientUpdate (Revive boardIndex playerId) id =
- augment (MkMarshalledClientUpdate "revive" [("index", show $ finToNat boardIndex)]) (playerId == id)
+ let fields = [("index", show $ finToNat boardIndex)] in
+ augment (MkMarshalledClientUpdate "revive" fields) (playerId == id)
+
 marshallClientUpdate (Kill boardIndex playerId) id =
- augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
+ let fields = [("index",show $ finToNat boardIndex)]
+ augment (MkMarshalledClientUpdate "kill" fields) (playerId == id)
+
 marshallClientUpdate (DeployCard boardIndex playerId) id =
  augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
 {-message currently 0 indexes the board-}
-
 
 marshallClientUpdate (DrawHand cardId playerId) id with (getCardName cardId)
  | Nothing = ?hole
  | Just cardName = augment (MkMarshalledClientUpdate "drawHandCard" [("name",cardName)]) (playerId == id)
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
+
 marshallClientUpdate (DrawSoul cardId soulIndex playerId) id with (getCardName cardId)
  | Nothing = ?hole
  | Just cardName = augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id)
+
 marshallClientUpdate (SendSpawnToDiscard playerId) id =
  augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
+
 marshallClientUpdate (MoveUnit from to playerId) id =
  augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
+
 marshallClientUpdate (UpdateThoughts val playerId) id =
  augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
+
 marshallClientUpdate (UpdateSchools schools playerId) id =
- augment (MkMarshalledClientUpdate "updateSchools" (toList $ zipWith (\x,y => (x,show $ extractBounded y)) ["earth","fire","water","air","spirit","void"] schools)) (playerId == id)
+ let fields = (toList $ zipWith (\x,y => (x,show $ extractBounded y)) ["earth","fire","water","air","spirit","void"] schools) in
+ augment (MkMarshalledClientUpdate "updateSchools" fields) (playerId == id)
+
 marshallClientUpdate (LoseSoulPoint playerId) id =
  augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
+
 marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id =
- augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
+ let boardIndexField = ("boardIndex",show $ finToInteger boardIndex) in
+ let fields = [boardIndexField] in
+ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" fields) (playerId == id)
+
 marshallClientUpdate (SetStat stat val boardIndex playerId) id =
- augment (MkMarshalledClientUpdate "setStat" [("stat",stat),("val",val),("index",show $ finToNat boardIndex)]) (playerId == id)
+ let statField = ("stat", stat) in
+ let valField = ("val", val) in
+ let indexField = ("index", show $ finToNat boardIndex) in
+ let fields = [statField, valField, indexField] in
+ augment (MkMarshalledClientUpdate "setStat" fields) (playerId == id)
+
 marshallClientUpdate (SpawnCard handIndex playerId) id =
- augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
+ let indexField = ("index", show handIndex) in
+ let fields = [indexField] in
+ augment (MkMarshalledClientUpdate "spawnCard" fields) (playerId == id)
+
 marshallClientUpdate (PlayerTurn playerId) id =
  augment (MkMarshalledClientUpdate "playerTurn" []) (playerId == id)
 -------------------------------------------------------------------------------
