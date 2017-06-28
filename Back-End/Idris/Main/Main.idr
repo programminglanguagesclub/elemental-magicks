@@ -80,19 +80,20 @@ correctForRound _ PlayerB = PlayerA
 trivial : (String -> String -> String) -> Maybe String -> Maybe String -> Maybe String
 --trivial f a b = f <$> a <*> b -- THIS IS CAUSING COMPILE ISSUE WITH IMPLICITS
 -------------------------------------------------------------------------------
-replyWith' : List ClientUpdate -> String -> String -> Maybe String
+replyWith' : List ClientUpdate -> String -> String -> String
 
-replyWith' [] playerId opponentId = Just "" -- this is probably an error case.
+replyWith' [] playerId opponentId = "" -- this is probably an error case.
 replyWith' [x] playerId opponentId = payload x playerId opponentId
 replyWith' (x1::x2::xs) playerId opponentId =
- let firstPayload = ((++) "|") <$> (payload x1 playerId opponentId) in
- trivial (++) firstPayload (replyWith' (x2::xs) playerId opponentId)
+ let firstPayload = ((++) "|") $ (payload x1 playerId opponentId) in
+ (++) firstPayload (replyWith' (x2::xs) playerId opponentId)
 -------------------------------------------------------------------------------
 replyWith : List ClientUpdate -> String -> String -> String
-replyWith clientUpdates playerId opponentId =
- case replyWith' clientUpdates playerId opponentId of
+replyWith clientUpdates playerId opponentId = replyWith' clientUpdates playerId opponentId 
+{-
   Nothing => ?hole -- can probably make this impossible (by making updates have playerIds in their type?)
   Just serverResponse => serverResponse
+  -}
 -------------------------------------------------------------------------------
 playerIdOpponentId :
  WhichPlayer ->
