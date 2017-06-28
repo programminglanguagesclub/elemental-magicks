@@ -10,6 +10,10 @@ import Base.Bounded
 syntax [lhs] ":=" [rhs] ";" [program] = let lhs = rhs in program
 -}
 
+data WhichPlayer
+ = PlayerA
+ | PlayerB
+
 
 absoluteLowerBound : Integer
 absoluteLowerBound = -1000

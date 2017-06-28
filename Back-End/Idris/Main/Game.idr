@@ -16,10 +16,6 @@ import Base.Clientupdates
 %default total
 
 -------------------------------------------------------------------------------
-data WhichPlayer
- = PlayerA
- | PlayerB
--------------------------------------------------------------------------------
 getOpponent : WhichPlayer -> WhichPlayer
 getOpponent PlayerA = PlayerB
 getOpponent PlayerB = PlayerA

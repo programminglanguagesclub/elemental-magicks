@@ -13,6 +13,47 @@ data Result
 -------------------------------------------------------------------------------
 data ClientInstruction = MkClientInstruction (String,String) {- not integrated yet -}
 -------------------------------------------------------------------------------
+
+--hack for now
+(==) : WhichPlayer -> WhichPlayer -> Bool
+(==) PlayerA PlayerA = True
+(==) PlayerB PlayerB = True
+(==) _ _ = False
+
+data ClientUpdate = GameLogicError
+                 -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
+                  | GameTerminated WhichPlayer {-id of winning player-}
+                  | MatchTerminated Result {-this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners-}
+                  | GameStart {-Not sure about arguments-}
+                  | MatchStart WhichPlayer {-playerA, playerB-}
+                  | DrawPhaseToSpawnPhase
+                  | SpawnPhaseToSpellPhase
+                  | SpellPhaseToRemovalPhase
+                  | RemovalPhaseToStartPhase
+                  | StartPhaseToEngagementPhase
+                  | EngagementPhaseToEndPhase
+                  | EndPhaseToRevivalPhase
+                  | RevivalPhaseToDeploymentPhase
+                  | DeploymentPhaseToSpawnPhase
+                  | InvalidMove String String {-error message ; player id-}
+                  {- | NotInAnyGame String -}
+                  | Revive (Fin 9) WhichPlayer {-should have a list of cards to revive?-}
+                  | Kill (Fin 9) WhichPlayer {-board index-}
+                  | DeployCard (Fin 9) WhichPlayer
+                  | DrawHand Nat WhichPlayer
+                  | DrawSoul Nat (Fin 5) WhichPlayer
+                  | SendSpawnToDiscard WhichPlayer
+                  | MoveUnit (Fin 9) (Fin 9) WhichPlayer
+                  | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) WhichPlayer
+                  | UpdateSchools (Vect 6 (Bounded 0 9)) WhichPlayer
+                  | LoseSoulPoint WhichPlayer {- for now you only lose one at a time -}
+                  | SendBoardToGraveyard (Fin 9) WhichPlayer
+                  | SetStat String String (Fin 9) WhichPlayer {-stat name, marshalled stat value, board index -}
+                  | SpawnCard Nat WhichPlayer
+                  | PlayerTurn WhichPlayer
+
+{-
+
 data ClientUpdate = GameLogicError
                  -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
                   | GameTerminated String {-id of winning player-}
@@ -45,6 +86,8 @@ data ClientUpdate = GameLogicError
                   | SpawnCard Nat String
                   | PlayerTurn String
 
+-}
+
 
 {-if it's expensive to write on pipes, some of this code could be moved into the Ur/Web-}
 -------------------------------------------------------------------------------
@@ -67,7 +110,7 @@ augment marshalledClientUpdate b =
 -------------------------------------------------------------------------------
 marshallClientUpdate :
  ClientUpdate ->
- String ->
+ WhichPlayer ->
  MarshalledClientUpdate
 
 {-nothing if the user should not be receiving this update-}
@@ -111,68 +154,69 @@ marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   -}
 
 
-marshallClientUpdate (Revive boardIndex playerId) id =
+marshallClientUpdate (Revive boardIndex whichPlayer) player =
  let fields = [("index", show $ finToNat boardIndex)] in
- augment (MkMarshalledClientUpdate "revive" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "revive" fields) (whichPlayer == player)
 
-marshallClientUpdate (Kill boardIndex playerId) id =
+marshallClientUpdate (Kill boardIndex whichPlayer) player =
  let fields = [("index",show $ finToNat boardIndex)] in
- augment (MkMarshalledClientUpdate "kill" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "kill" fields) (whichPlayer == player)
 
-marshallClientUpdate (DeployCard boardIndex playerId) id =
+marshallClientUpdate (DeployCard boardIndex whichPlayer) player =
  let fields = [("index",show $ finToNat boardIndex)] in
- augment (MkMarshalledClientUpdate "deployCard" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "deployCard" fields) (whichPlayer == player)
 {-message currently 0 indexes the board-}
 
-marshallClientUpdate (DrawHand cardId playerId) id with (getCardName cardId)
+marshallClientUpdate (DrawHand cardId whichPlayer) player with (getCardName cardId)
  | Nothing = ?hole
  | Just cardName =
   let fields = [("name",cardName)] in
-  augment (MkMarshalledClientUpdate "drawHandCard" fields) (playerId == id)
+  augment (MkMarshalledClientUpdate "drawHandCard" fields) (whichPlayer == player)
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
 
-marshallClientUpdate (DrawSoul cardId soulIndex playerId) id with (getCardName cardId)
+marshallClientUpdate (DrawSoul cardId soulIndex whichPlayer) player with (getCardName cardId)
  | Nothing = ?hole
- | Just cardName = augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id)
+ | Just cardName = augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (whichPlayer == player)
 
-marshallClientUpdate (SendSpawnToDiscard playerId) id =
- augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
+marshallClientUpdate (SendSpawnToDiscard whichPlayer) player =
+ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (whichPlayer == player)
 
-marshallClientUpdate (MoveUnit from to playerId) id =
+marshallClientUpdate (MoveUnit from to whichPlayer) player =
  let fields = [("from",show $ finToNat from),("to",show $ finToNat to)] in
- augment (MkMarshalledClientUpdate "moveUnit" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "moveUnit" fields) (whichPlayer == player)
 
-marshallClientUpdate (UpdateThoughts val playerId) id =
- augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
+marshallClientUpdate (UpdateThoughts val whichPlayer) player =
+ let fields = [("val",show $ extractBounded val)] in
+ augment (MkMarshalledClientUpdate "updateThoughts" fields) (whichPlayer == player)
 
-marshallClientUpdate (UpdateSchools schools playerId) id =
+marshallClientUpdate (UpdateSchools schools whichPlayer) player =
  let schoolNames = ["earth","fire","water","air","spirit","void"] in
  let generateField = (\x,y => (x,show $ extractBounded y)) in
  let fields = toList $ zipWith generateField schoolNames schools in
- augment (MkMarshalledClientUpdate "updateSchools" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "updateSchools" fields) (whichPlayer == player)
 
-marshallClientUpdate (LoseSoulPoint playerId) id =
- augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
+marshallClientUpdate (LoseSoulPoint whichPlayer) player =
+ augment (MkMarshalledClientUpdate "loseSoulPoint" []) (whichPlayer == player)
 
-marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id =
+marshallClientUpdate (SendBoardToGraveyard boardIndex whichPlayer) player =
  let boardIndexField = ("boardIndex",show $ finToInteger boardIndex) in
  let fields = [boardIndexField] in
- augment (MkMarshalledClientUpdate "sendBoardToGraveyard" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" fields) (whichPlayer == player)
 
-marshallClientUpdate (SetStat stat val boardIndex playerId) id =
+marshallClientUpdate (SetStat stat val boardIndex whichPlayer) player =
  let statField = ("stat", stat) in
  let valField = ("val", val) in
  let indexField = ("index", show $ finToNat boardIndex) in
  let fields = [statField, valField, indexField] in
- augment (MkMarshalledClientUpdate "setStat" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "setStat" fields) (whichPlayer == player)
 
-marshallClientUpdate (SpawnCard handIndex playerId) id =
+marshallClientUpdate (SpawnCard handIndex whichPlayer) player =
  let indexField = ("index", show handIndex) in
  let fields = [indexField] in
- augment (MkMarshalledClientUpdate "spawnCard" fields) (playerId == id)
+ augment (MkMarshalledClientUpdate "spawnCard" fields) (whichPlayer == player)
 
-marshallClientUpdate (PlayerTurn playerId) id =
- augment (MkMarshalledClientUpdate "playerTurn" []) (playerId == id)
+marshallClientUpdate (PlayerTurn whichPlayer) player =
+ augment (MkMarshalledClientUpdate "playerTurn" []) (whichPlayer == player)
 -------------------------------------------------------------------------------
 serializeInfo : List (String,String) -> String
 serializeInfo [] = ""
@@ -193,7 +237,7 @@ serialize :
  String
 
 serialize clientUpdate playerId =
- let marshalledClientUpdate = marshallClientUpdate clientUpdate playerId in
+ let marshalledClientUpdate = marshallClientUpdate clientUpdate ?hole in
  serializeMarshalled marshalledClientUpdate
 -------------------------------------------------------------------------------
 payload :
