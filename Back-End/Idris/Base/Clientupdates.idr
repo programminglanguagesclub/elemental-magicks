@@ -115,16 +115,19 @@ marshallClientUpdate (Revive boardIndex playerId) id =
  augment (MkMarshalledClientUpdate "revive" fields) (playerId == id)
 
 marshallClientUpdate (Kill boardIndex playerId) id =
- let fields = [("index",show $ finToNat boardIndex)]
+ let fields = [("index",show $ finToNat boardIndex)] in
  augment (MkMarshalledClientUpdate "kill" fields) (playerId == id)
 
 marshallClientUpdate (DeployCard boardIndex playerId) id =
- augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
+ let fields = [("index",show $ finToNat boardIndex)] in
+ augment (MkMarshalledClientUpdate "deployCard" fields) (playerId == id)
 {-message currently 0 indexes the board-}
 
 marshallClientUpdate (DrawHand cardId playerId) id with (getCardName cardId)
  | Nothing = ?hole
- | Just cardName = augment (MkMarshalledClientUpdate "drawHandCard" [("name",cardName)]) (playerId == id)
+ | Just cardName =
+  let fields = [("name",cardName)] in
+  augment (MkMarshalledClientUpdate "drawHandCard" fields) (playerId == id)
   {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
 
 marshallClientUpdate (DrawSoul cardId soulIndex playerId) id with (getCardName cardId)
@@ -135,13 +138,16 @@ marshallClientUpdate (SendSpawnToDiscard playerId) id =
  augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
 
 marshallClientUpdate (MoveUnit from to playerId) id =
- augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
+ let fields = [("from",show $ finToNat from),("to",show $ finToNat to)] in
+ augment (MkMarshalledClientUpdate "moveUnit" fields) (playerId == id)
 
 marshallClientUpdate (UpdateThoughts val playerId) id =
  augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
 
 marshallClientUpdate (UpdateSchools schools playerId) id =
- let fields = (toList $ zipWith (\x,y => (x,show $ extractBounded y)) ["earth","fire","water","air","spirit","void"] schools) in
+ let schoolNames = ["earth","fire","water","air","spirit","void"] in
+ let generateField = (\x,y => (x,show $ extractBounded y)) in
+ let fields = toList $ zipWith generateField schoolNames schools in
  augment (MkMarshalledClientUpdate "updateSchools" fields) (playerId == id)
 
 marshallClientUpdate (LoseSoulPoint playerId) id =

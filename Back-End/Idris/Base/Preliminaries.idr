@@ -6,6 +6,11 @@ import Base.Bounded
 %access public export
 %default total
 
+{- this appears to not work, perhaps because lhs will not be the same lhs as in program. Oh well..
+syntax [lhs] ":=" [rhs] ";" [program] = let lhs = rhs in program
+-}
+
+
 absoluteLowerBound : Integer
 absoluteLowerBound = -1000
 absoluteUpperBound : Integer
