@@ -55,24 +55,44 @@ record MarshalledClientUpdate where
  info : List (String, String) {-name of field, value of field.. for now no uniqueness guarantee at the type level-}
 augment : MarshalledClientUpdate -> Bool -> MarshalledClientUpdate
 augment marshalledClientUpdate b = record {info = ("player",if b then "player" else "opponent") :: (info marshalledClientUpdate)} marshalledClientUpdate
-marshallClientUpdate : ClientUpdate -> String -> Maybe MarshalledClientUpdate {-nothing if the user should not be receiving this update-}
-marshallClientUpdate GameLogicError _ = Just $ MkMarshalledClientUpdate "gameLogicError" []
+-------------------------------------------------------------------------------
+marshallClientUpdate :
+ ClientUpdate ->
+ String ->
+ Maybe MarshalledClientUpdate
+
+{-nothing if the user should not be receiving this update-}
+
+marshallClientUpdate GameLogicError _ =
+ Just $ MkMarshalledClientUpdate "gameLogicError" []
 {-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}-}
-marshallClientUpdate DrawPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
-marshallClientUpdate SpawnPhaseToSpellPhase _ = Just $ MkMarshalledClientUpdate "spawnPhaseToSpellPhase" []
-marshallClientUpdate SpellPhaseToRemovalPhase _ = Just $ MkMarshalledClientUpdate "spellPhaseToRemovalphase" []
-marshallClientUpdate RemovalPhaseToStartPhase _ = Just $ MkMarshalledClientUpdate "removalPhaseToStartPhase" []
-marshallClientUpdate StartPhaseToEngagementPhase _ = Just $ MkMarshalledClientUpdate "startPhaseToEngagementPhase" []
-marshallClientUpdate EngagementPhaseToEndPhase _ = Just $ MkMarshalledClientUpdate "engagementPhaseToEndPhase" []
-marshallClientUpdate EndPhaseToRevivalPhase _ = Just $ MkMarshalledClientUpdate "endPhaseToRevivalPhase" []
-marshallClientUpdate RevivalPhaseToDeploymentPhase _ = Just $ MkMarshalledClientUpdate "revivalPhaseToDeploymentPhase" []
-marshallClientUpdate DeploymentPhaseToSpawnPhase _ = Just $ MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
+marshallClientUpdate DrawPhaseToSpawnPhase _ =
+ Just $ MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
+marshallClientUpdate SpawnPhaseToSpellPhase _ =
+ Just $ MkMarshalledClientUpdate "spawnPhaseToSpellPhase" []
+marshallClientUpdate SpellPhaseToRemovalPhase _ =
+ Just $ MkMarshalledClientUpdate "spellPhaseToRemovalphase" []
+marshallClientUpdate RemovalPhaseToStartPhase _ =
+ Just $ MkMarshalledClientUpdate "removalPhaseToStartPhase" []
+marshallClientUpdate StartPhaseToEngagementPhase _ =
+ Just $ MkMarshalledClientUpdate "startPhaseToEngagementPhase" []
+marshallClientUpdate EngagementPhaseToEndPhase _ =
+ Just $ MkMarshalledClientUpdate "engagementPhaseToEndPhase" []
+marshallClientUpdate EndPhaseToRevivalPhase _ =
+ Just $ MkMarshalledClientUpdate "endPhaseToRevivalPhase" []
+marshallClientUpdate RevivalPhaseToDeploymentPhase _ =
+ Just $ MkMarshalledClientUpdate "revivalPhaseToDeploymentPhase" []
+marshallClientUpdate DeploymentPhaseToSpawnPhase _ =
+ Just $ MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
 marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
   | False = Nothing
   | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
-marshallClientUpdate (Revive boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "revive" [("index", show $ finToNat boardIndex)]) (playerId == id)
-marshallClientUpdate (Kill boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
-marshallClientUpdate (DeployCard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
+marshallClientUpdate (Revive boardIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "revive" [("index", show $ finToNat boardIndex)]) (playerId == id)
+marshallClientUpdate (Kill boardIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "kill" [("index",show $ finToNat boardIndex)]) (playerId == id)
+marshallClientUpdate (DeployCard boardIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "deployCard" [("index",show $ finToNat boardIndex)]) (playerId == id)
 {-message currently 0 indexes the board-}
 marshallClientUpdate (DrawHand cardId playerId) id =
   do cardName <- getCardName cardId
@@ -81,16 +101,25 @@ marshallClientUpdate (DrawHand cardId playerId) id =
 marshallClientUpdate (DrawSoul cardId soulIndex playerId) id =
   do cardName <- getCardName cardId
      pure (augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (playerId == id))
-marshallClientUpdate (SendSpawnToDiscard playerId) id = Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
-marshallClientUpdate (MoveUnit from to playerId) id = Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
-marshallClientUpdate (UpdateThoughts val playerId) id = Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
+marshallClientUpdate (SendSpawnToDiscard playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "sendSpawnToDiscard" []) (playerId == id)
+marshallClientUpdate (MoveUnit from to playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "moveUnit" [("from",show $ finToNat from),("to",show $ finToNat to)]) (playerId == id)
+marshallClientUpdate (UpdateThoughts val playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "updateThoughts" [("val",show $ extractBounded val)]) (playerId == id)
 marshallClientUpdate (UpdateSchools schools playerId) id =
  Just $ augment (MkMarshalledClientUpdate "updateSchools" (toList $ zipWith (\x,y => (x,show $ extractBounded y)) ["earth","fire","water","air","spirit","void"] schools)) (playerId == id)
-marshallClientUpdate (LoseSoulPoint playerId) id = Just $ augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
-marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
-marshallClientUpdate (SetStat stat val boardIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "setStat" [("stat",stat),("val",val),("index",show $ finToNat boardIndex)]) (playerId == id)
-marshallClientUpdate (SpawnCard handIndex playerId) id = Just $ augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
-marshallClientUpdate (PlayerTurn playerId) id = Just $ augment (MkMarshalledClientUpdate "playerTurn" []) (playerId == id)
+marshallClientUpdate (LoseSoulPoint playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "loseSoulPoint" []) (playerId == id)
+marshallClientUpdate (SendBoardToGraveyard boardIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "sendBoardToGraveyard" [("boardIndex",show $ finToInteger boardIndex)]) (playerId == id)
+marshallClientUpdate (SetStat stat val boardIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "setStat" [("stat",stat),("val",val),("index",show $ finToNat boardIndex)]) (playerId == id)
+marshallClientUpdate (SpawnCard handIndex playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "spawnCard" [("index",show handIndex)]) (playerId == id)
+marshallClientUpdate (PlayerTurn playerId) id =
+ Just $ augment (MkMarshalledClientUpdate "playerTurn" []) (playerId == id)
+-------------------------------------------------------------------------------
 serializeInfo : List (String,String) -> String
 serializeInfo [] = ""
 serializeInfo ((k,v)::xs) = "," ++ k ++ ":" ++ v ++ (serializeInfo xs)
