@@ -69,11 +69,11 @@ namespace doNotSkipAutomatic
   begin : NonautomaticFactory -> NonautomaticFactory
   begin = \x => x
 namespace skill_start
-  begin : NonautomaticFactory -> Nat -> SkillType -> SkillFactory
-  begin NonautomaticFactory cost skillType = (MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous, skillType)
+  begin : NonautomaticFactory -> Nat -> SkillFactory
+  begin NonautomaticFactory cost = (MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)
 namespace skill_start_list
-  begin : NonautomaticFactory -> Nat -> SkillType -> List SkillFactory
-  begin NonautomaticFactory cost skillType = [(MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous, skillType)]
+  begin : NonautomaticFactory -> Nat -> List SkillFactory
+  begin NonautomaticFactory cost = [(MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)]
 
 
 namespace finishWithList

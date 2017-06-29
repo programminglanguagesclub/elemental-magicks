@@ -22,7 +22,7 @@ data SkillType
 -- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
 -------------------------------------------------------------------------------
 SkillFactory : Type
-SkillFactory = (AutomaticFactory, Nat, Condition, SkillType) --automatic, used, cost
+SkillFactory = (AutomaticFactory, Nat, Condition) --automatic, used, cost
 -------------------------------------------------------------------------------
 Skill : Type
 Skill = (Automatic, Bool, Nat, Condition, SkillType)
@@ -36,9 +36,10 @@ instantiateSkill :
  Nat ->
  String ->
  SkillFactory ->
+ SkillType ->
  Skill
 
-instantiateSkill cardId playerId (automatic,cost,condition, skillType) =
+instantiateSkill cardId playerId (automatic,cost,condition) skillType =
  (instantiateAutomatic automatic cardId playerId,False,cost,condition, skillType)
 -------------------------------------------------------------------------------
 record MonsterFactory where
@@ -80,21 +81,21 @@ instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 instantiateMonster cardId playerId monsterFactory =
  MkMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
-  ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory))
-  ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory))
-  (instantiateSkill cardId playerId (soulSkill monsterFactory))
+  ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill))
+  ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory) <*> (pure EndSkill))
+  ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory) <*> (pure CounterSkill))
+  ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory) <*> (pure SpawnSkill))
+  ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory) <*> (pure DeathSkill))
+  ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory) <*> (pure AutoSkill))
+  ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory) <*> (pure ActionSkill))
+  (instantiateSkill cardId playerId (soulSkill monsterFactory) SoulSkill)
 ------------------------------------------------------------------------------0
 instantiateSpell : Nat -> String -> SpellFactory -> Spell
 
 instantiateSpell cardId playerId spellFactory =
  MkSpell
   (instantiateBasicSpell (basic spellFactory) cardId)
-  (instantiateSkill cardId playerId (spawnSkill spellFactory))
+  (instantiateSkill cardId playerId (spawnSkill spellFactory) SpawnSkill)
 -------------------------------------------------------------------------------
 data CardFactory
  = SpellCardFactory SpellFactory
