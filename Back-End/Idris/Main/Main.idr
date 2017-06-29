@@ -256,3 +256,53 @@ main = do {
 
 {-units now should become engaged AFTER their skills finish (if that's not too hard) actually that might be too hard...-}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+
+
+
+
+
+--data noRepeats : 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

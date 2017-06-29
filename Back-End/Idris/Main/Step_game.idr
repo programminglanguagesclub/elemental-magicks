@@ -1,5 +1,6 @@
 module Main.Step_game
 import Data.Fin
+import Data.Vect
 import Base.Preliminaries
 import Base.Phase
 import Base.Skill_dsl_data
@@ -109,56 +110,68 @@ getMessage (initiative, deathQueue, playerA, playerB, phase, skillHead, skillQue
 -------------------------------------------------------------------------------
 mutual
 -------------------------------------------------------------------------------
- continueStep :
-  (Game, List ClientUpdate, Maybe ClientInstruction) ->
-  (Game, List ClientUpdate, ClientInstruction)
+  continueStep :
+   (Game, List ClientUpdate, Maybe ClientInstruction) ->
+   (Game, List ClientUpdate, ClientInstruction)
 -------------------------------------------------------------------------------
- stepGameNoSkills :
-  (WhichPlayer, Nat, List Nat, Phase, Player, Player, List ClientUpdate) ->
-  (Game, List ClientUpdate, ClientInstruction)
+  stepGameNoSkills :
+   WhichPlayer ->
+   Nat ->
+   List Nat ->
+   Phase ->
+   Player ->
+   Player ->
+   List ClientUpdate ->
+   (Game, List ClientUpdate, ClientInstruction)
 -------------------------------------------------------------------------------  
- stepGame :
-  (Game, List ClientUpdate) ->
-  (Game, List ClientUpdate, ClientInstruction)
+  stepGame :
+   (Game, List ClientUpdate) ->
+   (Game, List ClientUpdate, ClientInstruction)
 -------------------------------------------------------------------------------
- continueStep (game,updates,Just clientInstruction) =
-  (game,updates,clientInstruction)
- continueStep (game,updates,Nothing) =
-  stepGame (game,updates)
-  {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
+  continueStep (game,updates,Just clientInstruction) =
+   (game,updates,clientInstruction)
+  continueStep (game,updates,Nothing) =
+   stepGame (game,updates)
+   {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
  
- stepGameNoSkills (initiative, turnNumber, deathQueue, phase, playerA, playerB, acc) with (phase)
-   {-| DrawPhase playerA playerB cardsDrawn =
-      case stepDrawPhase playerA playerB of
-       Nothing =>
-        let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc) in
-        continueStep (game', acc', Nothing)
-       Just clientInstruction =>
-        continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)-}
-    | SpawnPhase =
-      case stepSpawnPhase initiative playerA playerB of
-       Nothing =>
-        let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
-        continueStep (game', acc', Nothing)
-       Just clientInstruction =>
-        continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
- 
-    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
-    
-    | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
-    
-    | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
-    
-    | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
-    
-    | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
-    
-    | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
-    
-    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
+  stepGameNoSkills initiative turnNumber deathQueue phase playerA playerB acc with (phase)
+    {-| DrawPhase playerA playerB cardsDrawn =
+       case stepDrawPhase playerA playerB of
+        Nothing =>
+         let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc) in
+         continueStep (game', acc', Nothing)
+        Just clientInstruction =>
+         continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)-}
      
- stepGame  = ?hole {-(g,acc) with (skillHead g, skillQueue g)
-    | (TerminatedSkillComponent, []) = assert_total $ stepGameNoSkills (initiative g, turnNumber g, deathQueue g, player_A g, player_B g, phase g, acc)
-    | (TerminatedSkillComponent, (pendingSkill::pendingSkills)) = assert_total ?hole {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
-    | _ = ?hole
-    -}
+     | SpawnPhase =
+       case stepSpawnPhase initiative playerA playerB of
+        Nothing =>
+         let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
+         continueStep (game', acc', Nothing)
+        Just clientInstruction =>
+         continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
+  
+     | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
+    
+     | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
+    
+     | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
+    
+     | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
+    
+     | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
+    
+     | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
+    
+     | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
+     
+  stepGame (g,acc) with (skillHead g, skillQueue g)
+   | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (initiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
+   | (TerminatedSkill, (pendingSkill::pendingSkills)) = assert_total ?hole
+{-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
+   | (Existential arguments condition successBranch failureBranch cardId playerId, skillQueue) = ?hole
+    
+
+
+
+

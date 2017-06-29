@@ -28,6 +28,9 @@ data Round
 {-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
 
 -------------------------------------------------------------------------------
+-- monster id data type?
+
+-------------------------------------------------------------------------------
 record Game where
  constructor MkGame
  initiative : WhichPlayer
@@ -38,6 +41,18 @@ record Game where
  phase : Phase
  playerA : Player
  playerB : Player
+-------------------------------------------------------------------------------
+{-record GameNoPendingSkills where
+ constructor MkGameNoPendingSkills
+ initiative : WhichPlayer
+ turnNumber : Nat
+ deathQueue : List Nat
+ phase : Phase
+ playerA : Player
+ playerB : Player
+-------------------------------------------------------------------------------
+rebuildGame : GameNoPendingSkills -> Nonautomatic -> List Automatic -> Game
+rebuildGame (MkGameNoPendingSkills =-}
 -------------------------------------------------------------------------------
 pushSkill'' : Automatic -> List Automatic -> List Automatic
 pushSkill'' automatic skillQueue = skillQueue ++ [automatic]
