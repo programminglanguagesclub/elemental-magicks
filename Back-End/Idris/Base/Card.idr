@@ -22,10 +22,10 @@ data SkillType
 -- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
 -------------------------------------------------------------------------------
 SkillFactory : Type
-SkillFactory = (AutomaticFactory, Nat, Condition) --automatic, used, cost
+SkillFactory = (AutomaticFactory, Nat, Condition, SkillType) --automatic, used, cost
 -------------------------------------------------------------------------------
 Skill : Type
-Skill = (Automatic, Bool, Nat, Condition)
+Skill = (Automatic, Bool, Nat, Condition, SkillType)
 {-HAVE NOT YET DEALT WITH NAT, CONDITION,
 AND HOW TO BUILD AND OPERATE THE ACTUAL SKILL FROM THIS....-}
 
@@ -38,8 +38,8 @@ instantiateSkill :
  SkillFactory ->
  Skill
 
-instantiateSkill cardId playerId (automatic,cost,condition) =
- (instantiateAutomatic automatic cardId playerId,False,cost,condition)
+instantiateSkill cardId playerId (automatic,cost,condition, skillType) =
+ (instantiateAutomatic automatic cardId playerId,False,cost,condition, skillType)
 -------------------------------------------------------------------------------
 record MonsterFactory where
  constructor MkMonsterFactory

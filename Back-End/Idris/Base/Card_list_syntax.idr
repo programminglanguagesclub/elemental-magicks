@@ -17,8 +17,8 @@ namespace manySkills
   skills : SkillFactory -> List SkillFactory
   skills s = [s]
 namespace zeroCostJustSkill
-  skills : AutomaticFactory -> Maybe SkillFactory
-  skills a = Just (a,0,Vacuous)
+  skills : AutomaticFactory -> SkillType -> Maybe SkillFactory
+  skills a t = Just (a,0,Vacuous,t)
 
 {-
 {-CAN ALSO USE THIS IDEA TO REMOVE ALL OF THE TRAILING DONES FROM SKILLS!-}
