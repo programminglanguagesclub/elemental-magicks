@@ -128,6 +128,9 @@ mutual
    (Game, List ClientUpdate) ->
    (Game, List ClientUpdate, ClientInstruction)
 -------------------------------------------------------------------------------
+
+-- SOMEWHERE I NEED TO INCREASE THE TURN NUMBER!!
+
   continueStep (game,updates,Just clientInstruction) =
    (game,updates,clientInstruction)
   continueStep (game,updates,Nothing) =
@@ -146,10 +149,10 @@ mutual
    | SpawnPhase =
        case stepSpawnPhase initiative playerA playerB of
         Nothing =>
-         let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
+         let (game', acc') = goToNextPhase (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
          continueStep (game', acc', Nothing)
         Just clientInstruction =>
-         continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
+         continueStep (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
   
    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
@@ -166,7 +169,7 @@ mutual
    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
      
   stepGame (g,acc) with (skillHead g, skillQueue g)
-   | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (initiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
+   | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (getInitiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
    | (TerminatedSkill, (pendingSkill::pendingSkills)) = assert_total ?hole
 {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
    | (Existential arguments condition successBranch failureBranch cardId playerId, skillQueue) = ?hole

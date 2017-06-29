@@ -1,6 +1,7 @@
 module Main.Game
 import Data.Fin
 import Data.Vect
+import Base.Utility
 import Base.Bounded
 import Base.Hp
 import Base.Preliminaries
@@ -33,7 +34,7 @@ data Round
 -------------------------------------------------------------------------------
 record Game where
  constructor MkGame
- initiative : WhichPlayer
+ --initiative : WhichPlayer
  turnNumber : Nat
  skillHead : Nonautomatic
  skillQueue : List Automatic
@@ -41,6 +42,17 @@ record Game where
  phase : Phase
  playerA : Player
  playerB : Player
+-------------------------------------------------------------------------------
+namespace fromNat
+  getInitiative : Nat -> WhichPlayer
+  getInitiative turnNumber =
+   case even turnNumber of
+    True => PlayerB
+    False => PlayerA
+-------------------------------------------------------------------------------
+namespace fromGame
+  getInitiative : Game -> WhichPlayer
+  getInitiative game = getInitiative $ turnNumber game
 -------------------------------------------------------------------------------
 {-record GameNoPendingSkills where
  constructor MkGameNoPendingSkills
@@ -67,17 +79,17 @@ record DrawPhase where
  constructor MkDrawPhase
  playerA : DrawPlayer
  playerB : DrawPlayer
- turnNumber : Fin 60
+ cardsDrawn : Fin 60
 -------------------------------------------------------------------------------
 data FullGame
  = MkFullGameGame Game
  | MkFullGameDrawPhase DrawPhase
 -------------------------------------------------------------------------------
-initialInitiative : WhichPlayer
-initialInitiative = PlayerA
+--initialInitiative : WhichPlayer
+--initialInitiative = PlayerA
 -------------------------------------------------------------------------------
 initialTurnNumber : Nat
-initialTurnNumber = Z
+initialTurnNumber = S Z
 -------------------------------------------------------------------------------
 initialSkillHead : Nonautomatic
 initialSkillHead = TerminatedSkill
@@ -102,7 +114,7 @@ newGame :
 
 newGame aId aHand aSoul bId bHand bSoul =
  MkGame
-  initialInitiative
+  --initialInitiative
   initialTurnNumber
   initialSkillHead
   initialSkillQueue

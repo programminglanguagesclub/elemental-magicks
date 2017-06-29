@@ -2,11 +2,21 @@ module Base.Utility
 
 import Data.Primitives.Views
 
+%access public export
+%default total
 
-export
+
 div2 : Integer -> Integer
 div2 dividend with (divides dividend 2)
   div2 ((2 * quotient) + remainder) | (DivBy prf) = quotient
+
+namespace fromInteger
+  even : Integer -> Bool
+  even n = ((div2 n) * 2 == n)
+
+namespace fromNat
+  even : Nat -> Bool
+  even n = even $ toIntegerNat n
 
 div3 : Integer -> Integer
 div3 dividend with (divides dividend 3)
