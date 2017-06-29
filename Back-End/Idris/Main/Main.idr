@@ -78,7 +78,7 @@ correctForRound _ PlayerB = PlayerA
 -}
 -------------------------------------------------------------------------------
 trivial : (String -> String -> String) -> Maybe String -> Maybe String -> Maybe String
---trivial f a b = f <$> a <*> b -- THIS IS CAUSING COMPILE ISSUE WITH IMPLICITS
+trivial f a b = f <$> a <*> b -- THIS IS CAUSING COMPILE ISSUE WITH IMPLICITS
 -------------------------------------------------------------------------------
 replyWith' : List ClientUpdate -> String -> String -> String
 
