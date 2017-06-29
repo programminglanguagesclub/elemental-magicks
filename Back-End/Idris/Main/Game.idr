@@ -229,7 +229,9 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
      Nothing => ([damagedCardUpdate], game')
      Just skill =>
       let game'' = transformDefender (setCanUseDeathSkill False) game' in
-      let game''' = pushSkill whichPlayer skill game'' in -- OH WAIT!!!! IF THEY CANNOT AFFORD THE SKILL DO NOT WANT TO SET CAN USE DEATH SKILL TO FALSE!!!
+      let game''' = pushSkill whichPlayer skill game'' in
+      -- Because the death skill might not activate (its conditions are checked before it is loaded onto the skill head)
+      -- we cannot actually do setCanUseDeathSkill False yet.
       ([damagedCardUpdate], game''')
    False =>
     case getCanUseCounterSkill damagedMonster of

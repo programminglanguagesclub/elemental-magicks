@@ -135,7 +135,7 @@ mutual
    {-on one of these we need to know the turn number potentially? (need to damage soul at some point) -}
  
   stepGameNoSkills initiative turnNumber deathQueue phase playerA playerB acc with (phase)
-    {-| DrawPhase playerA playerB cardsDrawn =
+ {-| DrawPhase playerA playerB cardsDrawn =
        case stepDrawPhase playerA playerB of
         Nothing =>
          let (game',acc') = goToNextPhase (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc) in
@@ -143,7 +143,7 @@ mutual
         Just clientInstruction =>
          continueStep (MkGame initiative 0 TerminatedSkill [] [] (DrawPhase playerA playerB cardsDrawn), acc, Just clientInstruction)-}
      
-     | SpawnPhase =
+   | SpawnPhase =
        case stepSpawnPhase initiative playerA playerB of
         Nothing =>
          let (game', acc') = goToNextPhase (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
@@ -151,19 +151,19 @@ mutual
         Just clientInstruction =>
          continueStep (MkGame initiative turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
   
-     | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
+   | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
-     | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
+   | RemovalPhase = continueStep (stepRemovalPhase deathQueue playerA playerB)
     
-     | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
+   | StartPhase = continueStep (stepStartPhase initiative deathQueue playerA playerB)
     
-     | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
+   | EngagementPhase = continueStep (stepEngagementPhase initiative deathQueue playerA playerB)
     
-     | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
+   | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
     
-     | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
+   | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
     
-     | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
+   | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
      
   stepGame (g,acc) with (skillHead g, skillQueue g)
    | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (initiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
@@ -173,5 +173,5 @@ mutual
     
 
 
-
-
+-- I need to have additional checks when skills are activated. Thus, death skills can load at any time, but only activate when they meet their cost and condition, etc.
+-- This requires some special cases for different types of skills, perhaps added automatically to their data structures ( so everything is very homogeneous)

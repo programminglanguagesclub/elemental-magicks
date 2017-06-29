@@ -8,6 +8,19 @@ import Base.Skill_dsl_data
 %default total
 
 -------------------------------------------------------------------------------
+data SkillType
+ = StartSkill
+ | EndSkill
+ | CounterSkill
+ | SpawnSkill
+ | DeathSkill
+ | AutoSkill
+ | ActionSkill
+ | SoulSkill
+
+-- only allow certain types of skills to be executed once per turn
+-- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
+-------------------------------------------------------------------------------
 SkillFactory : Type
 SkillFactory = (AutomaticFactory, Nat, Condition) --automatic, used, cost
 -------------------------------------------------------------------------------
