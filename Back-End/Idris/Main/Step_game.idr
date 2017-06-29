@@ -131,6 +131,15 @@ mutual
 
 -- SOMEWHERE I NEED TO INCREASE THE TURN NUMBER!!
 
+
+
+-- I should have a generic continue stepping thing,
+-- which is responsible for killing dead units, etc.
+
+-- I actually might be able to get away with not having these specialized stepping functions and just doing that...
+-- at least to an extent (I can't quite load all skills onto the queue at the start of the end and start phases tho, sadly,
+-- otherwise units killed by one skill will not die until the rest of the skills go off...)
+
   continueStep (game,updates,Just clientInstruction) =
    (game,updates,clientInstruction)
   continueStep (game,updates,Nothing) =
@@ -152,7 +161,7 @@ mutual
          let (game', acc') = goToNextPhase (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
          continueStep (game', acc', Nothing)
         Just clientInstruction =>
-         continueStep (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, Just clientInstruction)
+         (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, clientInstruction)
   
    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
