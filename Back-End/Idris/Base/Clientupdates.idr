@@ -11,7 +11,9 @@ data Result
  | OriginalPlayerAWon
  | OriginalPlayerBWon
 -------------------------------------------------------------------------------
-data ClientInstruction = MkClientInstruction (String,String) {- not integrated yet -}
+data ClientInstruction = MkClientInstruction (String,String,WhichPlayer) {- not integrated yet -}
+
+                       -- whichPlayer refers to whose turn it is now.
 -------------------------------------------------------------------------------
 
 --hack for now

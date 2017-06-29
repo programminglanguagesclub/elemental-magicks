@@ -54,18 +54,6 @@ namespace fromGame
   getInitiative : Game -> WhichPlayer
   getInitiative game = getInitiative $ turnNumber game
 -------------------------------------------------------------------------------
-{-record GameNoPendingSkills where
- constructor MkGameNoPendingSkills
- initiative : WhichPlayer
- turnNumber : Nat
- deathQueue : List Nat
- phase : Phase
- playerA : Player
- playerB : Player
--------------------------------------------------------------------------------
-rebuildGame : GameNoPendingSkills -> Nonautomatic -> List Automatic -> Game
-rebuildGame (MkGameNoPendingSkills =-}
--------------------------------------------------------------------------------
 pushSkill'' : Automatic -> List Automatic -> List Automatic
 pushSkill'' automatic skillQueue = skillQueue ++ [automatic]
 -------------------------------------------------------------------------------
@@ -84,9 +72,6 @@ record DrawPhase where
 data FullGame
  = MkFullGameGame Game
  | MkFullGameDrawPhase DrawPhase
--------------------------------------------------------------------------------
---initialInitiative : WhichPlayer
---initialInitiative = PlayerA
 -------------------------------------------------------------------------------
 initialTurnNumber : Nat
 initialTurnNumber = S Z
@@ -114,7 +99,6 @@ newGame :
 
 newGame aId aHand aSoul bId bHand bSoul =
  MkGame
-  --initialInitiative
   initialTurnNumber
   initialSkillHead
   initialSkillQueue
@@ -134,9 +118,8 @@ newDrawPhase :
 newDrawPhase aId bId =
  MkDrawPhase (newDrawPlayer aId) (newDrawPlayer bId) initialCardsDrawn
 -------------------------------------------------------------------------------
-playerOnMove : Game -> WhichPlayer
-
-playerOnMove = ?hole
+--playerOnMove : Game -> WhichPlayer
+--playerOnMove = ?hole
 -------------------------------------------------------------------------------
 record Battle where
  constructor MkBattle

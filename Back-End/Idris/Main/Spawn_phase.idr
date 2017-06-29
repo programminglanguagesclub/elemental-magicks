@@ -55,14 +55,14 @@ opponentSpawns = "Wait for your opponent to level their schools of thought, and 
 
 stepSpawnPhase : WhichPlayer -> Player -> Player -> Maybe ClientInstruction
 stepSpawnPhase PlayerA playerA playerB with (spawnCard playerA)
- | Nothing = Just $ MkClientInstruction (youSpawn, opponentSpawns)
+ | Nothing = Just $ MkClientInstruction (youSpawn, opponentSpawns, ?hole)
  | Just _ = case spawnCard playerB of
-                 Nothing => Just $ MkClientInstruction (opponentSpawns, youSpawn)
+                 Nothing => Just $ MkClientInstruction (opponentSpawns, youSpawn, ?hole)
                  Just _ => Nothing
 stepSpawnPhase PlayerB playerA playerB with (spawnCard playerB)
- | Nothing = Just $ MkClientInstruction (opponentSpawns, youSpawn)
+ | Nothing = Just $ MkClientInstruction (opponentSpawns, youSpawn, ?hole)
  | Just _ = case (spawnCard playerA) of
-                 Nothing => Just $ MkClientInstruction (youSpawn, opponentSpawns)
+                 Nothing => Just $ MkClientInstruction (youSpawn, opponentSpawns, ?hole)
                  Just _ => Nothing
 
 {-I can remove some boilerplate by having a function that generates client instructions given who has the initiative,
