@@ -1,4 +1,9 @@
 
+-- Connor McBride has an implementation of Red Black Trees using zippers.
+
+-- DO THIS!
+
+
 module RedBlackTree.Extrinsic
 
 %default total
