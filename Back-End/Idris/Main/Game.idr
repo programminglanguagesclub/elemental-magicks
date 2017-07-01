@@ -37,7 +37,7 @@ record Game where
  --initiative : WhichPlayer
  turnNumber : Nat
  skillHead : Nonautomatic
- skillQueue : List Automatic
+ skillQueue : List Skill
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
  playerA : Player
@@ -54,14 +54,11 @@ namespace fromGame
   getInitiative : Game -> WhichPlayer
   getInitiative game = getInitiative $ turnNumber game
 -------------------------------------------------------------------------------
-pushSkill'' : Automatic -> List Automatic -> List Automatic
-pushSkill'' automatic skillQueue = skillQueue ++ [automatic]
+pushSkill' : Skill -> List Skill -> List Skill
+pushSkill' skill skillQueue = skillQueue ++ [skill]
 -------------------------------------------------------------------------------
-pushSkill' : Automatic -> Game -> Game
-pushSkill' automatic game = record {skillQueue $= pushSkill'' automatic} game
--------------------------------------------------------------------------------
-pushSkill : WhichPlayer -> Skill -> Game -> Game
-pushSkill whichPlayer (_,_,_,_) game = ?hole
+pushSkill : Skill -> Game -> Game
+pushSkill skill game = record {skillQueue $= pushSkill' skill} game
 -------------------------------------------------------------------------------
 record DrawPhase where
  constructor MkDrawPhase
@@ -79,7 +76,7 @@ initialTurnNumber = S Z
 initialSkillHead : Nonautomatic
 initialSkillHead = TerminatedSkill
 -------------------------------------------------------------------------------
-initialSkillQueue : List Automatic
+initialSkillQueue : List Skill
 initialSkillQueue = []
 -------------------------------------------------------------------------------
 initialDeathQueue : List Nat
@@ -198,7 +195,7 @@ transformMonsterInGame :
 transformMonsterInGame row column whichPlayer monsterMutator game =
  let playerMutator = transformMonster monsterMutator row column in
  transformPlayer playerMutator whichPlayer game
- 
+
 -------------------------------------------------------------------------------
 damageCard :
  Nat ->
@@ -254,6 +251,3 @@ applyAttack atk row defendingPlayer = ?hole
 -- this function also probably needs to be able to modify more things.
 
 -------------------------------------------------------------------------------
-
-
-
