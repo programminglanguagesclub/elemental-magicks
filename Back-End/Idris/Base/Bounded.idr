@@ -5,11 +5,9 @@ import Data.So
 %access public export
 %default total
 
+-------------------------------------------------------------------------------
 data Bounded : Integer -> Integer -> Type where
   MkBounded : (n ** (So(lower <= n),So(n <= upper))) -> Bounded lower upper
-
---syntax ">>" [value] "<<" = MkBounded (value ** (Oh,Oh))
-
 -------------------------------------------------------------------------------
 bind :
  (n : Integer) ->
@@ -22,10 +20,6 @@ bind :
 bind n {boundedBelow=boundedBelow} {boundedAbove=boundedAbove} =
  MkBounded (n ** (boundedBelow,boundedAbove))
 -------------------------------------------------------------------------------
-{-rename and change to not be exported-}
-foo12 : Bounded 0 31
-foo12 = bind 21
--------------------------------------------------------------------------------
 my_lte_transitive : {a,b,c : Integer} -> So(a<=b) -> So(b<=c) -> So(a<=c)
 my_lte_transitive _ _ = believe_me Oh
 -------------------------------------------------------------------------------
@@ -33,7 +27,7 @@ my_lte_reflexive : (a : Integer) -> So(a<=a)
 my_lte_reflexive a = believe_me Oh
 -------------------------------------------------------------------------------
 integerToBounded : -- MAKE USE DEC!!
- Integer ->
+ (n : Integer) ->
  (lower : Integer) ->
  (upper : Integer) ->
  Maybe (Bounded lower upper)
