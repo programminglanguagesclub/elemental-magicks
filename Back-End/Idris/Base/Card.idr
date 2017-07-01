@@ -24,13 +24,22 @@ data SkillType
 SkillFactory : Type
 SkillFactory = (AutomaticFactory, Nat, Condition) --automatic, used, cost
 -------------------------------------------------------------------------------
+data SkillUsedness
+ = Unused
+ | Used
+ | OnQueue
+-------------------------------------------------------------------------------
 Skill : Type
-Skill = (Automatic, Bool, Nat, Condition, SkillType)
-{-HAVE NOT YET DEALT WITH NAT, CONDITION,
-AND HOW TO BUILD AND OPERATE THE ACTUAL SKILL FROM THIS....-}
+Skill = (Automatic, SkillUsedness, Nat, Condition, SkillType)
+-- important to have condition and cost here as well, not just in automatic,
+-- because I do not count a skill as having been triggered
+-- if it does not meet its cost or condition.
 
-{- condition is presumably in Automatic already....
-I don't need this here as well.... -}
+-- I do not want to count skills as having been played once this turn
+-- therefore until they are actually loaded onto the skill head,
+-- and I do not want to then load it onto the skill queue more than once
+-- at a time (or I could have it execute more than once in a turn).
+-- Thus I need a ternary type for skill being used.
 -------------------------------------------------------------------------------
 instantiateSkill :
  Nat ->
