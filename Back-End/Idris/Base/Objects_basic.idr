@@ -65,7 +65,7 @@ resetLevel : (Bounded 0 9, Bounded 0 9, Bounded 1 9) -> (Bounded 0 9, Bounded 0 
 resetLevel (temporary, permanent, base) = (extendLowerBound base Oh, extendLowerBound base Oh, base)
 -------------------------------------------------------------------------------
 resetEngagement : Bounded 0 Preliminaries.absoluteUpperBound -> Bounded 0 Preliminaries.absoluteUpperBound
-resetEngagement _ = >> 0 <<
+resetEngagement _ = bind 0
 -------------------------------------------------------------------------------
 revive : BasicMonster -> BasicMonster
 revive basic =
@@ -96,7 +96,7 @@ instantiateBasicMonster basicMonsterFactory cardId =
                 (extendBounds (range basicMonsterFactory) Oh Oh , extendBounds (range basicMonsterFactory) Oh Oh, extendBounds (range basicMonsterFactory) Oh Oh)
                 (extendLowerBound (level basicMonsterFactory) Oh, extendLowerBound (level basicMonsterFactory) Oh, level basicMonsterFactory)
                 (extendLowerBound (soulPoints basicMonsterFactory) Oh, soulPoints basicMonsterFactory)
-                >> 0 <<
+                (bind 0)
                 Alive   
 -------------------------------------------------------------------------------
 setTemporary : ((Bounded lower upper),t2,t3) -> Integer -> ((Bounded lower upper),t2,t3)

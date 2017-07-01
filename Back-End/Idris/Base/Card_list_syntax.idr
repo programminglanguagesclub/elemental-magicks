@@ -6,6 +6,12 @@ import Base.Skill_dsl_data
 import Base.Card
 %access public export
 %default total
+{-
+
+
+
+
+
 
 namespace justSkill
   skills : SkillFactory -> Maybe SkillFactory
@@ -1686,4 +1692,4 @@ MkMonsterFactory (MkBasicMonsterFactory unit_name schools (>> hp <<) (>> attack 
 
 
 
-
+-}

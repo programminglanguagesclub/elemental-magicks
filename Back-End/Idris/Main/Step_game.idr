@@ -181,7 +181,7 @@ mutual
   stepGame (g,acc) with (skillHead g, skillQueue g)
    | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (getInitiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
    | (TerminatedSkill, (pendingSkill::pendingSkills)) = assert_total
-    c
+    ?hole
 {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
    | (Existential arguments condition successBranch failureBranch cardId playerId, skillQueue) = ?hole
     

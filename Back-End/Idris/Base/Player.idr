@@ -38,10 +38,10 @@ initialRowTarget : Vect 3 (Fin 3)
 initialRowTarget = replicate 3 FZ
 -------------------------------------------------------------------------------
 initialKnowledge : Vect 6 (Bounded 0 9)
-initialKnowledge = replicate 6 (>> 0 <<)
+initialKnowledge = replicate 6 $ bind 0
 -------------------------------------------------------------------------------
 initialThoughts : Bounded 0 Preliminaries.absoluteUpperBound
-initialThoughts = >> 5 <<
+initialThoughts = bind 5
 -------------------------------------------------------------------------------
 emptyDiscard : List Card
 emptyDiscard = []

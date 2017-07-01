@@ -30,11 +30,48 @@ import Base.Card_list_syntax
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {-For now, I want to have a small list of simple cards that can be drawn for testing the beginning of the game-}
 
+-------------------------------------------------------------------------------
 axeman : MonsterFactory
-axeman = MkMonsterFactory (MkBasicMonsterFactory "Axeman" no_schools >> 50 << >> 30 << >> 0 << >> 2 << >> 1 << >> 3 << >> 2 <<) Nothing Nothing Nothing Nothing Nothing Nothing [] (done, 0, Vacuous)
 
+axeman =
+ MkMonsterFactory
+ (MkBasicMonsterFactory "Axeman" ?hole {-no_schools-} (bind 50) (bind 30) (bind 0) (bind 2) (bind 1) (bind 3) (bind 2))
+  Nothing
+  Nothing
+  Nothing
+  Nothing
+  Nothing
+  Nothing
+  []
+  (done, 0, Vacuous)
+-------------------------------------------------------------------------------
 
 {-
 monsterList : List MonsterFactory
@@ -116,7 +153,9 @@ ttt = select x in enemy board where not dead x then { hp x := 0 } ;
 
 testMonsterList : List MonsterFactory
 testMonsterList = [
-  "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
+ 
+ {-
+ "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
   "Rogue Assassin" <- no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
                       action : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
                       soul : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous),
@@ -128,7 +167,11 @@ testMonsterList = [
    "Treant Watchman" <- earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
                         counter : (done, 0, Vacuous) {- have to code this still -}
                         soul : (done, 0, Vacuous) {- have to code this still -}   -}
+
+-}
 ]
+
+
 {-
 monsterList : List MonsterFactory
 monsterList = [
@@ -212,3 +255,22 @@ monsterList = [
 
 
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

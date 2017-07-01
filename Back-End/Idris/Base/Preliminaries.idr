@@ -24,9 +24,9 @@ absoluteUpperBound = 1000
 
 
 maxSchool : Bounded 0 9
-maxSchool = >> 9 <<
+maxSchool = bind 9
 maxSchools : Vect 6 (Bounded 0 9)
-maxSchools = [maxSchool,maxSchool,maxSchool,maxSchool,maxSchool,maxSchool]
+maxSchools = replicate 6 maxSchool
 temporaryPermanentBase : Type -> Type
 temporaryPermanentBase t = (t,t,t)
 
