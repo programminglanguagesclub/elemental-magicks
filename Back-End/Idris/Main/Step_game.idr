@@ -4,6 +4,7 @@ import Data.Vect
 import Base.Preliminaries
 import Base.Phase
 import Base.Skill_dsl_data
+import Base.Card
 import Base.Player
 import Main.Game
 import Base.Clientupdates
@@ -179,7 +180,8 @@ mutual
      
   stepGame (g,acc) with (skillHead g, skillQueue g)
    | (TerminatedSkill, []) = assert_total $ stepGameNoSkills (getInitiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
-   | (TerminatedSkill, (pendingSkill::pendingSkills)) = assert_total ?hole
+   | (TerminatedSkill, (pendingSkill::pendingSkills)) = assert_total
+    c
 {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
    | (Existential arguments condition successBranch failureBranch cardId playerId, skillQueue) = ?hole
     

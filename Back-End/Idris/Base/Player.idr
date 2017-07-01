@@ -305,16 +305,26 @@ realCancelMinus fin n = ?hole
 myFindJust1 : Fin n -> Vect n (Maybe a) -> Maybe (Fin n)
 myFindJust1 {n=n} fin vect = rewrite realCancelMinus fin n {smaller = indexLTECardinality n fin} in (myFindJust2 (split fin vect))
 
-
+-------------------------------------------------------------------------------
 {- written by the mighty Melvar -}
 findIndexFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
 findIndexFrom p FZ xs = findIndex p xs
 findIndexFrom p (FS k) (x :: xs) = FS <$> findIndexFrom p k xs
-
+-------------------------------------------------------------------------------
 {- written by the mighty Melvar -}
-findIndexPreferentiallyFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
-findIndexPreferentiallyFrom p FZ xs =  findIndex p xs
-findIndexPreferentiallyFrom p (FS k) (x :: xs) = if p x then FS <$> findIndexFrom p k xs <|> Just FZ else FS <$> findIndexPreferentiallyFrom p k xs
+findIndexPreferentiallyFrom :
+ (a -> Bool) ->
+ Fin n ->
+ Vect n a ->
+ Maybe (Fin n)
+
+findIndexPreferentiallyFrom p FZ xs = findIndex p xs
+findIndexPreferentiallyFrom p (FS k) (x :: xs) =
+ if p x
+  then
+   FS <$> findIndexFrom p k xs <|> Just FZ
+  else
+   FS <$> findIndexPreferentiallyFrom p k xs
 -------------------------------------------------------------------------------
 actualAlive : Maybe Monster -> Bool
 

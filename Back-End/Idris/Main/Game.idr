@@ -221,7 +221,7 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
      Nothing => ([damagedCardUpdate], game')
      Just skill =>
       --let game'' = transformDefender (setCanUseDeathSkill False) game' in
-      let game'' = pushSkill whichPlayer skill game' in
+      let game'' = pushSkill skill game' in
       -- Because the death skill might not activate (its conditions are checked before it is loaded onto the skill head)
       -- we cannot actually do setCanUseDeathSkill False yet.
       -- do I want to remove death skills from the queue if the unit is healed to hp > 0?
@@ -231,7 +231,7 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
      Nothing => ([damagedCardUpdate], ?hole)
      Just skill =>
       --let game'' = transformDefender (setCanUseCounterSkill False) game' in
-      let game'' = pushSkill whichPlayer skill game' in
+      let game'' = pushSkill skill game' in
       ([damagedCardUpdate], game'')
 
   {- if hp > 0, and has counter skill, then see if counter skill has been used. otherwise same with death skill. -}
@@ -244,7 +244,8 @@ applyAttack :
  Bounded 0 Preliminaries.absoluteUpperBound ->
  Fin 3 ->
  Player ->
- (List ClientUpdate, Player)
+ List Skill ->
+(List ClientUpdate, Player, List Skill)
 
 applyAttack atk row defendingPlayer = ?hole
 
