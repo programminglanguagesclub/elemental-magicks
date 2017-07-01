@@ -49,7 +49,7 @@ instantiateSkill :
  Skill
 
 instantiateSkill cardId playerId (automatic,cost,condition) skillType =
- (instantiateAutomatic automatic cardId playerId,False,cost,condition, skillType)
+ (instantiateAutomatic automatic cardId playerId,Unused,cost,condition, skillType)
 -------------------------------------------------------------------------------
 record MonsterFactory where
  constructor MkMonsterFactory
@@ -127,11 +127,16 @@ getCanUseSkill :
  Monster ->
  Maybe Skill
 
+BLAARG
+
+
+{-
 getCanUseSkill accessor monster with (accessor monster)
  | Nothing = Nothing
- | Just (automatic, True, cost, condition) = Just (automatic, True, cost, condition)
- | Just (_,False,_,_) = Nothing
-
+ | Just (automatic, Used, cost, condition) = Just (automatic, True, cost, condition)
+ | Just (_,Unused,_,_) = Nothing
+ | Just (_,OnQueue,_,_) = Nothing
+ -}
 
 
 
