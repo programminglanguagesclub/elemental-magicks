@@ -229,13 +229,17 @@ balance :
  (v : valueType) ->
  (t1 : Tree keyType valueType) ->
  (t2 : Tree keyType valueType) ->
- {auto prf : Cases (Node c k v t1 t2)} ->
- --(prf : Cases (Node c k v t1 t2)) ->
+ --{auto prf : Cases (Node c k v t1 t2)} ->
+ (prf : Cases (Node c k v t1 t2)) ->
  Tree keyType valueType
 
-balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d _ {-(MkFirstCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ )-} = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 
+{-
 balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+-}
+
+
 {-
 balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) {} = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) {} = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
@@ -372,7 +376,7 @@ balance_bh :
  ColorHeight c n m ->
  HasBH l n ->
  HasBH r n ->
- HasBH (balance c key value l r) m
+ HasBH (balance c key value l r ?hole) m
 
 {-
 balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
@@ -380,11 +384,11 @@ balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_No
 -}
 
 
-
-balance_bh key value (Node Red _ _ _ (Node Red _ _ _ _)) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr 
- (MkSecondCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ) =
+{-
+balance_bh key value (Node Red _ _ _ (Node Red _ _ _ _)) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr =
+ --(MkSecondCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ) =
  HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
-
+-}
 
 
 
