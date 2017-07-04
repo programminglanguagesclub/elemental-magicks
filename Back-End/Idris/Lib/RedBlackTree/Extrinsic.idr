@@ -16,6 +16,50 @@ data Tree : (keyType : Type) -> (valueType : Type) -> Type where
  Empty : Tree keyType valueType
  Node : Color -> (key : keyType) -> (value : valueType) -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
 
+
+--data matchesFirstCase : Color -> keyType -> valueType -> Tree Type where
+
+
+data Foo : Color -> Type where
+ OnlyAllowRed : Foo Red
+
+
+
+bar : (c : Color) -> {auto x : Foo c} -> Foo c
+bar Red = OnlyAllowRed
+bar Black impossible
+
+
+ugh : Foo Red
+ugh = bar Red
+
+data FirstCase : Color -> Color -> Color -> Color -> Color-> Type where
+ MkFirstCase :
+  (c : Color) ->
+  (key : keyType) ->
+  (value : valueType) ->
+  (lc : Color) ->
+  (lkey : keyType) ->
+  (lvalue : valueType) ->
+  (ll : Tree keyType valueType) ->
+  (lr : Tree keyType valueType) ->
+  (rc : Color) ->
+  (rkey : keyType) ->
+  (rvalue : valueType) ->
+  (rl : Tree keyType valueType) ->
+  (rr : Tree keyType valueType) ->
+  FirstCase c lc
+
+ 
+
+{-
+ 1 -: Black (Red (Red a b) c) d       | color Black, lcolor Red, llcolor Red
+ 2 -: Black (Red a (Red b c)) d       | color Black, lcolor Red, lrcolor Red
+ 3 -: Black a (Red (Node Red b c) d)  | color Black, rcolor Red, rlcolor Red
+ 4 -: Black a (Red b (Red c d))       | color Black, rcolor Red, rrcolor Red
+ 5 -: c k v l r                       |
+-}
+
 balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
 balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
@@ -116,7 +160,7 @@ balance_bh :
  HasBH r n ->
  HasBH (balance c key value l r) m
 
-
+{-
 balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr =
  HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
 
@@ -226,7 +270,7 @@ balance_bh _ _ Empty Empty CH_Black hl hr =
 balance_bh _ _ _ _ CH_Red hl hr =
  HBH_Node hl CH_Red hr
 
-
+-}
 
 {-
 also all empty, etc.
