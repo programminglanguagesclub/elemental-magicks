@@ -33,8 +33,18 @@ bar Black impossible
 ugh : Foo Red
 ugh = bar Red
 
-data FirstCase : Color -> Color -> Color -> Color -> Color-> Type where
+data FirstCase : Tree keyType valueType -> Type where
  MkFirstCase :
+  (key : keyType) ->
+  (value : valueType) ->
+  (l : Tree keyType valueType) ->
+  (r : Tree keyType valueType) ->
+  FirstCase (Node Black key value l r)
+
+useTreeKnowBlack : (t : Tree keyType valueType) -> {auto x : FirstCase t} -> Nat
+useTreeKnowBlack (Node Black _ _ _ _) = 0
+
+{- MkFirstCase :
   (c : Color) ->
   (key : keyType) ->
   (value : valueType) ->
@@ -48,9 +58,14 @@ data FirstCase : Color -> Color -> Color -> Color -> Color-> Type where
   (rvalue : valueType) ->
   (rl : Tree keyType valueType) ->
   (rr : Tree keyType valueType) ->
-  FirstCase c lc
+  (rrc : Color) ->
+  (rlc : Color) ->
+  (llc : Color) ->
+  (lrc : Color) ->
+  
+  FirstCase ?hole
 
- 
+ -}
 
 {-
  1 -: Black (Red (Red a b) c) d       | color Black, lcolor Red, llcolor Red
