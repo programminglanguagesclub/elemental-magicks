@@ -233,12 +233,12 @@ balance :
  (prf : Cases (Node c k v t1 t2)) ->
  Tree keyType valueType
 
-balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d
- (MkFirstCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black zk zv (Node Red yk yv (Node Red xk xv a b) (Node lrc lrkey lrvalue lrl lrr)) (Node rc rkey rvalue (Node rlc rlkey rlvalue rll rlr) (Node rrc rrkey rrvalue rrl rrr))
+ (MkFirstCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv (Node lrc lrkey lrvalue lrl lrr) (Node rc rkey rvalue (Node rlc rlkey rlvalue rll rlr) (Node rrc rrkey rrvalue rrl rrr)))
 
-{-
-balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
--}
+balance Black zk zv (Node Red xk xv (Node Red llkey llvalue lll llr) (Node Red yk yv b c)) (Node rc rkey rvalue (Node rlc rlkey rlvalue rll rlr) (Node rrc rrkey rrvalue rrl rrr))
+ (MkFirstCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _) = Node Red yk yv (Node Black xk xv (Node Red llkey llvalue lll llr) b) (Node Black zk zv c (Node rc rkey rvalue (Node rlc rlkey rlvalue rll rlr) (Node rrc rrkey rrvalue rrl rrr)))
+
 
 
 {-
