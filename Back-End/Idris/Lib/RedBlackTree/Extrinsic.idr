@@ -90,6 +90,130 @@ data Cases : Tree keyType valueType -> Type where
       (Node rlc rlkey rlvalue rll rlr)
       (Node rrc rrkey rrvalue rrl rrr)))
 
+ MkSecondCase :
+  (key : keyType) ->
+  (value : valueType) ->
+  (lkey : keyType) ->
+  (lvalue : valueType) ->
+  (rc : Color) ->
+  (rkey : keyType) ->
+  (rvalue : valueType) ->
+  (rrr : Tree keyType valueType) ->
+  (rrl : Tree keyType valueType) ->
+  (rlr : Tree keyType valueType) ->
+  (rll : Tree keyType valueType) ->
+  (lrr : Tree keyType valueType) ->
+  (lrl : Tree keyType valueType) ->
+  (llr : Tree keyType valueType) ->
+  (lll : Tree keyType valueType) ->
+  (rrc : Color) ->
+  (rlc : Color) ->
+  (llc : Color) ->
+  (llkey : keyType) ->
+  (llvalue : valueType) ->
+  (rlkey : keyType) ->
+  (rlvalue : valueType) ->
+  (rrkey : keyType) ->
+  (rrvalue : valueType) ->
+  (lrkey : keyType) ->
+  (lrvalue : valueType) ->
+  Cases
+   (Node
+     Black
+     key
+     value
+     (Node Red lkey lvalue
+      (Node llc llkey llvalue lll llr)
+      (Node Red lrkey lrvalue lrl lrr))
+     (Node rc rkey rvalue
+      (Node rlc rlkey rlvalue rll rlr)
+      (Node rrc rrkey rrvalue rrl rrr)))
+
+ MkThirdCase :
+  (key : keyType) ->
+  (value : valueType) ->
+  (lkey : keyType) ->
+  (lvalue : valueType) ->
+  (lc : Color) ->
+  (rkey : keyType) ->
+  (rvalue : valueType) ->
+  (rrr : Tree keyType valueType) ->
+  (rrl : Tree keyType valueType) ->
+  (rlr : Tree keyType valueType) ->
+  (rll : Tree keyType valueType) ->
+  (lrr : Tree keyType valueType) ->
+  (lrl : Tree keyType valueType) ->
+  (llr : Tree keyType valueType) ->
+  (lll : Tree keyType valueType) ->
+  (llc : Color) ->
+  (lrc : Color) ->
+  (rrc : Color) ->
+  (llkey : keyType) ->
+  (llvalue : valueType) ->
+  (rlkey : keyType) ->
+  (rlvalue : valueType) ->
+  (rrkey : keyType) ->
+  (rrvalue : valueType) ->
+  (lrkey : keyType) ->
+  (lrvalue : valueType) ->
+  Cases
+   (Node
+     Black
+     key
+     value
+     (Node lc lkey lvalue
+      (Node llc llkey llvalue lll llr)
+      (Node lrc lrkey lrvalue lrl lrr))
+     (Node Red rkey rvalue
+      (Node Red rlkey rlvalue rll rlr)
+      (Node rrc rrkey rrvalue rrl rrr)))
+
+ MkFourthCase :
+  (key : keyType) ->
+  (value : valueType) ->
+  (lkey : keyType) ->
+  (lvalue : valueType) ->
+  (lc : Color) ->
+  (rkey : keyType) ->
+  (rvalue : valueType) ->
+  (rrr : Tree keyType valueType) ->
+  (rrl : Tree keyType valueType) ->
+  (rlr : Tree keyType valueType) ->
+  (rll : Tree keyType valueType) ->
+  (lrr : Tree keyType valueType) ->
+  (lrl : Tree keyType valueType) ->
+  (llr : Tree keyType valueType) ->
+  (lll : Tree keyType valueType) ->
+  (llc : Color) ->
+  (lrc : Color) ->
+  (rlc : Color) ->
+  (llkey : keyType) ->
+  (llvalue : valueType) ->
+  (rlkey : keyType) ->
+  (rlvalue : valueType) ->
+  (rrkey : keyType) ->
+  (rrvalue : valueType) ->
+  (lrkey : keyType) ->
+  (lrvalue : valueType) ->
+  Cases
+   (Node
+     Black
+     key
+     value
+     (Node lc lkey lvalue
+      (Node llc llkey llvalue lll llr)
+      (Node lrc lrkey lrvalue lrl lrr))
+     (Node Red rkey rvalue
+      (Node rlc rlkey rlvalue rll rlr)
+      (Node Red rrkey rrvalue rrl rrr)))
+
+ MkFifthCase :
+  (c : Color) ->
+  (k : keyType) ->
+  (v : valueType) ->
+  (l : Tree keyType valueType) ->
+  (r : Tree keyType valueType) ->
+  Cases (Node c k v l r)
 {-
  1 -: Black (Red (Red a b) c) d       | color Black, lcolor Red, llcolor Red
  2 -: Black (Red a (Red b c)) d       | color Black, lcolor Red, lrcolor Red
@@ -105,14 +229,16 @@ balance :
  (v : valueType) ->
  (t1 : Tree keyType valueType) ->
  (t2 : Tree keyType valueType) ->
- Cases (Node c k v t1 t2) ->
+-- {auto prf : Cases (Node c k v t1 t2)} ->
+ (prf : Cases (Node c k v t1 t2)) ->
  Tree keyType valueType
 
-balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d prf = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d _ = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+
+balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d _ = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 {-
-balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) {} = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) {} = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance c k v l r = Node c k v l r
 -}
 
@@ -138,7 +264,6 @@ insert k v t = blackenRoot (ins k v t)
 -------------------------------------------------------------------------------
 
 
-{- disabled for now...
 data ColorHeight : Color -> Nat -> Nat -> Type where
  CH_Red : ColorHeight Red n n
  CH_Black : ColorHeight Black n (S n)
@@ -152,7 +277,7 @@ data HasBH : Tree keyType valueType -> Nat -> Type where
   ------------
   HasBH (Node c k v l r) m
 
--}
+
 
 
 
@@ -239,12 +364,6 @@ blackenRoot_bh (Node Black k v l r) n h = (n **(    ))
 
 ------------------------------------------------------
 
-{-
-
- disabled for now!!
-
-
-
 balance_bh :
  (key : keyType) ->
  (value : valueType) ->
@@ -253,25 +372,19 @@ balance_bh :
  ColorHeight c n m ->
  HasBH l n ->
  HasBH r n ->
- HasBH (balance c key value l r) m
+ (prf : Cases (Node _ key value l r)) ->
+ HasBH (balance c key value l r prf) m
 
 
+balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _ ) _) _ CH_Black (HBH_Node (HBH_Node hlll CH_Red hllr) CH_Red hlr) hr 
 
+(MkFirstCase _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ) =
+ HBH_Node (HBH_Node hlll CH_Black hllr) CH_Red (HBH_Node hlr CH_Black hr)
 
+{-
+balance_bh key value (Node Red _ _ _ (Node Red _ _ _ _)) _ CH_Black (HBH_Node hll CH_Red (HBH_Node hlrl CH_Red hlrr)) hr prf =
+ HBH_Node (HBH_Node hll CH_Black hlrl) CH_Red (HBH_Node hlrr CH_Black hr)
 -}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
