@@ -33,6 +33,10 @@ bar Black impossible
 ugh : Foo Red
 ugh = bar Red
 
+
+{- 
+
+
 data FirstCase : Tree keyType valueType -> Type where
  MkFirstCase :
   (key : keyType) ->
@@ -44,7 +48,49 @@ data FirstCase : Tree keyType valueType -> Type where
 useTreeKnowBlack : (t : Tree keyType valueType) -> {auto x : FirstCase t} -> Nat
 useTreeKnowBlack (Node Black _ _ _ _) = 0
 
-{- MkFirstCase :
+-}
+
+data FirstCase : Tree keyType valueType -> Type where
+ MkFirstCase :
+  (key : keyType) ->
+  (value : valueType) ->
+  (lkey : keyType) ->
+  (lvalue : valueType) ->
+  (rc : Color) ->
+  (rkey : keyType) ->
+  (rvalue : valueType) ->
+  (rrr : Tree keyType valueType) ->
+  (rrl : Tree keyType valueType) ->
+  (rlr : Tree keyType valueType) ->
+  (rll : Tree keyType valueType) ->
+  (lrr : Tree keyType valueType) ->
+  (lrl : Tree keyType valueType) ->
+  (llr : Tree keyType valueType) ->
+  (lll : Tree keyType valueType) ->
+  (rrc : Color) ->
+  (rlc : Color) ->
+  (lrc : Color) ->
+  (llkey : keyType) ->
+  (llvalue : valueType) ->
+  (rlkey : keyType) ->
+  (rlvalue : valueType) ->
+  (rrkey : keyType) ->
+  (rrvalue : valueType) ->
+  (lrkey : keyType) ->
+  (lrvalue : valueType) ->
+  FirstCase
+   (Node
+     Black
+     key
+     value
+     (Node Red lkey lvalue
+      (Node Red llkey llvalue lll llr)
+      (Node lrc lrkey lrvalue lrl lrr))
+     (Node rc rkey rvalue
+      (Node rlc rlkey rlvalue rll rlr)
+      (Node rrc rrkey rrvalue rrl rrr)))
+{-
+ MkFirstCase :
   (c : Color) ->
   (key : keyType) ->
   (value : valueType) ->
@@ -62,10 +108,9 @@ useTreeKnowBlack (Node Black _ _ _ _) = 0
   (rlc : Color) ->
   (llc : Color) ->
   (lrc : Color) ->
-  
   FirstCase ?hole
 
- -}
+-}
 
 {-
  1 -: Black (Red (Red a b) c) d       | color Black, lcolor Red, llcolor Red
