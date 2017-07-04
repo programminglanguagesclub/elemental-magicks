@@ -210,14 +210,15 @@ balance c k v l r = Node c k v l r
 --balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
  CH_Black (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
- HBH_Node ?hole ?hole ?hole
+ HBH_Node (HBH_Node HBH_Empty CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _ )) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
-balance_bh_le _ _ (Node Red _ _ Empty (Node Red _ _ _ _)) CH_Black hr =
- assert_total ?hole
+balance_bh_le _ _ (Node Red _ _ Empty (Node Red _ _ _ _))
+ CH_Black (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
+ HBH_Node (HBH_Node HBH_Empty CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 balance_bh_le _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
 balance_bh_le _ _ (Node Red _ _ Empty Empty) CH_Black hr =
