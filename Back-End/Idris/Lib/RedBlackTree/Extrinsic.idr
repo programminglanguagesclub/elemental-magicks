@@ -173,7 +173,7 @@ balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (
 balance c k v l r = Node c k v l r
 
 -}
-
+-------------------------------------------------------------------------------
 balance_bh_le :
  (key : keyType) ->
  (value : valueType) ->
@@ -188,34 +188,11 @@ balance_bh_le _ _ (Node Black _ _ _ _) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
 balance_bh_le _ _ Empty CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
-
 balance_bh_le _ _ (Node Red _ _ (Node Red _ _ _ _) _) CH_Black (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
  HBH_Node (HBH_Node HBH_Empty CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
-
-{-
-balance_bh_le _ _ (Node Red _ _ (Node Red _ _ _ _) _) CH_Black (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
- HBH_Node (HBH_Node HBH_Empty CH_Black ?hole) CH_Red (HBH_Node hrll CH_Black ?hole)
-
- -- filling the hole with hrll automatically above causes the typechecking to fail when it was not before.
--}
-
-
-{-
-
-balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
-balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
-balance c k v l r = Node c k v l r
-
--}
-
---balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
  CH_Black (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
  HBH_Node (HBH_Node HBH_Empty CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
-
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
 balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _ )) CH_Black hr =
@@ -227,78 +204,42 @@ balance_bh_le _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
 balance_bh_le _ _ (Node Red _ _ Empty Empty) CH_Black hr =
  HBH_Node HBH_Empty CH_Black hr
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------------------------------------
 balance_bh_lb :
-  (key : keyType) ->
-  (value : valueType) ->
-  (ll : Tree keyType valueType) ->
-  (lr : Tree keyType valueType) ->
-  (lkey : keyType) ->
-  (lvalue : valueType) ->
-  (r : Tree keyType valueType) ->
-  ColorHeight c n m ->
-  HasBH (Node Black lkey lvalue ll lr) n ->
-  HasBH r n ->
-  HasBH (balance c key value (Node Black lkey lvalue ll lr) r) m
+ (key : keyType) ->
+ (value : valueType) ->
+ (ll : Tree keyType valueType) ->
+ (lr : Tree keyType valueType) ->
+ (lkey : keyType) ->
+ (lvalue : valueType) ->
+ (r : Tree keyType valueType) ->
+ ColorHeight c n m ->
+ HasBH (Node Black lkey lvalue ll lr) n ->
+ HasBH r n ->
+ HasBH (balance c key value (Node Black lkey lvalue ll lr) r) m
 
 balance_bh_lb _ _ ll lr _ _ r CH_Red hl hr =
- HBH_Node ?hole CH_Red hr
+ HBH_Node hl CH_Red hr
+
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv Empty CH_Black hl HBH_Empty =
+  HBH_Node hl CH_Black HBH_Empty
+ --HBH_Node (HBH_Node (Node Black lk lv (Node Black llk llv lll llr) lr)) CH_Black hr
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value Empty z) CH_Black hl hr = ?hole_3
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Red y w s t) z) CH_Black hl (HBH_Node y1 z1 w1) = HBH_Node (HBH_Node (HBH_Node x u x1) CH_Black ?hole_4)
+         CH_Red
+         (HBH_Node ?hole_7 CH_Black ?hole_8)
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) z) CH_Black hl hr = ?hole_2
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Black key value y z) CH_Black hl hr = HBH_Node hl CH_Black hr
+
 
 {-
- balance_bh_le _ _ (Node Black _ _ _ _) CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
  balance_bh_le _ _ Empty CH_Black hr =
   HBH_Node HBH_Empty CH_Black hr
 
  balance_bh_le _ _ (Node Red _ _ (Node Red _ _ _ _) _) CH_Black (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
   HBH_Node (HBH_Node HBH_Empty CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
 
- {-
- balance_bh_le _ _ (Node Red _ _ (Node Red _ _ _ _) _) CH_Black (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
-  HBH_Node (HBH_Node HBH_Empty CH_Black ?hole) CH_Red (HBH_Node hrll CH_Black ?hole)
 
-  -- filling the hole with hrll automatically above causes the typechecking to fail when it was not before.
- -}
-
-
- {-
 
  balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
  balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
@@ -307,7 +248,7 @@ balance_bh_lb _ _ ll lr _ _ r CH_Red hl hr =
  balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance c k v l r = Node c k v l r
 
- -}
+
 
  --balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
@@ -380,7 +321,7 @@ balance_bh _ _ (Node Red _ _ ll lr) r CH_Red hl hr =
 balance_bh k v Empty r c HBH_Empty hr = balance_bh_le k v r c hr
 
 balance_bh k v (Node Black lk lv ll lr) r c hl hr =
- assert_total (balance_bh_lb k v ll lr lk lv r c hl hr) 
+ assert_total (balance_bh_lb k v ll lr lk lv r c hl hr)
 
 {-
 
