@@ -351,15 +351,20 @@ balance_bh :
  HasBH r n ->
  HasBH (balance c key value l r) m
 
-balance_bh _ _ (Node Red _ _ ll lr) r CH_Black hl hr =
+balance_bh _ _ (Node Red _ _ Empty lr) r CH_Black hl hr =
  assert_total ?hole
+
+balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) lr) r CH_Black hl hr =
+ assert_total ?hole
+balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _) lr) r CH_Black hl hr =
+ HBH_Node ?hole ?hole ?hole
+
 balance_bh _ _ (Node Red _ _ ll lr) r CH_Red hl hr =
  HBH_Node hl CH_Red hr
 balance_bh k v Empty r c HBH_Empty hr = balance_bh_le k v r c hr
-balance_bh _ _ (Node Black _ _ ll lr) r c hl hr = assert_total ?hole
 
-
-
+balance_bh _ _ (Node Black _ _ ll lr) r c hl hr =
+ assert_total ?hole
 
 {-
 
