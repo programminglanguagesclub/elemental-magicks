@@ -251,27 +251,27 @@ balance_bh_lb k v Empty lr lk lv (Node Black key value y z) CH_Black hl hr = ?ho
 -}
 
 balance_bh_lb _ _ ll lr lkey lvalue r CH_Red hl hr =
- HBH_Node ?hole CH_Red hr
+ HBH_Node hl CH_Red hr
 balance_bh_lb _ _ ll lr lkey lvalue (Node Black _ _ _ _) CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 balance_bh_lb _ _ ll lr lkey lvalue Empty CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Red _ _ _ _) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
- HBH_Node (HBH_Node ?hole CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
+ HBH_Node (HBH_Node hl CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
  CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
- HBH_Node (HBH_Node ?hole CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
+ HBH_Node (HBH_Node hl CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _ )) CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty (Node Red _ _ _ _))
  CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
- HBH_Node (HBH_Node ?hole CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
+ HBH_Node (HBH_Node hl CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty Empty) CH_Black hl hr =
- HBH_Node ?hole CH_Black hr
+ HBH_Node hl CH_Black hr
 
 {-
  balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
