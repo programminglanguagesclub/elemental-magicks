@@ -357,7 +357,8 @@ balance_bh _ _ (Node Red _ _ Empty lr) r CH_Black hl hr =
 balance_bh _ _ (Node Red _ _ (Node Black _ _ _ _) lr) r CH_Black hl hr =
  assert_total ?hole
 balance_bh _ _ (Node Red _ _ (Node Red _ _ _ _) lr) r CH_Black hl hr =
- HBH_Node ?hole ?hole ?hole
+ assert_total ?hole
+ --HBH_Node ?hole CH_Black ?hole
 
 balance_bh _ _ (Node Red _ _ ll lr) r CH_Red hl hr =
  HBH_Node hl CH_Red hr
