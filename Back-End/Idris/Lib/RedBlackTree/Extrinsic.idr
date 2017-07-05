@@ -270,12 +270,14 @@ balance_bh_lb :
   (lvalue : valueType) ->
   (r : Tree keyType valueType) ->
   ColorHeight c n m ->
-  HasBH l n ->
+  HasBH (Node Black lkey lvalue ll lr) n ->
   HasBH r n ->
   HasBH (balance c key value (Node Black lkey lvalue ll lr) r) m
+
+balance_bh_lb _ _ ll lr _ _ r CH_Red hl hr =
+ HBH_Node ?hole CH_Red hr
+
 {-
- balance_bh_le _ _ r CH_Red hr =
-  HBH_Node HBH_Empty CH_Red hr
  balance_bh_le _ _ (Node Black _ _ _ _) CH_Black hr =
   HBH_Node HBH_Empty CH_Black hr
  balance_bh_le _ _ Empty CH_Black hr =
@@ -349,11 +351,26 @@ balance_bh :
  HasBH r n ->
  HasBH (balance c key value l r) m
 
-
-balance_bh _ _ (Node Red _ _ ll lr) r c hl hr = assert_total ?hole
+balance_bh _ _ (Node Red _ _ ll lr) r CH_Black hl hr =
+ assert_total ?hole
+balance_bh _ _ (Node Red _ _ ll lr) r CH_Red hl hr =
+ HBH_Node hl CH_Red hr
 balance_bh k v Empty r c HBH_Empty hr = balance_bh_le k v r c hr
 balance_bh _ _ (Node Black _ _ ll lr) r c hl hr = assert_total ?hole
 
+
+
+
+{-
+
+balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
+balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance c k v l r = Node c k v l r
+
+-}
 
 
 
