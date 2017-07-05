@@ -218,6 +218,20 @@ balance_bh_lb :
  HasBH r n ->
  HasBH (balance c key value (Node Black lkey lvalue ll lr) r) m
 
+
+-- ll lr lkey lvalue
+{-
+
+ (key : keyType) ->
+ (value : valueType) ->
+ (r : Tree keyType valueType) ->
+ ColorHeight c 1 m ->
+ HasBH r 1 ->
+ HasBH (balance c key value Empty r) m
+
+ -}
+
+{-
 balance_bh_lb _ _ ll lr _ _ r CH_Red hl hr =
  HBH_Node hl CH_Red hr
 
@@ -230,45 +244,42 @@ balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Nod
 balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) (Node Red z u x1 y1)) CH_Black hl hr = ?hole
 balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) (Node Black z u x1 y1)) CH_Black hl hr = HBH_Node hl CH_Black hr
 balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Black key value y z) CH_Black hl hr = HBH_Node hl CH_Black hr
+balance_bh_lb k v (Node Red key value x y) lr lk lv r CH_Black hl hr = ?balance_bh_lb_rhs_1
+balance_bh_lb k v Empty lr lk lv Empty CH_Black hl hr = ?hole_1
+balance_bh_lb k v Empty lr lk lv (Node Red key value y z) CH_Black hl hr = ?hole_4
+balance_bh_lb k v Empty lr lk lv (Node Black key value y z) CH_Black hl hr = ?hole_5
+-}
 
+balance_bh_lb _ _ ll lr lkey lvalue r CH_Red hl hr =
+ HBH_Node ?hole CH_Red hr
+balance_bh_lb _ _ ll lr lkey lvalue (Node Black _ _ _ _) CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
+balance_bh_lb _ _ ll lr lkey lvalue Empty CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Red _ _ _ _) _) CH_Black hl (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
+ HBH_Node (HBH_Node ?hole CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
+ CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
+ HBH_Node (HBH_Node ?hole CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _ )) CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty (Node Red _ _ _ _))
+ CH_Black hl (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
+ HBH_Node (HBH_Node ?hole CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
+balance_bh_lb _ _ ll lr lkey lvalue (Node Red _ _ Empty Empty) CH_Black hl hr =
+ HBH_Node ?hole CH_Black hr
 
 {-
- balance_bh_le _ _ Empty CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
-
- balance_bh_le _ _ (Node Red _ _ (Node Red _ _ _ _) _) CH_Black (HBH_Node (HBH_Node hrll CH_Red hrlr) CH_Red hrr) =
-  HBH_Node (HBH_Node HBH_Empty CH_Black hrll) CH_Red (HBH_Node hrlr CH_Black hrr)
-
-
-
  balance : Color -> keyType -> valueType -> Tree keyType valueType -> Tree keyType valueType -> Tree keyType valueType
  balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
  balance c k v l r = Node c k v l r
-
-
-
- --balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
- balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Red _ _ _ _ ))
-  CH_Black (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
-  HBH_Node (HBH_Node HBH_Empty CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
-
- balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) Empty) CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
- balance_bh_le _ _ (Node Red _ _ (Node Black _ _ _ _) (Node Black _ _ _ _ )) CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
- balance_bh_le _ _ (Node Red _ _ Empty (Node Red _ _ _ _))
-  CH_Black (HBH_Node hrl CH_Red (HBH_Node hrrl CH_Red hrrr)) =
-  HBH_Node (HBH_Node HBH_Empty CH_Black hrl) CH_Red (HBH_Node hrrl CH_Black hrrr)
- balance_bh_le _ _ (Node Red _ _ Empty (Node Black _ _ _ _)) CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
- balance_bh_le _ _ (Node Red _ _ Empty Empty) CH_Black hr =
-  HBH_Node HBH_Empty CH_Black hr
-
-
-
 
 -}
 
