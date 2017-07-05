@@ -225,10 +225,10 @@ balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv Empty CH_Black hl HBH_Em
   HBH_Node hl CH_Black HBH_Empty
  --HBH_Node (HBH_Node (Node Black lk lv (Node Black llk llv lll llr) lr)) CH_Black hr
 balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value Empty z) CH_Black hl hr = ?hole_3
-balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Red y w s t) z) CH_Black hl (HBH_Node y1 z1 w1) = HBH_Node (HBH_Node (HBH_Node x u x1) CH_Black ?hole_4)
-         CH_Red
-         (HBH_Node ?hole_7 CH_Black ?hole_8)
-balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) z) CH_Black hl hr = ?hole_2
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Red y w s t) z) CH_Black hl (HBH_Node y1 z1 w1) = ?hole
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) Empty) CH_Black hl hr = HBH_Node hl CH_Black hr
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) (Node Red z u x1 y1)) CH_Black hl hr = ?hole
+balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Red key value (Node Black y w s t) (Node Black z u x1 y1)) CH_Black hl hr = HBH_Node hl CH_Black hr
 balance_bh_lb k v (Node Black llk llv lll llr) lr lk lv (Node Black key value y z) CH_Black hl hr = HBH_Node hl CH_Black hr
 
 
