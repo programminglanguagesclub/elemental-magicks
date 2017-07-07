@@ -1,7 +1,0 @@
-package cards
-
-pkgs = base
-
-modules =
- Cards.Card_list
-
