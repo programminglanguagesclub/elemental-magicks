@@ -21,25 +21,23 @@ data SkillType
 -- only allow certain types of skills to be executed once per turn
 -- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
 -------------------------------------------------------------------------------
-SkillFactory : Type
-SkillFactory = (AutomaticFactory, Nat, Condition) --automatic, used, cost
+data Cost =
+ MkCost RInteger -- The compiler is probably currently expecting a natural number here. I will need to fix this.
+-------------------------------------------------------------------------------
+data SkillFactory
+ = MkSkillFactory AutomaticFactory Cost Condition
 -------------------------------------------------------------------------------
 data SkillUsedness
  = Unused
  | Used
- | OnQueue
+-- if a skill is put on the head, I need to purge the skill queue for copies of the skill.
+-- equivalently, I need to check against whether a skill is used before putting it on the head.
 -------------------------------------------------------------------------------
-Skill : Type
-Skill = (Automatic, SkillUsedness, Nat, Condition, SkillType)
+data Skill
+ = MkSkill Automatic Cost Condition SkillType
 -- important to have condition and cost here as well, not just in automatic,
 -- because I do not count a skill as having been triggered
 -- if it does not meet its cost or condition.
-
--- I do not want to count skills as having been played once this turn
--- therefore until they are actually loaded onto the skill head,
--- and I do not want to then load it onto the skill queue more than once
--- at a time (or I could have it execute more than once in a turn).
--- Thus I need a ternary type for skill being used.
 -------------------------------------------------------------------------------
 instantiateSkill :
  Nat ->
@@ -48,8 +46,8 @@ instantiateSkill :
  SkillType ->
  Skill
 
-instantiateSkill cardId playerId (automatic,cost,condition) skillType =
- (instantiateAutomatic automatic cardId playerId,Unused,cost,condition, skillType)
+instantiateSkill cardId playerId (MkSkillFactory automaticFactory cost condition) skillType =
+ MkSkill (instantiateAutomatic automaticFactory cardId playerId) cost condition skillType
 -------------------------------------------------------------------------------
 record MonsterFactory where
  constructor MkMonsterFactory
@@ -76,12 +74,12 @@ record Spell where
 record Monster where
  constructor MkMonster
  basic : BasicMonster
- startSkill : Maybe Skill
- endSkill : Maybe Skill
- counterSkill : Maybe Skill
+ startSkill : Maybe (Skill, SkillUsedness)
+ endSkill : Maybe (Skill, SkillUsedness)
+ counterSkill : Maybe (Skill, SkillUsedness)
  spawnSkill : Maybe Skill
- deathSkill : Maybe Skill
- autoSkill : Maybe Skill
+ deathSkill : Maybe (Skill, SkillUsedness)
+ autoSkill : Maybe (Skill, SkillUsedness)
  actionSkills : List Skill
  soulSkill : Skill
 -------------------------------------------------------------------------------
@@ -90,12 +88,12 @@ instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 instantiateMonster cardId playerId monsterFactory =
  MkMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
-  ((instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill))
-  ((instantiateSkill cardId playerId) <$> (endSkill monsterFactory) <*> (pure EndSkill))
-  ((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory) <*> (pure CounterSkill))
+  ?hole --((instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill))
+  ?hole --((instantiateSkill cardId playerId) <$> (endSkill monsterFactory) <*> (pure EndSkill))
+  ?hole --((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory) <*> (pure CounterSkill))
   ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory) <*> (pure SpawnSkill))
-  ((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory) <*> (pure DeathSkill))
-  ((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory) <*> (pure AutoSkill))
+  ?hole --((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory) <*> (pure DeathSkill))
+  ?hole --((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory) <*> (pure AutoSkill))
   ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory) <*> (pure ActionSkill))
   (instantiateSkill cardId playerId (soulSkill monsterFactory) SoulSkill)
 ------------------------------------------------------------------------------0
@@ -123,74 +121,62 @@ getLiving (Just m) with (aliveness (basic m))
  | DeadStale = False
 -------------------------------------------------------------------------------
 getCanUseSkill :
- (Monster -> Maybe Skill) ->
+ (Monster -> Maybe (Skill, SkillUsedness)) ->
  Monster ->
  Maybe Skill
 
-BLAARG
-
-
-{-
 getCanUseSkill accessor monster with (accessor monster)
  | Nothing = Nothing
- | Just (automatic, Used, cost, condition) = Just (automatic, True, cost, condition)
- | Just (_,Unused,_,_) = Nothing
- | Just (_,OnQueue,_,_) = Nothing
- -}
-
-
-
---(Automatic, Bool, Nat, Condition)
--- the used flag is not in a good place. 
-
+ | Just (skill,Used) = Just (skill)
+ | Just (_,Unused) = Nothing
 -------------------------------------------------------------------------------
 getCanUseDeathSkill : Monster -> Maybe Skill
-getCanUseDeathSkill = getCanUseSkill deathSkill
+getCanUseDeathSkill = ?hole --getCanUseSkill deathSkill
 -------------------------------------------------------------------------------
 getCanUseCounterSkill : Monster -> Maybe Skill
-getCanUseCounterSkill = getCanUseSkill counterSkill
+getCanUseCounterSkill = ?hole --getCanUseSkill counterSkill
 -------------------------------------------------------------------------------
 getCanUseAutoSkill : Monster -> Maybe Skill
-getCanUseAutoSkill = getCanUseSkill autoSkill
+getCanUseAutoSkill = ?hole --getCanUseSkill autoSkill
 -------------------------------------------------------------------------------
 getCanUseStartSkill : Monster -> Maybe Skill
-getCanUseStartSkill = getCanUseSkill startSkill
+getCanUseStartSkill = ?hole --getCanUseSkill startSkill
 -------------------------------------------------------------------------------
 getCanUseEndSkill : Monster -> Maybe Skill
-getCanUseEndSkill = getCanUseSkill endSkill
+getCanUseEndSkill = ?hole --getCanUseSkill endSkill
 -------------------------------------------------------------------------------
 getCanUseSpawnSkill : Monster -> Maybe Skill
-getCanUseSpawnSkill = getCanUseSkill spawnSkill
+getCanUseSpawnSkill = ?hole --getCanUseSkill spawnSkill
 -------------------------------------------------------------------------------
 setCanUseSkill :
- (Monster -> Maybe Skill) ->
+ (Monster -> Maybe (Skill, SkillUsedness)) ->
  Bool ->
  Monster ->
  Monster
 
 setCanUseSkill accessor value monster with (accessor monster)
  | Nothing = monster
- | Just (automatic, _, cost, condition) = ?hole -- set appropriately.
+ | Just (skill, usedness) = ?hole -- set appropriately.
 -------------------------------------------------------------------------------
 -- Want setters for specific skills now.
 -------------------------------------------------------------------------------
 setCanUseDeathSkill : Bool -> Monster -> Monster
-setCanUseDeathSkill = setCanUseSkill deathSkill
+setCanUseDeathSkill = ?hole --setCanUseSkill deathSkill
 -------------------------------------------------------------------------------
 setCanUseCounterSkill : Bool -> Monster -> Monster
-setCanUseCounterSkill = setCanUseSkill counterSkill
+setCanUseCounterSkill = ?hole --setCanUseSkill counterSkill
 -------------------------------------------------------------------------------
 setCanUseAutoSkill : Bool -> Monster -> Monster
-setCanUseAutoSkill = setCanUseSkill autoSkill
+setCanUseAutoSkill = ?hole --setCanUseSkill autoSkill
 -------------------------------------------------------------------------------
 setCanUseStartSkill : Bool -> Monster -> Monster
-setCanUseStartSkill = setCanUseSkill startSkill
+setCanUseStartSkill = ?hole --setCanUseSkill startSkill
 -------------------------------------------------------------------------------
 setCanUseEndSkill : Bool -> Monster -> Monster
-setCanUseEndSkill = setCanUseSkill endSkill
+setCanUseEndSkill = ?hole --setCanUseSkill endSkill
 -------------------------------------------------------------------------------
 setCanUseSpawnSkill : Bool -> Monster -> Monster
-setCanUseSpawnSkill = setCanUseSkill spawnSkill
+setCanUseSpawnSkill = ?hole --setCanUseSkill spawnSkill
 -------------------------------------------------------------------------------
 
 
