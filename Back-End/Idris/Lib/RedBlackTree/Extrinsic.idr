@@ -43,6 +43,15 @@ balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (
 balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
 balance c k v l r = Node c k v l r
 
+-------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------------
+
+
+
+
 {- DISABLED FOR NOW?
 ins : keyType -> Ord keyType => valueType -> Tree keyType valueType -> Tree keyType valueType
 ins k v Empty = Node Red k v Empty Empty
@@ -174,6 +183,9 @@ balance c k v l r = Node c k v l r
 
 -}
 -------------------------------------------------------------------------------
+
+
+
 balance_bh_le :
  (key : keyType) ->
  (value : valueType) ->
@@ -677,4 +689,39 @@ testTree = Empty
 
 foo : HasBH Empty 1
 foo = HBH_Empty
+-}
+
+
+
+
+balance' :
+  Color ->
+  keyType ->
+  valueType ->
+  (l : Tree keyType valueType) ->
+  (r : Tree keyType valueType) ->
+
+  (x : Tree keyType valueType ** ((HasBH l n) -> (HasBH r n) -> (m ** HasBH x m)))
+  --((HasBH l n) -> (HasBH r n) -> (m ** HasBH x m))
+
+
+balance' Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d =
+  ((Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d))** ?hole)
+balance' Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d =
+  ((Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d))** ?hole)
+balance' Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) =
+  ((Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d))** ?hole)
+balance' Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) =
+  ((Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d))** ?hole)
+balance' c k v l r =
+  ((Node c k v l r)** ?hole)
+
+--  (\hbhl, hbhr => HBH_Node hbhl (case c of Red => CH_Red | Black => CH_Black) hbhr))
+
+{-
+balance Black zk zv (Node Red yk yv (Node Red xk xv a b) c) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black zk zv (Node Red xk xv a (Node Red yk yv b c)) d = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red zk zv (Node Red yk yv b c) d) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance Black xk xv a (Node Red yk yv b (Node Red zk zv c d)) = Node Red yk yv (Node Black xk xv a b) (Node Black zk zv c d)
+balance c k v l r = Node c k v l r
 -}
