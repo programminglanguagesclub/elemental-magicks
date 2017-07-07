@@ -60,7 +60,7 @@ import Base.Card_list_syntax
 -------------------------------------------------------------------------------
 axeman : MonsterFactory
 
-axeman =
+axeman = ?hole {-
  MkMonsterFactory
  (MkBasicMonsterFactory "Axeman" ?hole {-no_schools-} (bind 50) (bind 30) (bind 0) (bind 2) (bind 1) (bind 3) (bind 2))
   Nothing
@@ -71,6 +71,8 @@ axeman =
   Nothing
   []
   (done, 0, Vacuous)
+
+-}
 -------------------------------------------------------------------------------
 
 {-

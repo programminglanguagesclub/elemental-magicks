@@ -12,6 +12,13 @@
 
 char * buf;
 
+// JIM SAYS I can do this with Unix sockets, which might be faster.
+
+
+
+
+
+
 char * readerHelper(int size){
   int fd;
   //Where to store the pipe according to library
