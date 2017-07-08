@@ -99,11 +99,10 @@ skillTypeField AutoSkill = Maybe (Skill, SkillUsedness)
 initializeSkillUsedness :
  Maybe Skill ->
  (s : SkillType) ->
- skillTypeField s ->
  skillTypeField s
 
-initializeSkillUsedness skill _ (Maybe (Skill, SkillUsedness)) = MkPair <$> skill <*> (pure Unused)
-initializeSkillUsedness skill _ (Maybe Skill) = ?hole
+initializeSkillUsedness skill StartSkill = MkPair <$> skill <*> (pure Unused)
+initializeSkillUsedness skill EndSkill = ?hole
 
 
 -------------------------------------------------------------------------------
