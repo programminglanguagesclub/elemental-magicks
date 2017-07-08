@@ -86,16 +86,37 @@ record Monster where
  actionSkills : List Skill
  soulSkill : Skill
 -------------------------------------------------------------------------------
-initializeSkillUsedness : Maybe Skill -> Maybe (Skill, SkillUsedness)
-initializeSkillUsedness skill = MkPair <$> skill <*> (pure Unused)
+skillTypeField : SkillType -> Type
+skillTypeField StartSkill = Maybe (Skill, SkillUsedness)
+skillTypeField EndSkill = Maybe (Skill, SkillUsedness)
+skillTypeField CounterSkill = Maybe (Skill, SkillUsedness)
+skillTypeField SpawnSkill = Maybe Skill
+skillTypeField DeathSkill = Maybe (Skill, SkillUsedness)
+skillTypeField AutoSkill = Maybe (Skill, SkillUsedness)
+
+-- action? soul?
+-------------------------------------------------------------------------------
+initializeSkillUsedness :
+ Maybe Skill ->
+ (s : SkillType) ->
+ skillTypeField s ->
+ skillTypeField s
+
+initializeSkillUsedness skill _ (Maybe (Skill, SkillUsedness)) = MkPair <$> skill <*> (pure Unused)
+initializeSkillUsedness skill _ (Maybe Skill) = ?hole
+
+
 -------------------------------------------------------------------------------
 instantiateSpecificSkill :
  Nat ->
  String ->
  MonsterFactory ->
- (MonsterFactory -> a) ->
- a
-
+ (s : SkillType) ->
+ (MonsterFactory -> skillTypeField s) ->
+ skillTypeField s
+ 
+instantiateSpecificSkill cardId playerId monsterFactory skillType accessor =
+ initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (accessor monsterFactory) <*> (pure skillType)
 
 -------------------------------------------------------------------------------
 instantiateStartSkill : Nat -> String -> MonsterFactory -> Maybe (Skill, SkillUsedness)
