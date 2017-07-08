@@ -92,20 +92,74 @@ initializeSkillUsedness skill = MkPair <$> skill <*> (pure Unused)
 getFactoryAccessor : SkillType -> (MonsterFactory -> Maybe SkillFactory)
 -------------------------------------------------------------------------------
 instantiateSpecificSkill :
+ SkillType ->
  Nat ->
  String ->
  MonsterFactory ->
- SkillType ->
  Maybe (Skill, SkillUsedness)
  
-instantiateSpecificSkill cardId playerId monsterFactory skillType =
+instantiateSpecificSkill skillType cardId playerId monsterFactory =
  let accessor = getFactoryAccessor skillType in
  initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (accessor monsterFactory) <*> (pure skillType)
 
 -------------------------------------------------------------------------------
-instantiateStartSkill : Nat -> String -> MonsterFactory -> Maybe (Skill, SkillUsedness)
-instantiateStartSkill cardId playerId monsterFactory = 
- initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill)
+instantiateStartSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe (Skill, SkillUsedness)
+
+instantiateStartSkill = instantiateSpecificSkill StartSkill
+-------------------------------------------------------------------------------
+instantiateEndSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe (Skill, SkillUsedness)
+
+instantiateEndSkill = instantiateSpecificSkill EndSkill
+-------------------------------------------------------------------------------
+instantiateCounterSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe (Skill, SkillUsedness)
+
+instantiateCounterSkill = instantiateSpecificSkill CounterSkill
+-------------------------------------------------------------------------------
+instantiateSpawnSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe Skill
+-------------------------------------------------------------------------------
+instantiateDeathSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe (Skill, SkillUsedness)
+
+instantiateDeathSkill = instantiateSpecificSkill DeathSkill
+-------------------------------------------------------------------------------
+instantiateAutoSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Maybe (Skill, SkillUsedness)
+
+instantiateAutoSkill = instantiateSpecificSkill AutoSkill
+-------------------------------------------------------------------------------
+instantiateActionSkills :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ List Skill
+-------------------------------------------------------------------------------
+instantiateSoulSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ Skill
 -------------------------------------------------------------------------------
 instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 
