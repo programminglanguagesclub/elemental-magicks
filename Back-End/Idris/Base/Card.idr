@@ -21,6 +21,9 @@ data SkillType
 -- only allow certain types of skills to be executed once per turn
 -- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
 -------------------------------------------------------------------------------
+data CardId
+ = MkCardId (Fin 60) --? -- unused for now...
+-------------------------------------------------------------------------------
 data Cost =
  MkCost RInteger -- The compiler is probably currently expecting a natural number here. I will need to fix this.
 -------------------------------------------------------------------------------
@@ -34,7 +37,7 @@ data SkillUsedness
 -- equivalently, I need to check against whether a skill is used before putting it on the head.
 -------------------------------------------------------------------------------
 data Skill
- = MkSkill Automatic Cost Condition SkillType
+ = MkSkill Automatic Cost Condition SkillType -- automatic has cardId
 -- important to have condition and cost here as well, not just in automatic,
 -- because I do not count a skill as having been triggered
 -- if it does not meet its cost or condition.
@@ -83,12 +86,28 @@ record Monster where
  actionSkills : List Skill
  soulSkill : Skill
 -------------------------------------------------------------------------------
+initializeSkillUsedness : Maybe Skill -> Maybe (Skill, SkillUsedness)
+initializeSkillUsedness skill = MkPair <$> skill <*> (pure Unused)
+-------------------------------------------------------------------------------
+instantiateSpecificSkill :
+ Nat ->
+ String ->
+ MonsterFactory ->
+ (MonsterFactory -> a) ->
+ a
+
+
+-------------------------------------------------------------------------------
+instantiateStartSkill : Nat -> String -> MonsterFactory -> Maybe (Skill, SkillUsedness)
+instantiateStartSkill cardId playerId monsterFactory = 
+ initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill)
+-------------------------------------------------------------------------------
 instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 
 instantiateMonster cardId playerId monsterFactory =
  MkMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
-  ?hole --((instantiateSkill cardId playerId) <$> (startSkill monsterFactory) <*> (pure StartSkill))
+  (instantiateStartSkill cardId playerId monsterFactory)
   ?hole --((instantiateSkill cardId playerId) <$> (endSkill monsterFactory) <*> (pure EndSkill))
   ?hole --((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory) <*> (pure CounterSkill))
   ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory) <*> (pure SpawnSkill))
