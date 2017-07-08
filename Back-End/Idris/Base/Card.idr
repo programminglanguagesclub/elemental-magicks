@@ -167,13 +167,13 @@ instantiateMonster cardId playerId monsterFactory =
  MkMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
   (instantiateStartSkill cardId playerId monsterFactory)
-  ?hole --((instantiateSkill cardId playerId) <$> (endSkill monsterFactory) <*> (pure EndSkill))
-  ?hole --((instantiateSkill cardId playerId) <$> (counterSkill monsterFactory) <*> (pure CounterSkill))
-  ((instantiateSkill cardId playerId) <$> (spawnSkill monsterFactory) <*> (pure SpawnSkill))
-  ?hole --((instantiateSkill cardId playerId) <$> (deathSkill monsterFactory) <*> (pure DeathSkill))
-  ?hole --((instantiateSkill cardId playerId) <$> (autoSkill monsterFactory) <*> (pure AutoSkill))
-  ((instantiateSkill cardId playerId) <$> (actionSkills monsterFactory) <*> (pure ActionSkill))
-  (instantiateSkill cardId playerId (soulSkill monsterFactory) SoulSkill)
+  (instantiateEndSkill cardId playerId monsterFactory)
+  (instantiateCounterSkill cardId playerId monsterFactory)
+  (instantiateSpawnSkill cardId playerId monsterFactory)
+  (instantiateDeathSkill cardId playerId monsterFactory)
+  (instantiateAutoSkill cardId playerId monsterFactory)
+  (instantiateActionSkills cardId playerId monsterFactory)
+  (instantiateSoulSkill cardId playerId monsterFactory)
 ------------------------------------------------------------------------------0
 instantiateSpell : Nat -> String -> SpellFactory -> Spell
 
