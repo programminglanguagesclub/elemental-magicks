@@ -154,12 +154,18 @@ instantiateActionSkills :
  String ->
  MonsterFactory ->
  List Skill
+
+instantiateActionSkills cardId playerId monsterFactory =
+ instantiateSkill cardId playerId (actionSkills monsterFactory) ActionSkill
 -------------------------------------------------------------------------------
 instantiateSoulSkill :
  Nat ->
  String ->
  MonsterFactory ->
  Skill
+
+instantiateSoulSkill cardId playerId monsterFactory =
+ (instantiateSkill cardId playerId) (soulSkill monsterFactory) SoulSkill
 -------------------------------------------------------------------------------
 instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 
