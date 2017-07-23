@@ -34,61 +34,101 @@ Find the Levenshtein edit distance between two strings. That is to say, the numb
 
 
 
-
-data File = File SurfaceData [Unit] [Spell]
-          deriving Show
-data Unit = Unit SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe SpawnUnit) (Maybe Death) (Maybe Auto) [Action] Soul
-          deriving Show
-data Spell = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
-           deriving Show
-data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
-           deriving Show
-data Start = Start SurfaceData Skill
-           deriving Show
-data End = End SurfaceData Skill
-         deriving Show
-data Counter = Counter SurfaceData Skill
-             deriving Show
-data SpawnUnit = SpawnUnit SurfaceData Skill
-               deriving Show
-data Death = Death SurfaceData Skill
-           deriving Show
-data Auto = Auto SurfaceData Skill
-          deriving Show
-data Action = Action SurfaceData Skill
-            deriving Show
-data Soul = Soul SurfaceData Skill
-          deriving Show
-
-data RInt = RConstant SurfaceData Int
-          | RThoughts SurfaceData ParseTree.Side
-          | RKnowledge SurfaceData Knowledge ParseTree.Side
-          | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
-          | RVarProjection SurfaceData RStat Variable
-          | RSum SurfaceData RInt RInt
-          | RDifference SurfaceData RInt RInt
-          | RProduct SurfaceData RInt RInt
-          | RQuotient SurfaceData RInt RInt
-          | RMod SurfaceData RInt RInt
-          deriving Show
-data RBool = RAlways SurfaceData
-           | RGT SurfaceData RInt RInt
-           | RGEQ SurfaceData RInt RInt
-           | RLT SurfaceData RInt RInt
-           | RLEQ SurfaceData RInt RInt
-           | REQ SurfaceData RInt RInt
-           | RAnd SurfaceData RBool RBool
-           | ROr SurfaceData RBool RBool
-           | RNot SurfaceData RBool
-           deriving Show
-data Knowledge = Earth SurfaceData
-               | Fire SurfaceData
-               | Water SurfaceData
-               | Air SurfaceData
-               | Spirit SurfaceData
-               | Void SurfaceData
-               deriving Show
-
+-------------------------------------------------------------------------------
+data File
+ = File SurfaceData [Unit] [Spell]
+ deriving Show
+-------------------------------------------------------------------------------
+data Unit 
+ = Unit
+    SurfaceData
+    String
+    Stats
+    (Maybe Start)
+    (Maybe End)
+    (Maybe Counter)
+    (Maybe SpawnUnit)
+    (Maybe Death)
+    (Maybe Auto)
+    [Action]
+    Soul
+ deriving Show
+-------------------------------------------------------------------------------
+data Spell
+ = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
+ deriving Show
+-------------------------------------------------------------------------------
+data Skill
+ = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic
+{-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
+ deriving Show
+-------------------------------------------------------------------------------
+data Start
+ = Start SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data End
+ = End SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data Counter
+ = Counter SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data SpawnUnit
+ = SpawnUnit SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data Death
+ = Death SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data Auto
+ = Auto SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data Action
+ = Action SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data Soul
+ = Soul SurfaceData Skill
+ deriving Show
+-------------------------------------------------------------------------------
+data RInt
+ = RConstant SurfaceData Int
+ | RThoughts SurfaceData ParseTree.Side
+ | RKnowledge SurfaceData Knowledge ParseTree.Side
+ | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
+ | RVarProjection SurfaceData RStat Variable
+ | RSum SurfaceData RInt RInt
+ | RDifference SurfaceData RInt RInt
+ | RProduct SurfaceData RInt RInt
+ | RQuotient SurfaceData RInt RInt
+ | RMod SurfaceData RInt RInt
+ deriving Show
+-------------------------------------------------------------------------------
+data RBool
+ = RAlways SurfaceData
+ | RGT SurfaceData RInt RInt
+ | RGEQ SurfaceData RInt RInt
+ | RLT SurfaceData RInt RInt
+ | RLEQ SurfaceData RInt RInt
+ | REQ SurfaceData RInt RInt
+ | RAnd SurfaceData RBool RBool
+ | ROr SurfaceData RBool RBool
+ | RNot SurfaceData RBool
+ deriving Show
+-------------------------------------------------------------------------------
+data Knowledge
+ = Earth SurfaceData
+ | Fire SurfaceData
+ | Water SurfaceData
+ | Air SurfaceData
+ | Spirit SurfaceData
+ | Void SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
 instance Eq Knowledge where
  Earth _ == Earth _ = True
  Fire _ == Fire _ = True
@@ -97,9 +137,7 @@ instance Eq Knowledge where
  Spirit _ == Spirit _ = True
  Void _ == Void _ = True
  _ == _ = False
-
-
-
+-------------------------------------------------------------------------------
 
 
 {-
@@ -112,113 +150,148 @@ data Assignment = Assignment SurfaceData [LExpr] Mutator RInt
 
 
 
-
-
 from parser:
 data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
                  deriving Show
 -}
 
+-------------------------------------------------------------------------------
+typeCheckSkillEffect ::
+ Context ->
+ ParseTree.SkillEffect ->
+ TC SkillEffect
 
-typeCheckSkillEffect :: Context -> ParseTree.SkillEffect -> TC SkillEffect
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
   ParseTree.Assignment surfaceData lExprs mutator rExpr ->
    SkillEffectAssignment surfaceData
    <$> typeCheckAssignment context surfaceData lExprs mutator rExpr
+-------------------------------------------------------------------------------
+typeCheckAssignment ::
+ Context ->
+ Lexer.SurfaceData ->
+ [ParseTree.Expr] ->
+ ParseTree.Mutator ->
+ ParseTree.Expr ->
+ TC Assignment
 
-
-typeCheckAssignment :: Context -> Lexer.SurfaceData -> [ParseTree.Expr] -> ParseTree.Mutator -> ParseTree.Expr -> TC Assignment
 typeCheckAssignment context surfaceData lExprs mutator rExpr =
  Assignment surfaceData
  <$> traverse (typeCheckLInt context) lExprs
  <*> pure mutator
  <*> typeCheckRInt context rExpr
-
-
-
-
-
-
-data Automatic = Automatic SurfaceData [SkillEffect] Nonautomatic
-               deriving Show
-data Nonautomatic = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
-                  deriving Show
-data Stats = Stats SurfaceData Schools BaseLevel BaseHp BaseAttack BaseDefense BaseSpeed BaseRange BaseSoulPoints
-           deriving Show
-data Schools = NoSchools
-             | EarthMono SurfaceData
-             | FireMono SurfaceData
-             | WaterMono SurfaceData
-             | AirMono SurfaceData
-             | SpiritMono SurfaceData
-             | VoidMono SurfaceData
-             | EarthFire SurfaceData
-             | EarthWater SurfaceData
-             | EarthAir SurfaceData
-             | EarthSpirit SurfaceData
-             | EarthVoid SurfaceData
-             | FireWater SurfaceData
-             | FireAir SurfaceData
-             | FireSpirit SurfaceData
-             | FireVoid SurfaceData
-             | WaterAir SurfaceData
-             | WaterSpirit SurfaceData
-             | WaterVoid SurfaceData
-             | AirSpirit SurfaceData
-             | AirVoid SurfaceData
-             | SpiritVoid SurfaceData
-             deriving Show
-
-
-data BaseLevel = BaseLevel SurfaceData Int
-               deriving Show
-data BaseHp = BaseHp SurfaceData Int
-            deriving Show
-data BaseAttack = BaseAttack SurfaceData Int
-                deriving Show
-data BaseDefense = BaseDefense SurfaceData Int
-                 deriving Show
-data BaseSpeed = BaseSpeed SurfaceData Int
-               deriving Show
-data BaseRange = BaseRange SurfaceData Int
-               deriving Show
-data BaseSoulPoints = BaseSoulPoints SurfaceData Int
-                    deriving Show
-
+-------------------------------------------------------------------------------
+data Automatic
+ = Automatic SurfaceData [SkillEffect] Nonautomatic
+ deriving Show
+-------------------------------------------------------------------------------
+data Nonautomatic
+ = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
+ deriving Show
+-------------------------------------------------------------------------------
+data Stats
+ = Stats
+    SurfaceData
+    Schools
+    BaseLevel
+    BaseHp
+    BaseAttack
+    BaseDefense
+    BaseSpeed
+    BaseRange
+    BaseSoulPoints
+ deriving Show
+-------------------------------------------------------------------------------
+data Schools
+ = NoSchools
+ | EarthMono SurfaceData
+ | FireMono SurfaceData
+ | WaterMono SurfaceData
+ | AirMono SurfaceData
+ | SpiritMono SurfaceData
+ | VoidMono SurfaceData
+ | EarthFire SurfaceData
+ | EarthWater SurfaceData
+ | EarthAir SurfaceData
+ | EarthSpirit SurfaceData
+ | EarthVoid SurfaceData
+ | FireWater SurfaceData
+ | FireAir SurfaceData
+ | FireSpirit SurfaceData
+ | FireVoid SurfaceData
+ | WaterAir SurfaceData
+ | WaterSpirit SurfaceData
+ | WaterVoid SurfaceData
+ | AirSpirit SurfaceData
+ | AirVoid SurfaceData
+ | SpiritVoid SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseLevel
+ = BaseLevel SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseHp
+ = BaseHp SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseAttack
+ = BaseAttack SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseDefense
+ = BaseDefense SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseSpeed
+ = BaseSpeed SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseRange
+ = BaseRange SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
+data BaseSoulPoints
+ = BaseSoulPoints SurfaceData Int
+ deriving Show
+-------------------------------------------------------------------------------
 
 {- bad -}
 data Judgment = Judgment (Variable,ParseTree.Set)
                deriving Show
-
+-------------------------------------------------------------------------------
 
 mkJudgment (string, set) =
  Judgment (Variable (Lexer.SurfaceData 0 0 "DUMMY") string, set)
+-------------------------------------------------------------------------------
+data Variable
+ = Variable SurfaceData String {-String of length 1-}
+ deriving Show
+-------------------------------------------------------------------------------
+data Context
+ = EmptyContext
+ | ExtendContext Context Judgment
+ deriving Show
+-------------------------------------------------------------------------------
+varIn ::
+ Variable ->
+ Context ->
+ Bool
 
-data Variable = Variable SurfaceData String {-String of length 1-}
-              deriving Show
-data Context = EmptyContext
-             | ExtendContext Context Judgment
-             deriving Show
-
-
-
-
-
-varIn :: Variable -> Context -> Bool
 varIn var context =
  case context of
   EmptyContext -> False
   ExtendContext context' judgment ->
    (varMatches var var') || (varIn var context')
+   
    where Judgment (var', _) = judgment
-
+-------------------------------------------------------------------------------
 varMatches :: Variable -> Variable -> Bool
-varMatches var1 var2 =
- varName1 == varName2
+varMatches var1 var2 = varName1 == varName2
+ 
  where Variable _ varName1 = var1
        Variable _ varName2 = var2
-
+-------------------------------------------------------------------------------
 
 {-does not display surface data in error message-}
 tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
@@ -229,22 +302,24 @@ tryVarPut var set (ExtendContext context judgment) =
   else pure $ ExtendContext (ExtendContext context judgment) $ Judgment (var,set)
  where (Judgment (var2, set)) = judgment
        (Variable _ varName) = var
-
+-------------------------------------------------------------------------------
 tryExtendContext :: Context -> Judgment -> TC Context
-tryExtendContext context judgment =
- tryVarPut variable set context
- where Judgment (variable, set) = judgment
+tryExtendContext context judgment = tryVarPut variable set context
  
+ where Judgment (variable, set) = judgment
+-------------------------------------------------------------------------------
+tryExtendContextMultiple ::
+ Context ->
+ [Judgment] ->
+ TC Context
 
-
-tryExtendContextMultiple :: Context -> [Judgment] -> TC Context
 tryExtendContextMultiple context [] = pure context
 tryExtendContextMultiple context (x:xs) =
  joinTC $
  tryExtendContextMultiple
  <$> tryExtendContext context x
  <*> pure xs
-
+-------------------------------------------------------------------------------
 
 {-
 data Set = SimpleSet SurfaceData ParseTree.Side RelativeSet
@@ -262,18 +337,19 @@ data RelativeSet = Field SurfaceData
                  | SpawnLocation SurfaceData
                  deriving Show
 -}
+-------------------------------------------------------------------------------
 data LStat
  = LStatField Modifier LStatField
  | LHpStat LHpStat
  | LEngagement
  deriving Show
-
-
+-------------------------------------------------------------------------------
 data Modifier
  = Temporary
  | Permanent
  | Base
  deriving Show
+-------------------------------------------------------------------------------
 data LStatField
  = LAttack
  | LDefense
@@ -281,18 +357,17 @@ data LStatField
  | LRange
  | LLevel
  deriving Show
-
+-------------------------------------------------------------------------------
 data LHpStat
  = LCurrentHp
  | LMaxHp
  | LBaseHp
  deriving Show
-
-
-data RStat = RStat {-unimplemented. Like LStat but allows reference to base-}
-           deriving Show
-
-
+-------------------------------------------------------------------------------
+data RStat
+ = RStat {-unimplemented. Like LStat but allows reference to base-}
+ deriving Show
+-------------------------------------------------------------------------------
 typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat field =
  case field of
@@ -305,7 +380,7 @@ typeCheckLStat field =
     ParseTree.BaseHp surfaceData' -> pure $ LHpStat LBaseHp
   ParseTree.EngagementField surfaceData ->
    error "engagementfield case not implemented"
-
+-------------------------------------------------------------------------------
 
 
 
@@ -345,17 +420,17 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
            deriving Show
 
 -}
- 
+-------------------------------------------------------------------------------
 typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
-
+-------------------------------------------------------------------------------
 typeCheckRStatVar :: ParseTree.Field -> TC RStat
 typeCheckRStatVar field =
  case field of
   ParseTree.StatField surfaceData stat temporality -> error "statField case not implemented"
   ParseTree.HpStatField surfaceData hpStat -> error "hpstatfield case not implemented"
   ParseTree.EngagementField surfaceData -> error "engagementfield case not implemented"
-
+-------------------------------------------------------------------------------
 
 
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
@@ -382,20 +457,23 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
 -}
 
 
-
-data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
-                 deriving Show
-data Assignment = Assignment SurfaceData [LExpr] ParseTree.Mutator RInt
-                deriving Show
-data LExpr = LThoughtsExpr SurfaceData ParseTree.Side
-           | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
-           | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
-           | LVarProjection SurfaceData Variable LStat
-           {- Cardinality not implemented... -}
-
-
-           deriving Show
-
+-------------------------------------------------------------------------------
+data SkillEffect
+ = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
+ deriving Show
+-------------------------------------------------------------------------------
+data Assignment
+ = Assignment SurfaceData [LExpr] ParseTree.Mutator RInt
+ deriving Show
+-------------------------------------------------------------------------------
+data LExpr
+ = LThoughtsExpr SurfaceData ParseTree.Side
+ | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
+ | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
+ | LVarProjection SurfaceData Variable LStat
+ {- Cardinality not implemented... -}
+ deriving Show
+-------------------------------------------------------------------------------
       
 {-                   
 data Mutator = Increment SurfaceData
@@ -412,47 +490,37 @@ data Mutator = Increment SurfaceData
 
 
 
-
+-------------------------------------------------------------------------------
 getDistance :: String -> String -> Int
 getDistance s1 s2 = restrictedDamerauLevenshteinDistance defaultEditCosts s1 s2
-
-
-
+-------------------------------------------------------------------------------
 getDistances :: String -> [String] -> [Int]
-getDistances s1 ss = map (getDistance s1) ss 
-
-
+getDistances s1 ss = map (getDistance s1) ss
+-------------------------------------------------------------------------------
 getDistancesWithStrings :: String -> [String] -> [(String,Int)]
 getDistancesWithStrings s1 ss = zip ss $ map (getDistance s1) ss
-
-
+-------------------------------------------------------------------------------
 getCloseDistancesWithStrings :: String -> [String] -> [(String,Int)]
 getCloseDistancesWithStrings s1 ss = filter (\x -> (snd x) <= 2) $ getDistancesWithStrings s1 ss
-
-
-
-
+-------------------------------------------------------------------------------
 getDistanceMessages'' :: Maybe String -> String
 getDistanceMessages'' x =
  case x of
   Nothing -> ""
   Just s -> s
-
+-------------------------------------------------------------------------------
 getDistanceMessages' :: [(String,Int)] -> Maybe String
 getDistanceMessages' [] = Nothing
 getDistanceMessages' (x1:x2:xs) = Just ((fst x1) ++ " or " ++ ( getDistanceMessages'' $ getDistanceMessages' (x2:xs)))
 getDistanceMessages' (x:[]) = Just ( (fst x) ++ "?")
-
-
+-------------------------------------------------------------------------------
 getDistanceMessages :: String -> [String] -> [String]
 getDistanceMessages s ss =
  let x = getCloseDistancesWithStrings s ss in
   case getDistanceMessages' x of
    Nothing -> []
    Just y -> [y]
-
-
-
+-------------------------------------------------------------------------------
 schoolFromKnowledge :: Knowledge -> Schools
 schoolFromKnowledge knowledge =
  case knowledge of
@@ -462,16 +530,10 @@ schoolFromKnowledge knowledge =
   Air surfaceData -> AirMono surfaceData
   Spirit surfaceData -> SpiritMono surfaceData
   Void surfaceData -> VoidMono surfaceData
-
-
-
-
-
-
-
+-------------------------------------------------------------------------------
 errorPrefix :: Int -> Int -> String
 errorPrefix line column = "Syntax error on line " ++ (show line) ++ ", column " ++ (show column) ++ ": "
-
+-------------------------------------------------------------------------------
 errorPrefix' :: Lexer.SurfaceData -> String
 errorPrefix' (Lexer.SurfaceData line column surface) = errorPrefix line column
 
