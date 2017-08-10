@@ -40,12 +40,12 @@ with surface data also filled out correctly....
 
 
 data CarryingSource a =
- CarryingSource Int Int String a
+ CarryingSource Lexer.SurfaceData a
  deriving Show
 
 getSurfaceSyntax' :: CarryingSource a -> String
 getSurfaceSyntax' x = syntax
- where (CarryingSource line column syntax ast) = x
+ where (CarryingSource (Lexer.SurfaceData line column syntax) ast) = x
 
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"

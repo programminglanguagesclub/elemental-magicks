@@ -126,7 +126,7 @@ Units : {[]}
       | Unit Units {$1 : $2}
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource 1 1 "dummy" $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource (Lexer.SurfaceData 1 1 "dummy") $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell dummySurfaceData $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats dummySurfaceData $1 $4 $7 $10 $13 $16 $19 $22}
 School : word {Knowledge $1}
@@ -134,20 +134,20 @@ Schools : {NoSchools dummySurfaceData }
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 Start : {Nothing}
-      | start colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Start dummySurfaceData $3}
+      | start colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Start dummySurfaceData $3}
 End : {Nothing}
-    | end colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ End dummySurfaceData $3}
+    | end colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ End dummySurfaceData $3}
 Counter : {Nothing}
-        | counter colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Counter dummySurfaceData $3}
+        | counter colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Counter dummySurfaceData $3}
 Spawn : {Nothing}
-      | spawn colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Spawn dummySurfaceData $3}
+      | spawn colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Spawn dummySurfaceData $3}
 Death : {Nothing}
-      | death colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Death dummySurfaceData $3}
+      | death colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Death dummySurfaceData $3}
 Auto : {Nothing}
-     | auto colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Auto dummySurfaceData $3}
+     | auto colon Skill {Just $ CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Auto dummySurfaceData $3}
 Actions : {[]}
         | Action Actions {$1 : $2}
-Action : action colon Skill {CarryingSource (-1) (-1) "dummy" $ Action dummySurfaceData $3}
+Action : action colon Skill {CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Action dummySurfaceData $3}
 Soul : soul colon Skill {Soul dummySurfaceData $3}
 Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
 OptionalCost : {Nothing}
