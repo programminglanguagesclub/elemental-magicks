@@ -92,7 +92,7 @@ data Spell =
   Lexer.SurfaceData Skill {-name, school, level, skill-}
  deriving Show
 
-data Skill = AutomaticSkill Lexer.SurfaceData (Maybe Expr) (Maybe Expr) Automatic
+data Skill = AutomaticSkill Lexer.SurfaceData (Maybe (CarryingSource Expr)) (Maybe (CarryingSource Expr)) Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
@@ -138,10 +138,10 @@ Don't need both condition and nullable expression.
 Either skill effects, or automatic should be allowed to have conditions and/or ifs.
 
 -}
-data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
+data SkillEffect = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
                  deriving Show
 
-data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-variables, where condition-}
+data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
                   | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
@@ -213,26 +213,27 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant Lexer.SurfaceData [Char]
-          | ThoughtsExpr Lexer.SurfaceData Side
-          | KnowledgeExpr Lexer.SurfaceData Knowledge Side
-          | Self Lexer.SurfaceData Field
-          | Var Lexer.SurfaceData Field String
-          | Sum Lexer.SurfaceData Expr Expr
-          | Difference Lexer.SurfaceData Expr Expr
-          | Product Lexer.SurfaceData Expr Expr
-          | Quotient Lexer.SurfaceData Expr Expr
-          | Mod Lexer.SurfaceData Expr Expr
-          | Always Lexer.SurfaceData {-add more booleans later.....    again... nullable.-}
-          | GT Lexer.SurfaceData Expr Expr
-          | GEQ Lexer.SurfaceData Expr Expr
-          | LT Lexer.SurfaceData Expr Expr
-          | LEQ Lexer.SurfaceData Expr Expr
-          | EQ Lexer.SurfaceData Expr Expr
-          | And Lexer.SurfaceData Expr Expr
-          | Or Lexer.SurfaceData Expr Expr
-          | Not Lexer.SurfaceData Expr
+data Expr = Constant [Char]
+          | ThoughtsExpr Side
+          | KnowledgeExpr Knowledge Side
+          | Self Field
+          | Var Field String
+          | Sum (CarryingSource Expr) (CarryingSource Expr)
+          | Difference (CarryingSource Expr) (CarryingSource Expr)
+          | Product (CarryingSource Expr) (CarryingSource Expr)
+          | Quotient (CarryingSource Expr) (CarryingSource Expr)
+          | Mod (CarryingSource Expr) (CarryingSource Expr)
+          | Always {-add more booleans later.....    again... nullable.-}
+          | GT (CarryingSource Expr) (CarryingSource Expr)
+          | GEQ (CarryingSource Expr) (CarryingSource Expr)
+          | LT (CarryingSource Expr) (CarryingSource Expr)
+          | LEQ (CarryingSource Expr) (CarryingSource Expr)
+          | EQ (CarryingSource Expr) (CarryingSource Expr)
+          | And (CarryingSource Expr) (CarryingSource Expr)
+          | Or (CarryingSource Expr) (CarryingSource Expr)
+          | Not (CarryingSource Expr)
            deriving Show
+
 
 
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}

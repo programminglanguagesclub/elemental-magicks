@@ -151,10 +151,10 @@ Action : action colon Skill {CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy"
 Soul : soul colon Skill {Soul dummySurfaceData $3}
 Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
 OptionalCost : {Nothing}
-             | cost colon number {Just $ Constant dummySurfaceData "LALALA"}
+             | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant "LALALA"}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
-OptionalFilter : {Always dummySurfaceData}
+OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent}
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
@@ -191,25 +191,25 @@ ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
 NullableExpr : {Nothing}
              | Expr {Just ($1)}
-Expr : number {Constant dummySurfaceData (getSurfaceSyntax $1)}
-     | Field self {Self dummySurfaceData $1}
-     | Field var {Var dummySurfaceData $1 $2}
-     | Side School {KnowledgeExpr dummySurfaceData $2 $1}
-     | Side thoughts {ThoughtsExpr dummySurfaceData $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
-     | Side thought {ThoughtsExpr dummySurfaceData $1 }
-     | Expr sum Expr {Sum dummySurfaceData $1 $3}
-     | Expr difference Expr {Difference dummySurfaceData $1 $3}
-     | Expr product Expr {Product dummySurfaceData $1 $3}
-     | Expr quotient Expr {Quotient dummySurfaceData $1 $3}
-     | Expr mod Expr {Mod dummySurfaceData $1 $3} 
-     | Expr gt Expr {ParseTree.GT dummySurfaceData $1 $3}
-     | Expr geq Expr {GEQ dummySurfaceData $1 $3}
-     | Expr lt Expr {ParseTree.LT dummySurfaceData $1 $3}
-     | Expr leq Expr {LEQ dummySurfaceData $1 $3}
-     | Expr eq Expr {ParseTree.EQ dummySurfaceData $1 $3}
-     | Expr and Expr {And dummySurfaceData $1 $3}
-     | Expr or Expr {Or dummySurfaceData $1 $3}
-     | not Expr {Not dummySurfaceData $2}
+Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
+     | Field self {CarryingSource dummySurfaceData $ Self $1}
+     | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
+     | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
+     | Side thoughts {CarryingSource dummySurfaceData $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
+     | Side thought {CarryingSource dummySurfaceData $ ThoughtsExpr $1 }
+     | Expr sum Expr {CarryingSource dummySurfaceData $ Sum $1 $3}
+     | Expr difference Expr {CarryingSource dummySurfaceData $ Difference $1 $3}
+     | Expr product Expr {CarryingSource dummySurfaceData $ Product $1 $3}
+     | Expr quotient Expr {CarryingSource dummySurfaceData $ Quotient $1 $3}
+     | Expr mod Expr {CarryingSource dummySurfaceData $ Mod $1 $3} 
+     | Expr gt Expr {CarryingSource dummySurfaceData $ ParseTree.GT $1 $3}
+     | Expr geq Expr {CarryingSource dummySurfaceData $ GEQ $1 $3}
+     | Expr lt Expr {CarryingSource dummySurfaceData $ ParseTree.LT $1 $3}
+     | Expr leq Expr {CarryingSource dummySurfaceData $ LEQ $1 $3}
+     | Expr eq Expr {CarryingSource dummySurfaceData $ ParseTree.EQ $1 $3}
+     | Expr and Expr {CarryingSource dummySurfaceData $ And $1 $3}
+     | Expr or Expr {CarryingSource dummySurfaceData $ Or $1 $3}
+     | not Expr {undefined}
 Field : Stat Temporality {StatField dummySurfaceData $1 $2}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  
@@ -228,9 +228,9 @@ Side : friendly {Friendly dummySurfaceData}
      | enemy {Enemy dummySurfaceData}
 RelativeSet : field {Field dummySurfaceData}
             | hand {Hand dummySurfaceData}
-            | graveyard {Graveyard dummySurfaceData}
-            | banished {Banished dummySurfaceData}
-            | spawn {SpawnLocation dummySurfaceData}
+            | graveyard {{-Graveyard dummySurfaceData-}undefined}
+            | banished {{-Banished dummySurfaceData-}undefined}
+            | spawn {{-SpawnLocation dummySurfaceData-}undefined}
 
 
 {
