@@ -192,7 +192,7 @@ ListExprCommas : Expr {[$1]}
 NullableExpr : {Nothing}
              | Expr {Just ($1)}
 Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
-     | Field self {CarryingSource dummySurfaceData $ Self $1}
+     | Field self {CarryingSource (extractSurfaceData $2) $ Self $1}
      | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
      | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
      | Side thoughts {CarryingSource dummySurfaceData $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
