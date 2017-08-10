@@ -36,12 +36,11 @@ Find the Levenshtein edit distance between two strings. That is to say, the numb
 
 -------------------------------------------------------------------------------
 data File
- = File SurfaceData [Unit] [Spell]
+ = File [Unit] [Spell]
  deriving Show
 -------------------------------------------------------------------------------
 data Unit 
  = Unit
-    SurfaceData
     String
     Stats
     (Maybe Start)
@@ -187,6 +186,7 @@ data Automatic
 -------------------------------------------------------------------------------
 data Nonautomatic
  = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
+ | TerminatedSkillComponent
  deriving Show
 -------------------------------------------------------------------------------
 data Stats
@@ -347,7 +347,7 @@ data LStat
 data Modifier
  = Temporary
  | Permanent
- | Base
+ | Base -- SHOULD THIS BE HERE???
  deriving Show
 -------------------------------------------------------------------------------
 data LStatField
@@ -361,11 +361,34 @@ data LStatField
 data LHpStat
  = LCurrentHp
  | LMaxHp
- | LBaseHp
+ | LBaseHp -- SHOULD THIS BE HERE???
  deriving Show
 -------------------------------------------------------------------------------
 data RStat
- = RStat {-unimplemented. Like LStat but allows reference to base-}
+ = RStat RModifier RStatField
+ | RHpStat RHpStat
+ | REngagement -- same as LEngagement...
+{-unimplemented. Like LStat but allows reference to base-}
+ deriving Show
+-------------------------------------------------------------------------------
+data RStatField
+ = RAttack
+ | RDefense
+ | RSpeed
+ | RRange
+ | RLevel
+ deriving Show
+-------------------------------------------------------------------------------
+data RModifier
+ = RTemporary
+ | RPermanent
+ | RBase
+ deriving Show
+-------------------------------------------------------------------------------
+data RHpStat
+ = RCurrentHp
+ | RMaxHp
+ | RBaseHp
  deriving Show
 -------------------------------------------------------------------------------
 typeCheckLStat :: ParseTree.Field -> TC LStat
@@ -381,46 +404,6 @@ typeCheckLStat field =
   ParseTree.EngagementField surfaceData ->
    error "engagementfield case not implemented"
 -------------------------------------------------------------------------------
-
-
-
-{-
-
-
-from parsetree
-
-
-data Stat = Attack Lexer.SurfaceData
-          | Defense Lexer.SurfaceData 
-          | Speed Lexer.SurfaceData
-          | Range Lexer.SurfaceData
-          | Level Lexer.SurfaceData 
-          deriving Show
-data Mutator = Increment Lexer.SurfaceData
-             | Decrement Lexer.SurfaceData
-             | Stretch Lexer.SurfaceData
-             | Crush Lexer.SurfaceData
-             | Contort Lexer.SurfaceData
-             | Set Lexer.SurfaceData
-             deriving Show
-data Temporality = Temporary Lexer.SurfaceData
-                 | Permanent Lexer.SurfaceData
-                 | Base Lexer.SurfaceData
-                 deriving Show
-data HpStat = CurrentHp Lexer.SurfaceData
-            | MaxHp Lexer.SurfaceData
-            | BaseHp Lexer.SurfaceData
-            deriving Show
-data Engagement = Engagement Lexer.SurfaceData
-                deriving Show
-
-data Field = StatField Lexer.SurfaceData Stat Temporality
-           | HpStatField Lexer.SurfaceData HpStat
-           | EngagementField Lexer.SurfaceData
-           deriving Show
-
--}
--------------------------------------------------------------------------------
 typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
 -------------------------------------------------------------------------------
@@ -428,7 +411,15 @@ typeCheckRStatVar :: ParseTree.Field -> TC RStat
 typeCheckRStatVar field =
  case field of
   ParseTree.StatField surfaceData stat temporality -> error "statField case not implemented"
-  ParseTree.HpStatField surfaceData hpStat -> error "hpstatfield case not implemented"
+  ParseTree.HpStatField surfaceData hpStat ->
+   case hpStat of
+    ParseTree.CurrentHp surfaceData' -> pure $ RHpStat RCurrentHp
+    ParseTree.MaxHp surfaceData' -> pure $ RHpStat RMaxHp
+    ParseTree.BaseHp surfaceData' -> pure $ RHpStat RBaseHp
+-- don't check for assigning from a soul card, which is not allowed...
+
+
+{-error "hpstatfield case not implemented"-}
   ParseTree.EngagementField surfaceData -> error "engagementfield case not implemented"
 -------------------------------------------------------------------------------
 
@@ -443,9 +434,6 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
            | EngagementField Lexer.SurfaceData
            deriving Show
 -}
-
-
-
 
 
 {-
@@ -482,12 +470,6 @@ data Mutator = Increment SurfaceData
              deriving Show
 
 -}
-
-
-
-
-
-
 
 
 -------------------------------------------------------------------------------
@@ -645,7 +627,7 @@ getSet :: Context -> Variable ->
 
 
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
-typeCheckAutomatic context automatic  =
+typeCheckAutomatic context automatic  = trace (show context) $
  Automatic surfaceData <$> traverse (typeCheckSkillEffect context) skillEffects
                        <*> typeCheckNonautomatic context nonautomatic
  where ParseTree.Automatic surfaceData skillEffects nonautomatic = automatic
@@ -660,15 +642,15 @@ extendContext = error "extend context not implemented"
 
 {-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
 typeCheckNonautomatic :: Context -> ParseTree.Nonautomatic -> TC Nonautomatic
-typeCheckNonautomatic context nonautomatic =
+typeCheckNonautomatic context nonautomatic = trace (show context) $
  case nonautomatic of
-  ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
+  ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch -> trace (show $ newBindings) $
    Selection surfaceData (map mkJudgment newBindings)
    <$> typeCheckCondition condition
    <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure thenBranch)
    <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure elseBranch)
    <*> typeCheckAutomatic context nextBranch {-error "nonautomatic not implemented"-}
-  ParseTree.TerminatedSkillComponent -> error "terminated skill component not implemented"
+  ParseTree.TerminatedSkillComponent -> pure TerminatedSkillComponent -- don't make sure all of context used yet or anything.
 
 
 {-
@@ -728,10 +710,13 @@ typeCheckVariable :: Context -> Variable -> TC Variable
 typeCheckVariable context var=
  case varIn var context of
   True -> pure var
-  False -> TC $ Left $ ["variable not defined"]
+  False ->
+   TC $ Left $ ["variable " ++ variableName ++" not defined in " ++ (show context) ++ "."]
+   where (Variable surfaceData variableName) = var
 
 
 
+--unused
 buildLExpr :: Context -> ParseTree.Expr -> TC LExpr
 buildLExpr context expr =
  case expr of
@@ -1203,16 +1188,17 @@ typeCheckSpell (ParseTree.Spell surfaceData name (ParseTree.Knowledge surfaceDat
 
 
 typeCheckUnit :: ParseTree.Unit -> TC Unit
-typeCheckUnit (ParseTree.Unit surfaceData name stats start end counter spawn death auto actions soul) =
- Unit surfaceData name <$> typeCheckStats stats
-                       <*> typeCheckStart start 
-                       <*> typeCheckEnd end
-                       <*> typeCheckCounter counter
-                       <*> typeCheckSpawnUnit spawn
-                       <*> typeCheckDeath death
-                       <*> typeCheckAuto auto
-                       <*> typeCheckActions actions 
-                       <*> typeCheckSoul soul
+typeCheckUnit (ParseTree.Unit name stats start end counter spawn death auto actions soul) =
+ Unit name
+  <$> typeCheckStats stats
+  <*> typeCheckStart start 
+  <*> typeCheckEnd end
+  <*> typeCheckCounter counter
+  <*> typeCheckSpawnUnit spawn
+  <*> typeCheckDeath death
+  <*> typeCheckAuto auto
+  <*> typeCheckActions actions 
+  <*> typeCheckSoul soul
 
 
 typeCheckUnits :: [ParseTree.Unit] -> TC [Unit]
@@ -1228,8 +1214,9 @@ assumeFailure (Right _) = []
 
 
 typeCheck :: ParseTree.File -> TC File
-typeCheck (ParseTree.File surfaceData units spells) =
- File surfaceData <$> (typeCheckUnits units)
+typeCheck (ParseTree.File units spells) =
+ trace (show units) $
+ File <$> (typeCheckUnits units)
       <*> (typeCheckSpells spells)
 
 

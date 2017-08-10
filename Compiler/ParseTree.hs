@@ -38,6 +38,15 @@ with surface data also filled out correctly....
 -}
 -}
 
+
+data CarryingSource a =
+ CarryingSource Int Int String a
+ deriving Show
+
+getSurfaceSyntax' :: CarryingSource a -> String
+getSurfaceSyntax' x = syntax
+ where (CarryingSource line column syntax ast) = x
+
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"
 
@@ -59,13 +68,29 @@ getFileSurfaceData = undefined
 getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = error "what is getFoo??"
 
-data File = File Lexer.SurfaceData [Unit] [Spell]
+data File = File [Unit] [Spell]
              deriving Show
 
-data Unit = Unit Lexer.SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
-            deriving Show
-data Spell = Spell Lexer.SurfaceData String Knowledge Lexer.SurfaceData Skill {-name, school, level, skill-}
-             deriving Show
+data Unit =
+ Unit
+  String
+  Stats
+  (Maybe (CarryingSource Start))
+  (Maybe (CarryingSource End))
+  (Maybe (CarryingSource Counter))
+  (Maybe (CarryingSource Spawn))
+  (Maybe (CarryingSource Death))
+  (Maybe (CarryingSource Auto))
+  [CarryingSource Action]
+  Soul
+ deriving Show
+
+data Spell =
+ Spell
+  Lexer.SurfaceData
+  String Knowledge
+  Lexer.SurfaceData Skill {-name, school, level, skill-}
+ deriving Show
 
 data Skill = AutomaticSkill Lexer.SurfaceData (Maybe Expr) (Maybe Expr) Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
@@ -154,6 +179,7 @@ data Mutator = Increment Lexer.SurfaceData
              | Contort Lexer.SurfaceData
              | Set Lexer.SurfaceData
              deriving Show
+
 data Temporality = Temporary Lexer.SurfaceData
                  | Permanent Lexer.SurfaceData
                  | Base Lexer.SurfaceData

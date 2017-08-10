@@ -121,12 +121,12 @@ import Text.EditDistance
 
 %%
 
-File : Units Spells {File dummySurfaceData $1 $2}
+File : Units Spells {File $1 $2}
 Units : {[]}
       | Unit Units {$1 : $2}
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit dummySurfaceData $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell dummySurfaceData $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats dummySurfaceData $1 $4 $7 $10 $13 $16 $19 $22}
 School : word {Knowledge $1}
@@ -134,24 +134,24 @@ Schools : {NoSchools dummySurfaceData }
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 Start : {Nothing}
-      | start colon Skill {Just $ Start dummySurfaceData $3}
+      | start colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Start dummySurfaceData $3}
 End : {Nothing}
-    | end colon Skill {Just $ End dummySurfaceData $3}
+    | end colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ End dummySurfaceData $3}
 Counter : {Nothing}
-        | counter colon Skill {Just $ Counter dummySurfaceData $3}
+        | counter colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Counter dummySurfaceData $3}
 Spawn : {Nothing}
-      | spawn colon Skill {Just $ Spawn dummySurfaceData $3}
+      | spawn colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Spawn dummySurfaceData $3}
 Death : {Nothing}
-      | death colon Skill {Just $ Death dummySurfaceData $3}
+      | death colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Death dummySurfaceData $3}
 Auto : {Nothing}
-     | auto colon Skill {Just $ Auto dummySurfaceData $3}
+     | auto colon Skill {Just $ CarryingSource (-1) (-1) "dummy" $ Auto dummySurfaceData $3}
 Actions : {[]}
         | Action Actions {$1 : $2}
-Action : action colon Skill {Action dummySurfaceData $3}
+Action : action colon Skill {CarryingSource (-1) (-1) "dummy" $ Action dummySurfaceData $3}
 Soul : soul colon Skill {Soul dummySurfaceData $3}
-Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
+Skill : OptionalCost OptionalCondition Automatic {undefined {-AutomaticSkill dummySurfaceData _1 _2 _3-}}
 OptionalCost : {Nothing}
-             | cost colon number {Just $ Constant dummySurfaceData "LALALA"}
+             | cost colon number {{-Just $ Constant dummySurfaceData "LALALA"-} undefined}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
 OptionalFilter : {Always dummySurfaceData}
@@ -178,12 +178,12 @@ SkillEffects : {[]}
 
 SkillEffect : Assignment {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
-Mutator : assign {Set dummySurfaceData}
-        | increment {Increment dummySurfaceData}
-        | decrement {Decrement dummySurfaceData}
-        | stretch {Stretch dummySurfaceData}
-        | crush {Crush dummySurfaceData}
-        | contort {Contort dummySurfaceData}
+Mutator : assign {Set $ Lexer.SurfaceData (-1) (-1) ":="}
+        | increment {Increment $ Lexer.SurfaceData (-1) (-1) "+="}
+        | decrement {Decrement $ Lexer.SurfaceData (-1) (-1) "-="}
+        | stretch {Stretch $ Lexer.SurfaceData (-1) (-1) "*="}
+        | crush {Crush $ Lexer.SurfaceData (-1) (-1) "/="}
+        | contort {Contort $ Lexer.SurfaceData (-1) (-1) "%="}
 ListExpr : {[]}
          | Expr {[$1]}
          | Expr comma ListExprCommas {$1 : $3}
@@ -262,10 +262,5 @@ parseError tokens = do
  Lexer.alexError $ show i
 
 
-{-
-data File = File Lexer.SurfaceData [Unit] [Spell]
-             deriving Show
-
--}
 }
 
