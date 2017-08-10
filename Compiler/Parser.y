@@ -197,18 +197,18 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
      | Side thoughts {CarryingSource dummySurfaceData $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
      | Side thought {CarryingSource dummySurfaceData $ ThoughtsExpr $1 }
-     | Expr sum Expr {CarryingSource dummySurfaceData $ Sum $1 $3}
-     | Expr difference Expr {CarryingSource dummySurfaceData $ Difference $1 $3}
-     | Expr product Expr {CarryingSource dummySurfaceData $ Product $1 $3}
-     | Expr quotient Expr {CarryingSource dummySurfaceData $ Quotient $1 $3}
-     | Expr mod Expr {CarryingSource dummySurfaceData $ Mod $1 $3} 
-     | Expr gt Expr {CarryingSource dummySurfaceData $ ParseTree.GT $1 $3}
-     | Expr geq Expr {CarryingSource dummySurfaceData $ GEQ $1 $3}
-     | Expr lt Expr {CarryingSource dummySurfaceData $ ParseTree.LT $1 $3}
-     | Expr leq Expr {CarryingSource dummySurfaceData $ LEQ $1 $3}
-     | Expr eq Expr {CarryingSource dummySurfaceData $ ParseTree.EQ $1 $3}
-     | Expr and Expr {CarryingSource dummySurfaceData $ And $1 $3}
-     | Expr or Expr {CarryingSource dummySurfaceData $ Or $1 $3}
+     | Expr sum Expr {CarryingSource (extractSurfaceData $2) $ Sum $1 $3}
+     | Expr difference Expr {CarryingSource (extractSurfaceData $2) $ Difference $1 $3}
+     | Expr product Expr {CarryingSource (extractSurfaceData $2) $ Product $1 $3}
+     | Expr quotient Expr {CarryingSource (extractSurfaceData $2) $ Quotient $1 $3}
+     | Expr mod Expr {CarryingSource (extractSurfaceData $2) $ Mod $1 $3} 
+     | Expr gt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.GT $1 $3}
+     | Expr geq Expr {CarryingSource (extractSurfaceData $2) $ GEQ $1 $3} -- currently missing surface data from the subtrees.
+     | Expr lt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.LT $1 $3}
+     | Expr leq Expr {CarryingSource (extractSurfaceData $2) $ LEQ $1 $3}
+     | Expr eq Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.EQ $1 $3}
+     | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
+     | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
      | not Expr {undefined}
 Field : Stat Temporality {StatField dummySurfaceData $1 $2}
       | HpStat {HpStatField dummySurfaceData $1}
@@ -228,9 +228,9 @@ Side : friendly {Friendly dummySurfaceData}
      | enemy {Enemy dummySurfaceData}
 RelativeSet : field {Field dummySurfaceData}
             | hand {Hand dummySurfaceData}
-            | graveyard {{-Graveyard dummySurfaceData-}undefined}
-            | banished {{-Banished dummySurfaceData-}undefined}
-            | spawn {{-SpawnLocation dummySurfaceData-}undefined}
+            | graveyard {Graveyard dummySurfaceData}
+            | banished {Banished dummySurfaceData}
+            | spawn {SpawnLocation dummySurfaceData}
 
 
 {

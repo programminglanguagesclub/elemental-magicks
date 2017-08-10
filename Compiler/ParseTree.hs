@@ -243,6 +243,9 @@ getTokens s = case Lexer.runAlex s Lexer.gather of Left _ -> []
 extractSurface :: Lexer.Token -> String
 extractSurface (Lexer.Token _ (Lexer.SurfaceData _ _ s)) = s
 
+extractSurfaceData :: Lexer.Token -> Lexer.SurfaceData
+extractSurfaceData (Lexer.Token _ surfaceData) = surfaceData
+
 prettyPrint :: [String] -> String
 prettyPrint [] = ""
 prettyPrint (x:[]) = x
