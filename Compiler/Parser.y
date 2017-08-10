@@ -126,7 +126,7 @@ Units : {[]}
       | Unit Units {$1 : $2}
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource undefined undefined undefined $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource 1 1 "dummy" $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell dummySurfaceData $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats dummySurfaceData $1 $4 $7 $10 $13 $16 $19 $22}
 School : word {Knowledge $1}
@@ -149,9 +149,9 @@ Actions : {[]}
         | Action Actions {$1 : $2}
 Action : action colon Skill {CarryingSource (-1) (-1) "dummy" $ Action dummySurfaceData $3}
 Soul : soul colon Skill {Soul dummySurfaceData $3}
-Skill : OptionalCost OptionalCondition Automatic {undefined {-AutomaticSkill dummySurfaceData _1 _2 _3-}}
+Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
 OptionalCost : {Nothing}
-             | cost colon number {{-Just $ Constant dummySurfaceData "LALALA"-} undefined}
+             | cost colon number {Just $ Constant dummySurfaceData "LALALA"}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
 OptionalFilter : {Always dummySurfaceData}
