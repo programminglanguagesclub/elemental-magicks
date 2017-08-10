@@ -137,24 +137,6 @@ instance Eq Knowledge where
  Void _ == Void _ = True
  _ == _ = False
 -------------------------------------------------------------------------------
-
-
-{-
-
-
-data SkillEffect = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
-                 deriving Show
-data Assignment = Assignment SurfaceData [LExpr] Mutator RInt
-                deriving Show
-
-
-
-from parser:
-data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
-                 deriving Show
--}
-
--------------------------------------------------------------------------------
 typeCheckSkillEffect ::
  Context ->
  ParseTree.SkillEffect ->
@@ -163,19 +145,18 @@ typeCheckSkillEffect ::
 typeCheckSkillEffect context skillEffect =
  case skillEffect of
   ParseTree.Assignment surfaceData lExprs mutator rExpr ->
-   SkillEffectAssignment surfaceData
-   <$> typeCheckAssignment context surfaceData lExprs mutator rExpr
+   SkillEffectAssignment
+   <$> typeCheckAssignment context lExprs mutator rExpr
 -------------------------------------------------------------------------------
 typeCheckAssignment ::
  Context ->
- Lexer.SurfaceData ->
- [ParseTree.Expr] ->
+ [ParseTree.CarryingSource ParseTree.Expr] ->
  ParseTree.Mutator ->
- ParseTree.Expr ->
+ ParseTree.CarryingSource ParseTree.Expr ->
  TC Assignment
 
-typeCheckAssignment context surfaceData lExprs mutator rExpr =
- Assignment surfaceData
+typeCheckAssignment context lExprs mutator rExpr =
+ Assignment
  <$> traverse (typeCheckLInt context) lExprs
  <*> pure mutator
  <*> typeCheckRInt context rExpr
@@ -447,11 +428,11 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
 
 -------------------------------------------------------------------------------
 data SkillEffect
- = SkillEffectAssignment SurfaceData Assignment {-I need more skill effects, of course-}
+ = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
  deriving Show
 -------------------------------------------------------------------------------
 data Assignment
- = Assignment SurfaceData [LExpr] ParseTree.Mutator RInt
+ = Assignment [LExpr] ParseTree.Mutator RInt
  deriving Show
 -------------------------------------------------------------------------------
 data LExpr
@@ -715,7 +696,7 @@ typeCheckVariable context var=
    where (Variable surfaceData variableName) = var
 
 
-
+{-
 --unused
 buildLExpr :: Context -> ParseTree.Expr -> TC LExpr
 buildLExpr context expr =
@@ -747,7 +728,7 @@ buildLExpr context expr =
   ParseTree.Not surfaceData _ -> putErr $ (errorPrefix' surfaceData) ++ lExprError surfaceData
 
 
-
+-}
 
 {-
 isInt :: Context -> ParseTree.Expr -> 
@@ -845,52 +826,52 @@ typeCheckNumber = error "do not use this function"
 
 
 {-should add isDead to conditions?-}
-typeCheckRBool :: Context -> ParseTree.Expr -> TC RBool {-call typeCheckRBool?-}
-typeCheckRBool context expr =
+typeCheckRBool :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC RBool {-call typeCheckRBool?-}
+typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
  case expr of
-  ParseTree.Constant surfaceData value ->
+  ParseTree.Constant value ->
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of integer literal) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.ThoughtsExpr surfaceData side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
+  ParseTree.ThoughtsExpr side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of thoughts) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.KnowledgeExpr surfaceData knowledge side ->
+  ParseTree.KnowledgeExpr knowledge side ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of knowledge) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Self surfaceData field ->
+  ParseTree.Self field ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from self) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Var surfaceData field var ->
+  ParseTree.Var field var ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from variable " ++ var ++ ") in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Sum surfaceData expr1 expr2 ->
+  ParseTree.Sum expr1 expr2 ->
     TC $ Left ["Type mismatch between Boolean (requied type) and Integer (result type of (+) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]    
-  ParseTree.Difference surfaceData expr1 expr2 ->
+  ParseTree.Difference expr1 expr2 ->
     TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (-) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Product surfaceData expr1 expr2 ->
+  ParseTree.Product expr1 expr2 ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (*) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Quotient surfaceData expr1 expr2 ->
+  ParseTree.Quotient expr1 expr2 ->
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (/) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Mod surfaceData expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
+  ParseTree.Mod expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
-  ParseTree.Always surfaceData -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
-  ParseTree.GT surfaceData expr1 expr2 ->
+  ParseTree.Always -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
+  ParseTree.GT expr1 expr2 ->
    RGT surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  ParseTree.GEQ surfaceData expr1 expr2 ->
+  ParseTree.GEQ expr1 expr2 ->
    RGEQ surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  ParseTree.LT surfaceData expr1 expr2 ->
+  ParseTree.LT expr1 expr2 ->
    RLT surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  ParseTree.LEQ surfaceData expr1 expr2 ->
+  ParseTree.LEQ expr1 expr2 ->
    RLEQ surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  ParseTree.EQ surfaceData expr1 expr2 ->
+  ParseTree.EQ expr1 expr2 ->
    REQ surfaceData <$> typeCheckRInt context expr1
                    <*> typeCheckRInt context expr2
-  ParseTree.And surfaceData expr1 expr2 ->
+  ParseTree.And expr1 expr2 ->
    RAnd surfaceData <$> typeCheckRBool context expr1
                     <*> typeCheckRBool context expr2
-  ParseTree.Or surfaceData expr1 expr2 ->
+  ParseTree.Or expr1 expr2 ->
    ROr surfaceData <$> typeCheckRBool context expr1
                    <*> typeCheckRBool context expr2
-  ParseTree.Not surfaceData expr ->
+  ParseTree.Not expr ->
    RNot surfaceData <$> typeCheckRBool context expr
 
 typeCheckSkill :: ParseTree.Skill -> TC Skill
@@ -903,12 +884,12 @@ typeCheckSkill (ParseTree.AutomaticSkill surfaceData cost condition automatic) =
 
 
 
-typeCheckCost :: Maybe ParseTree.Expr -> TC (Maybe RInt)
+typeCheckCost :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> TC (Maybe RInt)
 typeCheckCost Nothing = pure Nothing
 typeCheckCost (Just expr) = Just <$> typeCheckRInt EmptyContext expr
 
 
-typeCheckCondition :: Maybe ParseTree.Expr -> TC (Maybe RBool)
+typeCheckCondition :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> TC (Maybe RBool)
 typeCheckCondition Nothing = pure Nothing
 typeCheckCondition (Just expr) = Just <$> typeCheckRBool EmptyContext expr
 
@@ -1040,100 +1021,100 @@ typeCheckInt s name lowerBound upperBound =
 typeCheckConstant :: Lexer.SurfaceData -> String -> TC Int
 typeCheckConstant (Lexer.SurfaceData row column surfaceSyntax) s = typeCheckInt s ("at position " ++ (show row) ++ "," ++ (show column) ++ ", " ++ "constant expression" ++ " " ++ surfaceSyntax) minInt maxInt
 
-typeCheckLInt :: Context -> ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
-typeCheckLInt context expr =
+typeCheckLInt :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
+typeCheckLInt context (ParseTree.CarryingSource surfaceData expr) =
  case expr of
-  ParseTree.Constant surfaceData value ->
+  ParseTree.Constant value ->
    TC $ Left ["cannot assign to constant"]
-  ParseTree.ThoughtsExpr surfaceData side -> pure $ LThoughtsExpr surfaceData side
-  ParseTree.KnowledgeExpr surfaceData knowledge side ->
+  ParseTree.ThoughtsExpr side -> pure $ LThoughtsExpr surfaceData side
+  ParseTree.KnowledgeExpr knowledge side ->
    LKnowledgeExpr surfaceData
    <$> typeCheckKnowledge knowledge
    <*> pure side
-  ParseTree.Self surfaceData field ->
+  ParseTree.Self field ->
    LSelfProjection surfaceData <$> typeCheckRStatSelf field
-  ParseTree.Var surfaceData field variable ->
+  ParseTree.Var field variable ->
    LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable)
                               <*> typeCheckRStatSelf field
-  ParseTree.Sum surfaceData expr1 expr2 ->
+  ParseTree.Sum expr1 expr2 ->
    TC $ Left ["cannot assign to sum result"]
-  ParseTree.Difference surfaceData expr1 expr2 ->
+  ParseTree.Difference expr1 expr2 ->
    TC $ Left ["cannot assign to difference result"]
-  ParseTree.Product surfaceData expr1 expr2 ->
+  ParseTree.Product expr1 expr2 ->
    TC $ Left ["cannot assign to product result"]
-  ParseTree.Quotient surfaceData expr1 expr2 ->
+  ParseTree.Quotient expr1 expr2 ->
    TC $ Left ["cannot assign to quotient result"]
-  ParseTree.Mod surfaceData expr1 expr2 ->
+  ParseTree.Mod expr1 expr2 ->
    TC $ Left ["cannot assign to modulus result"]
-  ParseTree.Always surfaceData -> error "always should not exist, much less as an integer"
-  ParseTree.GT surfaceData expr1 expr2 ->
+  ParseTree.Always -> error "always should not exist, much less as an integer"
+  ParseTree.GT expr1 expr2 ->
    TC $ Left ["cannot assign to inequality check"]
-  ParseTree.GEQ surfaceData expr1 expr2 ->
+  ParseTree.GEQ expr1 expr2 ->
     TC $ Left ["cannot assign to inequality check"]
-  ParseTree.LT surfaceData expr1 expr2 ->
+  ParseTree.LT expr1 expr2 ->
    TC $ Left ["cannot assign to inequality check"]
-  ParseTree.LEQ surfaceData expr1 expr2 ->
+  ParseTree.LEQ expr1 expr2 ->
    TC $ Left ["cannot assign to inequality check"]
-  ParseTree.EQ surfaceData expr1 expr2 ->
+  ParseTree.EQ expr1 expr2 ->
    TC $ Left ["cannot assign to equality check"]
-  ParseTree.And surfaceData expr1 expr2 ->
+  ParseTree.And expr1 expr2 ->
    TC $ Left ["cannot assign to and result"]
-  ParseTree.Or surfaceData expr1 expr2 ->
+  ParseTree.Or expr1 expr2 ->
    TC $ Left ["cannot assign to or result"]
-  ParseTree.Not surfaceData expr ->
+  ParseTree.Not expr ->
    TC $ Left ["cannot assign to not result"]
 
 
 
-typeCheckRInt :: Context -> ParseTree.Expr -> TC RInt
-typeCheckRInt context expr = {-error "typeCheckRInt not implemented"-}
+typeCheckRInt :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC RInt
+typeCheckRInt context (ParseTree.CarryingSource _ expr) = {-error "typeCheckRInt not implemented"-}
  case expr of
-  ParseTree.Constant surfaceData value -> RConstant surfaceData <$> typeCheckConstant surfaceData value
-  ParseTree.ThoughtsExpr surfaceData side -> pure $ RThoughts surfaceData side
-  ParseTree.KnowledgeExpr surfaceData knowledge side -> 
-   RKnowledge surfaceData
+  ParseTree.Constant value -> RConstant undefined <$> typeCheckConstant undefined value
+  ParseTree.ThoughtsExpr side -> pure $ RThoughts undefined side
+  ParseTree.KnowledgeExpr knowledge side -> 
+   RKnowledge undefined
    <$> typeCheckKnowledge knowledge
    <*> pure side
-  ParseTree.Self surfaceData field ->
-   RSelfProjection surfaceData <$> typeCheckRStatSelf field
-  ParseTree.Var surfaceData field variable ->
-   RVarProjection surfaceData <$> typeCheckRStatVar field
-                              <*> typeCheckVariable context (Variable surfaceData variable)
-  ParseTree.Sum surfaceData expr1 expr2 ->
-   RSum surfaceData <$> typeCheckRInt context expr1
+  ParseTree.Self field ->
+   RSelfProjection undefined <$> typeCheckRStatSelf field
+  ParseTree.Var field variable ->
+   RVarProjection undefined <$> typeCheckRStatVar field
+                              <*> typeCheckVariable context (Variable undefined variable)
+  ParseTree.Sum expr1 expr2 ->
+   RSum undefined <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
-  ParseTree.Difference surfaceData expr1 expr2 ->
-   RDifference surfaceData <$> typeCheckRInt context expr1
+  ParseTree.Difference expr1 expr2 ->
+   RDifference undefined <$> typeCheckRInt context expr1
                            <*> typeCheckRInt context expr2
-  ParseTree.Product surfaceData expr1 expr2 ->
-   RProduct surfaceData <$> typeCheckRInt context expr1
+  ParseTree.Product expr1 expr2 ->
+   RProduct undefined <$> typeCheckRInt context expr1
                         <*> typeCheckRInt context expr2
-  ParseTree.Quotient surfaceData expr1 expr2 ->
-   RQuotient surfaceData <$> typeCheckRInt context expr1
+  ParseTree.Quotient expr1 expr2 ->
+   RQuotient undefined <$> typeCheckRInt context expr1
                          <*> typeCheckRInt context expr2
-  ParseTree.Mod surfaceData expr1 expr2 ->
-   RMod surfaceData <$> typeCheckRInt context expr1
+  ParseTree.Mod expr1 expr2 ->
+   RMod undefined <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
 
 {-PARSE TREE ALWAYS STILL EXISTS!??!?!?!?!?!?!?!??!?!?!?!?!?-}
 
-  ParseTree.Always surfaceData -> error "always should not exist, much less as an integer"
-  ParseTree.GT surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>)"]
-  ParseTree.GEQ surfaceData expr1 expr2 ->
-    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>=)"]
-  ParseTree.LT surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<)"]
-  ParseTree.LEQ surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<=)"]
-  ParseTree.EQ surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(=)"]
-  ParseTree.And surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "and"]
-  ParseTree.Or surfaceData expr1 expr2 ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "or"]
-  ParseTree.Not surfaceData expr ->
-   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "not"]
+  ParseTree.Always -> error "always should not exist, much less as an integer"
+  ParseTree.GT expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(>)"]
+  ParseTree.GEQ expr1 expr2 ->
+    TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(>=)"]
+  ParseTree.LT expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(<)"]
+  ParseTree.LEQ expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(<=)"]
+  ParseTree.EQ expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(=)"]
+  ParseTree.And expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "and"]
+  ParseTree.Or expr1 expr2 ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "or"]
+  ParseTree.Not expr ->
+   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "not"]
 
 typeMismatchMessage :: Lexer.SurfaceData -> String -> String -> String -> String
 typeMismatchMessage surfaceData requiredType resultType operator =
