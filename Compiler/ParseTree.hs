@@ -74,7 +74,7 @@ data File = File [Unit] [Spell]
 data Unit =
  Unit
   String
-  Stats
+  (CarryingSource Stats)
   (Maybe (CarryingSource Start))
   (Maybe (CarryingSource End))
   (Maybe (CarryingSource Counter))
