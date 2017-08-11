@@ -203,9 +203,9 @@ data Temporality = Temporary Lexer.SurfaceData
                  | Permanent Lexer.SurfaceData
                  | Base Lexer.SurfaceData
                  deriving Show
-data HpStat = CurrentHp Lexer.SurfaceData
-            | MaxHp Lexer.SurfaceData
-            | BaseHp Lexer.SurfaceData
+data HpStat = CurrentHp
+            | MaxHp
+            | BaseHp
             deriving Show
 data Engagement = Engagement Lexer.SurfaceData
                 deriving Show
@@ -224,7 +224,7 @@ data Schools = NoSchools
 
 
 data Field = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
-           | HpStatField Lexer.SurfaceData HpStat
+           | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
            | EngagementField Lexer.SurfaceData
            deriving Show
 
