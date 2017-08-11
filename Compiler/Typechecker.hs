@@ -874,12 +874,13 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
   ParseTree.Not expr ->
    RNot surfaceData <$> typeCheckRBool context expr
 
-typeCheckSkill :: ParseTree.Skill -> TC Skill
-typeCheckSkill (ParseTree.AutomaticSkill surfaceData cost condition automatic) =
+typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
+typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
  trace "typecheckskill not implemented"
- Skill surfaceData <$> typeCheckCost cost
-                   <*> typeCheckCondition condition
-                   <*> typeCheckAutomatic EmptyContext automatic
+ Skill surfaceData
+  <$> typeCheckCost cost
+  <*> typeCheckCondition condition
+  <*> typeCheckAutomatic EmptyContext automatic
 
 
 
@@ -904,14 +905,14 @@ data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against
 
 typeCheckStart :: Maybe (ParseTree.CarryingSource ParseTree.Start) -> TC (Maybe Start)
 typeCheckStart Nothing = pure Nothing
-typeCheckStart (Just (ParseTree.CarryingSource _ (ParseTree.Start surfaceData skill))) =
+typeCheckStart (Just (ParseTree.CarryingSource surfaceData (ParseTree.Start skill))) =
  trace "typeCheckStart not implemented" $
  Just <$> Start surfaceData
       <$> typeCheckSkill skill
 
 typeCheckEnd :: Maybe (ParseTree.CarryingSource ParseTree.End) -> TC (Maybe End)
 typeCheckEnd Nothing = pure Nothing
-typeCheckEnd (Just (ParseTree.CarryingSource _ (ParseTree.End surfaceData skill))) =
+typeCheckEnd (Just (ParseTree.CarryingSource surfaceData (ParseTree.End skill))) =
  trace "typecheckEnd not implemented" $
  Just <$> End surfaceData
       <$> typeCheckSkill skill
@@ -919,34 +920,34 @@ typeCheckEnd (Just (ParseTree.CarryingSource _ (ParseTree.End surfaceData skill)
 
 typeCheckCounter :: Maybe (ParseTree.CarryingSource ParseTree.Counter) -> TC (Maybe Counter)
 typeCheckCounter Nothing = pure Nothing
-typeCheckCounter (Just (ParseTree.CarryingSource _ (ParseTree.Counter surfaceData skill))) =
+typeCheckCounter (Just (ParseTree.CarryingSource surfaceData (ParseTree.Counter skill))) =
  trace "typecheckCounter not implemented" $
  Just <$> Counter surfaceData
       <$> typeCheckSkill skill
 
 typeCheckSpawnUnit :: Maybe (ParseTree.CarryingSource ParseTree.Spawn) -> TC (Maybe SpawnUnit)
 typeCheckSpawnUnit Nothing = pure Nothing
-typeCheckSpawnUnit (Just (ParseTree.CarryingSource _ (ParseTree.Spawn surfaceData skill))) =
+typeCheckSpawnUnit (Just (ParseTree.CarryingSource surfaceData (ParseTree.Spawn skill))) =
  trace "typecheckSpawnUnit not implemented" $
  Just <$> SpawnUnit surfaceData
       <$> typeCheckSkill skill
 
 typeCheckDeath :: Maybe (ParseTree.CarryingSource ParseTree.Death) -> TC (Maybe Death)
 typeCheckDeath Nothing = pure Nothing
-typeCheckDeath (Just (ParseTree.CarryingSource _ (ParseTree.Death surfaceData skill))) =
+typeCheckDeath (Just (ParseTree.CarryingSource surfaceData (ParseTree.Death skill))) =
  trace "typecheckDeath not implemented" $
  Just <$> Death surfaceData
       <$> typeCheckSkill skill
 
 typeCheckAuto :: Maybe (ParseTree.CarryingSource ParseTree.Auto) -> TC (Maybe Auto)
 typeCheckAuto Nothing = pure Nothing
-typeCheckAuto (Just (ParseTree.CarryingSource _ (ParseTree.Auto surfaceData skill))) =
+typeCheckAuto (Just (ParseTree.CarryingSource surfaceData (ParseTree.Auto skill))) =
  trace "typecheckauto not implemented" $
  Just <$> Auto surfaceData
       <$> typeCheckSkill skill
 
 typeCheckAction :: ParseTree.CarryingSource ParseTree.Action -> TC Action
-typeCheckAction (ParseTree.CarryingSource _ (ParseTree.Action surfaceData skill)) =
+typeCheckAction (ParseTree.CarryingSource surfaceData (ParseTree.Action skill)) =
  trace "typeCheckAction not implemented" $
  Action surfaceData <$> typeCheckSkill skill
 
@@ -987,8 +988,8 @@ noSelfReferences :: (Skill -> a) -> Skill -> TC a
 noSelfReferences f skill =
  f <$> noSelfReferencesSkill skill
 
-typeCheckSoul :: ParseTree.Soul -> TC Soul
-typeCheckSoul (ParseTree.Soul surfaceData skill) =
+typeCheckSoul :: ParseTree.CarryingSource ParseTree.Soul -> TC Soul
+typeCheckSoul (ParseTree.CarryingSource surfaceData (ParseTree.Soul skill)) =
  trace "typeCheckSoul not implemented" $
  joinTC $ noSelfReferences (Soul surfaceData)
  <$> typeCheckSkill skill
@@ -1158,7 +1159,7 @@ typeCheckStats (ParseTree.CarryingSource _ (ParseTree.Stats surfaceData schools 
 
 
 
-typeCheckSpawnSpell :: ParseTree.Skill -> TC Skill
+typeCheckSpawnSpell :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSpawnSpell skill = trace "typeCheckSpawnSpell not implemented" $ typeCheckSkill skill
 
 typeCheckSpell :: ParseTree.Spell -> TC Spell
