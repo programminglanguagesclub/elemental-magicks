@@ -217,7 +217,7 @@ data Knowledge = Knowledge Lexer.SurfaceData
                deriving Show
 
 
-data Schools = NoSchools Lexer.SurfaceData {-tricky to have surface data here as it's nullable...-}
+data Schools = NoSchools
              | OneSchool Lexer.SurfaceData Lexer.SurfaceData
              | TwoSchools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
              deriving Show

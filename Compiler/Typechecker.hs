@@ -807,7 +807,7 @@ checkSkillEffect context skillEffect =
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
 
 typeCheckSchools :: ParseTree.Schools -> TC Schools
-typeCheckSchools (ParseTree.NoSchools surfaceData) = pure $ NoSchools
+typeCheckSchools (ParseTree.NoSchools) = pure $ NoSchools
 typeCheckSchools (ParseTree.OneSchool surfaceData s) = schoolFromKnowledge <$> typeCheckSchool surfaceData
 typeCheckSchools (ParseTree.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
 
