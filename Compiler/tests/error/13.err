@@ -4,4 +4,17 @@ EmptyContext
 EmptyContext
 []
 EmptyContext
-Main: Prelude.undefined
+EmptyContext
+[]
+EmptyContext
+variable y not defined in EmptyContext.
+variable x not defined in EmptyContext.
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext
+EmptyContext

@@ -209,7 +209,7 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Expr eq Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.EQ $1 $3}
      | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
      | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
-     | not Expr {undefined}
+     | not Expr {CarryingSource (dummySurfaceData) $ Not $2}
 Field : Stat Temporality {StatField dummySurfaceData $1 $2}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  

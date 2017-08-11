@@ -968,16 +968,16 @@ data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently 
 
 
 noSelfReferencesCost :: Maybe RInt -> TC (Maybe RInt)
-noSelfReferencesCost = undefined
+noSelfReferencesCost = error "no self references cost not implemented"
 
 noSelfReferencesCondition :: Maybe RBool -> TC (Maybe RBool)
-noSelfReferencesCondition = undefined
+noSelfReferencesCondition = error "no self references condition not implemented"
 
 noSelfReferencesAutomatic :: Automatic -> TC Automatic
-noSelfReferencesAutomatic = undefined
+noSelfReferencesAutomatic = error "no self references automatic not implemented"
 
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
-noSelfReferencesNonautomatic = undefined
+noSelfReferencesNonautomatic = error "no self references nonautomatic not implemented"
 
 
 noSelfReferencesSkill :: Skill -> TC Skill
@@ -1067,54 +1067,54 @@ typeCheckLInt context (ParseTree.CarryingSource surfaceData expr) =
 
 
 typeCheckRInt :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC RInt
-typeCheckRInt context (ParseTree.CarryingSource _ expr) = {-error "typeCheckRInt not implemented"-}
+typeCheckRInt context (ParseTree.CarryingSource surfaceData expr) = {-error "typeCheckRInt not implemented"-}
  case expr of
-  ParseTree.Constant value -> RConstant undefined <$> typeCheckConstant undefined value
-  ParseTree.ThoughtsExpr side -> pure $ RThoughts undefined side
+  ParseTree.Constant value -> RConstant surfaceData <$> typeCheckConstant surfaceData value
+  ParseTree.ThoughtsExpr side -> pure $ RThoughts surfaceData side
   ParseTree.KnowledgeExpr knowledge side -> 
-   RKnowledge undefined
+   RKnowledge surfaceData
    <$> typeCheckKnowledge knowledge
    <*> pure side
   ParseTree.Self field ->
-   RSelfProjection undefined <$> typeCheckRStatSelf field
+   RSelfProjection surfaceData <$> typeCheckRStatSelf field
   ParseTree.Var field variable ->
-   RVarProjection undefined <$> typeCheckRStatVar field
-                              <*> typeCheckVariable context (Variable undefined variable)
+   RVarProjection surfaceData <$> typeCheckRStatVar field
+                              <*> typeCheckVariable context (Variable surfaceData variable)
   ParseTree.Sum expr1 expr2 ->
-   RSum undefined <$> typeCheckRInt context expr1
+   RSum surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
   ParseTree.Difference expr1 expr2 ->
-   RDifference undefined <$> typeCheckRInt context expr1
+   RDifference surfaceData <$> typeCheckRInt context expr1
                            <*> typeCheckRInt context expr2
   ParseTree.Product expr1 expr2 ->
-   RProduct undefined <$> typeCheckRInt context expr1
+   RProduct surfaceData <$> typeCheckRInt context expr1
                         <*> typeCheckRInt context expr2
   ParseTree.Quotient expr1 expr2 ->
-   RQuotient undefined <$> typeCheckRInt context expr1
+   RQuotient surfaceData <$> typeCheckRInt context expr1
                          <*> typeCheckRInt context expr2
   ParseTree.Mod expr1 expr2 ->
-   RMod undefined <$> typeCheckRInt context expr1
+   RMod surfaceData <$> typeCheckRInt context expr1
                     <*> typeCheckRInt context expr2
 
 {-PARSE TREE ALWAYS STILL EXISTS!??!?!?!?!?!?!?!??!?!?!?!?!?-}
 
   ParseTree.Always -> error "always should not exist, much less as an integer"
   ParseTree.GT expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(>)"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>)"]
   ParseTree.GEQ expr1 expr2 ->
-    TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(>=)"]
+    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(>=)"]
   ParseTree.LT expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(<)"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<)"]
   ParseTree.LEQ expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(<=)"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(<=)"]
   ParseTree.EQ expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "(=)"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "(=)"]
   ParseTree.And expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "and"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "and"]
   ParseTree.Or expr1 expr2 ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "or"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "or"]
   ParseTree.Not expr ->
-   TC $ Left [typeMismatchMessage undefined "Integer" "Boolean" "not"]
+   TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "not"]
 
 typeMismatchMessage :: Lexer.SurfaceData -> String -> String -> String -> String
 typeMismatchMessage surfaceData requiredType resultType operator =
