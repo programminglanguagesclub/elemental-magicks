@@ -134,22 +134,22 @@ Schools : {NoSchools dummySurfaceData }
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 Start : {Nothing}
-      | start colon Skill {Just $ CarryingSource dummySurfaceData $ Start dummySurfaceData $3}
+      | start colon Skill {Just $ CarryingSource dummySurfaceData $ Start $3}
 End : {Nothing}
-    | end colon Skill {Just $ CarryingSource dummySurfaceData $ End dummySurfaceData $3}
+    | end colon Skill {Just $ CarryingSource dummySurfaceData $ End $3}
 Counter : {Nothing}
-        | counter colon Skill {Just $ CarryingSource dummySurfaceData $ Counter dummySurfaceData $3}
+        | counter colon Skill {Just $ CarryingSource dummySurfaceData $ Counter $3}
 Spawn : {Nothing}
-      | spawn colon Skill {Just $ CarryingSource dummySurfaceData $ Spawn dummySurfaceData $3}
+      | spawn colon Skill {Just $ CarryingSource dummySurfaceData $ Spawn $3}
 Death : {Nothing}
-      | death colon Skill {Just $ CarryingSource dummySurfaceData $ Death dummySurfaceData $3}
+      | death colon Skill {Just $ CarryingSource dummySurfaceData $ Death $3}
 Auto : {Nothing}
-     | auto colon Skill {Just $ CarryingSource dummySurfaceData $ Auto dummySurfaceData $3}
+     | auto colon Skill {Just $ CarryingSource dummySurfaceData $ Auto $3}
 Actions : {[]}
         | Action Actions {$1 : $2}
-Action : action colon Skill {CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Action dummySurfaceData $3}
-Soul : soul colon Skill {Soul dummySurfaceData $3}
-Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
+Action : action colon Skill {CarryingSource (Lexer.SurfaceData (-1) (-1) "dummy") $ Action $3}
+Soul : soul colon Skill {CarryingSource dummySurfaceData $ Soul $3}
+Skill : OptionalCost OptionalCondition Automatic {CarryingSource dummySurfaceData $ AutomaticSkill $1 $2 $3}
 OptionalCost : {Nothing}
              | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant "LALALA"}
 OptionalCondition : {Nothing}

@@ -82,17 +82,18 @@ data Unit =
   (Maybe (CarryingSource Death))
   (Maybe (CarryingSource Auto))
   [CarryingSource Action]
-  Soul
+  (CarryingSource Soul)
  deriving Show
 
 data Spell =
  Spell
   Lexer.SurfaceData
   String Knowledge
-  Lexer.SurfaceData Skill {-name, school, level, skill-}
+  Lexer.SurfaceData -- this appears again????
+  (CarryingSource Skill) {-name, school, level, skill-}
  deriving Show
 
-data Skill = AutomaticSkill Lexer.SurfaceData (Maybe (CarryingSource Expr)) (Maybe (CarryingSource Expr)) Automatic
+data Skill = AutomaticSkill (Maybe (CarryingSource Expr)) (Maybe (CarryingSource Expr)) Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
@@ -149,21 +150,21 @@ data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
 
 data Stats = Stats Lexer.SurfaceData Schools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
            deriving Show
-data Start = Start Lexer.SurfaceData Skill
+data Start = Start (CarryingSource Skill)
            deriving Show
-data End = End Lexer.SurfaceData Skill
+data End = End (CarryingSource Skill)
            deriving Show
-data Counter = Counter Lexer.SurfaceData Skill
+data Counter = Counter (CarryingSource Skill)
             deriving Show
-data Spawn = Spawn Lexer.SurfaceData Skill
+data Spawn = Spawn (CarryingSource Skill)
             deriving Show
-data Death = Death Lexer.SurfaceData Skill
+data Death = Death (CarryingSource Skill)
             deriving Show
-data Auto = Auto Lexer.SurfaceData Skill
+data Auto = Auto (CarryingSource Skill)
            deriving Show
-data Action = Action Lexer.SurfaceData Skill
+data Action = Action (CarryingSource Skill)
             deriving Show
-data Soul = Soul Lexer.SurfaceData Skill
+data Soul = Soul (CarryingSource Skill)
            deriving Show
 
 data Stat = Attack
