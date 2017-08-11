@@ -43,9 +43,21 @@ data CarryingSource a =
  CarryingSource Lexer.SurfaceData a
  deriving Show
 
+
 getSurfaceSyntax' :: CarryingSource a -> String
 getSurfaceSyntax' x = syntax
  where (CarryingSource (Lexer.SurfaceData line column syntax) ast) = x
+
+getSurfaceData' :: CarryingSource a -> Lexer.SurfaceData
+getSurfaceData' (CarryingSource surfaceData _) = surfaceData
+
+unionSurfaceSyntax :: CarryingSource a -> CarryingSource b -> Lexer.SurfaceData
+unionSurfaceSyntax (CarryingSource (Lexer.SurfaceData line1 column1 source1) _) (CarryingSource (Lexer.SurfaceData line2 column2 source2) _) =
+ Lexer.SurfaceData line1 column1 (source1 ++ " " ++ source2)
+
+
+
+
 
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"
@@ -59,6 +71,9 @@ unionSurfaceData surfaceData surfaceData' =
  Lexer.SurfaceData row column $ surfaceSyntax ++ " " ++ surfaceSyntax'
  where Lexer.SurfaceData row column surfaceSyntax = surfaceData
        Lexer.SurfaceData _ _ surfaceSyntax' = surfaceData'
+
+
+
 
 
 getFileSurfaceData :: [Unit] -> [Spell] -> Lexer.SurfaceData
@@ -84,6 +99,9 @@ data Unit =
   [CarryingSource Action]
   (CarryingSource Soul)
  deriving Show
+
+
+
 
 data Spell =
  Spell
