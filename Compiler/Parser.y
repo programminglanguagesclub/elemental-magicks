@@ -213,24 +213,24 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
 Field : Stat Temporality {StatField dummySurfaceData $1 $2}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  
-Temporality : current {Temporary dummySurfaceData }
-            | permanent {Permanent dummySurfaceData }
-            | base {Base dummySurfaceData}
+Temporality : current {Temporary (extractSurfaceData $1)}
+            | permanent {Permanent (extractSurfaceData $1)}
+            | base {Base (extractSurfaceData $1)}
 HpStat : hp {CurrentHp dummySurfaceData}
        | max hp {MaxHp dummySurfaceData}
        | base hp {BaseHp dummySurfaceData}
-Stat : attack {Attack dummySurfaceData}
-     | defense {Defense dummySurfaceData}
-     | speed {Speed dummySurfaceData}
-     | range {Range dummySurfaceData}
-     | level {Level dummySurfaceData}
-Side : friendly {Friendly dummySurfaceData}
-     | enemy {Enemy dummySurfaceData}
-RelativeSet : field {Field dummySurfaceData}
-            | hand {Hand dummySurfaceData}
-            | graveyard {Graveyard dummySurfaceData}
-            | banished {Banished dummySurfaceData}
-            | spawn {SpawnLocation dummySurfaceData}
+Stat : attack {CarryingSource $1 Attack}
+     | defense {CarryingSource $1 Defense}
+     | speed {CarryingSource $1 Speed}
+     | range {CarryingSource $1 Range}
+     | level {CarryingSource (extractSurfaceData $1) Level}
+Side : friendly {Friendly (extractSurfaceData $1)}
+     | enemy {Enemy (extractSurfaceData $1)}
+RelativeSet : field {Field (extractSurfaceData $1)}
+            | hand {Hand (extractSurfaceData $1)}
+            | graveyard {Graveyard (extractSurfaceData $1)}
+            | banished {Banished (extractSurfaceData $1)}
+            | spawn {SpawnLocation (extractSurfaceData $1)}
 
 
 {

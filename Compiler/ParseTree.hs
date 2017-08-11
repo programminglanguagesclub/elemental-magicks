@@ -166,11 +166,11 @@ data Action = Action Lexer.SurfaceData Skill
 data Soul = Soul Lexer.SurfaceData Skill
            deriving Show
 
-data Stat = Attack Lexer.SurfaceData
-          | Defense Lexer.SurfaceData 
-          | Speed Lexer.SurfaceData
-          | Range Lexer.SurfaceData
-          | Level Lexer.SurfaceData 
+data Stat = Attack
+          | Defense 
+          | Speed
+          | Range
+          | Level
           deriving Show
 data Mutator = Increment Lexer.SurfaceData
              | Decrement Lexer.SurfaceData
@@ -204,7 +204,7 @@ data Schools = NoSchools Lexer.SurfaceData {-tricky to have surface data here as
              deriving Show
 
 
-data Field = StatField Lexer.SurfaceData Stat Temporality
+data Field = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
            | HpStatField Lexer.SurfaceData HpStat
            | EngagementField Lexer.SurfaceData
            deriving Show
