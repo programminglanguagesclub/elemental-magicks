@@ -150,7 +150,7 @@ Actions : {[]}
 Action : action colon Skill {CarryingSource (getSurfaceData' $3) $ Action $3}
 Soul : soul colon Skill {CarryingSource dummySurfaceData $ Soul $3}
 Skill : OptionalCost OptionalCondition Automatic {CarryingSource dummySurfaceData $ AutomaticSkill $1 $2 $3}
-OptionalCost : {Nothing}
+OptionalCost : {Nothing} -- OPTIONAL COSTS SHOULD ALLOW ANY EXPRESSION FOR THE COST NOT JUST A NUMBER
              | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant "LALALA"}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
@@ -178,12 +178,12 @@ SkillEffects : {[]}
 
 SkillEffect : Assignment {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
-Mutator : assign {Set $ Lexer.SurfaceData (-1) (-1) ":="}
-        | increment {Increment $ Lexer.SurfaceData (-1) (-1) "+="}
-        | decrement {Decrement $ Lexer.SurfaceData (-1) (-1) "-="}
-        | stretch {Stretch $ Lexer.SurfaceData (-1) (-1) "*="}
-        | crush {Crush $ Lexer.SurfaceData (-1) (-1) "/="}
-        | contort {Contort $ Lexer.SurfaceData (-1) (-1) "%="}
+Mutator : assign {Set $ extractSurfaceData $1}
+        | increment {Increment $ extractSurfaceData $1}
+        | decrement {Decrement $ extractSurfaceData $1}
+        | stretch {Stretch $ extractSurfaceData $1}
+        | crush {Crush $ extractSurfaceData $1}
+        | contort {Contort $ extractSurfaceData $1}
 ListExpr : {[]}
          | Expr {[$1]}
          | Expr comma ListExprCommas {$1 : $3}
@@ -195,8 +195,8 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Field self {CarryingSource (extractSurfaceData $2) $ Self $1}
      | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
      | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
-     | Side thoughts {CarryingSource dummySurfaceData $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
-     | Side thought {CarryingSource dummySurfaceData $ ThoughtsExpr $1 }
+     | Side thoughts {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
+     | Side thought {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 }
      | Expr sum Expr {CarryingSource (extractSurfaceData $2) $ Sum $1 $3}
      | Expr difference Expr {CarryingSource (extractSurfaceData $2) $ Difference $1 $3}
      | Expr product Expr {CarryingSource (extractSurfaceData $2) $ Product $1 $3}
