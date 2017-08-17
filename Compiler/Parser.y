@@ -216,9 +216,9 @@ Field : Stat Temporality {StatField dummySurfaceData $1 $2}
 Temporality : current {Temporary (extractSurfaceData $1)}
             | permanent {Permanent (extractSurfaceData $1)}
             | base {Base (extractSurfaceData $1)}
-HpStat : hp {CarryingSource $1 CurrentHp}
-       | max hp {CarryingSource $1 MaxHp}
-       | base hp {CarryingSource $1 BaseHp}
+HpStat : hp {CarryingSource undefined CurrentHp}
+       | max hp {CarryingSource undefined MaxHp}
+       | base hp {CarryingSource undefined BaseHp}
 Stat : attack {CarryingSource $1 Attack}
      | defense {CarryingSource $1 Defense}
      | speed {CarryingSource $1 Speed}
