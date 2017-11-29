@@ -156,7 +156,7 @@ instantiateActionSkills :
  List Skill
 
 instantiateActionSkills cardId playerId monsterFactory =
- instantiateSkill cardId playerId (actionSkills monsterFactory) ActionSkill
+ map (\x => instantiateSkill cardId playerId x ActionSkill) (actionSkills monsterFactory)
 -------------------------------------------------------------------------------
 instantiateSoulSkill :
  Nat ->
