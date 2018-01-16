@@ -215,22 +215,22 @@ getCanUseSkill accessor monster with (accessor monster)
  | Just (_,Unused) = Nothing
 -------------------------------------------------------------------------------
 getCanUseDeathSkill : Monster -> Maybe Skill
-getCanUseDeathSkill = ?hole --getCanUseSkill deathSkill
+getCanUseDeathSkill = getCanUseSkill deathSkill
 -------------------------------------------------------------------------------
 getCanUseCounterSkill : Monster -> Maybe Skill
-getCanUseCounterSkill = ?hole --getCanUseSkill counterSkill
+getCanUseCounterSkill = getCanUseSkill counterSkill
 -------------------------------------------------------------------------------
 getCanUseAutoSkill : Monster -> Maybe Skill
-getCanUseAutoSkill = ?hole --getCanUseSkill autoSkill
+getCanUseAutoSkill = getCanUseSkill autoSkill
 -------------------------------------------------------------------------------
 getCanUseStartSkill : Monster -> Maybe Skill
-getCanUseStartSkill = ?hole --getCanUseSkill startSkill
+getCanUseStartSkill = getCanUseSkill startSkill
 -------------------------------------------------------------------------------
 getCanUseEndSkill : Monster -> Maybe Skill
-getCanUseEndSkill = ?hole --getCanUseSkill endSkill
+getCanUseEndSkill = getCanUseSkill endSkill
 -------------------------------------------------------------------------------
 getCanUseSpawnSkill : Monster -> Maybe Skill
-getCanUseSpawnSkill = ?hole --getCanUseSkill spawnSkill
+getCanUseSpawnSkill = getCanUseSkill spawnSkill
 -------------------------------------------------------------------------------
 setCanUseSkill :
  (Monster -> Maybe (Skill, SkillUsedness)) ->
