@@ -74,15 +74,6 @@ revive basic =
 triple : t -> (t,t,t)
 triple t = (t,t,t)
 -------------------------------------------------------------------------------
-
-{-
-syntax mkBasicMonsterFactory [name] [schools] [hp] [attack] [defense] [speed] [range] [level] [soulPoints] =
-  MkBasicMonsterFactory name schools (>> hp <<) (>> attack <<) (>> defense <<) (>> speed <<) (>> range <<) (>> level <<) (>> soulPoints <<)
-
-test_basic_monster_factory : BasicMonsterFactory
-test_basic_monster_factory = mkBasicMonsterFactory "Mutant Pig" (TwoSchools 0 1) 10 10 10 2 2 3 2
--}
-
 instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
 
 instantiateBasicMonster basicMonsterFactory cardId =
@@ -148,21 +139,4 @@ instantiateBasicSpell basicSpellFactory id =
 -------------------------------------------------------------------------------
 data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicMonster
 -------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

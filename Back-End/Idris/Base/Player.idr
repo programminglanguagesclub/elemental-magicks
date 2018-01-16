@@ -81,20 +81,9 @@ newDrawPlayer : String -> DrawPlayer
 newDrawPlayer playerId = MkDrawPlayer [] emptySoul playerId
 -------------------------------------------------------------------------------
 
-
-{-
-vectToBoundedList : Vect n a -> BoundedList n a
-vectToBoundedList [] = Nil
-vectToBoundedList (x::xs) = x::(vectToBoundedList xs)
--}
-
-
 weakenS : BoundedList n a -> BoundedList (S n) a
 weakenS [] = []
 weakenS (x::xs) = x::(weakenS xs)
-{-
-weakenM : BoundedList n a -> BoundedList (m + n)
--}
 
 filterVectToBoundedList : Vect n a -> (a -> Bool) -> BoundedList n a
 filterVectToBoundedList [] _ = Nil
@@ -113,20 +102,12 @@ vectCount : Vect n a -> (a -> Bool) -> Fin (S n)
 vectCount [] _ = FZ
 vectCount (x::xs) f = if f x then FS (vectCount xs f) else weaken $ vectCount xs f
 
-{-
-boundedListToVect : BoundedList (n + m) a -> Vect m a
-boundedListToVect Nil = []
--}
-
-
 blarg : (m : Nat ) -> (n : Nat) -> plus m (S n) = S (m + n)
 blarg m n = rewrite plusAssociative m 1 n in (rewrite plusCommutative m 1 in Refl)
-
 
 concatBoundedList : {n : Nat} -> {m : Nat} -> BoundedList n a -> BoundedList m a -> BoundedList (m + n) a
 concatBoundedList [] l2 = weaken l2
 concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m n1 in x::(concatBoundedList xs l2)
-
 
 getAll : Vect n1 (Maybe a) -> Vect n2 (Maybe a) -> BoundedList n3 b -> BoundedList n4 b -> (a->b) ->  BoundedList ((n1+n2)+(n3+n4)) b
 getAll v1 v2 l1 l2 f =
