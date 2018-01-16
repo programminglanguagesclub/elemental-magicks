@@ -230,7 +230,7 @@ getCanUseEndSkill : Monster -> Maybe Skill
 getCanUseEndSkill = getCanUseSkill endSkill
 -------------------------------------------------------------------------------
 getCanUseSpawnSkill : Monster -> Maybe Skill
-getCanUseSpawnSkill = getCanUseSkill spawnSkill
+getCanUseSpawnSkill = spawnSkill
 -------------------------------------------------------------------------------
 setCanUseSkill :
  (Monster -> Maybe (Skill, SkillUsedness)) ->
@@ -242,33 +242,20 @@ setCanUseSkill accessor value monster with (accessor monster)
  | Nothing = monster
  | Just (skill, usedness) = ?hole -- set appropriately.
 -------------------------------------------------------------------------------
--- Want setters for specific skills now.
--------------------------------------------------------------------------------
 setCanUseDeathSkill : Bool -> Monster -> Monster
-setCanUseDeathSkill = ?hole --setCanUseSkill deathSkill
+setCanUseDeathSkill = setCanUseSkill deathSkill
 -------------------------------------------------------------------------------
 setCanUseCounterSkill : Bool -> Monster -> Monster
-setCanUseCounterSkill = ?hole --setCanUseSkill counterSkill
+setCanUseCounterSkill = setCanUseSkill counterSkill
 -------------------------------------------------------------------------------
 setCanUseAutoSkill : Bool -> Monster -> Monster
-setCanUseAutoSkill = ?hole --setCanUseSkill autoSkill
+setCanUseAutoSkill = setCanUseSkill autoSkill
 -------------------------------------------------------------------------------
 setCanUseStartSkill : Bool -> Monster -> Monster
-setCanUseStartSkill = ?hole --setCanUseSkill startSkill
+setCanUseStartSkill = setCanUseSkill startSkill
 -------------------------------------------------------------------------------
 setCanUseEndSkill : Bool -> Monster -> Monster
-setCanUseEndSkill = ?hole --setCanUseSkill endSkill
+setCanUseEndSkill = setCanUseSkill endSkill
 -------------------------------------------------------------------------------
-setCanUseSpawnSkill : Bool -> Monster -> Monster
-setCanUseSpawnSkill = ?hole --setCanUseSkill spawnSkill
--------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 
