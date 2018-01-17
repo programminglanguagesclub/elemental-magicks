@@ -219,9 +219,6 @@ findIndexPreferentiallyFrom p (FS k) (x :: xs) =
   else
    FS <$> findIndexPreferentiallyFrom p k xs
 -------------------------------------------------------------------------------
-findElementWithIndexFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n, a)
-
-findElementWithIndexFrom = ?hole
 
 
 
@@ -230,6 +227,22 @@ findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (DPair (Fin n,
 findWithIndex p [] = Nothing
 findWithIndex p (x::xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndex p xs
 
+
+helpMe : (Vect.index i v = e) -> (Vect.index (FS i) (x::v) = e)
+helpMe = ?hole
+
+
+
+findWithIndexFrom : DecEq a => (a -> Bool) -> {-Fin n ->-} (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
+findWithIndexFrom p {-FZ-} xs = findWithIndex p xs
+--findWithIndexFrom p (FS k) (x :: xs) = rewrite helpMe in FS <$> findWithIndexFrom p k xs
+
+{-
+findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
+findWithIndexFrom p FZ [] = Nothing
+findWithIndexFrom p FZ (x :: xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndexFrom p FZ xs
+findWithIndexFrom p (FS k) (x :: xs) = rewrite helpMe in FS <$> findWithIndexFrom p k xs
+-}
 
 
 
