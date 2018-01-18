@@ -227,22 +227,15 @@ findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (DPair (Fin n,
 findWithIndex p [] = Nothing
 findWithIndex p (x::xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndex p xs
 
-
-helpMe : (Vect.index i v = e) -> (Vect.index (FS i) (x::v) = e)
-helpMe = ?hole
-
-
-
-findWithIndexFrom : DecEq a => (a -> Bool) -> {-Fin n ->-} (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
-findWithIndexFrom p {-FZ-} xs = findWithIndex p xs
---findWithIndexFrom p (FS k) (x :: xs) = rewrite helpMe in FS <$> findWithIndexFrom p k xs
-
-{-
 findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
-findWithIndexFrom p FZ [] = Nothing
-findWithIndexFrom p FZ (x :: xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndexFrom p FZ xs
-findWithIndexFrom p (FS k) (x :: xs) = rewrite helpMe in FS <$> findWithIndexFrom p k xs
--}
+findWithIndexFrom p FZ [x] = if p x then Just ((FZ, x) ** Refl) else Nothing
+findWithIndexFrom p FZ (x1 :: x2 :: xs) = if p x1 then Just ((FZ, x1) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndexFrom p FZ (x2 :: xs)
+findWithIndexFrom p (FS k) (x1 :: x2 :: xs) =
+ let output = findWithIndexFrom p k (x2 :: xs) in
+  case output of
+   Nothing => Nothing
+   Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
+
 
 
 
