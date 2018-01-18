@@ -253,7 +253,7 @@ findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) =
     Nothing => Nothing
 -}
 
-
+{-
 findWithIndexPreferentiallyFrom : DecEq a => (p : a -> Bool) -> Fin n -> (v1 : Vect n a) -> Either (find p v1 = Nothing) (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
 findWithIndexPreferentiallyFrom p FZ [x] with (p x)
  | True = Right ((FZ, x) ** Refl)
@@ -270,9 +270,49 @@ findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (p x1)
       Right ((i_offset, e) ** prf) => Right ((FS i_offset, e) ** prf)
       Left prf => Left prf
 
+-}
+
+
+lt : Ordering -> Bool
+lt GT = False
+lt EQ = False
+lt LT = True
+
+leq : Ordering -> Bool
+leq GT = False
+leq EQ = True
+leq LT = True
+
+indexNotAfter : (begin : Fin n) -> (x : Fin n) -> (y : Fin n) -> Bool
+indexNotAfter begin x y with ((lt $ compare begin x),(lt $ compare begin y))
+ | (True,True) = leq $ compare x y
+ | (True,False) = False
+ | (False,True) = True
+ | (False,False) = leq $ compare x y
 
 
 
+findWithIndexPreferentiallyFrom :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v1 : Vect n a) ->
+ Either (find p v1 = Nothing) (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin n) -> (p (Vect.index i2 v1) = True) -> indexNotAfter begin i1 i2 = True))))
+findWithIndexPreferentiallyFrom p FZ [x] with (p x)
+ | True = Right ?hole --((FZ, x) ** Refl)
+ | False = Left Refl
+findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (p x1)
+ | True =
+    let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+     case output of
+      Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
+      Left prf => Right ((FZ, x1) ** (Refl,Refl))
+ | False =
+    let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+     case output of
+      Right ((i_offset, e) ** prf) => Right ?hole --((FS i_offset, e) ** prf)
+      Left prf => Left prf
+ 
 
 
 -------------------------------------------------------------------------------
