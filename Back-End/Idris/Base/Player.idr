@@ -223,9 +223,9 @@ findIndexPreferentiallyFrom p (FS k) (x :: xs) =
 
 
 
-findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (DPair (Fin n, a) (\(i,e) => (Vect.index i v = e)))
-findWithIndex p [] = Nothing
-findWithIndex p (x::xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndex p xs
+--findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (DPair (Fin n, a) (\(i,e) => (Vect.index i v = e)))
+--findWithIndex p [] = Nothing
+--findWithIndex p (x::xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndex p xs
 
 findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
 findWithIndexFrom p FZ [x] = if p x then Just ((FZ, x) ** Refl) else Nothing
@@ -237,21 +237,20 @@ findWithIndexFrom p (FS k) (x1 :: x2 :: xs) =
    Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
 
 
-
-
-
-{-
-find : (p : elem -> Bool) -> (xs : Vect len elem) -> Maybe elem
-find p []      = Nothing
-find p (x::xs) = if p x then Just x else find p xs
-
-||| Find the index of the first element of the vector that satisfies some test
-findIndex : (elem -> Bool) -> Vect len elem -> Maybe (Fin len)
-findIndex p []        = Nothing
-findIndex p (x :: xs) = if p x then Just 0 else map FS (findIndex p xs)
--}
-
-
+findWithIndexPreferentiallyFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
+findWithIndexPreferentiallyFrom p FZ [x] = if p x then Just ((FZ, x) ** Refl) else Nothing
+findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) =
+ if p x1
+  then
+   let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+    case output of
+     Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
+     Nothing => Just ((FZ, x1) ** Refl)
+ else
+  let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+   case output of
+    Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
+    Nothing => Nothing
 -------------------------------------------------------------------------------
 actualAlive : Maybe Monster -> Bool
 
