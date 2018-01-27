@@ -273,46 +273,156 @@ findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (p x1)
 -}
 
 
-lt : Ordering -> Bool
-lt GT = False
-lt EQ = False
-lt LT = True
+-- correct the ordering
 
-leq : Ordering -> Bool
-leq GT = False
-leq EQ = True
-leq LT = True
-
-indexNotAfter : (begin : Fin n) -> (x : Fin n) -> (y : Fin n) -> Bool
-indexNotAfter begin x y with ((lt $ compare begin x),(lt $ compare begin y))
- | (True,True) = leq $ compare x y
- | (True,False) = False
- | (False,True) = True
- | (False,False) = leq $ compare x y
+computeSearchIndex : (begin : Fin n) -> (i : Fin n) -> Fin n
+computeSearchIndex FZ i = i
+computeSearchIndex (FS k1) (FS k2) = computeSearchIndex (weaken k1) (weaken k2)
+computeSearchIndex (FS k) FZ = computeSearchIndex (weaken k) last
 
 
 
-findWithIndexPreferentiallyFrom :
- DecEq a =>
- (p : a -> Bool) ->
- (begin : Fin n) ->
- (v1 : Vect n a) ->
- Either (find p v1 = Nothing) (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin n) -> (p (Vect.index i2 v1) = True) -> indexNotAfter begin i1 i2 = True))))
-findWithIndexPreferentiallyFrom p FZ [x] with (p x)
- | True = Right ?hole --((FZ, x) ** Refl)
- | False = Left Refl
-findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (p x1)
- | True =
-    let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
-     case output of
-      Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
-      Left prf => Right ((FZ, x1) ** (Refl,Refl))
- | False =
-    let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
-     case output of
-      Right ((i_offset, e) ** prf) => Right ?hole --((FS i_offset, e) ** prf)
-      Left prf => Left prf
+
+leq2 : Ordering -> Bool
+leq2 GT = False
+leq2 EQ = True
+leq2 LT = True
+
+
+
+{-
+
+     Type mismatch between
+                     True
+                             and
+                                             leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ FZ) (computeSearchIndex i2 FZ))
+
+                                             -}
+
+firstThingsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
+firstThingsFirst x =
+ case compare FZ x of
+  GT => ?hole
+  EQ => ?hole
+  LT => ?hole
+
+nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex i2 FZ) = True
+nowTheProof i2 = ?hole
+
+-------------------------------------------------------------------------------
+mutual -- do I need these to be mutual if the codependency involves types, not just terms?
+  findWithIndexPreferentiallyFrom :
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin (S n)) ->
+   (v1 : Vect (S n) a) ->
+   Either (find p v1 = Nothing) (DPair (Fin (S n), a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin (S n)) -> (So (p (Vect.index i2 v1))) -> leq2 $ compare (computeSearchIndex i1 begin) (computeSearchIndex i2 begin) = True))))
+   
+  findWithIndexPreferentiallyFrom p FZ [x] with (p x)
+   | True = Right ((FZ, x) ** (Refl, \i2 => \prf => nowTheProof i2))
+   | False = Left Refl
+  findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (choose (p x1))
+   | Left prfTrue =
+      let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+       case output of
+        Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
+        Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 (FS k) notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
+   | Right prfFalse =
+      let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
+       case output of
+        Right ((i_offset, e) ** prf) => Right ?hole --((FS i_offset, e) ** prf)
+        Left prf => ?hole ---Left prf
  
+
+{-
+
+  Type mismatch between
+  True
+    and
+  leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ (FS k)) (computeSearchIndex i2 (FS k)))
+
+-}
+
+
+-------------------------------------------------------------------------------
+  pureApplesauce :
+   (x1 : a) ->
+   (x2 : a) ->
+   (xs : Vect n a) ->
+   (p : a -> Bool) ->
+   (i2 : Fin (S (S n))) ->
+   (begin : Fin (S (S n))) ->
+   (notInTail : (Vect.find p (x2 :: xs)) = Nothing) ->
+   (otherIndexMatches : So (p (Vect.index i2 (x1 :: x2 :: xs)))) ->
+   (indexMatches : So (p x1)) ->
+   leq2 $ compare (computeSearchIndex FZ (FS k)) (computeSearchIndex i2 begin) = True
+  
+-- we know that only one element is valid (for i2 in particular, which must then be equal to i1),
+-- so we can do case analysis on the search index, and reject every case where they are not equal.
+-- after that it shouldn't be too difficult.
+
+
+{-
+  pureApplesauce x1 x2 xs p i2 begin notInTail otherIndexMatches indexMatches with (computeSearchIndex i2 begin)
+    | FZ = ?hole
+    | _ = ?hole
+
+-}
+
+  foobar : (i : Fin (S k)) -> computeSearchIndex FZ i = i
+  foobar i with (decEq (computeSearchIndex FZ i) i)
+   | Yes prf = prf
+
+  argleBargle : (k : Fin n) -> computeSearchIndex FZ (FS k) = FZ
+  argleBargle k = foobar (FS k)
+
+  pureApplesauce x1 x2 xs p i2 begin notInTail otherIndexMatches indexMatches with (computeSearchIndex i2 begin)
+   | FZ = rewrite argleBargle in Refl
+   | _ = ?hole
+
+
+{-
+
+        Type mismatch between
+                        True
+                                and
+                                                leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ (FS k)) FZ)
+
+
+                                                -}
+
+  
+
+
+{-
+  -- this shows that if the element at search index FZ matches, then the element returned will be at search index FZ.
+  firstIsBest :
+   (x : a) ->
+   (xs : Vect n a) ->
+   (p : a -> Bool) ->
+   So (p x) ->
+   computeSearchIndex FZ 
+   -}
+-------------------------------------------------------------------------------
+
+{-
+  nowTheProofMaybeTrue :
+   (i2 : Fin (S k)) ->
+   (prf : find p (x2 :: xs) = Nothing) ->
+   (prf2 : p x1 = True) ->
+   findWithIndexPreferentiallyFrom p fk (x2 :: xs) = Left prf ->
+   leq2 $ compare (computeSearchIndex FZ (FS fk)) (computeSearchIndex i2 (FS fk)) = True
+
+  nowTheProofMaybeTrue i2 = ?hole
+  -}
+
+  foo : Nat
+  foo = 3
+
+
+
+
+
 
 
 -------------------------------------------------------------------------------
