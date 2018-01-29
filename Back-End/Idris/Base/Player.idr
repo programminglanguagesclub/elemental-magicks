@@ -306,7 +306,7 @@ firstThingsFirst x =
   EQ => ?hole
   LT => ?hole
 
-nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex i2 FZ) = True
+nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
 nowTheProof i2 = ?hole
 
 -------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    (p : a -> Bool) ->
    (begin : Fin (S n)) ->
    (v1 : Vect (S n) a) ->
-   Either (find p v1 = Nothing) (DPair (Fin (S n), a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin (S n)) -> (So (p (Vect.index i2 v1))) -> leq2 $ compare (computeSearchIndex i1 begin) (computeSearchIndex i2 begin) = True))))
+   Either (find p v1 = Nothing) (DPair (Fin (S n), a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin (S n)) -> (So (p (Vect.index i2 v1))) -> leq2 $ compare (computeSearchIndex begin i1) (computeSearchIndex begin i2) = True))))
    
   findWithIndexPreferentiallyFrom p FZ [x] with (p x)
    | True = Right ((FZ, x) ** (Refl, \i2 => \prf => nowTheProof i2))
@@ -326,7 +326,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
       let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
        case output of
         Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
-        Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 (FS k) notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
+        Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 k notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
    | Right prfFalse =
       let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
        case output of
@@ -351,34 +351,43 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    (xs : Vect n a) ->
    (p : a -> Bool) ->
    (i2 : Fin (S (S n))) ->
-   (begin : Fin (S (S n))) ->
+   (beforeBegin : Fin (S n)) -> -- also know is FS k
    (notInTail : (Vect.find p (x2 :: xs)) = Nothing) ->
    (otherIndexMatches : So (p (Vect.index i2 (x1 :: x2 :: xs)))) ->
    (indexMatches : So (p x1)) ->
-   leq2 $ compare (computeSearchIndex FZ (FS k)) (computeSearchIndex i2 begin) = True
+   leq2 $ compare (computeSearchIndex (FS beforeBegin) FZ) (computeSearchIndex (FS beforeBegin) i2) = True
   
 -- we know that only one element is valid (for i2 in particular, which must then be equal to i1),
 -- so we can do case analysis on the search index, and reject every case where they are not equal.
 -- after that it shouldn't be too difficult.
 
-
-{-
-  pureApplesauce x1 x2 xs p i2 begin notInTail otherIndexMatches indexMatches with (computeSearchIndex i2 begin)
-    | FZ = ?hole
-    | _ = ?hole
-
--}
-
   foobar : (i : Fin (S k)) -> computeSearchIndex FZ i = i
   foobar i with (decEq (computeSearchIndex FZ i) i)
    | Yes prf = prf
 
-  argleBargle : (k : Fin n) -> computeSearchIndex FZ (FS k) = FZ
+  argleBargle : (k : Fin n) -> computeSearchIndex FZ (FS k) = (FS k)
   argleBargle k = foobar (FS k)
 
-  pureApplesauce x1 x2 xs p i2 begin notInTail otherIndexMatches indexMatches with (computeSearchIndex i2 begin)
-   | FZ = rewrite argleBargle in Refl
-   | _ = ?hole
+  pureApplesauce x1 x2 xs p i2 beforeBegin notInTail otherIndexMatches indexMatches with (decEq (computeSearchIndex (FS beforeBegin) i2) FZ)
+   | Yes prf with (computeSearchIndex (FS beforeBegin) FZ) 
+     | FZ = rewrite prf in Refl
+     | FS k = ?hole
+   | No prf = ?hole--Refl
+
+
+
+{-
+
+
+        Specifically:
+                Type mismatch between
+                        True
+                and
+                        leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex (FS beforeBegin)
+                                                                                                                          FZ)
+                                                                                                      FZ)
+
+-}
 
 
 {-
