@@ -371,7 +371,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
   pureApplesauce x1 x2 xs p i2 beforeBegin notInTail otherIndexMatches indexMatches with (decEq (computeSearchIndex (FS beforeBegin) i2) FZ)
    | Yes prf with (computeSearchIndex (FS beforeBegin) FZ) 
      | FZ = rewrite prf in Refl
-     | FS k = ?hole
+     | FS k = Refl
    | No prf = ?hole--Refl
 
 
