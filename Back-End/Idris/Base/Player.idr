@@ -334,14 +334,13 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
         Left prf => ?hole ---Left prf
  
 
-{-
+  jiggeryPokery :
+   (beginBefore : Fin k) ->
+   leq2 $ compare FZ (computeSearchIndex (FS beginBefore) FZ) = True
 
-  Type mismatch between
-  True
-    and
-  leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ (FS k)) (computeSearchIndex i2 (FS k)))
-
--}
+  jiggeryPokery beginBefore with (computeSearchIndex (FS beginBefore) FZ)
+   | FZ = Refl
+   | FS fk = Refl
 
 
 -------------------------------------------------------------------------------
@@ -371,36 +370,8 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
   pureApplesauce x1 x2 xs p i2 beforeBegin notInTail otherIndexMatches indexMatches with (decEq (computeSearchIndex (FS beforeBegin) i2) FZ)
    | Yes prf with (computeSearchIndex (FS beforeBegin) FZ) 
      | FZ = rewrite prf in Refl
-     | FS k = Refl
-   | No prf = ?hole--Refl
-
-
-
-{-
-
-
-        Specifically:
-                Type mismatch between
-                        True
-                and
-                        leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex (FS beforeBegin)
-                                                                                                                          FZ)
-                                                                                                      FZ)
-
--}
-
-
-{-
-
-        Type mismatch between
-                        True
-                                and
-                                                leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ (FS k)) FZ)
-
-
-                                                -}
-
-  
+     | FS k = ?hole
+   | No prf = ?hole --Refl
 
 
 {-

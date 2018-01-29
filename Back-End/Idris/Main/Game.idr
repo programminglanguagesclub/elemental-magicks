@@ -26,7 +26,7 @@ data Round
  | SecondRoundOriginalPlayerAWonFirstRound
  | SecondRoundOriginalPlayerBWonFirstRound
 -------------------------------------------------------------------------------
-{-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
+{-Reset used_death_skill, used_counter_skill before START OF PHASE?------auto skill and action of card. -}
 
 -------------------------------------------------------------------------------
 -- monster id data type?
