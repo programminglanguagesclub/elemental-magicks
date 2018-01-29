@@ -49,17 +49,22 @@ schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card)
 
 -------------------------------------------------------------------------------
 reindex :
- Ord a =>
+ Ord b =>
  Vect n (Maybe a) ->
- (engagementPriority : (a, Fin n) -> Fin n) ->
- DPair
-  (Vect n (Maybe a, Fin n)) -- DATA
-  (\v => (            -- SPECIFICATION
+ (engagementPriority : (a, Fin n) -> b) ->
+ DPair                                            -- DATA
+  (Vect n (Maybe a, Fin n))                       -- Fin n indexes old vector
+--------------------------------------------------
+  (\v => (                                        -- SPECIFICATION
     (i : Fin n) ->
     (j : Fin n) -> (
-     index i v = (Just iElement, iOriginalIndex),
+     index i v = (Just iElement, iOriginalIndex), -- given two actual elements
      index j v = (Just jElement, jOriginalIndex),
-     (prf : compare i j = LT) -> compare (engagementPriority (iElement, iOriginalIndex)) (engagementPriority (jElement, jOriginalIndex)) = GT -> Void
+     (prf : compare i j = LT) ->                  -- if i < j in result vector
+      compare
+       (engagementPriority (iElement, iOriginalIndex))
+       (engagementPriority (jElement, jOriginalIndex)) = GT ->
+      Void                                        -- cards @ i <= j in priority
   )))
 
 
