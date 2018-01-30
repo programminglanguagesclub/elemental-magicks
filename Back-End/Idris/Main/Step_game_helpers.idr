@@ -61,8 +61,72 @@ loadSkill game = ?hole
 
 
 
+-------------------------------------------------------------------------------
+{-
 
-resetAllSkills : Game -> Game {-Resets start skills, end skills, and counter skills. also decrements engagement (autoskills are reset whenever this happens) -}
+
+record Monster where
+ constructor MkMonster
+ basic : BasicMonster
+ startSkill : Maybe (Skill, SkillUsedness)
+ endSkill : Maybe (Skill, SkillUsedness)
+ counterSkill : Maybe (Skill, SkillUsedness)
+ spawnSkill : Maybe Skill
+ deathSkill : Maybe (Skill, SkillUsedness)
+ autoSkill : Maybe (Skill, SkillUsedness)
+ actionSkills : List Skill
+ soulSkill : Skill
+
+record {skillQueue $= pushSkill' skill} game
+
+-}
+
+
+
+
+-------------------------------------------------------------------------------
+resetSkill : Maybe (Skill, SkillUsedness) -> Maybe (Skill, SkillUsedness)
+resetSkill Nothing = Nothing
+resetSkill (Just (s,_)) = Just (s,Unused)
+-------------------------------------------------------------------------------
+resetAllSkillsMonster : Monster -> Monster
+resetAllSkillsMonster monster =
+ record {
+  startSkill $= resetSkill,
+  endSkill $= resetSkill,
+  counterSkill $= resetSkill,
+  deathSkill $= resetSkill,
+  autoSkill $= resetSkill
+ } monster
+-------------------------------------------------------------------------------
+resetAllSkillsSquare : Maybe Monster -> Maybe Monster
+resetAllSkillsSquare square = map resetAllSkillsMonster square
+-------------------------------------------------------------------------------
+resetAllSkillsBoard : Vect 9 (Maybe Monster) -> Vect 9 (Maybe Monster)
+resetAllSkillsBoard board = map resetAllSkillsSquare board
+-------------------------------------------------------------------------------
+resetAllSkillsPlayer : Player -> Player
+resetAllSkillsPlayer player = ?hole
+-- currently the player board is a vector of vectors
+-- I need to finalize this design.
+
+resetAllSkills : Game -> Game
+resetAllSkills game =
+ record {
+  playerA $= resetAllSkillsPlayer,
+  playerB $= resetAllSkillsPlayer
+ } game
+-------------------------------------------------------------------------------
+
+-- this doesn't generate any client updates because this always happens
+-- at the same time and the user doesn't have to be alerted of it.
+-- this might not be correct but I'm only doing this for cards that are on the 9 square bord.
+{-Resets start skills, end skills, and counter skills. also decrements engagement (autoskills are reset whenever this happens) -}
+-------------------------------------------------------------------------------
+
+
+
+
 possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
 
 {-Might actually want to be stepping round here, not game.-}

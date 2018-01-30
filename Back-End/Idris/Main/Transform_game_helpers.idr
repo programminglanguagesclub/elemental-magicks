@@ -43,10 +43,11 @@ schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card)
 -}
 
 -------------------------------------------------------------------------------
---something : Maybe a -> Bool
---something (Just x) = True
---something Nothing = False
+standardEngagementPriority : (Monster, Fin n) -> (Integer, Fin n)
+standardEngagementPriority (monster, boardIndex) = (removeBounds $ fst $ speed $ basic monster, boardIndex)
 
+getMonstersWithPositions : Vect n (Maybe a) -> Vect n (Maybe a, Fin n) -- store your index
+getMonstersWithPositions = ?hole
 -------------------------------------------------------------------------------
 reindex :
  Ord b =>
@@ -67,11 +68,58 @@ reindex :
       Void                                        -- cards @ i <= j in priority
   )))
 
+reindex board engagementPriority = -- is this even provable given present generality?
+ let smartBoard = getMonstersWithPositions board in
+ ?hole
 
 -------------------------------------------------------------------------------
 
-{-For now, completely ignore the possibility of the user using skills! :D -}
+-- just gets for single player...
 
+validForAction : Maybe Monster -> Maybe (Monster, Fin n)
+-- says if a card exists, is alive, and is disengaged.
+{-
+isValidForAction : Maybe Monster -> Bool
+isValidForAction m with (validForAction m)
+ | Just _ = True
+ | Nothing = False
+
+-}
+
+
+priority : (Monster, Fin n) -> (Integer, Fin n) -- have to invert speed so this works. smaller here gives higher priority.
+
+engagementPhaseOnMove :
+ (board : Vect n (Maybe Monster)) ->
+ Either
+  (Fin n -> validForAction $ index i board = Nothing)
+  (DPair
+   (Monster, Fin n)
+   (
+    \(monster, square) => (
+     validForAction $ index square board = Just (monster,square),
+     (otherMonster : Monster) -> 
+     (otherSquare : Fin n) ->
+     validForAction $ index otherSquare board = Just (otherMonster, otherSquare) ->
+     (otherSquare = square -> Void) ->
+     (compare (priority (monster,square)) (priority (otherMonster, otherSquare))) = LT
+    )
+   )
+  )
+
+findLargest : Vect n a -> (a -> Integer) -> a
+findLargest v f = ?hole
+
+
+engagementPhaseOnMove board =
+ let newVect = map validForAction board in ?hole
+ 
+
+
+
+-------------------------------------------------------------------------------
+{-For now, completely ignore the possibility of the user using skills! :D -}
+{-
 _engagementOnMove :
  (playerABoard : Vect 9 (Maybe Monster)) ->
  (playerBBoard : Vect 9 (Maybe Monster)) ->
@@ -80,13 +128,14 @@ _engagementOnMove :
 
 _engagementOnMove playerABoard playerBBoard initiative = ?hole
  --let playerAUnit = findWithIndexPreferentiallyFrom ?hole ?hole ?hole in ?hole
+-}
 -------------------------------------------------------------------------------
-engagementOnMove :
+{-engagementOnMove :
  (game : Game) ->
  (player : Player) ->
  (opponent : Player) ->
  (Bool, Fin 9)
-
+-}
 
 -------------------------------------------------------------------------------
 
@@ -108,16 +157,34 @@ inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSq
   | Alive with (range (basic monster))
    | (temporaryRange,_,_) = if gt (fromIntegerNat (extractBounded temporaryRange)) ((_getFriendlyStuffInFront attackerBoard attackerSquare) + (_getEnemyStuffInFront defenderBoard row)) then Just True else Just False
 
-moveUnit : (moveFrom : Fin 9) -> (moveTo : Fin 9) -> (board : Vect 9 (Maybe Monster)) -> Vect 9 (Maybe Monster) {-this actually does a swap-}
-moveUnit moveFrom moveTo board = let to = index moveTo board in replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 
-restUnit : (location : Fin 9) -> Game -> WhichPlayer -> (Game,List ClientUpdate)
+-------------------------------------------------------------------------------
+moveUnit :
+ (moveFrom : Fin 9) ->
+ (moveTo : Fin 9) ->
+ (board : Vect 9 (Maybe Monster)) ->
+ Vect 9 (Maybe Monster) {-this actually does a swap-}
 
+
+moveUnit moveFrom moveTo board =
+ let to = index moveTo board in
+ replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
+-------------------------------------------------------------------------------
+
+restUnit :
+ (location : Fin 9) ->
+ Game ->
+ WhichPlayer ->
+ (Game,List ClientUpdate)
+
+-------------------------------------------------------------------------------
 _getHandCards : (hand : List Card) -> (acc : MultiTree Nat) -> MultiTree Nat
 _getHandCards [] acc = acc
 _getHandCards (card::cards) acc with (card)
  |MonsterCard m      = _getHandCards cards (insert acc (id (basic m)))
  |SpellCard s        = _getHandCards cards acc
+-------------------------------------------------------------------------------
 getHandCards : (hand : List Card) -> MultiTree Nat
 getHandCards hand = _getHandCards hand Leaf
+-------------------------------------------------------------------------------
 
