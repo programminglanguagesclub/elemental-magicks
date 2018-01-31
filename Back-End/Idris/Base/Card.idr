@@ -77,6 +77,22 @@ record Spell where
 record Monster where
  constructor MkMonster
  basic : BasicMonster
+ muted : Bool
+
+-- This isn't implemented yet, but the first turn
+-- that units are on the field, they are muted/silenced unless they were deployed normally.
+-- Note that muted/silenced units are also unable to use their action skills.
+-- They may only attack, direct attack, move, or rest.
+-- This is to prevent infinite loops involving skills that summon and unsummon units.
+
+-- note that normally, all units, including dead ones, have their skills all reset to unused
+-- at the beginning of the spawn phase. This way cards that are revived in the spell phase still have use of skills,
+-- unless they were summoned in the spell phase, in which case they are muted.
+
+-- infinite loops are prevented in other cases by only allowing units to activate skills once per turn,
+-- (oh, question about when attacks are allowed... do I allow them if direct attacks are? If nothing is in range?
+-- How about disallow attack unless there is something in range.
+
  startSkill : Maybe (Skill, SkillUsedness)
  endSkill : Maybe (Skill, SkillUsedness)
  counterSkill : Maybe (Skill, SkillUsedness)
@@ -84,6 +100,22 @@ record Monster where
  deathSkill : Maybe (Skill, SkillUsedness)
  autoSkill : Maybe (Skill, SkillUsedness)
  actionSkills : List Skill
+ soulSkill : Skill
+-------------------------------------------------------------------------------
+record InactiveMonster where -- in the spawn position, hand, or graveyard
+ constructor MkInactiveMonster
+ basic : BasicMonster -- actually not.... only needs base stats....
+ startSkill : Maybe Skill
+ endSkill : Maybe Skill
+ counterSkill : Maybe Skill
+ spawnSkill : Maybe Skill
+ deathSkill : Maybe Skill
+ autoSkill : Maybe Skill
+ actionSkills : List Skill
+
+record SoulMonster where
+ constructor MkSoulMonster
+ basic : BasicMonster -- actually just needs soul points.....
  soulSkill : Skill
 -------------------------------------------------------------------------------
 initializeSkillUsedness : Maybe Skill -> Maybe (Skill, SkillUsedness) 
@@ -172,6 +204,7 @@ instantiateMonster : Nat -> String -> MonsterFactory -> Monster
 instantiateMonster cardId playerId monsterFactory =
  MkMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
+  False
   (instantiateStartSkill cardId playerId monsterFactory)
   (instantiateEndSkill cardId playerId monsterFactory)
   (instantiateCounterSkill cardId playerId monsterFactory)

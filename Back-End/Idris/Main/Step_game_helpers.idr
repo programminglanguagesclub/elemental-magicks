@@ -26,12 +26,12 @@ Selection game (board, hand, graveyard) with (skillHead game)
 
 
 {- SHOULD FOLD HERE -}
-foo7312016 : Monster -> Integer
-foo7312016 m with (soulPoints ( basic(m) ))
+getSoulPointsRemainingOnMonster : Monster -> Integer
+getSoulPointsRemainingOnMonster m with (soulPoints ( basic(m) ))
   | (MkBounded (current ** _),_) = current
 
 getPointsFromSoul : Vect 5 Monster -> Integer
-getPointsFromSoul n = foldrImpl (\x,y => foo7312016(x)+y) 0 (\x => x) n
+getPointsFromSoul n = foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) n
 
 
 getSoulPoints : Player -> Integer
@@ -55,34 +55,6 @@ removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
 -}
-
-
-
-
-
-
--------------------------------------------------------------------------------
-{-
-
-
-record Monster where
- constructor MkMonster
- basic : BasicMonster
- startSkill : Maybe (Skill, SkillUsedness)
- endSkill : Maybe (Skill, SkillUsedness)
- counterSkill : Maybe (Skill, SkillUsedness)
- spawnSkill : Maybe Skill
- deathSkill : Maybe (Skill, SkillUsedness)
- autoSkill : Maybe (Skill, SkillUsedness)
- actionSkills : List Skill
- soulSkill : Skill
-
-record {skillQueue $= pushSkill' skill} game
-
--}
-
-
-
 
 -------------------------------------------------------------------------------
 resetSkill : Maybe (Skill, SkillUsedness) -> Maybe (Skill, SkillUsedness)
@@ -109,7 +81,7 @@ resetAllSkillsPlayer : Player -> Player
 resetAllSkillsPlayer player = ?hole
 -- currently the player board is a vector of vectors
 -- I need to finalize this design.
-
+-------------------------------------------------------------------------------
 resetAllSkills : Game -> Game
 resetAllSkills game =
  record {
@@ -123,9 +95,6 @@ resetAllSkills game =
 -- this might not be correct but I'm only doing this for cards that are on the 9 square bord.
 {-Resets start skills, end skills, and counter skills. also decrements engagement (autoskills are reset whenever this happens) -}
 -------------------------------------------------------------------------------
-
-
-
 
 possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
 
