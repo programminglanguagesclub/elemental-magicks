@@ -71,8 +71,9 @@ moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
   (Just m, hand') => Just (hand', (graveyard ++ [MonsterCard m]))
 -------------------------------------------------------------------------------
 reviveMonster : Monster -> Monster
-{-
+
 _revive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> Thoughts -> List Card -> List Card -> Maybe (Vect 9 (Maybe Monster),Thoughts,List Card,List Card)
+{-
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
