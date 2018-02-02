@@ -18,12 +18,12 @@ data MonsterSchools
  | TwoSchools (Fin 6) (Fin 6)
 
 DecEq MonsterSchools where
- NoSchools == NoSchools = True
- NoSchools == (OneSchool x) = False
- NoSchools == (TwoSchools x y) = False
- (OneSchool x1) == (OneSchool x2) = x1 == x2
- (OneSchool x1) == (TwoSchools x2 y2) = False
- (TwoSchools x1 x2) == (TwoSchools x2 y2) = x1 == x2 && y1 == y2
+ NoSchools = NoSchools = True
+ NoSchools = (OneSchool x) = False
+ NoSchools = (TwoSchools x y) = False
+ (OneSchool x1) = (OneSchool x2) = x1 == x2
+ (OneSchool x1) = (TwoSchools x2 y2) = False
+ (TwoSchools x1 x2) = (TwoSchools x2 y2) = x1 == x2 && y1 == y2
 -------------------------------------------------------------------------------
 record BasicMonsterFactory where
  constructor MkBasicMonsterFactory
