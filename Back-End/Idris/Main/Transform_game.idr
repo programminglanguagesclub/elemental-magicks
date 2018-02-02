@@ -90,19 +90,9 @@ transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in 
 
 -}
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
-
-
+-------------------------------------------------------------------------------
 transformGame : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
 transformGame = assert_total transformGame'
-
-
-
-
-
-
-
-
-
 
 {-with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
@@ -194,5 +184,3 @@ transformFullGame :
  (Either WhichPlayer FullGame, List ClientUpdate)
 
 -------------------------------------------------------------------------------
-
-

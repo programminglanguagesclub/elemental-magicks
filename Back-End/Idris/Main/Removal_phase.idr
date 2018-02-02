@@ -10,8 +10,13 @@ import Base.Skill_dsl_data
 
 
 
+-------------------------------------------------------------------------------
+stepRemovalPhase :
+ List Nat ->
+ Player ->
+ Player ->
+ (Game, List ClientUpdate, Maybe ClientInstruction)
 
-stepRemovalPhase : List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepRemovalPhase deathQueue player opponent = ?hole
 
 
@@ -24,10 +29,10 @@ stepRemovalPhase deathQueue player opponent = ?hole
 
 -}
 
+-------------------------------------------------------------------------------
 
 
-
-transformRemovalPhase :
+transformRemovalPhase : -- Again, need update argument....!?!?
  WhichPlayer ->
  Player ->
  Player ->

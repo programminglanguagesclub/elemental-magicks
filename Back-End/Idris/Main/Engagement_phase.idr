@@ -25,8 +25,14 @@ allUnitsDead : Vect n (Maybe Monster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
 
 
+-------------------------------------------------------------------------------
+stepEngagementPhase :
+ WhichPlayer ->
+ List Nat ->
+ Player ->
+ Player ->
+ (Game, List ClientUpdate, Maybe ClientInstruction)
 
-stepEngagementPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepEngagementPhase initiative deathQueue player opponent = ?hole
 
 {-
@@ -36,10 +42,10 @@ stepEngagementPhase initiative deathQueue player opponent = ?hole
 
 -}
 
+-------------------------------------------------------------------------------
 
 
-
-transformEngagementPhase :
+transformEngagementPhase : -- NEED to also pass in the server update to this function, right????
  WhichPlayer ->
  Player ->
  Player ->
