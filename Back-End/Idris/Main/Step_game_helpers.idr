@@ -12,39 +12,97 @@ import Base.Card
 %access public export
 %default total
 
-damageSoul : (Game, List ClientUpdate) -> Player -> (damage : Nat) -> (Maybe Game, List ClientUpdate)
+-------------------------------------------------------------------------------
+-- not responsible for further effects resulting?
+damageSoul :
+ (Game, List ClientUpdate) ->
+ Player ->
+ (damage : Nat) ->
+ (Maybe Game, List ClientUpdate)
 
+-- What does nothing here mean? The game is over?
+damageSoul (game,updates) player damage = ?hole
+-------------------------------------------------------------------------------
 {-I think some places I used Bounded 0 25 for hand index. Should change that if I did-}
 
-Selection : {b : Nat} -> {h : Nat} -> {g : Nat} -> (game : Game) -> (Vect b (Fin 9), Vect h (Fin 25), Vect g (Fin 25)) -> (Game, List ClientUpdate)
+Selection :
+ {b : Nat} ->
+ {h : Nat} ->
+ {g : Nat} ->
+ (game : Game) ->
+ (Vect b (Fin 9), Vect h (Fin 25), Vect g (Fin 25)) ->
+ (Game, List ClientUpdate)
+
 Selection game (board, hand, graveyard) with (skillHead game)
   | _ = ?hole
  {-| Nothing = ?hole {-(game, [])-}{-probably match on whether it's terminated.-}
  | skill = ?hole
  -}
-
+-------------------------------------------------------------------------------
 
 
 {- SHOULD FOLD HERE -}
 getSoulPointsRemainingOnMonster : Monster -> Integer
 getSoulPointsRemainingOnMonster m with (soulPoints ( basic(m) ))
   | (MkBounded (current ** _),_) = current
-
+-------------------------------------------------------------------------------
 getPointsFromSoul : Vect 5 Monster -> Integer
-getPointsFromSoul n = foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) n
-
-
+getPointsFromSoul n =
+ foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) n
+-------------------------------------------------------------------------------
 getSoulPoints : Player -> Integer
 getSoulPoints player = getPointsFromSoul(soulCards player)
-
+-------------------------------------------------------------------------------
 {-
 FooDrawCard : Player n m -> Card -> Player (S n) m
 FooDrawCard player card = MkPlayer (board player) (reverse (card :: (reverse (hand player)))) (graveyard player) (spawn player) (soul player) (thoughts player) (knowledge player) (temporaryId player)
 -}
 
+
+
+-------------------------------------------------------------------------------
 killFatallyDamaged : (Game, List ClientUpdate) -> (Game, List ClientUpdate)
+-------------------------------------------------------------------------------
+
+something : Maybe a -> Bool
+something Nothing = False
+something (Just _) = True
+
+data Something : Maybe a -> Type where
+ MkSomething : (x : a) -> Something (Just x)
+
+
+-------------------------------------------------------------------------------
+{-removeSpawnFromGame :
+ (Game, List ClientUpdate) ->
+ (which : WhichPlayer) ->
+ Something (spawnCard (getPlayer which game)) ->
+ (Game, List ClientUpdate)
+-}
+
+
+removeSpawnFromGame :
+ (Game, List ClientUpdate) ->
+ (which : WhichPlayer) ->
+ something (spawnCard (getPlayer which game)) = true ->
+ (Game, List ClientUpdate)
+
+
+-- might need decEq for card....
+
 {-
-removeSpawnFromGame : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)
+-- assume player a for now
+removeSpawnFromGame (game,acc) which prf with (spawnCard (playerA game))
+ | Nothing
+   with (decEq (something (spawnCard (playerA game))) True)
+    | Yes prf1 = ?hole
+    | No prf2 = absurd prf2
+ | Just card = ?hole
+-}
+
+---?hole --(record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game))])
+
+{-
 removeSpawnFromGame (game, acc) PlayerA with (spawnCard (player_A game))
  | Nothing = (game, acc ++ [GameLogicError])
  | Just card = (record {player_A -> discard = (discard (player_A game)) ++ [card], player_A -> spawn = Nothing} game, acc ++ [SendSpawnToDiscard (temporaryId (player_A game))])
@@ -55,7 +113,6 @@ removeSpawnFromGame (game, acc) PlayerB with (spawn (player_B game))
 loadSkill : Game -> (Automatic, Bool, Nat) -> (Game, List ClientUpdate)
 loadSkill game = ?hole
 -}
-
 -------------------------------------------------------------------------------
 resetSkill : Maybe (Skill, SkillUsedness) -> Maybe (Skill, SkillUsedness)
 resetSkill Nothing = Nothing
@@ -95,9 +152,8 @@ resetAllSkills game =
 -- this might not be correct but I'm only doing this for cards that are on the 9 square bord.
 {-Resets start skills, end skills, and counter skills. also decrements engagement (autoskills are reset whenever this happens) -}
 -------------------------------------------------------------------------------
-
 possiblyDecrementSoul : Game -> (Game, List ClientUpdate) {-oops, this might have to call step game....-}
-
+-------------------------------------------------------------------------------
 {-Might actually want to be stepping round here, not game.-}
 {-THIS IS WHERE I NEED TO BE LOADING THE SPAWN SKILLS!!!!-}
 goToNextPhase : (Game,List ClientUpdate) -> (Game,List ClientUpdate)
@@ -123,18 +179,16 @@ goToNextPhase (game,acc) = ?hole
 
 {-
 
-
-
 HAVE TO SET DEATHSTALE/FRESH SOMEWHERE WHEN TRANSITIONING PHASES
 Also have to possibly decrement soul points depending on what turn it is.
 
 
 -}
-
+-------------------------------------------------------------------------------
 {-sendSpawnToGraveyard : (Game, List ClientUpdate) -> WhichPlayer -> (Game, List ClientUpdate)-}
-
+-------------------------------------------------------------------------------
 getTemporaryIdentifiers : Game -> WhichPlayer -> (String,String)
-
+-------------------------------------------------------------------------------
 {-
 transformPlayer : (Game,List ClientUpdate) -> WhichPlayer -> (Player -> (Player, List ClientUpdate)) -> (Game, List ClientUpdate)
 
@@ -151,14 +205,17 @@ transformPlayer (game,updateAcc) PlayerB transform =
  (game', updateAcc')
 -}
 
+-------------------------------------------------------------------------------
+spendThoughts :
+ Player ->
+ Integer ->
+ (Player, List ClientUpdate)
 
-spendThoughts : Player -> Integer -> (Player, List ClientUpdate)
-spendThoughts player val = ((record {thoughtsResource = {- (\t => t - val) -} ?hole {-(thoughts player)-} } player), [{-UpdateThoughts (thoughts player) (temporaryId player)-}])
-
-
-
+spendThoughts player val =
+ ((record {thoughtsResource = {- (\t => t - val) -} ?hole {-(thoughts player)-} } player),
+  [{-UpdateThoughts (thoughts player) (temporaryId player)-}])
+-------------------------------------------------------------------------------
 handleSkillInitiation : Game -> Nat -> (Game, List ClientUpdate)
-
+-------------------------------------------------------------------------------
 handleSkillSelection : Game -> (List Nat, List Nat, List Nat, List Nat, List Nat, List Nat) -> (Game, List ClientUpdate)
-
-
+-------------------------------------------------------------------------------

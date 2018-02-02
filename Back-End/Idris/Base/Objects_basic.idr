@@ -16,6 +16,14 @@ data MonsterSchools
  = NoSchools
  | OneSchool (Fin 6)
  | TwoSchools (Fin 6) (Fin 6)
+
+DecEq MonsterSchools where
+ NoSchools == NoSchools = True
+ NoSchools == (OneSchool x) = False
+ NoSchools == (TwoSchools x y) = False
+ (OneSchool x1) == (OneSchool x2) = x1 == x2
+ (OneSchool x1) == (TwoSchools x2 y2) = False
+ (TwoSchools x1 x2) == (TwoSchools x2 y2) = x1 == x2 && y1 == y2
 -------------------------------------------------------------------------------
 record BasicMonsterFactory where
  constructor MkBasicMonsterFactory
@@ -28,6 +36,9 @@ record BasicMonsterFactory where
  range : Bounded 1 5
  level : Bounded 1 9
  soulPoints : Bounded 1 2
+
+DecEq BasicMonsterFactory where
+ (MkBasicMonsterFactory name1 schools1 hp1 attack1 defense1 speed1 range1 level1 soulPoints1) == (MkBasicMonsterFactory name2 schools2 hp2 attack2 defense2 speed2 range2 level2 soulPoints2) = ?hole
 -------------------------------------------------------------------------------
 record BasicMonster where
  constructor MkBasicMonster
