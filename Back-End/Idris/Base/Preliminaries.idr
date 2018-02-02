@@ -10,6 +10,44 @@ import Base.Bounded
 syntax [lhs] ":=" [rhs] ";" [program] = let lhs = rhs in program
 -}
 
+
+
+
+
+
+-- should have unique list, unique vector, etc, I guess. 
+-- this can be generalized to traversable.
+
+
+-- for some reason did not have to declare Eq or DecEq on a.
+data UniqueVector : Nat -> Type -> Type where
+ MkUniqueVector :
+  (v : Vect n a) ->
+  ((i : Fin n) ->
+   (j : Fin n) ->
+   (i = j -> Void) ->
+   index i v = index j v ->
+   Void) ->
+  UniqueVector n a
+
+{-
+blah : UniqueVector 2 Bool
+blah = MkUniqueVector [True,False]
+ (\i => \j => \prf1 => \prf2 =>
+  case (i,j) of
+   (FZ,FZ) => prf1 Refl
+   (FZ,FS FZ) => ?hole
+   (FS FZ,FZ) => ?hole
+   (FS FZ,FS FZ) => ?hole
+ )
+-}
+
+
+
+
+
+
+
 data WhichPlayer
  = PlayerA
  | PlayerB

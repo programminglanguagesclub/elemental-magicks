@@ -102,6 +102,8 @@ record Monster where
  actionSkills : List Skill
  soulSkill : Skill
 -------------------------------------------------------------------------------
+
+{-
 record InactiveMonster where -- in the spawn position, hand, or graveyard
  constructor MkInactiveMonster
  basic : BasicMonster -- actually not.... only needs base stats....
@@ -112,11 +114,43 @@ record InactiveMonster where -- in the spawn position, hand, or graveyard
  deathSkill : Maybe Skill
  autoSkill : Maybe Skill
  actionSkills : List Skill
+---- This is actually quite similar to monster factory...
 
-record SoulMonster where
- constructor MkSoulMonster
- basic : BasicMonster -- actually just needs soul points.....
+record SoulCard where
+ constructor MkSoulCard
+ name : String
+ soulPoints : ((Bounded 0 2),(Bounded 1 2))
+-- this is current,max,
+-- but I should also include the fact
+-- that the current can't be greater than the max
  soulSkill : Skill
+
+-}
+
+{-
+
+
+record BasicMonster where
+ constructor MkBasicMonster
+ name : String
+ id : Nat
+ schools : MonsterSchools
+ hp : Hp
+ attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+ defense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+ speed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
+ range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
+ level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
+ soulPoints : ((Bounded 0 2),(Bounded 1 2))
+ engagement : Bounded 0 Preliminaries.absoluteUpperBound
+ aliveness : Aliveness
+
+
+-}
+
+
+
+
 -------------------------------------------------------------------------------
 initializeSkillUsedness : Maybe Skill -> Maybe (Skill, SkillUsedness) 
 initializeSkillUsedness skill = MkPair <$> skill <*> (pure Unused)

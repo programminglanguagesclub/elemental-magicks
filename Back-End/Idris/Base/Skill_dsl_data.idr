@@ -137,8 +137,8 @@ data Set
  | EnemyHand 
  | FriendlyGraveyard 
  | EnemyGraveyard 
- | FriendlyDiscard 
- | EnemyDiscard 
+ | FriendlyBanished
+ | EnemyBanished
  | Union Set Set
 -------------------------------------------------------------------------------
 data Side
@@ -150,20 +150,19 @@ data RelativeSet
  | RelativeSpawn 
  | RelativeHand 
  | RelativeGraveyard 
- | RelativeDiscard {- call discard banished -}
-                 {- instead of having set, I should have pairs of side and relative set. This should play nicely with union, which is just a list of these -}
+ | RelativeBanished
 -------------------------------------------------------------------------------
 getSet : Side -> RelativeSet -> Set
 getSet Friendly RelativeBoard = FriendlyBoard
 getSet Friendly RelativeSpawn = FriendlySpawn
 getSet Friendly RelativeHand = FriendlyHand
 getSet Friendly RelativeGraveyard = FriendlyGraveyard
-getSet Friendly RelativeDiscard = FriendlyDiscard
+getSet Friendly RelativeBanished = FriendlyBanished
 getSet Enemy RelativeBoard = EnemyBoard
 getSet Enemy RelativeSpawn = EnemySpawn
 getSet Enemy RelativeHand = EnemyHand
 getSet Enemy RelativeGraveyard = EnemyGraveyard
-getSet Enemy RelativeDiscard = EnemyDiscard
+getSet Enemy RelativeBanished = EnemyBanished
 -------------------------------------------------------------------------------
 data StatR
  = TemporaryAttackR 
@@ -179,7 +178,6 @@ data StatR
  | HpR 
  | MaxHpR
 -------------------------------------------------------------------------------
-{- this actually makes sense assuming LValues (though can be RValues as well) ... -}
 mutual
 -------------------------------------------------------------------------------
   data DamageEffect = MkDamageEffect RInteger
@@ -206,9 +204,11 @@ mutual
    | SkillEffectPositionEffect PositionEffect 
    | SkillEffectConditional Condition SkillEffect SkillEffect 
    | SkillEffectRowEffect Side String SkillEffect String
-{- does effect to all units in row of unit bound to string; the last string binds the respective units in the row for use in SkillEffect -} 
+     --does effect to all units in row of unit bound to string;
+     --the last string binds the respective units in the row for use in SkillEffect
    | SkillEffectColumnEffect Side String SkillEffect String
-{- does effect to all units in column of unit bound to string; the last string binds the respective units in the column for use in SkillEffect -}
+     --does effect to all units in column of unit bound to string;
+     --the last string binds the respective units in the column for use in SkillEffect
    | SkillEffectBehind Side String SkillEffect String
    | SkillEffectInFront Side String SkillEffect String
    | SkillEffectRightOf Side String SkillEffect String
@@ -276,13 +276,17 @@ mutual
   data NonautomaticFactory
    = TerminatedSkillFactory 
    | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
+-------------------------------------------------------------------------------
   data AutomaticFactory
    = MkAutomaticFactory (List SkillEffect) NonautomaticFactory 
    | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
+-------------------------------------------------------------------------------
 mutual
+-------------------------------------------------------------------------------
   data Nonautomatic
    = TerminatedSkill 
    | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
+-------------------------------------------------------------------------------
   data Automatic
    = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
    | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String
@@ -296,14 +300,24 @@ mutual
   instantiateAutomatic : AutomaticFactory -> Nat -> String -> Automatic
 -------------------------------------------------------------------------------
   instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill
-  instantiateNonautomatic (ExistentialFactory arguments condition success failure) cardId playerId =
-   Existential arguments condition (instantiateAutomatic success cardId playerId) (instantiateAutomatic failure cardId playerId) cardId playerId
-
+  instantiateNonautomatic (ExistentialFactory args cond succ fail) cId pId =
+   Existential
+    args
+    cond
+    (instantiateAutomatic succ cId pId)
+    (instantiateAutomatic fail cId pId)
+    cId
+    pId
+-------------------------------------------------------------------------------
   instantiateAutomatic (MkAutomaticFactory effects next) cardId playerId =
-   MkAutomatic effects (instantiateNonautomatic next cardId playerId) cardId playerId
-  instantiateAutomatic (UniversalFactory argument condition effects next) cardId playerId =
-   Universal argument condition effects (instantiateNonautomatic next cardId playerId) cardId playerId
-{-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!-}
+   MkAutomatic
+    effects
+    (instantiateNonautomatic next cardId playerId)
+    cardId
+    playerId
+  instantiateAutomatic (UniversalFactory arg cond effects next) cId pId =
+   Universal arg cond effects (instantiateNonautomatic next cId pId) cId pId
+{-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!  --- nope: could have been taken off the field and then back on, for instance...-}
 -------------------------------------------------------------------------------
 
 

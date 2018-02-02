@@ -29,7 +29,7 @@ hand = RelativeHand
 graveyard : RelativeSet
 graveyard = RelativeGraveyard
 discard : RelativeSet
-discard = RelativeDiscard
+discard = RelativeBanished
 namespace stat
   range : Stat
   range = Range

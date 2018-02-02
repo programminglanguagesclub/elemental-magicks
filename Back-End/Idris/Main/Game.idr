@@ -43,6 +43,72 @@ record Game where
  playerA : Player
  playerB : Player
 -------------------------------------------------------------------------------
+
+
+
+
+data MonsterLocation
+ = HandLocation (Fin 25)
+ | GraveyardLocation (Fin 25)
+ | BanishLocation (Fin 25)
+ | BoardLocation (Fin 9)
+ | SpawnLocation
+
+data SpellLocation
+ = HandLocationSpell (Fin 30)
+ | GraveyardLocationSpell (Fin 30)
+ | BanishLocationSpell (Fin 30)
+ | SpawnLocationSpell
+
+Eq MonsterLocation where
+  (HandLocation i) == (HandLocation j) = i == j
+  (HandLocation i) == (GraveyardLocation j) = False
+  (HandLocation i) == (BanishLocation j) = False
+  (HandLocation i) == (BoardLocation j) = False
+  (HandLocation i) == SpawnLocation = False
+  (GraveyardLocation i) == (GraveyardLocation j) = i == j
+  (GraveyardLocation i) == (BanishLocation j) = i == j
+  (GraveyardLocation i) == (BoardLocation j) = False
+  (GraveyardLocation i) == SpawnLocation = False
+  (BanishLocation i) == (BanishLocation j) = i == j
+  (BanishLocation i) == (BoardLocation j) = False
+  (BanishLocation i) == SpawnLocation = False
+  (BoardLocation i) == (BoardLocation j) = i == j
+  (BoardLocation i) == SpawnLocation = False
+  SpawnLocation == SpawnLocation = True
+
+Eq SpellLocation where
+  (HandLocationSpell i) == (HandLocationSpell j) = i == j
+  (HandLocationSpell i) == (GraveyardLocationSpell j) = False
+  (HandLocationSpell i) == (BanishLocationSpell j) = False
+  (HandLocationSpell i) == SpawnLocationSpell = False
+  (GraveyardLocationSpell i) == (GraveyardLocationSpell j) = i == j
+  (GraveyardLocationSpell i) == (BanishLocationSpell j) = False
+  (GraveyardLocationSpell i) == SpawnLocationSpell = False
+  (BanishLocationSpell i) == (BanishLocationSpell j) = i == j
+  (BanishLocationSpell i) == SpawnLocationSpell = False
+  SpawnLocationSpell == SpawnLocationSpell = True
+
+
+
+
+
+-- these are not all monsters potentially as there are also spell cards.
+data MonsterDictionary =
+ MkMonsterDictionary
+  (DPair
+   (Vect m MonsterLocation, Vect n SpellLocation)
+   (\(monsterLocationDictionary, SpellLocationDictionary) =>
+    (i : Fin m) ->
+    (j : Fin m) ->
+    (i = j -> Void) ->
+    (index i monsterLocationDictionary = index j monsterLocationDictionary) ->
+    Void))
+
+
+
+
+-------------------------------------------------------------------------------
 namespace fromNat
   getInitiative : Nat -> WhichPlayer
   getInitiative turnNumber =
