@@ -93,8 +93,8 @@ extendUpperBound : Bounded a b -> So(b <= b') -> Bounded a b'
 extendUpperBound (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend =
  MkBounded (n ** (prf_lower_n,(my_lte_transitive prf_n_upper prf_extend)))
 -------------------------------------------------------------------------------
-extendBounds : Bounded a b -> So(a' <= a) -> So(b <= b') -> Bounded a' b'
-extendBounds (MkBounded (n ** (prf_lower_n, prf_n_upper))) prf_extend_lower prf_extend_upper =
+extendBounds : Bounded a b -> {auto prf_extend_lower : So(a' <= a)} -> {auto prf_extend_upper : So(b <= b')} -> Bounded a' b'
+extendBounds {prf_extend_lower = prf_extend_lower}{prf_extend_upper = prf_extend_upper}(MkBounded (n ** (prf_lower_n, prf_n_upper))) =
  MkBounded (n ** ((my_lte_transitive prf_extend_lower prf_lower_n),(my_lte_transitive prf_n_upper prf_extend_upper)))
 -------------------------------------------------------------------------------
 removeUpperBound : Bounded 0 b -> Nat
