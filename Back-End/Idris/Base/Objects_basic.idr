@@ -4,9 +4,12 @@ import Data.So
 import Base.Preliminaries
 import Base.Bounded
 import Base.Hp
+import Pruviloj.Derive.DecEq
 
 %access public export
 %default total
+
+%language ElabReflection
 
 -------------------------------------------------------------------------------
 data Aliveness = Alive | DeadFresh | DeadStale
@@ -17,13 +20,100 @@ data MonsterSchools
  | OneSchool (Fin 6)
  | TwoSchools (Fin 6) (Fin 6)
 
+
+noSchoolNotOneSchool : NoSchools = OneSchool x -> Void
+noSchoolNotOneSchool Refl impossible
+
+noSchoolNotTwoSchools : NoSchools = TwoSchools x y -> Void
+noSchoolNotTwoSchools Refl impossible
+
+
+{-
+
+                (n = m) -> Void (Type of prfNo)
+                        and
+                                        (weaken n = weaken m) -> Void (Expected type)
+
+
+
+        Type mismatch between
+                        OneSchool (FS n) = OneSchool (FS m) (Type of liftedxyEqual)
+                                and
+                                                OneSchool (weaken n) = OneSchool (weaken m) (Expected type)
+                                                        
+
+
+                                        -}
+
+foobar : (x : Fin n) -> (y : Fin n) -> (FS x = FS y -> Void) -> x = y -> Void
+foobar x y prfSuccNotEqual prfEqual = prfSuccNotEqual $ cong prfEqual
+
+blahblarg : (x : Fin n) -> (y : Fin n) -> FS x = FS y -> x = y
+blahblarg x _ Refl = Refl
+
+barfoo : (x : Fin n) -> (y : Fin n) -> (x = y -> Void) -> FS x = FS y -> Void
+barfoo x y prfDistinct prfEqualSucc = void $ prfDistinct $ blahblarg x y prfEqualSucc
+
+bazbaz : OneSchool (FS n) = OneSchool (FS m) -> OneSchool (weaken n) = OneSchool (weaken m)
+bazbaz Refl = Refl
+{-
+ughugh : (n : Fin a) -> (m : Fin a) -> n = m -> weaken n = weaken m
+ughugh FZ FZ _ = Refl
+ughugh FZ (FS k) Refl impossible
+ughugh (FS k) FZ Refl impossible
+ughugh (FS k) (FS l) prfEqual with (decEq k l)
+  | Yes prf = ?hole
+  | No prf = ?hole --void $ prf prfEqual
+
+-}
+
+
+uuu : {n : Fin a} -> {m : Fin a} -> weaken n = weaken m -> n = m
+--uuu Refl = ?hole --Refl
+
+barblarg : {n : Fin a}  -> {m : Fin a} -> (n = m -> Void) -> weaken n = weaken m -> Void
+barblarg prfDistinct prfEqual = void $ prfDistinct $ uuu prfEqual
+{-
+barblarg {n=FZ} {m=FZ} prfDistinct prfEqual = prfDistinct Refl
+barblarg {n=FS k} {m=FZ} prfDistinct prfEqual with (decEq (weaken (FS k)) (weaken FZ))
+ | Yes prfYes = ?hole
+ | No prfNo = ?hole
+barblarg {n=FZ} {m=FS k} prfDistinct prfEqual = ?hole
+barblarg {n=FS a} {m=FS b} prfDistinct prfEqual = ?hole
+-}
+
+liftOneSchoolInequality : (x : Fin 6) -> (y : Fin 6) -> (x = y -> Void) -> OneSchool x = OneSchool y -> Void
+liftOneSchoolInequality FZ FZ xyDistinct liftedxyEqual = xyDistinct Refl
+liftOneSchoolInequality FZ (FS k) xyDistict Refl impossible
+liftOneSchoolInequality (FS k) FZ xyDistict Refl impossible
+liftOneSchoolInequality (FS n) (FS m) xyDistinct liftedxyEqual with (decEq n m)
+  | Yes prfYes = xyDistinct $ cong prfYes
+  | No prfNo = liftOneSchoolInequality (weaken n) (weaken m) (barblarg prfNo) (bazbaz liftedxyEqual)
+
+
+
+monsterSchoolsDecEq : (x , y : MonsterSchools) -> Dec (x = y)
+%runElab deriveDecEq `{monsterSchoolsDecEq}
+
+{-
 DecEq MonsterSchools where
- decEq NoSchools NoSchools = True
- decEq NoSchools (OneSchool x) = False
- decEq NoSchools (TwoSchools x y) = False
- decEq (OneSchool x1) (OneSchool x2) = x1 == x2
- decEq (OneSchool x1) (TwoSchools x2 y2) = False
- decEq (TwoSchools x1 x2) (TwoSchools x2 y2) = x1 == x2 && y1 == y2
+ decEq NoSchools NoSchools = Yes Refl
+ decEq NoSchools (OneSchool x) = No noSchoolNotOneSchool
+ decEq NoSchools (TwoSchools x y) = No noSchoolNotTwoSchools
+ decEq (OneSchool x1) (OneSchool x2) =
+  case decEq x1 x2 of
+    Yes prf => rewrite prf in Yes Refl
+    No contra => No $ liftOneSchoolInequality x1 x2 contra
+ decEq (OneSchool x1) (TwoSchools x2 y2) = No ?hole
+ decEq (TwoSchools x1 y1) (TwoSchools x2 y2) =
+  case (decEq x1 x2, decEq y1 y2) of
+    (Yes prf1, Yes prf2) => rewrite prf1 in rewrite prf2 in Yes Refl
+    (_,No contra) => ?hole
+    (No contra,_) => ?hole
+    -}
+   
+   
+   --x1 == x2 && y1 == y2
 -------------------------------------------------------------------------------
 record BasicMonsterFactory where
  constructor MkBasicMonsterFactory
