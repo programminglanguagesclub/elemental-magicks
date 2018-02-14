@@ -52,7 +52,7 @@ record BasicMonster where
  hp : Hp
  attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
  defense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
- speed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
+ speed : (Preliminaries.standardBounds, Preliminaries.standardBounds, Bounded 1 5)
  range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
  level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
  soulPoints : ((Bounded 0 2),(Bounded 1 2))
@@ -68,24 +68,51 @@ DecEq BasicMonster where
 resetHp : Hp -> Hp
 resetHp (MkHp (_,base)) = generateHp base
 -------------------------------------------------------------------------------
-resetAttack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) -> temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
-resetAttack (temporary, permanent, base) = ?hole --(temporary, permanent, base)
+resetAttack :
+ temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) ->
+ temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+
+resetAttack (temporary, permanent, base) = (base,base,base)
 -------------------------------------------------------------------------------
-resetDefense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) -> temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+resetDefense :
+ temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound) ->
+ temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
+
 resetDefense = resetAttack
 -------------------------------------------------------------------------------
-resetSpeed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5) ->
-             (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
-resetSpeed (temporary, permanent, base) = (extendBounds base, extendBounds base, base)
+resetSpeed :
+ (Preliminaries.standardBounds,
+  Preliminaries.standardBounds,
+  Bounded 1 5) ->
+ (Preliminaries.standardBounds,
+  Preliminaries.standardBounds,
+  Bounded 1 5)
+
+resetSpeed (temporary, permanent, base) =
+ (extendBounds base, extendBounds base, base)
 -------------------------------------------------------------------------------
-resetRange : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5) ->
-             (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
-resetRange (temporary, permanent, base) = (extendBounds base, extendBounds base, base)
+resetRange :
+ (Bounded 0 Preliminaries.absoluteUpperBound,
+  Bounded 0 Preliminaries.absoluteUpperBound,
+  Bounded 1 5) ->
+ (Bounded 0 Preliminaries.absoluteUpperBound,
+  Bounded 0 Preliminaries.absoluteUpperBound,
+  Bounded 1 5)
+
+resetRange (temporary, permanent, base) =
+ (extendBounds base, extendBounds base, base)
 -------------------------------------------------------------------------------
-resetLevel : (Bounded 0 9, Bounded 0 9, Bounded 1 9) -> (Bounded 0 9, Bounded 0 9, Bounded 1 9)
-resetLevel (temporary, permanent, base) = (extendLowerBound base Oh, extendLowerBound base Oh, base)
+resetLevel :
+ (Bounded 0 9, Bounded 0 9, Bounded 1 9) ->
+ (Bounded 0 9, Bounded 0 9, Bounded 1 9)
+
+resetLevel (temporary, permanent, base) =
+ (extendLowerBound base Oh, extendLowerBound base Oh, base)
 -------------------------------------------------------------------------------
-resetEngagement : Bounded 0 Preliminaries.absoluteUpperBound -> Bounded 0 Preliminaries.absoluteUpperBound
+resetEngagement :
+ Bounded 0 Preliminaries.absoluteUpperBound ->
+ Bounded 0 Preliminaries.absoluteUpperBound
+
 resetEngagement _ = bind 0
 -------------------------------------------------------------------------------
 revive : BasicMonster -> BasicMonster
@@ -140,14 +167,14 @@ incrementTemporary :
  Integer ->
  ((Bounded lower upper),t2,t3)
 
-incrementTemporary (temporary,permanent,base) x = (temporary + x, permanent, base)
+incrementTemporary (temporary,permanent,base) x = (temporary+x,permanent,base)
 -------------------------------------------------------------------------------
 incrementPermanent :
  (t1,(Bounded lower upper),t3) ->
  Integer ->
  (t1,(Bounded lower upper),t3)
 
-incrementPermanent (temporary,permanent,base) x = (temporary, permanent + x, base)
+incrementPermanent (temporary,permanent,base) x = (temporary,permanent+x,base)
 -------------------------------------------------------------------------------
 decrementTemporary :
  ((Bounded lower upper),t2,t3) ->
