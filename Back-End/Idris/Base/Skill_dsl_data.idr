@@ -17,18 +17,38 @@ data Stat
  | Range
  | Level
 -------------------------------------------------------------------------------
+implementation Show Stat where
+ show Attack = "attack"
+ show Defense = "defense"
+ show Speed = "speed"
+ show Range = "range"
+ show Level = "level"
+-------------------------------------------------------------------------------
 data Mutator
  = Increment
  | Decrement
  | Assign
 -------------------------------------------------------------------------------
+implementation Show Mutator where
+ show Increment = "increment"
+ show Decrement = "decrement"
+ show Assign = "assign"
+-------------------------------------------------------------------------------
 data Temporality
  = Temporary
  | Permanent
 -------------------------------------------------------------------------------
+implementation Show Temporality where
+ show Temporary = "temporary"
+ show Permanent = "permanent"
+-------------------------------------------------------------------------------
 data HpStat
  = CurrentHp
  | MaxHp
+-------------------------------------------------------------------------------
+implementation Show HpStat where
+ show CurrentHp = "hp"
+ show MaxHp = "max hp"
 -------------------------------------------------------------------------------
 marshall :
  Temporality ->
@@ -113,20 +133,15 @@ hpTransformMutator Increment x h = h + x
 hpTransformMutator Decrement x h = h - x
 hpTransformMutator Assign x h = x
 -------------------------------------------------------------------------------
-getStatTypeName : Stat -> String
-getStatTypeName Attack = "attack"
-getStatTypeName Defense = "defense"
-getStatTypeName Speed = "speed"
-getStatTypeName Range = "range"
-getStatTypeName Level = "level"
--------------------------------------------------------------------------------
-getTemporalityName : Temporality -> String
-getTemporalityName Temporary = "Temporary"
-getTemporalityName Permanent = "Permanent"
--------------------------------------------------------------------------------
-getHpTypeName : HpStat -> String
-getHpTypeName CurrentHp = "hp"
-getHpTypeName MaxHp = "maxHp"
+engagementTransformMutator :
+ Mutator ->
+ Integer ->
+ Bounded 0 Preliminaries.absoluteUpperBound ->
+ Bounded 0 Preliminaries.absoluteUpperBound
+
+engagementTransformMutator Increment x h = ?hole ---(+) h x
+engagementTransformMutator Decrement x h = ?hole ---(-) h x
+engagementTransformMutator Assign x h = ?hole ---x
 -------------------------------------------------------------------------------
 data Set
  = FriendlyBoard 
@@ -261,15 +276,59 @@ applyFixedStatEffect :
  BasicMonster ->
  FixedStatEffect ->
  (BasicMonster, ClientUpdate)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedStatEffect stat mutator temporality value) =
+ 
+ (basicStatSetter
+  stat
+  (selectMutator mutator temporality (basicStat stat basic) value)
+  basic,
+ SetStat
+  (replaceAt
+    monsterIndex
+    (Just ((show mutator) ++ (show temporality) ++ (show stat), show value)) $
+    replicate 9 Nothing)
+  whichPlayer)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedHpEffect mutator hpStat x) =
 
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedStatEffect stat mutator temporality value) =
- (basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) value) basic, ?hole)
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedHpEffect mutator hpStat x) =
- {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedEngagementEffect mutator x) = ?hole
-{-(record {engagement $= (\e => 0 + (hpTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})-}
-applyFixedStatEffect monsterIndex whichPlayer basic FixedReviveEffect =
- (revive basic, Revive monsterIndex whichPlayer)
+ let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in
+ (m,
+  SetStat
+   (replaceAt
+     monsterIndex
+     (Just $ (show hpStat, marshallHp hpStat $ hp m)) $
+     replicate 9 Nothing)
+   whichPlayer)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedEngagementEffect mutator x) = ?hole
+   -----( {engagement $= (\e => 0 + (engagementTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ FixedReviveEffect =
+ 
+ (revive basic,
+ Revive
+  (replaceAt
+    monsterIndex
+    Selected $
+    replicate 9 Unselected)
+  whichPlayer)
 -------------------------------------------------------------------------------
 mutual
 -------------------------------------------------------------------------------

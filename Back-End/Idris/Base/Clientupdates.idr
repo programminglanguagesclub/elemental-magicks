@@ -71,8 +71,8 @@ data ClientUpdate
   | UpdateThoughts (Bounded 0 Preliminaries.absoluteUpperBound) WhichPlayer
   | UpdateSchools (Vect 6 (Bounded 0 9)) WhichPlayer
   | LoseSoulPoint WhichPlayer --for now you only lose one at a time
-  | SetStat (Vect 9 (Maybe (String, String, (Fin 9)))) WhichPlayer
-     --stat name, marshalled stat value, board index
+  | SetStat (Vect 9 (Maybe (String, String))) WhichPlayer
+     --stat name, marshalled stat value
   | SpawnCard Nat WhichPlayer
   | UnspawnCard WhichPlayer
   | PlayerTurn WhichPlayer
@@ -135,14 +135,6 @@ marshallClientUpdate RevivalPhaseToDeploymentPhase _ =
                                                                              --
 marshallClientUpdate DeploymentPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
-                                                                             --
-{-
-{- removed while refactoring to not put playerIds in client messages -}
-marshallClientUpdate (InvalidMove message playerId) id with (playerId == id)
-  | False = Nothing
-  | True = Just $ MkMarshalledClientUpdate "invalidMove" [("description",message)]
-  -}
-
                                                                              --
 marshallClientUpdate (Revive selection whichPlayer) player =
  let fields = [("selections", show selection)] in
@@ -219,7 +211,7 @@ marshallClientUpdate (LoseSoulPoint whichPlayer) player =
                                                                              --
                                                                              --
 
--- | SetStat (Vect 9 (Maybe (String, String, (Fin 9)))) WhichPlayer
+-- | SetStat (Vect 9 (Maybe (String, String))) WhichPlayer
 
 marshallClientUpdate (SetStat indices whichPlayer) player =
 -- let statField = ("stat", stat) in
