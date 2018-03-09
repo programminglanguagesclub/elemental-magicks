@@ -316,7 +316,15 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    (p : a -> Bool) ->
    (begin : Fin (S n)) ->
    (v1 : Vect (S n) a) ->
-   Either (find p v1 = Nothing) (DPair (Fin (S n), a) (\(i1,e1) => (Vect.index i1 v1 = e1, ((i2 : Fin (S n)) -> (So (p (Vect.index i2 v1))) -> leq2 $ compare (computeSearchIndex begin i1) (computeSearchIndex begin i2) = True))))
+   Either
+    (find p v1 = Nothing)
+    (DPair
+     (Fin (S n), a) -- data
+     (\(i1,e1) =>   -- specification
+      (Vect.index i1 v1 = e1, -- property 1) element at index.
+      ((i2 : Fin (S n)) ->    -- property 2) index is first valid.
+       (So (p (Vect.index i2 v1))) ->
+       leq2 $ compare (computeSearchIndex begin i1) (computeSearchIndex begin i2) = True))))
    
   findWithIndexPreferentiallyFrom p FZ [x] with (p x)
    | True = Right ((FZ, x) ** (Refl, \i2 => \prf => nowTheProof i2))

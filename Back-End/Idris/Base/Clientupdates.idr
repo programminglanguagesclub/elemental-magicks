@@ -50,7 +50,7 @@ data ClientUpdate
   | EndPhaseToRevivalPhase
   | RevivalPhaseToDeploymentPhase
   | DeploymentPhaseToSpawnPhase
-  | InvalidMove String String --error message ; player id
+  | InvalidMove String WhichPlayer
                   {- | NotInAnyGame String -}
   | Revive (Vect 9 Selection) WhichPlayer
   | Kill (Vect 9 Selection) WhichPlayer
@@ -73,8 +73,6 @@ data ClientUpdate
   | LoseSoulPoint WhichPlayer --for now you only lose one at a time
   | SetStat (Vect 9 (Maybe (String, String))) WhichPlayer
      --stat name, marshalled stat value
-  | SpawnCard Nat WhichPlayer
-  | UnspawnCard WhichPlayer
   | PlayerTurn WhichPlayer
 
 --if it's expensive to write on pipes, some of this code could be moved into the Ur/Web
@@ -135,6 +133,12 @@ marshallClientUpdate RevivalPhaseToDeploymentPhase _ =
                                                                              --
 marshallClientUpdate DeploymentPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
+   
+marshallClientUpdate (InvalidMove errorMessage whichPlayer) player =
+  let fields = [("errorMessage", errorMessage)] in
+  augment
+   (MkMarshalledClientUpdate "invalidMove" fields)
+   (whichPlayer == player)
                                                                              --
 marshallClientUpdate (Revive selection whichPlayer) player =
  let fields = [("selections", show selection)] in
@@ -209,21 +213,12 @@ marshallClientUpdate (UpdateSchools schools whichPlayer) player =
 marshallClientUpdate (LoseSoulPoint whichPlayer) player =
  augment (MkMarshalledClientUpdate "loseSoulPoint" []) (whichPlayer == player)
                                                                              --
-                                                                             --
-
--- | SetStat (Vect 9 (Maybe (String, String))) WhichPlayer
-
 marshallClientUpdate (SetStat indices whichPlayer) player =
 -- let statField = ("stat", stat) in
 -- let valField = ("val", val) in
 -- let indexField = ("index", show $ finToNat boardIndex) in
 -- let fields = [statField, valField, indexField] in
  augment (MkMarshalledClientUpdate "setStat" [("indices", show indices)]) (whichPlayer == player)
-                                                                             --
-marshallClientUpdate (SpawnCard handIndex whichPlayer) player =
- let indexField = ("index", show handIndex) in
- let fields = [indexField] in
- augment (MkMarshalledClientUpdate "spawnCard" fields) (whichPlayer == player)
                                                                              --
 marshallClientUpdate (PlayerTurn whichPlayer) player =
  augment (MkMarshalledClientUpdate "playerTurn" []) (whichPlayer == player)
