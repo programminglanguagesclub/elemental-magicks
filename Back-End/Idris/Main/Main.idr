@@ -188,50 +188,44 @@ createBattle playerId opponentId PlayerA =
 createBattle playerId opponentId PlayerB =
  MkBattle FirstRound (MkFullGameDrawPhase $ newDrawPhase opponentId playerId)
 -------------------------------------------------------------------------------
-createBattleMessage :
- String ->
- String ->
- WhichPlayer ->
- String
-
-createBattleMessage playerId opponentId whichPlayer =
- replyWith [MatchStart whichPlayer, GameStart] playerId opponentId
--------------------------------------------------------------------------------
 addBattle :
  String ->
  String ->
  WhichPlayer ->
  List Battle ->
- (List Battle, String)
+ List Battle
 
 addBattle playerId opponentId whichPlayer battles =
  let battle = createBattle playerId opponentId whichPlayer in
- let message = createBattleMessage playerId opponentId whichPlayer in
- (battles ++ [battle], message)
+ battles ++ [battle]
 -------------------------------------------------------------------------------
 processMessage :
  List Battle ->
  String ->
- IO (List Battle, String)
+ IO (List Battle, Maybe String)
 
 processMessage battles message =
  case parseJson message of
   InvalidRequest =>
-   pure (battles, ?hole) {- should maybe handle the message for this in client updates -}
+   pure (battles, Just ?hole) {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
    randomlyDecidePlayer >>= \whichPlayer =>
-   pure $ addBattle playerId opponentId whichPlayer battles
+   pure $ (addBattle playerId opponentId whichPlayer battles, Nothing)
 {-this currently does not send any instruction,such as "draw card".I need to make sure instructions are sent everywhere-}
   ServerUpdateMessage serverUpdate =>
-   pure $ processServerUpdate battles serverUpdate
+   let (battles, message) = processServerUpdate battles serverUpdate in
+   pure $ (battles, Just message)
 -------------------------------------------------------------------------------
 statefulBackend : List Battle -> InfIO
 
 statefulBackend battles =
  reader >>= \rawServerMessage =>
  processMessage battles rawServerMessage >>= \(battles', clientPayloads) => 
- writer clientPayloads >>= \_ =>
- statefulBackend battles'
+ case clientPayloads of
+  Nothing => statefulBackend battles'
+  Just clientPayloads' =>
+   writer clientPayloads' >>= \_ =>
+   statefulBackend battles'
 -------------------------------------------------------------------------------
 partial
 mainDummy : IO ()

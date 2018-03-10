@@ -38,9 +38,6 @@ data ClientUpdate
   = GameLogicError
                  -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
   | GameTerminated WhichPlayer --winning player
-  | MatchTerminated Result --this update is only used by Ur/Web, in order to process ratings. I could remove this if Ur/Web kept track of round winners
-  | GameStart --Not sure about arguments
-  | MatchStart WhichPlayer --playerA, playerB???
   | DrawPhaseToSpawnPhase
   | SpawnPhaseToSpellPhase
   | SpellPhaseToRemovalPhase
@@ -54,7 +51,6 @@ data ClientUpdate
                   {- | NotInAnyGame String -}
   | Revive (Vect 9 Selection) WhichPlayer
   | Kill (Vect 9 Selection) WhichPlayer
-  | DeployCard (Fin 9) WhichPlayer
   | DrawHand Nat WhichPlayer
   | DrawSoul Nat (Fin 5) WhichPlayer
   | SwapSpawnBoard (Fin 9) WhichPlayer
@@ -106,7 +102,9 @@ marshallClientUpdate :
 marshallClientUpdate GameLogicError _ =
  MkMarshalledClientUpdate "gameLogicError" []
 {-marshallClientUpdate RoundTerminated _ = Just $ MkMarshalledClientUpdate "roundTerminated" [] {-include data about the next round?-}-}
-                                                                             --
+
+marshallClientUpdate GameTerminated winningPlayer = ?hole
+
 marshallClientUpdate DrawPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "drawPhaseToSpawnPhase" []
                                                                              --
@@ -147,11 +145,6 @@ marshallClientUpdate (Revive selection whichPlayer) player =
 marshallClientUpdate (Kill selection whichPlayer) player =
  let fields = [("index",show selection)] in
  augment (MkMarshalledClientUpdate "kill" fields) (whichPlayer == player)
-                                                                             --
-marshallClientUpdate (DeployCard boardIndex whichPlayer) player =
- let fields = [("index",show $ finToNat boardIndex)] in
- augment (MkMarshalledClientUpdate "deployCard" fields) (whichPlayer == player)
-{-message currently 0 indexes the board-}
                                                                              --
 marshallClientUpdate (DrawHand cardId whichPlayer) player with (getCardName cardId)
  | Nothing = ?hole
