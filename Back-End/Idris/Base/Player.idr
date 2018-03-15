@@ -10,8 +10,19 @@ import Base.Clientupdates
 import Base.Card
 import Base.Skill_dsl_data
 
+import Pruviloj.Derive.DecEq
+
 %access public export
 %default total
+
+
+%language ElabReflection
+
+orderingDecEq : (x , y : Ordering) -> Dec (x = y)
+%runElab deriveDecEq `{orderingDecEq}
+
+DecEq Ordering where
+   decEq x y = orderingDecEq x y
 
 -------------------------------------------------------------------------------
 record Player where
@@ -80,66 +91,103 @@ newPlayer playerId soul hand =
 newDrawPlayer : String -> DrawPlayer
 newDrawPlayer playerId = MkDrawPlayer [] emptySoul playerId
 -------------------------------------------------------------------------------
-
 weakenS : BoundedList n a -> BoundedList (S n) a
 weakenS [] = []
 weakenS (x::xs) = x::(weakenS xs)
-
+-------------------------------------------------------------------------------
 filterVectToBoundedList : Vect n a -> (a -> Bool) -> BoundedList n a
 filterVectToBoundedList [] _ = Nil
 filterVectToBoundedList (x::xs) f =
  if f x
   then x::(filterVectToBoundedList xs f)
   else weakenS $ filterVectToBoundedList xs f
-
+-------------------------------------------------------------------------------
 filterVectMaybes : Vect n (Maybe a) -> BoundedList n a
 filterVectMaybes [] = Nil
 filterVectMaybes (Nothing::xs) = weakenS $ filterVectMaybes xs
 filterVectMaybes ((Just x)::xs) = x::(filterVectMaybes xs)
+-------------------------------------------------------------------------------
+vectCount :
+ Vect n a ->
+ (a -> Bool) ->
+ Fin (S n)
 
-
-vectCount : Vect n a -> (a -> Bool) -> Fin (S n)
 vectCount [] _ = FZ
-vectCount (x::xs) f = if f x then FS (vectCount xs f) else weaken $ vectCount xs f
+vectCount (x::xs) f =
+ if f x
+  then FS (vectCount xs f)
+  else weaken $ vectCount xs f
+-------------------------------------------------------------------------------
+pullOutPlus :
+ (m : Nat ) ->
+ (n : Nat) ->
+ plus m (S n) = S (m + n)
 
-blarg : (m : Nat ) -> (n : Nat) -> plus m (S n) = S (m + n)
-blarg m n = rewrite plusAssociative m 1 n in (rewrite plusCommutative m 1 in Refl)
+pullOutPlus m n =
+ rewrite plusAssociative m 1 n in
+ (rewrite plusCommutative m 1 in Refl)
+-------------------------------------------------------------------------------
+concatBoundedList :
+ {n : Nat} ->
+ {m : Nat} ->
+ BoundedList n a ->
+ BoundedList m a ->
+ BoundedList (m + n) a
 
-concatBoundedList : {n : Nat} -> {m : Nat} -> BoundedList n a -> BoundedList m a -> BoundedList (m + n) a
 concatBoundedList [] l2 = weaken l2
-concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m n1 in x::(concatBoundedList xs l2)
+concatBoundedList {n=S n1} {m=m} (x::xs) l2 =
+ rewrite pullOutPlus m n1 in
+ x :: (concatBoundedList xs l2)
+-------------------------------------------------------------------------------
+getAll :
+ Vect n1 (Maybe a) ->
+ Vect n2 (Maybe a) ->
+ BoundedList n3 b ->
+ BoundedList n4 b ->
+ (a->b) ->
+ BoundedList ((n1+n2)+(n3+n4)) b
 
-getAll : Vect n1 (Maybe a) -> Vect n2 (Maybe a) -> BoundedList n3 b -> BoundedList n4 b -> (a->b) ->  BoundedList ((n1+n2)+(n3+n4)) b
 getAll v1 v2 l1 l2 f =
  let x1 = filterVectMaybes v1 in
  let x2 = filterVectMaybes v2 in
  let x3 = map f (concatBoundedList x2 x1) in
  let x4 = concatBoundedList l2 l1 in
  concatBoundedList x4 x3        
+-------------------------------------------------------------------------------
+buildDrawnCardsList :
+ Vect 5 (Maybe Monster) ->
+ Vect 5 (Maybe Monster) ->
+ BoundedList 25 Card ->
+ BoundedList 25 Card ->
+ BoundedList 60 Card
 
-doIt : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> BoundedList 60 Card
-doIt v1 v2 l1 l2 = getAll v1 v2 l1 l2 (\x => MonsterCard x)
-
-
+buildDrawnCardsList v1 v2 l1 l2 = getAll v1 v2 l1 l2 (\x => MonsterCard x)
+-------------------------------------------------------------------------------
 filterVectMaybeToList : Vect n (Maybe Monster) -> List Monster
 filterVectMaybeToList [] = []
 filterVectMaybeToList (Nothing::xs) = filterVectMaybeToList xs
 filterVectMaybeToList ((Just x)::xs) = x :: (filterVectMaybeToList xs)
+-------------------------------------------------------------------------------
+getAllList :
+ Vect n1 (Maybe Monster) ->
+ Vect n2 (Maybe Monster) ->
+ BoundedList 25 Card ->
+ BoundedList 25 Card ->
+ (Monster -> Card) ->
+ List Card
 
-getAllList : Vect n1 (Maybe Monster) -> Vect n2 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> (Monster -> Card) -> List Card
+getAllList v1 v2 l1 l2 f = ?hole
 
-getAllList v1 v2 l1 l2 f = ?hole {-
+{-
  let x1 = filterVectMaybeToList v1 in
  let x2 = filterVectMaybeToList v2 in
  let x3 = map f (x2 ++ x1) in
  let x4 = l2 ++ l1 in
- x4 ++ x3-}
-
+ x4 ++ x3
+-}
+-------------------------------------------------------------------------------
 getAllCardsDrawn : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> List Card
 getAllCardsDrawn soulA soulB handA handB = getAllList soulA soulB handA handB (\x => MonsterCard x)
-
-
-{-concatBoundedList {n=S n1} {m=m} (x::xs) l2 = rewrite blarg m (S n) in x::(concatBoundedList xs l2)-}
 -------------------------------------------------------------------------------
 finSum : Fin n -> Fin m -> Fin (n + m)
 finSum FZ _ = FZ
@@ -156,7 +204,8 @@ flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
 flattenBoard [row0, row1, row2] = row0 ++ row1 ++ row2
 -------------------------------------------------------------------------------
 unflattenBoard : Vect 9 (Maybe Monster) -> Vect 3 (Vect 3 (Maybe Monster))
-unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] = [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
+unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] =
+ [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
 -------------------------------------------------------------------------------
 idMatches :
  Nat ->
@@ -171,7 +220,8 @@ findBoardMonsterIndex :
  Vect 3 (Vect 3 (Maybe Monster)) ->
  Maybe (Fin 9)
 
-findBoardMonsterIndex monsterId board = findIndex (idMatches monsterId) (flattenBoard board)
+findBoardMonsterIndex monsterId board =
+ findIndex (idMatches monsterId) (flattenBoard board)
 -------------------------------------------------------------------------------
 findBoardMonster :
  Nat ->
@@ -189,17 +239,6 @@ incrementRowTarget (FS FZ) = FS (FS FZ)
 incrementRowTarget (FS (FS FZ)) = FZ
 incrementRowTarget (FS (FS (FS FZ))) impossible
 incrementRowTarget (FS (FS (FS (FS _)))) impossible
-
-{-
-getRowTarget : Fin 3 -> Player -> Maybe (Fin 3)
-getRowTarget row player =
-  let playerRow = Vect.index row (board player) in
-      let target = Vect.index row (rowTarget player) in
-          case Vect.index target playerRow of
-               Nothing => Nothing
-               Just _ => Just row
-               -}
-
 -------------------------------------------------------------------------------
 findIndexFrom : (a -> Bool) -> Fin n -> Vect n a -> Maybe (Fin n)
 findIndexFrom p FZ xs = findIndex p xs
@@ -219,14 +258,10 @@ findIndexPreferentiallyFrom p (FS k) (x :: xs) =
   else
    FS <$> findIndexPreferentiallyFrom p k xs
 -------------------------------------------------------------------------------
-
-
-
-
 --findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (DPair (Fin n, a) (\(i,e) => (Vect.index i v = e)))
 --findWithIndex p [] = Nothing
 --findWithIndex p (x::xs) = if p x then Just ((FZ, x) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndex p xs
-
+-------------------------------------------------------------------------------
 findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
 findWithIndexFrom p FZ [x] = if p x then Just ((FZ, x) ** Refl) else Nothing
 findWithIndexFrom p FZ (x1 :: x2 :: xs) = if p x1 then Just ((FZ, x1) ** Refl) else map (\((i,e) ** prf) => ((FS i,e) ** prf)) $ findWithIndexFrom p FZ (x2 :: xs)
@@ -251,9 +286,7 @@ findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) =
    case output of
     Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
     Nothing => Nothing
--}
 
-{-
 findWithIndexPreferentiallyFrom : DecEq a => (p : a -> Bool) -> Fin n -> (v1 : Vect n a) -> Either (find p v1 = Nothing) (DPair (Fin n, a) (\(i1,e1) => (Vect.index i1 v1 = e1)))
 findWithIndexPreferentiallyFrom p FZ [x] with (p x)
  | True = Right ((FZ, x) ** Refl)
@@ -273,42 +306,45 @@ findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (p x1)
 -}
 
 
+-------------------------------------------------------------------------------
 -- correct the ordering
 
 computeSearchIndex : (begin : Fin n) -> (i : Fin n) -> Fin n
 computeSearchIndex FZ i = i
 computeSearchIndex (FS k1) (FS k2) = computeSearchIndex (weaken k1) (weaken k2)
 computeSearchIndex (FS k) FZ = computeSearchIndex (weaken k) last
-
-
-
-
+-------------------------------------------------------------------------------
 leq2 : Ordering -> Bool
 leq2 GT = False
 leq2 EQ = True
 leq2 LT = True
+-------------------------------------------------------------------------------
+firstThingsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
+firstThingsFirst FZ = Refl
+firstThingsFirst (FS k) = Refl
+-------------------------------------------------------------------------------
+littleLemma1 : (x : (Fin (S k))) -> (leq2 $ compare x x) = True
+littleLemma1 = ?hole
 
+littleLemma : FZ = computeSearchIndex FZ FZ
+littleLemma = ?hole
 
+blarg : (computeSearchIndex FZ FZ) = the (Fin (S k)) FZ
+blarg {k=k} with (decEq (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
+ | Yes prf = ?hole
+
+blarg2 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ) = EQ
+blarg2 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) FZ)
+  | EQ = Refl
 
 {-
-
-     Type mismatch between
-                     True
-                             and
-                                             leq2 (Data.Fin.Fin n implementation of Prelude.Interfaces.Ord, method compare (computeSearchIndex FZ FZ) (computeSearchIndex i2 FZ))
-
-                                             -}
-
-firstThingsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
-firstThingsFirst x =
- case compare FZ x of
-  GT => ?hole
-  EQ => ?hole
-  LT => ?hole
-
+blarg3 : leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ FZ) = True
+-}
+-------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
-nowTheProof i2 = ?hole
-
+nowTheProof i2 with (computeSearchIndex FZ i2)
+ | FZ = ?hole --rewrite blarg in littleLemma1 (computeSearchIndex FZ FZ)
+ | FS k = ?hole
 -------------------------------------------------------------------------------
 mutual -- do I need these to be mutual if the codependency involves types, not just terms?
   findWithIndexPreferentiallyFrom :

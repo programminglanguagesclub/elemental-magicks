@@ -12,10 +12,12 @@ import Base.Player
 import Base.Phase
 import Base.Card
 import Base.Clientupdates
+import Pruviloj.Derive.DecEq
 
 %access public export
 %default total
 
+%language ElabReflection
 -------------------------------------------------------------------------------
 getOpponent : WhichPlayer -> WhichPlayer
 getOpponent PlayerA = PlayerB
@@ -43,10 +45,6 @@ record Game where
  playerA : Player
  playerB : Player
 -------------------------------------------------------------------------------
-
-
-
-
 data MonsterLocation
  = HandLocation (Fin 25)
  | GraveyardLocation (Fin 25)
@@ -54,45 +52,24 @@ data MonsterLocation
  | BoardLocation (Fin 9)
  | SpawnLocation
 
+monsterLocationDecEq : (x , y : MonsterLocation) -> Dec (x = y)
+%runElab deriveDecEq `{monsterLocationDecEq}
+
+DecEq MonsterLocation where
+  decEq x y = monsterLocationDecEq x y
+-------------------------------------------------------------------------------
 data SpellLocation
  = HandLocationSpell (Fin 30)
  | GraveyardLocationSpell (Fin 30)
  | BanishLocationSpell (Fin 30)
  | SpawnLocationSpell
 
-Eq MonsterLocation where
-  (HandLocation i) == (HandLocation j) = i == j
-  (HandLocation i) == (GraveyardLocation j) = False
-  (HandLocation i) == (BanishLocation j) = False
-  (HandLocation i) == (BoardLocation j) = False
-  (HandLocation i) == SpawnLocation = False
-  (GraveyardLocation i) == (GraveyardLocation j) = i == j
-  (GraveyardLocation i) == (BanishLocation j) = i == j
-  (GraveyardLocation i) == (BoardLocation j) = False
-  (GraveyardLocation i) == SpawnLocation = False
-  (BanishLocation i) == (BanishLocation j) = i == j
-  (BanishLocation i) == (BoardLocation j) = False
-  (BanishLocation i) == SpawnLocation = False
-  (BoardLocation i) == (BoardLocation j) = i == j
-  (BoardLocation i) == SpawnLocation = False
-  SpawnLocation == SpawnLocation = True
-
-Eq SpellLocation where
-  (HandLocationSpell i) == (HandLocationSpell j) = i == j
-  (HandLocationSpell i) == (GraveyardLocationSpell j) = False
-  (HandLocationSpell i) == (BanishLocationSpell j) = False
-  (HandLocationSpell i) == SpawnLocationSpell = False
-  (GraveyardLocationSpell i) == (GraveyardLocationSpell j) = i == j
-  (GraveyardLocationSpell i) == (BanishLocationSpell j) = False
-  (GraveyardLocationSpell i) == SpawnLocationSpell = False
-  (BanishLocationSpell i) == (BanishLocationSpell j) = i == j
-  (BanishLocationSpell i) == SpawnLocationSpell = False
-  SpawnLocationSpell == SpawnLocationSpell = True
-
-
-
-
-
+spellLocationDecEq : (x , y : SpellLocation) -> Dec (x = y)
+%runElab deriveDecEq `{spellLocationDecEq}
+   
+DecEq SpellLocation where
+  decEq x y = spellLocationDecEq x y
+-------------------------------------------------------------------------------
 -- these are not all monsters potentially as there are also spell cards.
 data MonsterDictionary =
  MkMonsterDictionary
@@ -219,14 +196,9 @@ updatePlayer :
  Game ->
  (Player -> (Player, List ClientUpdate)) ->
  (Game, List ClientUpdate)
-{-
-updatePlayer phase playerA playerB PlayerA mutator =
- let (playerA', clientUpdates) = mutator playerA in
- (MkPhaseCycle phase playerA' playerB, clientUpdates)
-updatePlayer phase playerA playerB PlayerB mutator =
- let (playerB', clientUpdates) = mutator playerB in
- (MkPhaseCycle phase playerA playerB', clientUpdates)
--}
+
+updatePlayer whichPlayer game mutator =
+ let game' = transformPlayer (fst . mutator) whichPlayer game in ?hole
 -------------------------------------------------------------------------------
 -- Move these helper functions to card. These also get used in the DSL.
 
