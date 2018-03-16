@@ -323,36 +323,6 @@ firstThingsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
 firstThingsFirst FZ = Refl
 firstThingsFirst (FS k) = Refl
 -------------------------------------------------------------------------------
-littleLemma1 : (x : (Fin (S k))) -> (leq2 $ compare x x) = True
-littleLemma1 = ?hole
-
-littleLemma : FZ = computeSearchIndex FZ FZ
-littleLemma = ?hole
-
-
--- computeSearchIndex FZ FZ = FZ
-blarg : (computeSearchIndex FZ FZ) = the (Fin (S k)) FZ
-blarg {k=k} with (decEq (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
- | Yes prf = ?hole
-
--- compare (computeSearchIndex FZ FZ) FZ = EQ
-blarg2 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ) = EQ
-blarg2 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) FZ)
-  | EQ = Refl
-
--- compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ FZ) = EQ
-blarg3 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) = EQ
-blarg3 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)))
- | EQ = Refl
-
-{-
-blarg4 : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
-blarg4 i2 with (computeSearchIndex FZ i2)
-      | FZ = ?hole --rewrite blarg in littleLemma1 (computeSearchIndex FZ FZ)
-        | FS k = ?hole
-        -}
-
--------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
 nowTheProof {k=k} i2 with (computeSearchIndex FZ i2)
  | FZ with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
@@ -392,11 +362,11 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
         Left prf => ?hole ---Left prf
  
 
-  jiggeryPokery :
-   (beginBefore : Fin k) ->
-   leq2 $ compare FZ (computeSearchIndex (FS beginBefore) FZ) = True
+  zeroLEQCorrectedIndex:
+   (beginningPred : Fin k) ->
+   leq2 $ compare FZ (computeSearchIndex (FS beginningPred) FZ) = True
 
-  jiggeryPokery beginBefore with (computeSearchIndex (FS beginBefore) FZ)
+  zeroLEQCorrectedIndex beginBefore with (computeSearchIndex (FS beginBefore) FZ)
    | FZ = Refl
    | FS fk = Refl
 
@@ -453,16 +423,6 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 
   nowTheProofMaybeTrue i2 = ?hole
   -}
-
-  foo : Nat
-  foo = 3
-
-
-
-
-
-
-
 -------------------------------------------------------------------------------
 actualAlive : Maybe Monster -> Bool
 
@@ -477,7 +437,8 @@ findNextLivingMonster :
  Vect n (Maybe Monster) ->
  Maybe (Fin n)
 
-findNextLivingMonster fin vect = findIndexPreferentiallyFrom actualAlive fin vect
+findNextLivingMonster fin vect =
+ findIndexPreferentiallyFrom actualAlive fin vect
 -------------------------------------------------------------------------------
 indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe Monster
 indexMonster = ?hole
