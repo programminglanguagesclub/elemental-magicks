@@ -329,17 +329,22 @@ littleLemma1 = ?hole
 littleLemma : FZ = computeSearchIndex FZ FZ
 littleLemma = ?hole
 
+
+-- computeSearchIndex FZ FZ = FZ
 blarg : (computeSearchIndex FZ FZ) = the (Fin (S k)) FZ
 blarg {k=k} with (decEq (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
  | Yes prf = ?hole
 
+-- compare (computeSearchIndex FZ FZ) FZ = EQ
 blarg2 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ) = EQ
 blarg2 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) FZ)
   | EQ = Refl
 
-{-
-blarg3 : leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ FZ) = True
--}
+-- compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ FZ) = EQ
+blarg3 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) = EQ
+blarg3 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)))
+ | EQ = Refl
+
 -------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
 nowTheProof i2 with (computeSearchIndex FZ i2)
