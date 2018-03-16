@@ -345,11 +345,19 @@ blarg3 : compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) 
 blarg3 {k=k} with (compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)))
  | EQ = Refl
 
+{-
+blarg4 : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
+blarg4 i2 with (computeSearchIndex FZ i2)
+      | FZ = ?hole --rewrite blarg in littleLemma1 (computeSearchIndex FZ FZ)
+        | FS k = ?hole
+        -}
+
 -------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
-nowTheProof i2 with (computeSearchIndex FZ i2)
- | FZ = ?hole --rewrite blarg in littleLemma1 (computeSearchIndex FZ FZ)
- | FS k = ?hole
+nowTheProof {k=k} i2 with (computeSearchIndex FZ i2)
+ | FZ with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
+  | True = Refl
+ | FS fk = ?hole
 -------------------------------------------------------------------------------
 mutual -- do I need these to be mutual if the codependency involves types, not just terms?
   findWithIndexPreferentiallyFrom :
