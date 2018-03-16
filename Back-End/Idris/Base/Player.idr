@@ -357,7 +357,8 @@ nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (com
 nowTheProof {k=k} i2 with (computeSearchIndex FZ i2)
  | FZ with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
   | True = Refl
- | FS fk = ?hole
+ | FS fk with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (FS fk))
+  | True = Refl
 -------------------------------------------------------------------------------
 mutual -- do I need these to be mutual if the codependency involves types, not just terms?
   findWithIndexPreferentiallyFrom :
