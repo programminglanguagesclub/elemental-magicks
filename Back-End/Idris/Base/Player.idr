@@ -319,9 +319,9 @@ leq2 GT = False
 leq2 EQ = True
 leq2 LT = True
 -------------------------------------------------------------------------------
-firstThingsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
-firstThingsFirst FZ = Refl
-firstThingsFirst (FS k) = Refl
+zeroIndexIsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
+zeroIndexIsFirst FZ = Refl
+zeroIndexIsFirst (FS k) = Refl
 -------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
 nowTheProof {k=k} i2 with (computeSearchIndex FZ i2)
@@ -335,27 +335,27 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    DecEq a =>
    (p : a -> Bool) ->
    (begin : Fin (S n)) ->
-   (v1 : Vect (S n) a) ->
+   (v : Vect (S n) a) ->
    Either
-    (find p v1 = Nothing)
+    (find p v = Nothing)
     (DPair
      (Fin (S n), a) -- data
-     (\(i1,e1) =>   -- specification
-      (Vect.index i1 v1 = e1, -- property 1) element at index.
-      ((i2 : Fin (S n)) ->    -- property 2) index is first valid.
-       (So (p (Vect.index i2 v1))) ->
-       leq2 $ compare (computeSearchIndex begin i1) (computeSearchIndex begin i2) = True))))
+     (\(i,e) =>   -- specification
+      (Vect.index i v = e, -- property 1) element at index.
+      ((i' : Fin (S n)) ->    -- property 2) index is first valid.
+       p (Vect.index i' v) = True ->
+       leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
    
   findWithIndexPreferentiallyFrom p FZ [x] with (p x)
    | True = Right ((FZ, x) ** (Refl, \i2 => \prf => nowTheProof i2))
    | False = Left Refl
-  findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (choose (p x1))
-   | Left prfTrue =
+  findWithIndexPreferentiallyFrom p (FS k) (x1 :: x2 :: xs) with (decEq (p x1) True)
+   | Yes prfTrue =
       let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
        case output of
         Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
         Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 k notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
-   | Right prfFalse =
+   | No prfFalse =
       let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
        case output of
         Right ((i_offset, e) ** prf) => Right ?hole --((FS i_offset, e) ** prf)
@@ -380,8 +380,8 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    (i2 : Fin (S (S n))) ->
    (beforeBegin : Fin (S n)) -> -- also know is FS k
    (notInTail : (Vect.find p (x2 :: xs)) = Nothing) ->
-   (otherIndexMatches : So (p (Vect.index i2 (x1 :: x2 :: xs)))) ->
-   (indexMatches : So (p x1)) ->
+   (otherIndexMatches : p (Vect.index i2 (x1 :: x2 :: xs)) = True) ->
+   (indexMatches : p x1 = True) ->
    leq2 $ compare (computeSearchIndex (FS beforeBegin) FZ) (computeSearchIndex (FS beforeBegin) i2) = True
   
 -- we know that only one element is valid (for i2 in particular, which must then be equal to i1),
