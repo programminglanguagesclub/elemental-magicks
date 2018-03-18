@@ -355,11 +355,12 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
        case output of
         Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
         Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 k notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
-   | No prfFalse =
-      let output = findWithIndexPreferentiallyFrom p k (x2 :: xs) in
-       case output of
-        Right ((i_offset, e) ** prf) => Right ?hole --((FS i_offset, e) ** prf)
-        Left prf => ?hole ---Left prf
+   | No prfFalse with (findWithIndexPreferentiallyFrom p k (x2 :: xs))
+    | Right ((i_offset, e) ** prf) =
+        let foo = firstValidPerserved p x1 k (x2 :: xs) i_offset e prf ?hole prfFalse in
+        ?hole                              
+                                       ---- Right ?hole --((FS i_offset, e) ** prf)
+    | Left prf = ?hole ---Left prf
  
 
   zeroLEQCorrectedIndex:
@@ -379,36 +380,35 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
    (v : Vect (S n) a) ->
    Maybe (Fin (S n), a)
 
-  blargle p begin v with (findWithIndexPreferentiallyFrom p begin v)
-   | Left _ = Nothing
-   | Right (term,p) = Just term
+  blargle p begin v =
+   case (findWithIndexPreferentiallyFrom p begin v) of
+    Left _ => Nothing
+    Right (term ** p) => Just term
 -------------------------------------------------------------------------------
   -- If we know that an element is the first valid in the tail,
   -- then if the head is not valid, it is the first valid in head :: tail.
 
-
-{-
   firstValidPerserved :
    DecEq a =>
    (p : a -> Bool) ->
-   (begin : Fin (S n)) ->
    (x : a) ->
+   (begin : Fin (S n)) ->
    (v : Vect (S n) a) ->
-   findWithIndexPreferentiallyFrom p begin v = Right ((i,e)**prf) ->
-   (p x = False) ->
-   (DPair
-    (Vect.index i v = e, (i' : Fin (S n)) -> p (Vect.index i' v) = True -> leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True)
-    (\prf' =>
-     (findWithIndexPreferentiallyFrom p (FS begin) (x::v) = Right ((FS i, e) ** prf'))))
--}
+   (i : Fin (S n)) ->
+   (e : a) ->
+   (prf : 
+     (Vect.index i v = e, -- property 1) element at index.
+     ((i' : Fin (S n)) -> -- property 2) index is first valid.
+      p (Vect.index i' v) = True ->
+      leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))) ->
+   findWithIndexPreferentiallyFrom p begin v = Right ((i,e) ** prf) ->
+   (p x = True -> Void) ->
+   (blargle p (FS begin) (x::v) = Just (i,e))
 
-{-
-(Vect.index i v = e, -- property 1) element at index.
-((i' : Fin (S n)) -> -- property 2) index is first valid.
-p (Vect.index i' v) = True ->
-leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
-
--}
+  firstValidPerserved p x begin v prf equality headNotValid =
+    case findWithIndexPreferentiallyFrom p (FS begin) (x::v) of
+     Left _ => ?hole -- prove impossible
+     Right ((i,e)**prf) => ?hole
 -------------------------------------------------------------------------------
   pureApplesauce :
    (x1 : a) ->
