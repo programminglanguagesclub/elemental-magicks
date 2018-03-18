@@ -342,7 +342,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
      (Fin (S n), a) -- data
      (\(i,e) =>   -- specification
       (Vect.index i v = e, -- property 1) element at index.
-      ((i' : Fin (S n)) ->    -- property 2) index is first valid.
+      ((i' : Fin (S n)) -> -- property 2) index is first valid.
        p (Vect.index i' v) = True ->
        leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
    
@@ -372,6 +372,44 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 
 
 -------------------------------------------------------------------------------
+  blargle :
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin (S n)) ->
+   (v : Vect (S n) a) ->
+   Maybe (Fin (S n), a)
+
+  blargle p begin v with (findWithIndexPreferentiallyFrom p begin v)
+   | Left _ = Nothing
+   | Right (term,p) = Just term
+-------------------------------------------------------------------------------
+  -- If we know that an element is the first valid in the tail,
+  -- then if the head is not valid, it is the first valid in head :: tail.
+
+
+{-
+  firstValidPerserved :
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin (S n)) ->
+   (x : a) ->
+   (v : Vect (S n) a) ->
+   findWithIndexPreferentiallyFrom p begin v = Right ((i,e)**prf) ->
+   (p x = False) ->
+   (DPair
+    (Vect.index i v = e, (i' : Fin (S n)) -> p (Vect.index i' v) = True -> leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True)
+    (\prf' =>
+     (findWithIndexPreferentiallyFrom p (FS begin) (x::v) = Right ((FS i, e) ** prf'))))
+-}
+
+{-
+(Vect.index i v = e, -- property 1) element at index.
+((i' : Fin (S n)) -> -- property 2) index is first valid.
+p (Vect.index i' v) = True ->
+leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
+
+-}
+-------------------------------------------------------------------------------
   pureApplesauce :
    (x1 : a) ->
    (x2 : a) ->
@@ -388,12 +426,12 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 -- so we can do case analysis on the search index, and reject every case where they are not equal.
 -- after that it shouldn't be too difficult.
 
-  foobar : (i : Fin (S k)) -> computeSearchIndex FZ i = i
-  foobar i with (decEq (computeSearchIndex FZ i) i)
+  zeroDoesNotReindex' : (i : Fin (S k)) -> computeSearchIndex FZ i = i
+  zeroDoesNotReindex' i with (decEq (computeSearchIndex FZ i) i)
    | Yes prf = prf
 
-  argleBargle : (k : Fin n) -> computeSearchIndex FZ (FS k) = (FS k)
-  argleBargle k = foobar (FS k)
+  zeroDoesNotReindex : (k : Fin n) -> computeSearchIndex FZ (FS k) = (FS k)
+  zeroDoesNotReindex k = zeroDoesNotReindex' (FS k)
 
   pureApplesauce x1 x2 xs p i2 beforeBegin notInTail otherIndexMatches indexMatches with (decEq (computeSearchIndex (FS beforeBegin) i2) FZ)
    | Yes prf with (computeSearchIndex (FS beforeBegin) FZ) 
