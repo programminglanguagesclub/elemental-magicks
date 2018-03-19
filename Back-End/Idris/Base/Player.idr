@@ -345,7 +345,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
       ((i' : Fin (S n)) -> -- property 2) index is first valid.
        p (Vect.index i' v) = True ->
        leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
-   
+  {-
   findWithIndexPreferentiallyFrom p FZ [x] with (p x)
    | True = Right ((FZ, x) ** (Refl, \i2 => \prf => nowTheProof i2))
    | False = Left Refl
@@ -356,12 +356,51 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
         Right ((i_offset, e) ** prf) => Right ?hole -- ((FS i_offset, e) ** prf)
         Left notInTail => Right ((FZ, x1) ** (Refl,\i2 => \prf => pureApplesauce x1 x2 xs p i2 k notInTail prf prfTrue{-nowTheProofMaybeTrue prf i2-}))
    | No prfFalse with (findWithIndexPreferentiallyFrom p k (x2 :: xs))
-    | Right ((i_offset, e) ** prf) =
-        let foo = firstValidPerserved p x1 k (x2 :: xs) i_offset e prf ?hole prfFalse in
-        ?hole                              
-                                       ---- Right ?hole --((FS i_offset, e) ** prf)
-    | Left prf = ?hole ---Left prf
- 
+     | (Right ((i_offset, e) ** prf)) with (decEq (blargle p k (x2 :: xs)) (Just (i_offset, e)))
+       | Yes prf' =
+         let foo = firstValidPerserved p x1 k (x2 :: xs) i_offset e prf prf' prfFalse in -- (blargle p (FS k) (x1::x2::xs) = Just (i,e))
+         -- findWithIndexPreferentiallyFrom p (FS k) (x1::x2::x3) = Right ((i,e)**prf) -- is this completely circular??
+         ?hole
+        ---- Right ?hole --((FS i_offset, e) ** prf)
+       | No imp = ?hole -- somewhere I still have a missing case, but not sure if I need this here...
+     | Left prf = ?hole ---Left prf
+  
+  -}
+-------findWithIndexPreferentiallyFromScrubbed p begin v
+
+
+--Can't find implementation for DecEq (Either (find p v = Nothing) (Fin (S n), a))
+
+
+  findWithIndexPreferentiallyFrom p begin v with (findWithIndexPreferentiallyFromScrubbed p begin v) proof betaReduction
+    | Left prf = Left prf
+    | Right (i,e) =  Right ((i,e) ** findWithIndexPreferentiallyFromProof p begin v i e betaReduction)
+
+  findWithIndexPreferentiallyFromScrubbed :
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin (S n)) ->
+   (v : Vect (S n) a) ->
+   Either
+    (find p v = Nothing)
+    (Fin (S n), a)
+
+--  findWithIndexPreferentiallyFromScrubbed p begin 
+   
+-------------------------------------------------------------------------------
+  findWithIndexPreferentiallyFromProof : 
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin (S n)) ->
+   (v : Vect (S n) a) ->
+   (i : Fin (S n)) ->
+   (e : a) ->
+   Right (i,e) = findWithIndexPreferentiallyFromScrubbed p begin v ->
+   (Vect.index i v = e, -- property 1) element at index.
+    ((i' : Fin (S n)) -> -- property 2) index is first valid.
+    p (Vect.index i' v) = True ->
+    leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))
+
 
   zeroLEQCorrectedIndex:
    (beginningPred : Fin k) ->
@@ -401,7 +440,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
      ((i' : Fin (S n)) -> -- property 2) index is first valid.
       p (Vect.index i' v) = True ->
       leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))) ->
-   findWithIndexPreferentiallyFrom p begin v = Right ((i,e) ** prf) ->
+   blargle p begin v = Just (i,e) ->
    (p x = True -> Void) ->
    (blargle p (FS begin) (x::v) = Just (i,e))
 
