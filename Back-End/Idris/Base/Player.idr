@@ -339,15 +339,15 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
   findWithIndexPreferentiallyFrom :
    DecEq a =>
    (p : a -> Bool) ->
-   (begin : Fin (S n)) ->
-   (v : Vect (S n) a) ->
+   (begin : Fin n) ->
+   (v : Vect n a) ->
    Either
     (find p v = Nothing)
     (DPair
-     (Fin (S n), a) -- data
+     (Fin n, a) -- data
      (\(i,e) =>   -- specification
       (Vect.index i v = e, -- property 1) element at index.
-      ((i' : Fin (S n)) -> -- property 2) index is first valid.
+      ((i' : Fin n) -> -- property 2) index is first valid.
        p (Vect.index i' v) = True ->
        leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
   {-
@@ -446,31 +446,86 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 
 -------------------------------------------------------------------------------
   findWithIndexPreferentiallyFrom p begin v with (findWithIndexPreferentiallyFromScrubbed p begin v) proof betaReduction
-   | Nothing = ?hole
+   | Nothing = Left (foo p begin v betaReduction)
    | Just (i,e) =  Right ((i,e) ** findWithIndexPreferentiallyFromProof p begin v i e betaReduction)
 
   findWithIndexPreferentiallyFromScrubbed :
+   DecEq a =>
    (p : a -> Bool) ->
-   (begin : Fin (S n)) ->
-   (v : Vect (S n) a) ->
-   Maybe (Fin (S n), a)
+   (begin : Fin n) ->
+   (v : Vect n a) ->
+   Maybe (Fin n, a)
   
 
+-- scrubbed version
+  findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
+  findWithIndex p [] = Nothing
+  findWithIndex p (x::xs) = ?hole --if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex p xs
+  
+
+  findWithIndexFromScrubbed : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (Fin n, a)
+
+
+  -- THING TO PROVE #1
+  foo : DecEq a => (p : a -> Bool) -> (begin : Fin n) -> (v : Vect n a) -> Nothing = findWithIndexPreferentiallyFromScrubbed p begin v -> find p v = Nothing
+
+  
   findWithIndexPreferentiallyFromScrubbed p FZ v = findWithIndex p v
+  findWithIndexPreferentiallyFromScrubbed p (FS k) (x::xs) with (p x)
+    | True = (\(i,e) => (FS i, e)) <$> findWithIndexFromScrubbed p k xs <|> Just (FZ,x)
+    | False = (\(i,e) => (FS i, e)) <$> findWithIndexPreferentiallyFromScrubbed p k xs
 
  
   findWithIndexPreferentiallyFromProof : 
    DecEq a =>
    (p : a -> Bool) ->
-   (begin : Fin (S n)) ->
-   (v : Vect (S n) a) ->
-   (i : Fin (S n)) ->
+   (begin : Fin n) ->
+   (v : Vect n a) ->
+   (i : Fin n) ->
    (e : a) ->
    (Just (i,e) = findWithIndexPreferentiallyFromScrubbed p begin v) ->
    (Vect.index i v = e, -- property 1) element at index.
-    ((i' : Fin (S n)) -> -- property 2) index is first valid.
+    ((i' : Fin n) -> -- property 2) index is first valid.
     p (Vect.index i' v) = True ->
     leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))
+
+-- THING TO PROVE #2
+  findWithIndexPreferentiallyFromProof p begin v i e prf =
+    let prf1 = findWithIndexPreferentiallyFromProof1 p begin v i e prf in
+    let prf2 = (\i' => \prf2' => findWithIndexPreferentiallyFromProof2 p begin v i e prf prf1 i' prf2') in
+    (prf1, prf2)
+
+
+
+  findWithIndexPreferentiallyFromProof1 :
+    DecEq a =>
+    (p : a -> Bool) ->
+    (begin : Fin n) -> 
+    (v : Vect n a) ->
+    (i : Fin n) ->
+    (e : a) ->
+    (Just (i,e) = findWithIndexPreferentiallyFromScrubbed p begin v) ->
+    Vect.index i v = e
+
+  findWithIndexPreferentiallyFromProof1 p FZ v i e prf = ?hole
+
+  findWithIndexPreferentiallyFromProof2 :
+   DecEq a =>
+   (p : a -> Bool) ->
+   (begin : Fin n) -> 
+   (v : Vect n a) ->
+   (i : Fin n) ->
+   (e : a) ->
+   (Just (i,e) = findWithIndexPreferentiallyFromScrubbed p begin v) ->
+   Vect.index i v = e ->
+   (i' : Fin n) ->
+   p (Vect.index i' v) = True ->
+   leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True
+
+
+
+
+
 
 
   zeroLEQCorrectedIndex:
