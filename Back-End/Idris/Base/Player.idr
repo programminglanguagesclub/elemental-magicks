@@ -460,21 +460,17 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 -- scrubbed version
   findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
   findWithIndex p [] = Nothing
-  findWithIndex p (x::xs) = ?hole --if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex p xs
+  findWithIndex p (x::xs) = if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex p xs
   
-
   findWithIndexFromScrubbed : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (Fin n, a)
-
 
   -- THING TO PROVE #1
   foo : DecEq a => (p : a -> Bool) -> (begin : Fin n) -> (v : Vect n a) -> Nothing = findWithIndexPreferentiallyFromScrubbed p begin v -> find p v = Nothing
-
   
   findWithIndexPreferentiallyFromScrubbed p FZ v = findWithIndex p v
   findWithIndexPreferentiallyFromScrubbed p (FS k) (x::xs) with (p x)
     | True = (\(i,e) => (FS i, e)) <$> findWithIndexFromScrubbed p k xs <|> Just (FZ,x)
     | False = (\(i,e) => (FS i, e)) <$> findWithIndexPreferentiallyFromScrubbed p k xs
-
  
   findWithIndexPreferentiallyFromProof : 
    DecEq a =>
@@ -495,8 +491,6 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
     let prf2 = (\i' => \prf2' => findWithIndexPreferentiallyFromProof2 p begin v i e prf prf1 i' prf2') in
     (prf1, prf2)
 
-
-
   findWithIndexPreferentiallyFromProof1 :
     DecEq a =>
     (p : a -> Bool) ->
@@ -508,6 +502,12 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
     Vect.index i v = e
 
   findWithIndexPreferentiallyFromProof1 p FZ v i e prf = ?hole
+{-
+Just (i,e) = findWithIndex p v
+-----------
+Vect.index i v = e
+-}
+
 
   findWithIndexPreferentiallyFromProof2 :
    DecEq a =>
