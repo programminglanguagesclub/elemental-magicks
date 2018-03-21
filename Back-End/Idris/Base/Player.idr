@@ -361,6 +361,37 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
     let prf2 = (\i' => \prf2' => findWithIndexPreferentiallyFromProof2 p begin v i e prf prf1 i' prf2') in
     (prf1, prf2)
 -------------------------------------------------------------------------------
+  proof1 :
+    DecEq a =>
+    (p : a -> Bool) ->
+    (v : Vect (S k) a) ->
+    (i : Fin (S k)) ->
+    (e : a) ->
+    (findWithIndexPreferentiallyFromSimplyTyped p FZ v = findWithIndex p v)
+  proof1 p v i e = Refl
+
+  proof2 :
+    (witness : DecEq a) =>
+    (p : a -> Bool) ->
+    (x : a) ->
+    (xs : Vect k a) ->
+    (i : Fin (S k)) ->
+    (e : a) ->
+    (Just(i,e) = findWithIndex p v) ->
+                 (Just(i,e) = (if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex @{witness} {a=a} {n=k}p xs))
+
+ {-(Vect.index i v = e)-}
+
+  proof2 p x xs FZ e prf = ?hole
+
+
+{-
+findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
+findWithIndex p [] = Nothing
+findWithIndex p (x::xs) = if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex p xs
+-}
+
+-------------------------------------------------------------------------------
   findWithIndexPreferentiallyFromProof1 :
     DecEq a =>
     (p : a -> Bool) ->
