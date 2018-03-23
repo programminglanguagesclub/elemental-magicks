@@ -333,9 +333,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 -- scrubbed version
   findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
   findWithIndex p [] = Nothing
-  findWithIndex p (x::xs) with (p x)
-    | True = Just (FZ, x)
-    | False = map ugh $ findWithIndex p xs
+  findWithIndex p (x::xs) = if (p x) then Just (FZ, x) else map ugh $ findWithIndex p xs
 -------------------------------------------------------------------------------
   findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (Fin n, a)
   findWithIndexFrom p FZ [x] = if p x then Just (FZ, x) else Nothing
@@ -365,6 +363,8 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 -------------------------------------------------------------------------------
   
   terrible : False = True -> a
+  ifhelp : if False then a else b = b
+  betahelp : (x : a) -> (y : a) -> (\r => r = y) x = x = y
 
   ugh : (Fin k, a) -> (Fin (S k), a)
   ugh (i,e) = (FS i, e)
@@ -428,7 +428,7 @@ mutual -- do I need these to be mutual if the codependency involves types, not j
 
   proof2 @{witness} pt xt xst FZ et prft with (pt xt) proof condition
     | True = rewrite prft in Refl --rewrite lemma2 @{witness} p x xs (flip condition) in prf
-    | False = {-rewrite prft in-} Refl -- Refl
+    | False = rewrite (betahelp (if (p x) then Just (FZ, x) else map ugh $ findWithIndex p xs) (map ugh $ findWithIndex p xs)) in (rewrite prft in Refl) -- Refl
    
    {-
 
