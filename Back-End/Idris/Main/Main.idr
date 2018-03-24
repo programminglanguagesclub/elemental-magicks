@@ -134,8 +134,8 @@ processServerUpdate' (MkBattle round (MkFullGameGame game)) whichPlayer serverUp
       ([MkBattle round' (newGame bId aId)], serverResponse)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
+    -}
 processServerUpdate' (MkBattle round (MkFullGameDrawPhase drawPhase)) whichPlayer serverUpdate = ?hole
--}
 
 -------------------------------------------------------------------------------
 processServerUpdate :

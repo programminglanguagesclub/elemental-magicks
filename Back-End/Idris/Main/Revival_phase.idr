@@ -29,8 +29,7 @@ getReviveCost toRevive =
 
 
 
-
-
+-- make more verified
 
 {-I might want to move these to the graveyard rather than simply removing them from the hand-}
 -------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ _removeMonsterFromHandByPermanentId :
  (id : Nat) ->
  (Maybe Monster, List Card)
 
-_removeMonsterFromHandByPermanentId [] _ _ = (Nothing,[])
+_removeMonsterFromHandByPermanentId _ [] _ = (Nothing,[])
 _removeMonsterFromHandByPermanentId acc ((SpellCard _)::xs) id =
  _removeMonsterFromHandByPermanentId acc xs id
 _removeMonsterFromHandByPermanentId acc ((MonsterCard m)::xs) permanentId =

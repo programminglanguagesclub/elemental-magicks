@@ -271,206 +271,183 @@ findIndexPreferentiallyFrom p (FS k) (x :: xs) =
 --   Nothing => Nothing
 --   Just ((i_offset, e) ** prf) => Just ((FS i_offset, e) ** prf)
 -------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- TRUSTED COMPONENTS PART 1/2
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- TRUSTED DEFINITION
+-------------------------------------------------------------------------------
 -- correct the ordering
-
 computeSearchIndex : (begin : Fin n) -> (i : Fin n) -> Fin n
 computeSearchIndex FZ i = i
-computeSearchIndex (FS k1) (FS k2) = computeSearchIndex (weaken k1) (weaken k2)
-computeSearchIndex (FS k) FZ = computeSearchIndex (weaken k) last
+computeSearchIndex (FS k1) (FS k2) = weaken $ computeSearchIndex k1 k2
+computeSearchIndex (FS k) FZ = computeSearchIndex (assert_smaller (FS k) $ weaken k) last
+-------------------------------------------------------------------------------
+-- TRUSTED DEFINITION
 -------------------------------------------------------------------------------
 leq2 : Ordering -> Bool
 leq2 GT = False
 leq2 EQ = True
 leq2 LT = True
 -------------------------------------------------------------------------------
-zeroIndexIsFirst : (x : Fin (S k)) -> leq2 $ compare FZ x = True
-zeroIndexIsFirst FZ = Refl
-zeroIndexIsFirst (FS k) = Refl
+-- UNTRUSTED COMPONENTS
+-------------------------------------------------------------------------------
+-- IMPLEMENTATION
+-------------------------------------------------------------------------------
+ugh : (Fin k, a) -> (Fin (S k), a)
+ugh (i,e) = (FS i, e)
+-------------------------------------------------------------------------------
+findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
+findWithIndex p [] = Nothing
+findWithIndex p (x::xs) = if (p x) then Just (FZ, x) else map ugh $ findWithIndex p xs
+-------------------------------------------------------------------------------
+findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (Fin n, a)
+findWithIndexFrom p FZ v = findWithIndex p v
+findWithIndexFrom p (FS k) (x :: xs) = (\(i,e) => (FS i, e)) <$> findWithIndexFrom p k xs
+findWithIndexFrom _ _ [] impossible
+------------------------------------------------------------------------------------------------
+findWithIndexPreferentiallyFromSimplyTyped :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ Maybe (Fin n, a)
+                       
+findWithIndexPreferentiallyFromSimplyTyped p FZ v = findWithIndex p v
+findWithIndexPreferentiallyFromSimplyTyped p (FS k) (x::xs) with (p x)
+ | True = (\(i,e) => (FS i, e)) <$> findWithIndexFrom p k xs <|> Just (FZ,x)
+ | False = (\(i,e) => (FS i, e)) <$> findWithIndexPreferentiallyFromSimplyTyped p k xs
+-------------------------------------------------------------------------------
+-- PROOFS
+-------------------------------------------------------------------------------
+foo :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ Nothing = findWithIndexPreferentiallyFromSimplyTyped p begin v ->
+ find p v = Nothing
+-------------------------------------------------------------------------------
+terrible : False = True -> a
+terrible = ?unproven
+-------------------------------------------------------------------------------
+helper : (p : a -> Bool) -> (x : a) -> ((p x = True) -> Void) -> ((if p x then Just x else Nothing) = Nothing)
+helper = ?hole
+-------------------------------------------------------------------------------
+findWithIndexPreferentiallyFromProof1 :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ (i : Fin n) ->
+ (e : a) ->
+ (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
+ Vect.index i v = e
+
+findWithIndexPreferentiallyFromProof1 p FZ v i e prf = ?unproven
+findWithIndexPreferentiallyFromProof1 p (FS k) v i e prf = ?unproven
+-------------------------------------------------------------------------------
+findWithIndexPreferentiallyFromProof2 :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ (i : Fin n) ->
+ (e : a) ->
+ (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
+ Vect.index i v = e ->
+ (i' : Fin n) ->
+ p (Vect.index i' v) = True ->
+ leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True
+
+findWithIndexPreferentiallyFromProof2 = ?unproven
+-------------------------------------------------------------------------------
+findWithIndexPreferentiallyFromProof :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ (i : Fin n) ->
+ (e : a) ->
+ (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
+ (Vect.index i v = e, -- property 1) element at index.
+  ((i' : Fin n) -> -- property 2) index is first valid.
+  p (Vect.index i' v) = True ->
+  leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))
+
+findWithIndexPreferentiallyFromProof p begin v i e prf =
+ let prf1 = findWithIndexPreferentiallyFromProof1 p begin v i e prf in
+ let prf2 = (\i' => \prf2' => findWithIndexPreferentiallyFromProof2 p begin v i e prf prf1 i' prf2') in
+ (prf1, prf2)
 -------------------------------------------------------------------------------
 nowTheProof : (i2 : Fin (S k)) -> leq2 $ compare (computeSearchIndex FZ FZ) (computeSearchIndex FZ i2) = True
 nowTheProof {k=k} i2 with (computeSearchIndex FZ i2)
  | FZ with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (the (Fin (S k)) FZ))
   | True = Refl
+  | False = ?hole
  | FS fk with (leq2 $ compare (computeSearchIndex (the (Fin (S k)) FZ) (the (Fin (S k)) FZ)) (FS fk))
   | True = Refl
+  | False = ?hole
 -------------------------------------------------------------------------------
-helper : (p : a -> Bool) -> (x : a) -> ((p x = True) -> Void) -> ((if p x then Just x else Nothing) = Nothing)
-helper = ?hole
--------------------------------------------------------------------------------
+proof1 :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (v : Vect (S k) a) ->
+ (i : Fin (S k)) ->
+ (e : a) ->
+ (findWithIndexPreferentiallyFromSimplyTyped p FZ v = findWithIndex p v)
 
-mutual -- do I need these to be mutual if the codependency involves types, not just terms?
-  findWithIndexPreferentiallyFrom :
-   DecEq a =>
-   (p : a -> Bool) ->
-   (begin : Fin n) ->
-   (v : Vect n a) ->
-   Either
-    (find p v = Nothing)
-    (DPair
-     (Fin n, a) -- data
-     (\(i,e) =>   -- specification
-      (Vect.index i v = e, -- property 1) element at index.
-      ((i' : Fin n) -> -- property 2) index is first valid.
-       p (Vect.index i' v) = True ->
-       leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
-
-  findWithIndexPreferentiallyFrom p begin v with (findWithIndexPreferentiallyFromSimplyTyped p begin v) proof betaReduction
-   | Nothing = Left (foo p begin v betaReduction)
-   | Just (i,e) = Right ((i,e) ** findWithIndexPreferentiallyFromProof p begin v i e betaReduction)
+proof1 p v i e = ?unproven
 -------------------------------------------------------------------------------
-  findWithIndexPreferentiallyFromSimplyTyped :
-   DecEq a =>
-   (p : a -> Bool) ->
-   (begin : Fin n) ->
-   (v : Vect n a) ->
-   Maybe (Fin n, a)
-
-  findWithIndexPreferentiallyFromSimplyTyped p FZ v = findWithIndex p v
-  findWithIndexPreferentiallyFromSimplyTyped p (FS k) (x::xs) with (p x)
-   | True = (\(i,e) => (FS i, e)) <$> findWithIndexFrom p k xs <|> Just (FZ,x)
-   | False = (\(i,e) => (FS i, e)) <$> findWithIndexPreferentiallyFromSimplyTyped p k xs
--------------------------------------------------------------------------------
--- scrubbed version
-  findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
-  findWithIndex p [] = Nothing
-  findWithIndex p (x::xs) = if (p x) then Just (FZ, x) else map ugh $ findWithIndex p xs
--------------------------------------------------------------------------------
-  findWithIndexFrom : DecEq a => (a -> Bool) -> Fin n -> (v1 : Vect n a) -> Maybe (Fin n, a)
-  findWithIndexFrom p FZ [x] = if p x then Just (FZ, x) else Nothing
-  findWithIndexFrom p (FS k) (x :: xs) = (\(i,e) => (FS i, e)) <$> findWithIndexFrom p k xs
--------------------------------------------------------------------------------
-  -- THING TO PROVE #1
-  foo : DecEq a => (p : a -> Bool) -> (begin : Fin n) -> (v : Vect n a) -> Nothing = findWithIndexPreferentiallyFromSimplyTyped p begin v -> find p v = Nothing
--------------------------------------------------------------------------------
-  findWithIndexPreferentiallyFromProof : 
-   DecEq a =>
-   (p : a -> Bool) ->
-   (begin : Fin n) ->
-   (v : Vect n a) ->
-   (i : Fin n) ->
-   (e : a) ->
-   (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
-   (Vect.index i v = e, -- property 1) element at index.
-    ((i' : Fin n) -> -- property 2) index is first valid.
-    p (Vect.index i' v) = True ->
-    leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))
--------------------------------------------------------------------------------
--- THING TO PROVE #2
-  findWithIndexPreferentiallyFromProof p begin v i e prf =
-    let prf1 = findWithIndexPreferentiallyFromProof1 p begin v i e prf in
-    let prf2 = (\i' => \prf2' => findWithIndexPreferentiallyFromProof2 p begin v i e prf prf1 i' prf2') in
-    (prf1, prf2)
--------------------------------------------------------------------------------
+lemma2 :
+ (witness : DecEq a) =>
+ (p : a -> Bool) ->
+ (x : a) ->
+ (xs : Vect k a) ->
+ (p x = True) ->
+ (Just(FZ,x) = findWithIndex p (x::xs))
   
-  terrible : False = True -> a
-  ifhelp : if False then a else b = b
-  betahelp : (x : a) -> (y : a) -> (\r => r = y) x = x = y
-
-  ugh : (Fin k, a) -> (Fin (S k), a)
-  ugh (i,e) = (FS i, e)
-
-  proof1 :
-    DecEq a =>
-    (p : a -> Bool) ->
-    (v : Vect (S k) a) ->
-    (i : Fin (S k)) ->
-    (e : a) ->
-    (findWithIndexPreferentiallyFromSimplyTyped p FZ v = findWithIndex p v)
-  proof1 p v i e = Refl
-
-
-  lemma2 :
-    (witness : DecEq a) =>
-    (p : a -> Bool) ->
-    (x : a) ->
-    (xs : Vect k a) ->
-    (p x = True) ->
-    (Just(FZ,x) = findWithIndex p (x::xs))
-  lemma2 p x xs prf with (p x) proof condition
-    | True = Refl
-    | False = terrible prf
-
--- False = p x (Type of condition)
-  flip : a = b -> b = a
-
-{-
-
-   proof2 :
-        (witness : DecEq a) =>
-                        (p : a -> Bool) ->
-                             (x : a) ->
-                                  (xs : Vect k a) ->
-                                       (i : Fin (S k)) ->
-                                            (e : a) ->
-                                                 (Just(i,e) = findWithIndex p (x::xs)) ->
-                                                                   (Just(i,e) = (if p x then Just (FZ, x) else map ugh $ findWithIndex @{witness} {a=a} {n=k}p xs))
-                                                                    
-                                                                      {-(Vect.index i v = e)-}
-                                                                       
-                                                                          proof2 @{witness} p x xs FZ e prf with (p x) proof condition
-                                                                               | True = rewrite prf in Refl --rewrite lemma2 @{witness} p x xs (flip condition) in prf
-                                                                                    | False = ?hole -- Refl
-                                                                                     
-                                                                                     -}
-
-
-  proof2 :
-    (witness : DecEq a) =>
-    (p : a -> Bool) ->
-    (x : a) ->
-    (xs : Vect k a) ->
-    (i : Fin (S k)) ->
-    (e : a) ->
-    (Just(i,e) = findWithIndex p (x::xs)) ->
-    (Just(i,e) = (if p x then Just (FZ, x) else map ugh $ findWithIndex {-@{witness} {a=a} {n=k}-}p xs))
-
- {-(Vect.index i v = e)-}
-
-  proof2 @{witness} pt xt xst FZ et prft with (pt xt) proof condition
-    | True = rewrite prft in Refl --rewrite lemma2 @{witness} p x xs (flip condition) in prf
-    | False = rewrite (betahelp (if (p x) then Just (FZ, x) else map ugh $ findWithIndex p xs) (map ugh $ findWithIndex p xs)) in (rewrite prft in Refl) -- Refl
-   
-   {-
-
-   Type mismatch between
-           Just (FZ, x) = Just (FZ, x) (Type of Refl)
-           and
-                   Just (FZ, e) = Just (FZ, x) (Expected type)
-                   -}
-
-{-
-findWithIndex : DecEq a => (a -> Bool) -> (v : Vect n a) -> Maybe (Fin n, a)
-findWithIndex p [] = Nothing
-findWithIndex p (x::xs) = if p x then Just (FZ, x) else map (\(i,e) => (FS i,e)) $ findWithIndex p xs
--}
-
+lemma2 p x xs prf with (p x) proof condition
+ | True = Refl
+ | False = terrible prf
 -------------------------------------------------------------------------------
-  findWithIndexPreferentiallyFromProof1 :
-    DecEq a =>
-    (p : a -> Bool) ->
-    (begin : Fin n) -> 
-    (v : Vect n a) ->
-    (i : Fin n) ->
-    (e : a) ->
-    (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
-    Vect.index i v = e
+proof2 :
+ (witness : DecEq a) =>
+ (p : a -> Bool) ->
+ (x : a) ->
+ (xs : Vect k a) ->
+ (i : Fin (S k)) ->
+ (e : a) ->
+ (Just(i,e) = findWithIndex p (x::xs)) ->
+ (Vect.index i v = e)
+  
+proof2 @{witness} pt xt xst FZ et prft with (pt xt) proof condition
+ | True = ?unproven
+ | False = ?unproven
+proof2 @{witness} p x xs (FS k) e prf = ?unproven
+-------------------------------------------------------------------------------
+-- TRUSTED COMPONENTS PART 2/2
+-------------------------------------------------------------------------------
+-- TRUSTED SPECIFICATION
+-------------------------------------------------------------------------------
+findWithIndexPreferentiallyFrom :
+ DecEq a =>
+ (p : a -> Bool) ->
+ (begin : Fin n) ->
+ (v : Vect n a) ->
+ Either
+  (find p v = Nothing)
+  (DPair
+   (Fin n, a) -- data
+   (\(i,e) =>   -- specification
+    (Vect.index i v = e, -- property 1) element at index.
+    ((i' : Fin n) -> -- property 2) index is first valid.
+     p (Vect.index i' v) = True ->
+     leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True))))
 
-  findWithIndexPreferentiallyFromProof1 p FZ v i e prf = ?hole
--------------------------------------------------------------------------------
-  findWithIndexPreferentiallyFromProof2 :
-   DecEq a =>
-   (p : a -> Bool) ->
-   (begin : Fin n) -> 
-   (v : Vect n a) ->
-   (i : Fin n) ->
-   (e : a) ->
-   (Just (i,e) = findWithIndexPreferentiallyFromSimplyTyped p begin v) ->
-   Vect.index i v = e ->
-   (i' : Fin n) ->
-   p (Vect.index i' v) = True ->
-   leq2 $ compare (computeSearchIndex begin i) (computeSearchIndex begin i') = True
--------------------------------------------------------------------------------
--- END MUTUAL
+findWithIndexPreferentiallyFrom p begin v with (findWithIndexPreferentiallyFromSimplyTyped p begin v) proof betaReduction
+ | Nothing = Left (foo p begin v betaReduction)
+ | Just (i,e) = Right ((i,e) ** findWithIndexPreferentiallyFromProof p begin v i e betaReduction)
 -------------------------------------------------------------------------------
 actualAlive : Maybe Monster -> Bool
 
