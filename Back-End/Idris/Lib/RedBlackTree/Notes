@@ -1,0 +1,70 @@
+Notes from Neel Kirshnaswami's approach.
+
+This is also given in his 2009 paper on focusing on pattern matching.
+
+
+
+
+data pat
+ = PBranch
+ | PLeaf
+ | PVar
+ | pat /\ pat
+ | Not pat
+ | pat \/ pat
+ | Fail
+
+ data Match : pat -> Tree -> Type where
+  Match-var : \forall t : Tree -> Match PVar t
+  Match-Leaf : Match PLeaf Leaf
+  Match-Branch : \forall t, t' : Tree \forall p, p' : pat -> Match p t -> Match p' t' -> Match (PBranch p p')
+  Match-/\ : \forall t : Tree\forall p, p' : Pat -> Match p t -> Match p' t -> Match (p /\ p') t
+  Match \/1 : \forall t : Tree\forall p, p' : Pattern -> Match p t -> Match (p \/ p') t
+  Match \/2 : \forall t : Tree \forall p, p' : Pattern -> Match p' t -> Match (p \/ p') t
+
+
+  Not : pat -> pat
+  Not Var = Fail
+  Not Fail = Var
+  Not (p/\p') = (Not p) \/ (Not p')
+  Not (p\/p') = (Not p) /\ (Not p')
+  Not PLeaf = PBranch Var Var
+  Not (PBranch p1 p2) = PLeaf \/ PBranch (Not p1) Var \/ PBranch p1 (Not p2)
+
+
+
+\forall p,t, Match p t <=> (Match (Not p) t) -> Void.
+
+
+May also wish to show double negation elimination for Not,
+which would prove with the above that additionally
+
+\forall p,t, Match (Not p) t <=> (Match p t) -> Void.
+
+
+
+
+
+
+
+
+
+
+
+
+f : Tree -> X
+f Leaf = e1
+f x = e2
+
+
+pat-f : Pat
+pat-f = PLeaf \/ ((Not PLeaf) /\ Var)
+
+pat-f-cover : \forall t : Tree, Match pat-f t
+
+pat-f-unique : \forall t : Tree, (m, m' : Match pat-f t) -> m = m'
+
+
+fhat : \forall t : Tree, m : Match pat-f t -> X
+
+f=fhat : \forall t, f t = fhat (pat-f-cover t) t

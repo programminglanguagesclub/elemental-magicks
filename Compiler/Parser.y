@@ -121,40 +121,40 @@ import Text.EditDistance
 
 %%
 
-File : Units Spells {File dummySurfaceData $1 $2}
+File : Units Spells {File $1 $2}
 Units : {[]}
       | Unit Units {$1 : $2}
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit dummySurfaceData $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource (Lexer.SurfaceData 1 1 "dummy") $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
 Spell : spell name School level colon number spawn colon Skill {Spell dummySurfaceData $2 $3 $6 $9}
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats dummySurfaceData $1 $4 $7 $10 $13 $16 $19 $22}
 School : word {Knowledge $1}
-Schools : {NoSchools dummySurfaceData }
+Schools : {NoSchools}
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 Start : {Nothing}
-      | start colon Skill {Just $ Start dummySurfaceData $3}
+      | start colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Start $3}
 End : {Nothing}
-    | end colon Skill {Just $ End dummySurfaceData $3}
+    | end colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ End $3}
 Counter : {Nothing}
-        | counter colon Skill {Just $ Counter dummySurfaceData $3}
+        | counter colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Counter $3}
 Spawn : {Nothing}
-      | spawn colon Skill {Just $ Spawn dummySurfaceData $3}
+      | spawn colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Spawn $3}
 Death : {Nothing}
-      | death colon Skill {Just $ Death dummySurfaceData $3}
+      | death colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Death $3}
 Auto : {Nothing}
-     | auto colon Skill {Just $ Auto dummySurfaceData $3}
+     | auto colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Auto $3}
 Actions : {[]}
         | Action Actions {$1 : $2}
-Action : action colon Skill {Action dummySurfaceData $3}
-Soul : soul colon Skill {Soul dummySurfaceData $3}
-Skill : OptionalCost OptionalCondition Automatic {AutomaticSkill dummySurfaceData $1 $2 $3}
-OptionalCost : {Nothing}
-             | cost colon number {Just $ Constant dummySurfaceData "LALALA"}
+Action : action colon Skill {CarryingSource (getSurfaceData' $3) $ Action $3}
+Soul : soul colon Skill {CarryingSource dummySurfaceData $ Soul $3}
+Skill : OptionalCost OptionalCondition Automatic {CarryingSource dummySurfaceData $ AutomaticSkill $1 $2 $3}
+OptionalCost : {Nothing} -- OPTIONAL COSTS SHOULD ALLOW ANY EXPRESSION FOR THE COST NOT JUST A NUMBER
+             | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant "LALALA"}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
-OptionalFilter : {Always dummySurfaceData}
+OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent}
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
@@ -178,12 +178,12 @@ SkillEffects : {[]}
 
 SkillEffect : Assignment {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
-Mutator : assign {Set dummySurfaceData}
-        | increment {Increment dummySurfaceData}
-        | decrement {Decrement dummySurfaceData}
-        | stretch {Stretch dummySurfaceData}
-        | crush {Crush dummySurfaceData}
-        | contort {Contort dummySurfaceData}
+Mutator : assign {Set $ extractSurfaceData $1}
+        | increment {Increment $ extractSurfaceData $1}
+        | decrement {Decrement $ extractSurfaceData $1}
+        | stretch {Stretch $ extractSurfaceData $1}
+        | crush {Crush $ extractSurfaceData $1}
+        | contort {Contort $ extractSurfaceData $1}
 ListExpr : {[]}
          | Expr {[$1]}
          | Expr comma ListExprCommas {$1 : $3}
@@ -191,46 +191,46 @@ ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
 NullableExpr : {Nothing}
              | Expr {Just ($1)}
-Expr : number {Constant dummySurfaceData (getSurfaceSyntax $1)}
-     | Field self {Self dummySurfaceData $1}
-     | Field var {Var dummySurfaceData $1 $2}
-     | Side School {KnowledgeExpr dummySurfaceData $2 $1}
-     | Side thoughts {ThoughtsExpr dummySurfaceData $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
-     | Side thought {ThoughtsExpr dummySurfaceData $1 }
-     | Expr sum Expr {Sum dummySurfaceData $1 $3}
-     | Expr difference Expr {Difference dummySurfaceData $1 $3}
-     | Expr product Expr {Product dummySurfaceData $1 $3}
-     | Expr quotient Expr {Quotient dummySurfaceData $1 $3}
-     | Expr mod Expr {Mod dummySurfaceData $1 $3} 
-     | Expr gt Expr {ParseTree.GT dummySurfaceData $1 $3}
-     | Expr geq Expr {GEQ dummySurfaceData $1 $3}
-     | Expr lt Expr {ParseTree.LT dummySurfaceData $1 $3}
-     | Expr leq Expr {LEQ dummySurfaceData $1 $3}
-     | Expr eq Expr {ParseTree.EQ dummySurfaceData $1 $3}
-     | Expr and Expr {And dummySurfaceData $1 $3}
-     | Expr or Expr {Or dummySurfaceData $1 $3}
-     | not Expr {Not dummySurfaceData $2}
+Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
+     | Field self {CarryingSource (extractSurfaceData $2) $ Self $1}
+     | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
+     | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
+     | Side thoughts {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
+     | Side thought {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 }
+     | Expr sum Expr {CarryingSource (extractSurfaceData $2) $ Sum $1 $3}
+     | Expr difference Expr {CarryingSource (extractSurfaceData $2) $ Difference $1 $3}
+     | Expr product Expr {CarryingSource (extractSurfaceData $2) $ Product $1 $3}
+     | Expr quotient Expr {CarryingSource (extractSurfaceData $2) $ Quotient $1 $3}
+     | Expr mod Expr {CarryingSource (extractSurfaceData $2) $ Mod $1 $3} 
+     | Expr gt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.GT $1 $3}
+     | Expr geq Expr {CarryingSource (extractSurfaceData $2) $ GEQ $1 $3} -- currently missing surface data from the subtrees.
+     | Expr lt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.LT $1 $3}
+     | Expr leq Expr {CarryingSource (extractSurfaceData $2) $ LEQ $1 $3}
+     | Expr eq Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.EQ $1 $3}
+     | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
+     | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
+     | not Expr {CarryingSource (dummySurfaceData) $ Not $2}
 Field : Stat Temporality {StatField dummySurfaceData $1 $2}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  
-Temporality : current {Temporary dummySurfaceData }
-            | permanent {Permanent dummySurfaceData }
-            | base {Base dummySurfaceData}
-HpStat : hp {CurrentHp dummySurfaceData}
-       | max hp {MaxHp dummySurfaceData}
-       | base hp {BaseHp dummySurfaceData}
-Stat : attack {Attack dummySurfaceData}
-     | defense {Defense dummySurfaceData}
-     | speed {Speed dummySurfaceData}
-     | range {Range dummySurfaceData}
-     | level {Level dummySurfaceData}
-Side : friendly {Friendly dummySurfaceData}
-     | enemy {Enemy dummySurfaceData}
-RelativeSet : field {Field dummySurfaceData}
-            | hand {Hand dummySurfaceData}
-            | graveyard {Graveyard dummySurfaceData}
-            | banished {Banished dummySurfaceData}
-            | spawn {SpawnLocation dummySurfaceData}
+Temporality : current {Temporary (extractSurfaceData $1)}
+            | permanent {Permanent (extractSurfaceData $1)}
+            | base {Base (extractSurfaceData $1)}
+HpStat : hp {CarryingSource undefined CurrentHp}
+       | max hp {CarryingSource undefined MaxHp}
+       | base hp {CarryingSource undefined BaseHp}
+Stat : attack {CarryingSource $1 Attack}
+     | defense {CarryingSource $1 Defense}
+     | speed {CarryingSource $1 Speed}
+     | range {CarryingSource $1 Range}
+     | level {CarryingSource (extractSurfaceData $1) Level}
+Side : friendly {Friendly (extractSurfaceData $1)}
+     | enemy {Enemy (extractSurfaceData $1)}
+RelativeSet : field {Field (extractSurfaceData $1)}
+            | hand {Hand (extractSurfaceData $1)}
+            | graveyard {Graveyard (extractSurfaceData $1)}
+            | banished {Banished (extractSurfaceData $1)}
+            | spawn {SpawnLocation (extractSurfaceData $1)}
 
 
 {
@@ -262,10 +262,5 @@ parseError tokens = do
  Lexer.alexError $ show i
 
 
-{-
-data File = File Lexer.SurfaceData [Unit] [Spell]
-             deriving Show
-
--}
 }
 

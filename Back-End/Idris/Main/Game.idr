@@ -12,10 +12,12 @@ import Base.Player
 import Base.Phase
 import Base.Card
 import Base.Clientupdates
+import Pruviloj.Derive.DecEq
 
 %access public export
 %default total
 
+%language ElabReflection
 -------------------------------------------------------------------------------
 getOpponent : WhichPlayer -> WhichPlayer
 getOpponent PlayerA = PlayerB
@@ -26,7 +28,7 @@ data Round
  | SecondRoundOriginalPlayerAWonFirstRound
  | SecondRoundOriginalPlayerBWonFirstRound
 -------------------------------------------------------------------------------
-{-Reset used_death_skill, used_counter_skill before auto skill and action of card. -}
+{-Reset used_death_skill, used_counter_skill before START OF PHASE?------auto skill and action of card. -}
 
 -------------------------------------------------------------------------------
 -- monster id data type?
@@ -42,6 +44,47 @@ record Game where
  phase : Phase
  playerA : Player
  playerB : Player
+-------------------------------------------------------------------------------
+data MonsterLocation
+ = HandLocation (Fin 25)
+ | GraveyardLocation (Fin 25)
+ | BanishLocation (Fin 25)
+ | BoardLocation (Fin 9)
+ | SpawnLocation
+
+monsterLocationDecEq : (x , y : MonsterLocation) -> Dec (x = y)
+%runElab deriveDecEq `{monsterLocationDecEq}
+
+DecEq MonsterLocation where
+  decEq x y = monsterLocationDecEq x y
+-------------------------------------------------------------------------------
+data SpellLocation
+ = HandLocationSpell (Fin 30)
+ | GraveyardLocationSpell (Fin 30)
+ | BanishLocationSpell (Fin 30)
+ | SpawnLocationSpell
+
+spellLocationDecEq : (x , y : SpellLocation) -> Dec (x = y)
+%runElab deriveDecEq `{spellLocationDecEq}
+   
+DecEq SpellLocation where
+  decEq x y = spellLocationDecEq x y
+-------------------------------------------------------------------------------
+-- these are not all monsters potentially as there are also spell cards.
+data MonsterDictionary =
+ MkMonsterDictionary
+  (DPair
+   (Vect m MonsterLocation, Vect n SpellLocation)
+   (\(monsterLocationDictionary, SpellLocationDictionary) =>
+    (i : Fin m) ->
+    (j : Fin m) ->
+    (i = j -> Void) ->
+    (index i monsterLocationDictionary = index j monsterLocationDictionary) ->
+    Void))
+
+
+
+
 -------------------------------------------------------------------------------
 namespace fromNat
   getInitiative : Nat -> WhichPlayer
@@ -153,14 +196,9 @@ updatePlayer :
  Game ->
  (Player -> (Player, List ClientUpdate)) ->
  (Game, List ClientUpdate)
-{-
-updatePlayer phase playerA playerB PlayerA mutator =
- let (playerA', clientUpdates) = mutator playerA in
- (MkPhaseCycle phase playerA' playerB, clientUpdates)
-updatePlayer phase playerA playerB PlayerB mutator =
- let (playerB', clientUpdates) = mutator playerB in
- (MkPhaseCycle phase playerA playerB', clientUpdates)
--}
+
+updatePlayer whichPlayer game mutator =
+ let game' = transformPlayer (fst . mutator) whichPlayer game in ?hole
 -------------------------------------------------------------------------------
 -- Move these helper functions to card. These also get used in the DSL.
 

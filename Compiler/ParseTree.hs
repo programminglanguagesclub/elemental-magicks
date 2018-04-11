@@ -38,6 +38,27 @@ with surface data also filled out correctly....
 -}
 -}
 
+
+data CarryingSource a =
+ CarryingSource Lexer.SurfaceData a
+ deriving Show
+
+
+getSurfaceSyntax' :: CarryingSource a -> String
+getSurfaceSyntax' x = syntax
+ where (CarryingSource (Lexer.SurfaceData line column syntax) ast) = x
+
+getSurfaceData' :: CarryingSource a -> Lexer.SurfaceData
+getSurfaceData' (CarryingSource surfaceData _) = surfaceData
+
+unionSurfaceSyntax :: CarryingSource a -> CarryingSource b -> Lexer.SurfaceData
+unionSurfaceSyntax (CarryingSource (Lexer.SurfaceData line1 column1 source1) _) (CarryingSource (Lexer.SurfaceData line2 column2 source2) _) =
+ Lexer.SurfaceData line1 column1 (source1 ++ " " ++ source2)
+
+
+
+
+
 dummySurfaceData :: Lexer.SurfaceData
 dummySurfaceData = Lexer.SurfaceData (-1) (-1) "Dummy Surface Syntax"
 
@@ -52,6 +73,9 @@ unionSurfaceData surfaceData surfaceData' =
        Lexer.SurfaceData _ _ surfaceSyntax' = surfaceData'
 
 
+
+
+
 getFileSurfaceData :: [Unit] -> [Spell] -> Lexer.SurfaceData
 getFileSurfaceData = undefined
 
@@ -59,15 +83,35 @@ getFileSurfaceData = undefined
 getFoo :: [String] -> Set -> [(String,Set)]
 getFoo _ _ = error "what is getFoo??"
 
-data File = File Lexer.SurfaceData [Unit] [Spell]
+data File = File [Unit] [Spell]
              deriving Show
 
-data Unit = Unit Lexer.SurfaceData String Stats (Maybe Start) (Maybe End) (Maybe Counter) (Maybe Spawn) (Maybe Death) (Maybe Auto) [Action] Soul
-            deriving Show
-data Spell = Spell Lexer.SurfaceData String Knowledge Lexer.SurfaceData Skill {-name, school, level, skill-}
-             deriving Show
+data Unit =
+ Unit
+  String
+  (CarryingSource Stats)
+  (Maybe (CarryingSource Start))
+  (Maybe (CarryingSource End))
+  (Maybe (CarryingSource Counter))
+  (Maybe (CarryingSource Spawn))
+  (Maybe (CarryingSource Death))
+  (Maybe (CarryingSource Auto))
+  [CarryingSource Action]
+  (CarryingSource Soul)
+ deriving Show
 
-data Skill = AutomaticSkill Lexer.SurfaceData (Maybe Expr) (Maybe Expr) Automatic
+
+
+
+data Spell =
+ Spell
+  Lexer.SurfaceData
+  String Knowledge
+  Lexer.SurfaceData -- this appears again????
+  (CarryingSource Skill) {-name, school, level, skill-}
+ deriving Show
+
+data Skill = AutomaticSkill (Maybe (CarryingSource Expr)) (Maybe (CarryingSource Expr)) Automatic
         {-   | NonautomaticSkill Expr Expr Nonautomatic -}
            deriving Show
 {-Cost, Condition, skill-}
@@ -113,10 +157,10 @@ Don't need both condition and nullable expression.
 Either skill effects, or automatic should be allowed to have conditions and/or ifs.
 
 -}
-data SkillEffect = Assignment Lexer.SurfaceData [Expr] Mutator Expr
+data SkillEffect = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
                  deriving Show
 
-data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-variables, where condition-}
+data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
                   | TerminatedSkillComponent
                   deriving Show
 data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
@@ -124,28 +168,28 @@ data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
 
 data Stats = Stats Lexer.SurfaceData Schools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
            deriving Show
-data Start = Start Lexer.SurfaceData Skill
+data Start = Start (CarryingSource Skill)
            deriving Show
-data End = End Lexer.SurfaceData Skill
+data End = End (CarryingSource Skill)
            deriving Show
-data Counter = Counter Lexer.SurfaceData Skill
+data Counter = Counter (CarryingSource Skill)
             deriving Show
-data Spawn = Spawn Lexer.SurfaceData Skill
+data Spawn = Spawn (CarryingSource Skill)
             deriving Show
-data Death = Death Lexer.SurfaceData Skill
+data Death = Death (CarryingSource Skill)
             deriving Show
-data Auto = Auto Lexer.SurfaceData Skill
+data Auto = Auto (CarryingSource Skill)
            deriving Show
-data Action = Action Lexer.SurfaceData Skill
+data Action = Action (CarryingSource Skill)
             deriving Show
-data Soul = Soul Lexer.SurfaceData Skill
+data Soul = Soul (CarryingSource Skill)
            deriving Show
 
-data Stat = Attack Lexer.SurfaceData
-          | Defense Lexer.SurfaceData 
-          | Speed Lexer.SurfaceData
-          | Range Lexer.SurfaceData
-          | Level Lexer.SurfaceData 
+data Stat = Attack
+          | Defense 
+          | Speed
+          | Range
+          | Level
           deriving Show
 data Mutator = Increment Lexer.SurfaceData
              | Decrement Lexer.SurfaceData
@@ -154,13 +198,14 @@ data Mutator = Increment Lexer.SurfaceData
              | Contort Lexer.SurfaceData
              | Set Lexer.SurfaceData
              deriving Show
+
 data Temporality = Temporary Lexer.SurfaceData
                  | Permanent Lexer.SurfaceData
                  | Base Lexer.SurfaceData
                  deriving Show
-data HpStat = CurrentHp Lexer.SurfaceData
-            | MaxHp Lexer.SurfaceData
-            | BaseHp Lexer.SurfaceData
+data HpStat = CurrentHp
+            | MaxHp
+            | BaseHp
             deriving Show
 data Engagement = Engagement Lexer.SurfaceData
                 deriving Show
@@ -172,14 +217,14 @@ data Knowledge = Knowledge Lexer.SurfaceData
                deriving Show
 
 
-data Schools = NoSchools Lexer.SurfaceData {-tricky to have surface data here as it's nullable...-}
+data Schools = NoSchools
              | OneSchool Lexer.SurfaceData Lexer.SurfaceData
              | TwoSchools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
              deriving Show
 
 
-data Field = StatField Lexer.SurfaceData Stat Temporality
-           | HpStatField Lexer.SurfaceData HpStat
+data Field = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
+           | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
            | EngagementField Lexer.SurfaceData
            deriving Show
 
@@ -187,26 +232,27 @@ data Field = StatField Lexer.SurfaceData Stat Temporality
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant Lexer.SurfaceData [Char]
-          | ThoughtsExpr Lexer.SurfaceData Side
-          | KnowledgeExpr Lexer.SurfaceData Knowledge Side
-          | Self Lexer.SurfaceData Field
-          | Var Lexer.SurfaceData Field String
-          | Sum Lexer.SurfaceData Expr Expr
-          | Difference Lexer.SurfaceData Expr Expr
-          | Product Lexer.SurfaceData Expr Expr
-          | Quotient Lexer.SurfaceData Expr Expr
-          | Mod Lexer.SurfaceData Expr Expr
-          | Always Lexer.SurfaceData {-add more booleans later.....    again... nullable.-}
-          | GT Lexer.SurfaceData Expr Expr
-          | GEQ Lexer.SurfaceData Expr Expr
-          | LT Lexer.SurfaceData Expr Expr
-          | LEQ Lexer.SurfaceData Expr Expr
-          | EQ Lexer.SurfaceData Expr Expr
-          | And Lexer.SurfaceData Expr Expr
-          | Or Lexer.SurfaceData Expr Expr
-          | Not Lexer.SurfaceData Expr
+data Expr = Constant [Char]
+          | ThoughtsExpr Side
+          | KnowledgeExpr Knowledge Side
+          | Self Field
+          | Var Field String
+          | Sum (CarryingSource Expr) (CarryingSource Expr)
+          | Difference (CarryingSource Expr) (CarryingSource Expr)
+          | Product (CarryingSource Expr) (CarryingSource Expr)
+          | Quotient (CarryingSource Expr) (CarryingSource Expr)
+          | Mod (CarryingSource Expr) (CarryingSource Expr)
+          | Always {-add more booleans later.....    again... nullable.-}
+          | GT (CarryingSource Expr) (CarryingSource Expr)
+          | GEQ (CarryingSource Expr) (CarryingSource Expr)
+          | LT (CarryingSource Expr) (CarryingSource Expr)
+          | LEQ (CarryingSource Expr) (CarryingSource Expr)
+          | EQ (CarryingSource Expr) (CarryingSource Expr)
+          | And (CarryingSource Expr) (CarryingSource Expr)
+          | Or (CarryingSource Expr) (CarryingSource Expr)
+          | Not (CarryingSource Expr)
            deriving Show
+
 
 
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
@@ -215,6 +261,9 @@ getTokens s = case Lexer.runAlex s Lexer.gather of Left _ -> []
 
 extractSurface :: Lexer.Token -> String
 extractSurface (Lexer.Token _ (Lexer.SurfaceData _ _ s)) = s
+
+extractSurfaceData :: Lexer.Token -> Lexer.SurfaceData
+extractSurfaceData (Lexer.Token _ surfaceData) = surfaceData
 
 prettyPrint :: [String] -> String
 prettyPrint [] = ""

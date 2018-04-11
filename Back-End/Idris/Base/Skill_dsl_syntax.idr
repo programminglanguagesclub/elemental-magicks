@@ -29,7 +29,7 @@ hand = RelativeHand
 graveyard : RelativeSet
 graveyard = RelativeGraveyard
 discard : RelativeSet
-discard = RelativeDiscard
+discard = RelativeBanished
 namespace stat
   range : Stat
   range = Range
@@ -64,16 +64,16 @@ namespace variables
 
 namespace skipAutomatic
   begin : NonautomaticFactory -> AutomaticFactory
-  begin NonautomaticFactory = MkAutomaticFactory [] NonautomaticFactory
+  begin NonautomaticFactory = ?hole --MkAutomaticFactory [] NonautomaticFactory
 namespace doNotSkipAutomatic
   begin : NonautomaticFactory -> NonautomaticFactory
   begin = \x => x
 namespace skill_start
   begin : NonautomaticFactory -> Nat -> SkillFactory
-  begin NonautomaticFactory cost = (MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)
+  begin NonautomaticFactory cost = ?hole -- (MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)
 namespace skill_start_list
   begin : NonautomaticFactory -> Nat -> List SkillFactory
-  begin NonautomaticFactory cost = [(MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)]
+  begin NonautomaticFactory cost = ?hole -- [(MkAutomaticFactory [] NonautomaticFactory, cost, Vacuous)]
 
 
 namespace finishWithList

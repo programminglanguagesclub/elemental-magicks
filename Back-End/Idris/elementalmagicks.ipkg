@@ -1,6 +1,6 @@
 package elementalmagicks
 
-pkgs = base,cards,contrib
+pkgs = pruviloj,base,contrib
 
 modules =
  Main.Game, 

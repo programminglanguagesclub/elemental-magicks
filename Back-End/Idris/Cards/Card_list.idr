@@ -9,122 +9,23 @@ import Base.Skill_dsl_syntax
 import Base.Card
 import Base.Card_list_syntax
 
-{-import water_8-}
-
-
-
-
-
-
-
-
-
-
-
-
 %access public export
 %default total
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-For now, I want to have a small list of simple cards that can be drawn for testing the beginning of the game-}
-
 -------------------------------------------------------------------------------
 axeman : MonsterFactory
-
-axeman =
- MkMonsterFactory
- (MkBasicMonsterFactory "Axeman" ?hole {-no_schools-} (bind 50) (bind 30) (bind 0) (bind 2) (bind 1) (bind 3) (bind 2))
-  Nothing
-  Nothing
-  Nothing
-  Nothing
-  Nothing
-  Nothing
-  []
-  (done, 0, Vacuous)
+axeman = ?hole
 -------------------------------------------------------------------------------
-
-{-
-monsterList : List MonsterFactory
-monsterList = [axeman]
--}
 
 
 cardList : List CardFactory
 cardList = [MonsterCardFactory axeman]
 
-{-monsterList = [
- "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2,
-             soulSkill : done {-"Brutal Strike"-} {-2 thoughts select x in enemy board where not dead x then damage x 50-}
-]
-  -}                                                                                                  
-
-
-
-
-{- Below is chaos -}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+testMonsterList : List MonsterFactory
+testMonsterList = ?hole
 
 
 {-
-{- reimaging this how I want it to be, assuming the syntax extensions work correctly
- I still have the superfluous specifications on whether the card can be dead.
- This will be fixed later.
--}
 
 monsterList : List MonsterFactory
 monsterList = [
@@ -138,49 +39,8 @@ monsterList = [
 
 
 
--}
-
-
-{-
-mon : MonsterFactory
-mon = "Axeman" <- NoSchools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous)
-
-
-
-ttt : AutomaticFactory
-ttt = select x in enemy board where not dead x then { hp x := 0 } ;
-                                    -}
-
-testMonsterList : List MonsterFactory
-testMonsterList = [
- 
- {-
- "Axeman" <- no_schools lvl : 3 life : 50 atk : 30 def : 0 spe : 2 rng : 1 sp : 2 soul : (done, 0, Vacuous),
-  "Rogue Assassin" <- no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2
-                      action : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous)
-                      soul : (select x in enemy board where not dead x then { hp x := 0 } ;, 0, Vacuous),
-  "Guardian Angel" <- no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1 
-                      spawn : (select x in friendly board where dead x then { revive x } ;,0, Vacuous)
-                      soul : (done,0,Vacuous) {-(every x in friendly board where dead x do [revive x] next done, 0, Vacuous)-}{-,
-   "Tank" <- no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2
-             soul : (every x in friendly board where not dead x do [permanenet defense x += 10] next done, 0, Vacuous),
-   "Treant Watchman" <- earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
-                        counter : (done, 0, Vacuous) {- have to code this still -}
-                        soul : (done, 0, Vacuous) {- have to code this still -}   -}
-
--}
-]
-
-
-{-
-monsterList : List MonsterFactory
-monsterList = [
-   mon  {-,-} {-do 50 damage to x... eventually actually do this.-}
    
-   
-   {-"Goblin Berserker" <- no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1-}
-   
-   {-,
+
    "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ;,
                         soulSkill : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ; ]
                        no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2,
@@ -189,7 +49,7 @@ monsterList = [
                        no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1,
    "Tank" <- [soulSkill : all x in friendly board where not dead x do [permanent defense x += 10] done]
               no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2,
-   "Treant Watchman" <- [counterSkill : done, soulSkill : done] {-NEED TO CODE THIS; make mass exhaustion target friendly field as well -}
+   "Treant Watchman" <- [counterSkill : done, soulSkill : done] --NEED TO CODE THIS; make mass exhaustion target friendly field as well
                         earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
    "Forest Druid" <- [action : 1 thoughts -> select x in friendly board where not dead x then [maxHp x := $ (SchoolR True 0) * 10, hp x := (maxHp x)] ;]
                      earth lvl : 2 life : 30 atk : 20 def : 0 spe : 1 rng : 2 sp : 2,
@@ -197,80 +57,11 @@ monsterList = [
                       soulSkill : all x in friendly board where not dead x do [temporary attack x += $ (hp x)] done]
                      earth lvl : 2 life : 20 atk : 10 def : 0 spe : 5 rng : 3 sp : 2,
    "Fox Musician" <- [action : 0 thoughts -> all x in friendly board where not dead x do [permanent attack x += $ (Constant 5)] done]
-                                                                           earth lvl : 2 life : 30 atk : 10 def : 0 spe : 2 rng : 3 sp : 2-}
-]
-
-
-
-
-
-
--}
-
-
-
-
-{-
-axeman : MonsterFactory
-axeman = "Axeman" <-
-         -}
-         {-
-
-monsterList : List MonsterFactory
-monsterList = [
-  "Axeman" <- [] no_schools lvl: 3 life: 50 atk: 30 def: 0 spe: 2 rng: 1 sp: 2,
-  "Goblin Berserker" <- [] no_schools lvl: 3 life: 40 atk: 30 def: 0 spe: 4 rng: 1 sp: 1{-,
-  "Rogue Assassin" <- [action : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ;,
-                       soulSkill : 2 thoughts -> select x in enemy board where not dead x then hp x := 0 ; ]
-                      no_schools lvl: 3 life: 30 atk: 30 def: 0 spe: 2 rng: 3 sp: 2,
-  "Guardian Angel" <- [spawnSkill : select x in friendly board where dead x then revive x ;,
-                       soulSkill : all x in friendly board where dead x do [revive x] done]
-                      no_schools lvl : 5 life : 50 atk : 30 def : 10 spe : 2 rng : 3 sp : 1,
-  "Tank" <- [soulSkill : all x in friendly board where not dead x do [permanent defense x += 10] done]
-             no_schools lvl : 5 life : 45 atk : 40 def : 20 spe : 1 rng : 2 sp : 2,
-  "Treant Watchman" <- [counterSkill : done, soulSkill : done] {-NEED TO CODE THIS; make mass exhaustion target friendly field as well -}
-                       earth lvl : 1 life : 40 atk : 10 def : 10 spe : 1 rng : 1 sp : 2,
-  "Forest Druid" <- [action : 1 thoughts -> select x in friendly board where not dead x then [maxHp x := $ (SchoolR True 0) * 10, hp x := (maxHp x)] ;]
-                    earth lvl : 2 life : 30 atk : 20 def : 0 spe : 1 rng : 2 sp : 2,
-  "Forest Pixie" <- [action : 1 thoughts -> all x in friendly board where not dead x do [temporary attack x += $ (hp x)] done,
-                     soulSkill : all x in friendly board where not dead x do [temporary attack x += $ (hp x)] done]
-                    earth lvl : 2 life : 20 atk : 10 def : 0 spe : 5 rng : 3 sp : 2,
-  "Fox Musician" <- [action : 0 thoughts -> all x in friendly board where not dead x do [permanent attack x += $ (Constant 5)] done]
-                                                                          earth lvl : 2 life : 30 atk : 10 def : 0 spe : 2 rng : 3 sp : 2-}
-]
-
-
--}
-
-
-{-I need to move more things to syntax extensions so that I can ditch some of these $s -}
-
-
-
-{-
-
+                                                                           earth lvl : 2 life : 30 atk : 10 def : 0 spe : 2 rng : 3 sp : 2
 
  "mutant pig" <- [] spirit_void life: 60 atk: 30 def: 0 spe: 2 rng: 1 lvl: 3 sp: 2,
   "greater succubus" <- [] spirit life: 60 atk: 0 def: 0 spe: 1 rng: 3 lvl: 3 sp: 2
 
 
 -}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1,7 +1,16 @@
 package cards
-
-pkgs = base
-
-modules =
- Cards.Card_list
+modules = card_list,
+          Base.Utility,
+          Base.Bounded,
+          Base.Bounded_then_integer,
+          Base.Integer_then_bounded,
+          Base.Preliminaries, 
+          Base.Hp,
+          Base.Phase,
+          Base.Objects_basic,
+          Base.Skill_dsl_data,
+          Base.Skill_dsl_syntax,
+          Base.Skill_dsl_logic,
+          Base.Card,
+          Base.Player
 

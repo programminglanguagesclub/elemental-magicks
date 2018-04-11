@@ -1,4 +1,6 @@
 module Main.Spawn_phase
+import Data.Vect
+import Base.Bounded
 import Base.Preliminaries
 import Base.Player
 import Base.Card
@@ -45,11 +47,15 @@ getOpponent : WhichPlayer -> Player -> Player -> Player
 getOpponent PlayerA playerA playerB = playerB
 getOpponent PlayerB playerA playerB = playerA
 
+-------------------------------------------------------------------------------
 youSpawn : String
 opponentSpawns : String
 
-youSpawn = "Level your schools of thought as desired, and either select a card from your hand to spawn, or skip."
-opponentSpawns = "Wait for your opponent to level their schools of thought, and decide whether or not to spawn a card."
+youSpawn =
+ "Level your schools of thought as desired, and either select a card from your hand to spawn, or skip."
+opponentSpawns =
+ "Wait for your opponent to level their schools of thought, and decide whether or not to spawn a card."
+-------------------------------------------------------------------------------
 
 {-getMessageSpawnPhase : WhichPlayer -> Player -> Player -> ClientInstruction-}
 
@@ -92,8 +98,41 @@ and the message for the player with and without the initiative-}
 
 
 -}
+-------------------------------------------------------------------------------
+{-
 
-transformSpawnPhase : WhichPlayer -> Player -> Player -> WhichPlayer -> ServerUpdate -> Either (String, String) ((Player,Player),List ClientUpdate)
+ | SpawnPhase =
+   case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
+    Right ((playerA', playerB'), updates) => ?hole
+ 
+ | MkPhaseCycle SpellPhase playerA playerB =
+   case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
+    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
+    Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
+-}
+
+
+transformSpawnPhase :
+ (actor : WhichPlayer) ->
+ (playerA : Player) ->
+ (playerB : Player) ->
+ (initiative : WhichPlayer) ->
+ (serverUpdate : ServerUpdate) ->
+ Either
+  (String, String)
+  ((Player,Player),List ClientUpdate)
+
+-- hand index should really be a Fin or w/e, not a nat.....
+
+transformSpawnPhase actor a b initiative (SpawnCard knowledge handIndex) =
+ ?hole
+transformSpawnPhase actor a b initiative (Skip knowledge) =
+ ?hole
+transformSpawnPhase actor a b initiative _ =
+ Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
+-------------------------------------------------------------------------------
+
 
 
 

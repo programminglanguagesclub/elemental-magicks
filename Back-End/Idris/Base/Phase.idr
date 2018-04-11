@@ -27,21 +27,6 @@ nextPhase EndPhase = RevivalPhase
 nextPhase RevivalPhase = DeploymentPhase
 nextPhase DeploymentPhase = SpawnPhase
 
-{-
-public export
-nextPhase : Phase -> (Phase,ClientUpdate)
-nextPhase (DrawPhase playerA playerB) = ((PhaseCycle SpawnPhase) ?hole ?hole,DrawPhaseToSpawnPhase)
-nextPhase (SpawnPhase playerA playerB) = ((Phase Cycle SpellPhase ?hole ?hole,SpawnPhaseToSpellPhase)
-nextPhase (SpellPhase playerA playerB) = (RemovalPhase ?hole ?hole,SpellPhaseToRemovalPhase)
-nextPhase (RemovalPhase playerA playerB) = (StartPhase ?hole ?hole,RemovalPhaseToStartPhase)
-nextPhase (StartPhase playerA playerB) = (EngagementPhase ?hole ?hole,StartPhaseToEngagementPhase)
-nextPhase (EngagementPhase playerA playerB) = (EndPhase ?hole ?hole,EngagementPhaseToEndPhase)
-nextPhase (EndPhase playerA playerB) = (RevivalPhase ?hole ?hole,EndPhaseToRevivalPhase)
-nextPhase (RevivalPhase playerA playerB) = (DeploymentPhase ?hole ?hole,RevivalPhaseToDeploymentPhase)
-nextPhase (DeploymentPhase playerA playerB) = (SpawnPhase ?hole ?hole,DeploymentPhaseToSpawnPhase)
 
--}
-
-{-I believe the relative order of Revival and Deployment does not matter, but I find this version more ergonomic-}
-
+-- after draft phase comes spawn.
 

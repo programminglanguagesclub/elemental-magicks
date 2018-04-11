@@ -17,18 +17,38 @@ data Stat
  | Range
  | Level
 -------------------------------------------------------------------------------
+implementation Show Stat where
+ show Attack = "attack"
+ show Defense = "defense"
+ show Speed = "speed"
+ show Range = "range"
+ show Level = "level"
+-------------------------------------------------------------------------------
 data Mutator
  = Increment
  | Decrement
  | Assign
 -------------------------------------------------------------------------------
+implementation Show Mutator where
+ show Increment = "increment"
+ show Decrement = "decrement"
+ show Assign = "assign"
+-------------------------------------------------------------------------------
 data Temporality
  = Temporary
  | Permanent
 -------------------------------------------------------------------------------
+implementation Show Temporality where
+ show Temporary = "temporary"
+ show Permanent = "permanent"
+-------------------------------------------------------------------------------
 data HpStat
  = CurrentHp
  | MaxHp
+-------------------------------------------------------------------------------
+implementation Show HpStat where
+ show CurrentHp = "hp"
+ show MaxHp = "max hp"
 -------------------------------------------------------------------------------
 marshall :
  Temporality ->
@@ -113,20 +133,15 @@ hpTransformMutator Increment x h = h + x
 hpTransformMutator Decrement x h = h - x
 hpTransformMutator Assign x h = x
 -------------------------------------------------------------------------------
-getStatTypeName : Stat -> String
-getStatTypeName Attack = "attack"
-getStatTypeName Defense = "defense"
-getStatTypeName Speed = "speed"
-getStatTypeName Range = "range"
-getStatTypeName Level = "level"
--------------------------------------------------------------------------------
-getTemporalityName : Temporality -> String
-getTemporalityName Temporary = "Temporary"
-getTemporalityName Permanent = "Permanent"
--------------------------------------------------------------------------------
-getHpTypeName : HpStat -> String
-getHpTypeName CurrentHp = "hp"
-getHpTypeName MaxHp = "maxHp"
+engagementTransformMutator :
+ Mutator ->
+ Integer ->
+ Bounded 0 Preliminaries.absoluteUpperBound ->
+ Bounded 0 Preliminaries.absoluteUpperBound
+
+engagementTransformMutator Increment x h = ?hole ---(+) h x
+engagementTransformMutator Decrement x h = ?hole ---(-) h x
+engagementTransformMutator Assign x h = ?hole ---x
 -------------------------------------------------------------------------------
 data Set
  = FriendlyBoard 
@@ -137,8 +152,8 @@ data Set
  | EnemyHand 
  | FriendlyGraveyard 
  | EnemyGraveyard 
- | FriendlyDiscard 
- | EnemyDiscard 
+ | FriendlyBanished
+ | EnemyBanished
  | Union Set Set
 -------------------------------------------------------------------------------
 data Side
@@ -150,20 +165,19 @@ data RelativeSet
  | RelativeSpawn 
  | RelativeHand 
  | RelativeGraveyard 
- | RelativeDiscard {- call discard banished -}
-                 {- instead of having set, I should have pairs of side and relative set. This should play nicely with union, which is just a list of these -}
+ | RelativeBanished
 -------------------------------------------------------------------------------
 getSet : Side -> RelativeSet -> Set
 getSet Friendly RelativeBoard = FriendlyBoard
 getSet Friendly RelativeSpawn = FriendlySpawn
 getSet Friendly RelativeHand = FriendlyHand
 getSet Friendly RelativeGraveyard = FriendlyGraveyard
-getSet Friendly RelativeDiscard = FriendlyDiscard
+getSet Friendly RelativeBanished = FriendlyBanished
 getSet Enemy RelativeBoard = EnemyBoard
 getSet Enemy RelativeSpawn = EnemySpawn
 getSet Enemy RelativeHand = EnemyHand
 getSet Enemy RelativeGraveyard = EnemyGraveyard
-getSet Enemy RelativeDiscard = EnemyDiscard
+getSet Enemy RelativeBanished = EnemyBanished
 -------------------------------------------------------------------------------
 data StatR
  = TemporaryAttackR 
@@ -179,7 +193,6 @@ data StatR
  | HpR 
  | MaxHpR
 -------------------------------------------------------------------------------
-{- this actually makes sense assuming LValues (though can be RValues as well) ... -}
 mutual
 -------------------------------------------------------------------------------
   data DamageEffect = MkDamageEffect RInteger
@@ -206,9 +219,11 @@ mutual
    | SkillEffectPositionEffect PositionEffect 
    | SkillEffectConditional Condition SkillEffect SkillEffect 
    | SkillEffectRowEffect Side String SkillEffect String
-{- does effect to all units in row of unit bound to string; the last string binds the respective units in the row for use in SkillEffect -} 
+     --does effect to all units in row of unit bound to string;
+     --the last string binds the respective units in the row for use in SkillEffect
    | SkillEffectColumnEffect Side String SkillEffect String
-{- does effect to all units in column of unit bound to string; the last string binds the respective units in the column for use in SkillEffect -}
+     --does effect to all units in column of unit bound to string;
+     --the last string binds the respective units in the column for use in SkillEffect
    | SkillEffectBehind Side String SkillEffect String
    | SkillEffectInFront Side String SkillEffect String
    | SkillEffectRightOf Side String SkillEffect String
@@ -261,28 +276,76 @@ applyFixedStatEffect :
  BasicMonster ->
  FixedStatEffect ->
  (BasicMonster, ClientUpdate)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedStatEffect stat mutator temporality value) =
+ 
+ (basicStatSetter
+  stat
+  (selectMutator mutator temporality (basicStat stat basic) value)
+  basic,
+ SetStat
+  (replaceAt
+    monsterIndex
+    (Just ((show mutator) ++ (show temporality) ++ (show stat), show value)) $
+    replicate 9 Nothing)
+  whichPlayer)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedHpEffect mutator hpStat x) =
 
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedStatEffect stat mutator temporality value) =
- (basicStatSetter stat (selectMutator mutator temporality (basicStat stat basic) value) basic, ?hole)
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedHpEffect mutator hpStat x) =
- {- let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in (m,getHpTypeName hpStat, marshallHp hpStat $ hp m)-} ?hole
-applyFixedStatEffect monsterIndex whichPlayer basic (MkFixedEngagementEffect mutator x) = ?hole
-{-(record {engagement $= (\e => 0 + (hpTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})-}
-applyFixedStatEffect monsterIndex whichPlayer basic FixedReviveEffect =
- (revive basic, Revive monsterIndex whichPlayer)
+ let m = record {hp = hpTransformType hpStat (hpTransformMutator mutator x) $ hp basic} basic in
+ (m,
+  SetStat
+   (replaceAt
+     monsterIndex
+     (Just $ (show hpStat, marshallHp hpStat $ hp m)) $
+     replicate 9 Nothing)
+   whichPlayer)
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ (MkFixedEngagementEffect mutator x) = ?hole
+   -----( {engagement $= (\e => 0 + (engagementTransformMutator mutator x (extractBounded e )))} basic, ?hole {-SetStat "engagement" "0" monsterIndex playerId-})
+---------------------------------------
+applyFixedStatEffect
+ monsterIndex
+ whichPlayer
+ basic
+ FixedReviveEffect =
+ 
+ (revive basic,
+ Revive
+  (replaceAt
+    monsterIndex
+    Selected $
+    replicate 9 Unselected)
+  whichPlayer)
 -------------------------------------------------------------------------------
 mutual
 -------------------------------------------------------------------------------
   data NonautomaticFactory
    = TerminatedSkillFactory 
    | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
+-------------------------------------------------------------------------------
   data AutomaticFactory
    = MkAutomaticFactory (List SkillEffect) NonautomaticFactory 
    | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
+-------------------------------------------------------------------------------
 mutual
+-------------------------------------------------------------------------------
   data Nonautomatic
    = TerminatedSkill 
    | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat String
+-------------------------------------------------------------------------------
   data Automatic
    = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
    | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String
@@ -296,14 +359,24 @@ mutual
   instantiateAutomatic : AutomaticFactory -> Nat -> String -> Automatic
 -------------------------------------------------------------------------------
   instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill
-  instantiateNonautomatic (ExistentialFactory arguments condition success failure) cardId playerId =
-   Existential arguments condition (instantiateAutomatic success cardId playerId) (instantiateAutomatic failure cardId playerId) cardId playerId
-
+  instantiateNonautomatic (ExistentialFactory args cond succ fail) cId pId =
+   Existential
+    args
+    cond
+    (instantiateAutomatic succ cId pId)
+    (instantiateAutomatic fail cId pId)
+    cId
+    pId
+-------------------------------------------------------------------------------
   instantiateAutomatic (MkAutomaticFactory effects next) cardId playerId =
-   MkAutomatic effects (instantiateNonautomatic next cardId playerId) cardId playerId
-  instantiateAutomatic (UniversalFactory argument condition effects next) cardId playerId =
-   Universal argument condition effects (instantiateNonautomatic next cardId playerId) cardId playerId
-{-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!-}
+   MkAutomatic
+    effects
+    (instantiateNonautomatic next cardId playerId)
+    cardId
+    playerId
+  instantiateAutomatic (UniversalFactory arg cond effects next) cId pId =
+   Universal arg cond effects (instantiateNonautomatic next cId pId) cId pId
+{-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!  --- nope: could have been taken off the field and then back on, for instance...-}
 -------------------------------------------------------------------------------
 
 
