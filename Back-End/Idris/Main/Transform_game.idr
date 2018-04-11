@@ -43,15 +43,7 @@ transformGame' :
 
 transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
  | _ = ?hole
-{- | DrawPhase playerA playerB cardsDrawn =
-   case transformDrawPhase actor playerA playerB serverUpdate of
-    Nothing => (Right game,[GameLogicError])
-    Just $ Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Just $ Right (player', updates) =>
-     case actor of
-      PlayerA => (Right $ record {phase = DrawPhase player' playerB ?hole} game, updates)
-      PlayerB => (Right $ record {phase = DrawPhase playerA player' ?hole} game, updates)
- -}
+
 {-
  | SpawnPhase =
    case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of

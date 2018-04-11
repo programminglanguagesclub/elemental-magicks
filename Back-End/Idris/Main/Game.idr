@@ -176,11 +176,11 @@ getPlayer PlayerB game = playerB game
 -------------------------------------------------------------------------------
 getPlayerTemporaryId :
  WhichPlayer ->
- Game ->
+ FullGame ->
  String
 
-getPlayerTemporaryId whichPlayer gameCycle =
- temporaryId $ getPlayer whichPlayer gameCycle
+getPlayerTemporaryId whichPlayer gameCycle = ?hole
+ --temporaryId $ getPlayer whichPlayer gameCycle
 -------------------------------------------------------------------------------
 transformPlayer :
  (Player -> Player) ->

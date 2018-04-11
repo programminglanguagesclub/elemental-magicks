@@ -3,6 +3,7 @@ import Data.Vect
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic
+import Base.Phase
 import Base.Player
 import Base.Card
 import Main.Game
@@ -86,8 +87,147 @@ isValidForAction m with (validForAction m)
 
 -}
 
+----- SHOULD VALIDITY CONDITION RETURN MAYBE INTEGER (THE SPEED)?????
+
+compareMonsterPriority : (square_speed_1 : (Fin n, Integer)) -> (square_speed_2 : (Fin n, Integer)) -> Ordering
+compareMonsterPriority (square1, speed1) (square2, speed2) with (compare speed1 speed2)
+ | LT = LT
+ | EQ = compare square1 square2
+ | GT = GT
+
+-- define a function for getting either the highest priority monster next or a proof that there is no monster that is alive and disengaged.
+
 
 priority : (Monster, Fin n) -> (Integer, Fin n) -- have to invert speed so this works. smaller here gives higher priority.
+
+integerSpeed : Monster -> Integer
+integerSpeed monster = extractBounded $ getTemporary $ speed $ basic monster
+-------------------------------------------------------------------------------
+doubleIndex : Vect n a -> Vect n a -> Bool -> Fin n -> a
+doubleIndex x y True i = index i x
+doubleIndex x y False i = index i y
+-------------------------------------------------------------------------------
+--UNTRUSTED COMPONENT
+-------------------------------------------------------------------------------
+incrementIndex : Either a (Monster, Fin n) -> Either a (Monster, Fin (S n))
+incrementIndex (Left x) = Left x
+incrementIndex (Right (m, k)) = Right (m, FS k)
+
+
+-------------------------------------------------------------------------------
+-- assumes one flat list which is interleaved with initiative first.
+-- also need to check disengagement and aliveness.... (not doing that currently....)
+
+valid : Maybe Integer -> Bool
+valid Nothing = False
+valid (Just _) = True
+
+
+getNext :
+ (initiativeBoard : Vect n (Maybe Monster)) ->
+ (otherBoard : Vect n (Maybe Monster)) ->
+ (validityCondition : Maybe Monster -> Maybe Integer) ->
+ Either
+  (Data.Vect.find (Main.Transform_game_helpers.valid . validityCondition) initiativeBoard = Nothing,
+   Data.Vect.find (Main.Transform_game_helpers.valid . validityCondition) otherBoard = Nothing)
+  (Monster, Fin n)
+
+getNext [] [] _ = Left (Refl, Refl)
+getNext (x::xs) (y::ys) validityCondition with (validityCondition x, validityCondition y)
+ | (Nothing, Nothing) with (getNext xs ys validityCondition)
+   | Left(_,_) = ?hole ----Left (Refl, Refl) = ?hole ----Left (Refl, Refl)
+   | Right (monster, i) = ?term
+ | (Nothing, Just speed2) = ?term
+ | (Just speed1, Nothing) = ?term
+ | (Just speed1, Just speed2) = ?term
+
+
+{-
+getNext (x::xs) validityCondition with (validityCondition x)
+  | True with (incrementIndex $ getNext xs validityCondition)
+    | Left _ = Right (x, FZ)
+    | Right (tailMonster, tailIndex) with (compare (integerSpeed monster) (integerSpeed tailMonster))
+     | LT = Right (tailMonster, tailIndex)
+     | EQ = Right (monster, FZ)
+     | GT = Right (monster, FZ)
+  | False = incrementIndex $ getNext xs validityCondition
+  -}
+-------------------------------------------------------------------------------
+{-
+getNext [] = Nothing
+getNext (Nothing::xs) = incrementIndex $ getNext xs
+getNext ((Just monster)::xs) with (incrementIndex $ getNext xs)
+  | Nothing = Just (monster, FZ)
+  | Just (tailMonster, tailIndex) with (compare (integerSpeed monster) (integerSpeed tailMonster))
+   | LT = Just (tailMonster, tailIndex)
+   | EQ = Just (monster, FZ)
+   | GT = Just (monster, FZ)
+   -}
+-------------------------------------------------------------------------------
+buildFlattenedVector :
+ Vect n (Maybe Monster) ->
+ Vect n (Maybe Monster) ->
+ Vect (n + n) (Maybe Monster)
+
+buildFlattenedVector [] [] = []
+buildFlattenedVector {n=S n} (x::xs) (y::ys) =
+ rewrite pullOutPlus n n in x::y::(buildFlattenedVector xs ys)
+-------------------------------------------------------------------------------
+getNextMonsterSimplyTyped' :
+ Vect 9 (Maybe Monster) ->
+ Vect 9 (Maybe Monster) ->
+ Maybe (Monster, Fin 18)
+
+getNextMonsterSimplyTyped' initiativeBoard otherBoard = ?term
+ --getNext (buildFlattenedVector initiativeBoard otherBoard)
+-------------------------------------------------------------------------------
+getNextMonster :
+ (initiativePlayerBoard : Vect 9 (Maybe Monster)) ->
+ (otherPlayerBoard : Vect 9 (Maybe Monster)) ->
+ (validityCondition : Maybe Monster -> Bool) ->
+ Either
+  (find validityCondition initiativePlayerBoard = Nothing,
+   find validityCondition otherPlayerBoard = Nothing)
+  (DPair
+   (Monster, Fin 9, Bool)
+   (\(monster, i, whichBoard) => (
+    doubleIndex initiativePlayerBoard otherPlayerBoard whichBoard i = Just monster,
+    (otherIndex : Fin 9) ->
+    (otherWhichBoard : Bool) ->
+    (otherMonster : Monster) ->
+    doubleIndex initiativePlayerBoard otherPlayerBoard otherWhichBoard otherIndex = Just otherMonster ->
+    ((otherIndex, otherWhichBoard) = (i,whichBoard) -> Void) ->
+    compareMonsterPriority (i, extractBounded $ getTemporary $ speed $ basic monster) (otherIndex, extractBounded $ getTemporary $ speed $ basic otherMonster) = GT)))
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 engagementPhaseOnMove :
  (board : Vect n (Maybe Monster)) ->
@@ -171,10 +311,30 @@ moveUnit moveFrom moveTo board =
  replaceAt moveFrom to (replaceAt moveTo (index moveFrom board) board)
 -------------------------------------------------------------------------------
 
+
+-- take proof that
+-- 2) Unit is on move
+-- 3) Square is correct for unit
+-- 1) Oh, and it's the engagement phase
+
+-- return proof that
+-- ??
+
+
+implementation DecEq (Bool -> Bool) where
+ decEq f g with (decEq (f True) (g True), decEq (f False) (g False))
+  | (Yes _, Yes _) = Yes $ the (f=g) $ believe_me Refl
+  | (Yes _, No _) = No ?hole
+  | (No _, Yes _) = No ?hole
+  | (No _, No _) = Yes $ the (f=g) $ believe_me Refl
+
 restUnit :
- (location : Fin 9) ->
- Game ->
- WhichPlayer ->
+ (location : Fin 9) -> -- data
+ (game : Game) -> -- data
+ (whichPlayer : WhichPlayer) -> -- data
+ (phase game = EngagementPhase) -> -- refinement
+ () -> -- refinement
+ () -> -- refinement
  (Game,List ClientUpdate)
 
 -------------------------------------------------------------------------------

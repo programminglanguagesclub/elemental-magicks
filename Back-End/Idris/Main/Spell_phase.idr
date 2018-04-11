@@ -27,12 +27,13 @@ stepSpellPhase initiative turnNumber deathQueue player opponent = ?hole
 
 -------------------------------------------------------------------------------
 transformSpellPhase :
- WhichPlayer ->
- Player ->
- Player ->
- Nonautomatic ->
- List Automatic ->
- List Nat ->
- Either (String,String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
+ (initiativePlayer : Player) ->
+ (otherPlayer : Player) ->
+ (skillHead : Nonautomatic) ->
+ (skillQueue : List Automatic) ->
+ (deathQueue : List Nat) ->
+ Either
+  (String, String) -- errorMessage, playerId
+  (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
 -------------------------------------------------------------------------------
 

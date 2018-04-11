@@ -36,7 +36,6 @@ Show Selection where
 
 data ClientUpdate
   = GameLogicError
-                 -- | RoundTerminated {-Currently don't progress to next round, and also don't distinguish players quite yet...-}
   | GameTerminated WhichPlayer --winning player
   | DrawPhaseToSpawnPhase
   | SpawnPhaseToSpellPhase
@@ -48,7 +47,6 @@ data ClientUpdate
   | RevivalPhaseToDeploymentPhase
   | DeploymentPhaseToSpawnPhase
   | InvalidMove String WhichPlayer
-                  {- | NotInAnyGame String -}
   | Revive (Vect 9 Selection) WhichPlayer
   | Kill (Vect 9 Selection) WhichPlayer
   | DrawHand Nat WhichPlayer
@@ -146,16 +144,13 @@ marshallClientUpdate (Kill selection whichPlayer) player =
  let fields = [("index",show selection)] in
  augment (MkMarshalledClientUpdate "kill" fields) (whichPlayer == player)
                                                                              --
-marshallClientUpdate (DrawHand cardId whichPlayer) player with (getCardName cardId)
- | Nothing = ?hole
- | Just cardName =
-  let fields = [("name",cardName)] in
+marshallClientUpdate (DrawHand cardId whichPlayer) player =
+  let fields = [("id",show cardId)] in
   augment (MkMarshalledClientUpdate "drawHandCard" fields) (whichPlayer == player)
-  {-THIS is actually going to have a lot more data than the name: essentially all of the data of the card-}
-                                                                             --
-marshallClientUpdate (DrawSoul cardId soulIndex whichPlayer) player with (getCardName cardId)
- | Nothing = ?hole
- | Just cardName = augment (MkMarshalledClientUpdate "drawSoulCard" [("name",cardName),("index",show $ finToNat soulIndex)]) (whichPlayer == player)
+  -- Ur/Web or Client is responsible for knowing database of all cards
+
+marshallClientUpdate (DrawSoul cardId soulIndex whichPlayer) player =
+ augment (MkMarshalledClientUpdate "drawSoulCard" [("id",show cardId),("index",show $ finToNat soulIndex)]) (whichPlayer == player)
                                                                              --
 marshallClientUpdate (SwapSpawnBoard boardIndex whichPlayer) player =
  augment (MkMarshalledClientUpdate "swapSpawnBoard" [("index", show boardIndex)]) (whichPlayer == player)
@@ -231,8 +226,10 @@ serializeMarshalled marshalledClientUpdate =
 -------------------------------------------------------------------------------
 serialize :
  ClientUpdate ->
- String ->
+ String -> -- SHOULD THIS BE WHICHPLAYER AND NOT STRING???
  String
+
+-- ALSO: How am I keeping track of which updates get send to 1 player versus 2, etc?
 
 serialize clientUpdate playerId =
  let marshalledClientUpdate = marshallClientUpdate clientUpdate ?hole in

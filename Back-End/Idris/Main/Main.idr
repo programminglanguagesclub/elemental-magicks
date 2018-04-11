@@ -110,33 +110,28 @@ processServerUpdate' :
  ServerUpdate ->
  (List Battle, String)
 
-processServerUpdate' (MkBattle round (MkFullGameGame game)) whichPlayer serverUpdate = ?hole
-{-
+-- GameTerminatedUpdate not to be added here!
+-- Similarly Client knows when to start next round, etc.
+processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
  let aId = getPlayerTemporaryId PlayerA game in
  let bId = getPlayerTemporaryId PlayerB game in
  let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
  let whichPlayer' = correctForRound round whichPlayer in
- let transformGameResult = transformGame game whichPlayer' serverUpdate in
+ let transformGameResult = transformFullGame game whichPlayer' serverUpdate in
  let (transformedGame, clientUpdates) = transformGameResult in
   case transformedGame of
    Left winner =>
     let winnerId = getPlayerTemporaryId winner game in
     case nextRound winner round of
      Left result =>
-      let matchOver = [GameTerminated winnerId, MatchTerminated result] in
-      let clientUpdates' = clientUpdates ++ matchOver in
-      let serverResponse = replyWith clientUpdates' playerId opponentId in
+      let serverResponse = replyWith clientUpdates playerId opponentId in
       ([], serverResponse)
      Right round' =>
-      let beginSecondRound = [GameTerminated winnerId, GameStart] in
-      let clientUpdates' = clientUpdates ++ beginSecondRound in
-      let serverResponse = replyWith clientUpdates' playerId opponentId in
-      ([MkBattle round' (newGame bId aId)], serverResponse)
+      let serverResponse = replyWith clientUpdates playerId opponentId in
+      ([MkBattle round' (MkFullGameDrawPhase $ newDrawPhase bId aId)], serverResponse)
    Right game' =>
     ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
-    -}
 processServerUpdate' (MkBattle round (MkFullGameDrawPhase drawPhase)) whichPlayer serverUpdate = ?hole
-
 -------------------------------------------------------------------------------
 processServerUpdate :
  List Battle ->

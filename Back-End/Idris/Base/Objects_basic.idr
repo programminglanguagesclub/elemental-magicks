@@ -235,11 +235,3 @@ instantiateBasicSpell basicSpellFactory id =
 data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicMonster
 -------------------------------------------------------------------------------
 
-
-testFoo : BasicSpell -> BasicSpell -> Bool
-testFoo x y with (decEq x y)
-  | Yes prfYes = ?hole
-  | No prfNo = ?hole
-
-
-
