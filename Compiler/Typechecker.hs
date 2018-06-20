@@ -950,8 +950,6 @@ typeCheckActions = traverse typeCheckAction
 -------------------------------------------------------------------------------
 
 
-
-
 {-
 
 
@@ -961,38 +959,95 @@ data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently 
 
 -}
 
-
-
-{-
-
-data RInt
- = RConstant SurfaceData Int
- | RThoughts SurfaceData ParseTree.Side
- | RKnowledge SurfaceData Knowledge ParseTree.Side
- | RSelfProjection SurfaceData LStat {-disallow base for self. allow for var (because var can be quantified.-}
- | RVarProjection SurfaceData RStat Variable
- | RSum SurfaceData RInt RInt
- | RDifference SurfaceData RInt RInt
- | RProduct SurfaceData RInt RInt
- | RQuotient SurfaceData RInt RInt
- | RMod SurfaceData RInt RInt
- deriving Show
-------------------------
-
--}
-
+noSelfReferencesRBool :: RBool -> TC RBool
+noSelfReferencesRBool rBool =
+ case rBool of
+  RAlways surfaceData -> pure rBool
+  RGT surfaceData firstRInt secondRInt ->
+   joinTC $
+   pure $
+   RGT surfaceData
+   <$> noSelfReferencesRInt firstRInt
+   <*> noSelfReferencesRInt secondRInt
+  RGEQ surfaceData firstRInt secondRInt ->
+   joinTC $
+   pure $
+   RGEQ surfaceData
+   <$> noSelfReferencesRInt firstRInt
+   <*> noSelfReferencesRInt secondRInt
+  RLT surfaceData firstRInt secondRInt ->
+   joinTC $
+   pure $
+   RLT surfaceData
+   <$> noSelfReferencesRInt firstRInt
+   <*> noSelfReferencesRInt secondRInt
+  RLEQ surfaceData firstRInt secondRInt ->
+   joinTC $
+   pure $
+   RLEQ surfaceData
+   <$> noSelfReferencesRInt firstRInt
+   <*> noSelfReferencesRInt secondRInt
+  REQ surfaceData firstRInt secondRInt ->
+   joinTC $
+   pure $
+   REQ surfaceData
+   <$> noSelfReferencesRInt firstRInt
+   <*> noSelfReferencesRInt secondRInt
+  RAnd surfaceData firstRBool secondRBool ->
+   joinTC $
+   pure $
+   RAnd surfaceData
+   <$> noSelfReferencesRBool firstRBool
+   <*> noSelfReferencesRBool secondRBool
+  ROr surfaceData firstRBool secondRBool ->
+   joinTC $
+   pure $
+   ROr surfaceData
+   <$> noSelfReferencesRBool firstRBool
+   <*> noSelfReferencesRBool secondRBool
+  RNot surfaceData negatedRBool ->
+   joinTC $
+   pure $
+   RNot surfaceData
+   <$> noSelfReferencesRBool negatedRBool
+-------------------------------------------------------------------------------
 noSelfReferencesRInt :: RInt -> TC RInt
 noSelfReferencesRInt rInt =
   case rInt of
-    RConstant surfaceData n -> undefined {-pure maybeCost-}
-    RThoughts surfaceData side -> undefined {- pure maybeCost-}
-    RKnowledge surfaceData knowledge side -> undefined {-pure maybeCost-}
-    RSelfProjection surfaceData lStat -> error "error: performs self reference" 
+    RConstant surfaceData n -> pure rInt
+    RThoughts surfaceData side -> pure rInt
+    RKnowledge surfaceData knowledge side -> pure rInt
+    RSelfProjection surfaceData lStat ->
+     TC $ Left ["Invalid reference to self in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
     RVarProjection surfaceData rStat variable -> error "should I handle variable errors here too? otherwise this is maybe fine..."
     RSum surfaceData firstRInt secondRInt ->
      joinTC $
      pure $
      RSum surfaceData
+     <$> noSelfReferencesRInt firstRInt
+     <*> noSelfReferencesRInt secondRInt
+    RDifference surfaceData firstRInt secondRInt ->
+     joinTC $
+     pure $
+     RDifference surfaceData
+     <$> noSelfReferencesRInt firstRInt
+     <*> noSelfReferencesRInt secondRInt
+    RProduct surfaceData firstRInt secondRInt ->
+     joinTC $
+     pure $
+     RProduct surfaceData
+     <$> noSelfReferencesRInt firstRInt
+     <*> noSelfReferencesRInt secondRInt
+    RQuotient surfaceData firstRInt secondRInt ->
+     joinTC $
+     pure $
+     RQuotient surfaceData
+     <$> noSelfReferencesRInt firstRInt
+     <*> noSelfReferencesRInt secondRInt
+    RMod surfaceData firstRInt secondRInt ->
+     joinTC $
+     pure $
+     RMod surfaceData
      <$> noSelfReferencesRInt firstRInt
      <*> noSelfReferencesRInt secondRInt
 -------------------------------------------------------------------------------
@@ -1003,11 +1058,14 @@ noSelfReferencesCost maybeCost =
   Just cost ->
    fmap Just $
    noSelfReferencesRInt cost
-
-{-error "no self references cost not implemented"-}
 -------------------------------------------------------------------------------
 noSelfReferencesCondition :: Maybe RBool -> TC (Maybe RBool)
-noSelfReferencesCondition = error "no self references condition not implemented"
+noSelfReferencesCondition maybeCondition =
+ case maybeCondition of
+  Nothing -> pure Nothing -- Don't I have a trivial condition or something?
+  Just condition ->
+   fmap Just $
+   noSelfReferencesRBool condition
 -------------------------------------------------------------------------------
 noSelfReferencesAutomatic :: Automatic -> TC Automatic
 noSelfReferencesAutomatic = error "no self references automatic not implemented"
