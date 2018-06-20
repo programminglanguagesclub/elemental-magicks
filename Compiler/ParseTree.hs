@@ -129,26 +129,28 @@ This allows for better errors messages to be printed.
 
 -}
 
-
+-------------------------------------------------------------------------------
 data VariableBindings = VariableBindings Lexer.SurfaceData [([String], Set)]
+-------------------------------------------------------------------------------
+data Side
+ = Friendly Lexer.SurfaceData
+ | Enemy Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data RelativeSet
+ = Field Lexer.SurfaceData
+ | Hand Lexer.SurfaceData
+ | Graveyard Lexer.SurfaceData
+ | Banished Lexer.SurfaceData
+ | SpawnLocation Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Set
+ = SimpleSet Lexer.SurfaceData Side RelativeSet
+ | UnionSet Lexer.SurfaceData Set Set
+ deriving Show
+-------------------------------------------------------------------------------
 
-
-data Side = Friendly Lexer.SurfaceData
-          | Enemy Lexer.SurfaceData
-          deriving Show
-            
-
-data RelativeSet = Field Lexer.SurfaceData
-                 | Hand Lexer.SurfaceData
-                 | Graveyard Lexer.SurfaceData
-                 | Banished Lexer.SurfaceData
-                 | SpawnLocation Lexer.SurfaceData
-                 deriving Show
-
-
-data Set = SimpleSet Lexer.SurfaceData Side RelativeSet
-         | UnionSet Lexer.SurfaceData Set Set
-         deriving Show
 
 {-
 Don't need both condition and nullable expression.
@@ -157,128 +159,153 @@ Don't need both condition and nullable expression.
 Either skill effects, or automatic should be allowed to have conditions and/or ifs.
 
 -}
-data SkillEffect = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
-                 deriving Show
-
-data Nonautomatic = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
-                  | TerminatedSkillComponent
-                  deriving Show
-data Automatic = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
-               deriving Show
-
-data Stats = Stats Lexer.SurfaceData Schools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
-           deriving Show
-data Start = Start (CarryingSource Skill)
-           deriving Show
-data End = End (CarryingSource Skill)
-           deriving Show
-data Counter = Counter (CarryingSource Skill)
-            deriving Show
-data Spawn = Spawn (CarryingSource Skill)
-            deriving Show
-data Death = Death (CarryingSource Skill)
-            deriving Show
-data Auto = Auto (CarryingSource Skill)
-           deriving Show
-data Action = Action (CarryingSource Skill)
-            deriving Show
-data Soul = Soul (CarryingSource Skill)
-           deriving Show
-
-data Stat = Attack
-          | Defense 
-          | Speed
-          | Range
-          | Level
-          deriving Show
-data Mutator = Increment Lexer.SurfaceData
-             | Decrement Lexer.SurfaceData
-             | Stretch Lexer.SurfaceData
-             | Crush Lexer.SurfaceData
-             | Contort Lexer.SurfaceData
-             | Set Lexer.SurfaceData
-             deriving Show
-
-data Temporality = Temporary Lexer.SurfaceData
-                 | Permanent Lexer.SurfaceData
-                 | Base Lexer.SurfaceData
-                 deriving Show
-data HpStat = CurrentHp
-            | MaxHp
-            | BaseHp
-            deriving Show
-data Engagement = Engagement Lexer.SurfaceData
-                deriving Show
-
-
-
-
-data Knowledge = Knowledge Lexer.SurfaceData
-               deriving Show
-
-
-data Schools = NoSchools
-             | OneSchool Lexer.SurfaceData Lexer.SurfaceData
-             | TwoSchools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
-             deriving Show
-
-
-data Field = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
-           | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
-           | EngagementField Lexer.SurfaceData
-           deriving Show
-
+-------------------------------------------------------------------------------
+data SkillEffect
+ = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
+ deriving Show
+-------------------------------------------------------------------------------
+data Nonautomatic
+ = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
+ | TerminatedSkillComponent
+ deriving Show
+-------------------------------------------------------------------------------
+data Automatic
+ = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
+ deriving Show
+-------------------------------------------------------------------------------
+data Stats
+ = Stats Lexer.SurfaceData Schools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Start
+ = Start (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data End
+ = End (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Counter
+ = Counter (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Spawn
+ = Spawn (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Death
+ = Death (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Auto
+ = Auto (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Action
+ = Action (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Soul
+ = Soul (CarryingSource Skill)
+ deriving Show
+-------------------------------------------------------------------------------
+data Stat
+ = Attack
+ | Defense 
+ | Speed
+ | Range
+ | Level
+ deriving Show
+-------------------------------------------------------------------------------
+data Mutator
+ = Increment Lexer.SurfaceData
+ | Decrement Lexer.SurfaceData
+ | Stretch Lexer.SurfaceData
+ | Crush Lexer.SurfaceData
+ | Contort Lexer.SurfaceData
+ | Set Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Temporality
+ = Temporary Lexer.SurfaceData
+ | Permanent Lexer.SurfaceData
+ | Base Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data HpStat
+ = CurrentHp
+ | MaxHp
+ | BaseHp
+ deriving Show
+-------------------------------------------------------------------------------
+data Engagement
+ = Engagement Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Knowledge
+ = Knowledge Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Schools
+ = NoSchools
+ | OneSchool Lexer.SurfaceData Lexer.SurfaceData
+ | TwoSchools Lexer.SurfaceData Lexer.SurfaceData Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
+data Field
+ = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
+ | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
+ | EngagementField Lexer.SurfaceData
+ deriving Show
+-------------------------------------------------------------------------------
 {-Effects that happen to two units simultaneously trigger resulting effects by order of field position, with
 ties broken by initiative. That is the significance of assigning two values at the "same" time-}
 
 
-data Expr = Constant [Char]
-          | ThoughtsExpr Side
-          | KnowledgeExpr Knowledge Side
-          | Self Field
-          | Var Field String
-          | Sum (CarryingSource Expr) (CarryingSource Expr)
-          | Difference (CarryingSource Expr) (CarryingSource Expr)
-          | Product (CarryingSource Expr) (CarryingSource Expr)
-          | Quotient (CarryingSource Expr) (CarryingSource Expr)
-          | Mod (CarryingSource Expr) (CarryingSource Expr)
-          | Always {-add more booleans later.....    again... nullable.-}
-          | GT (CarryingSource Expr) (CarryingSource Expr)
-          | GEQ (CarryingSource Expr) (CarryingSource Expr)
-          | LT (CarryingSource Expr) (CarryingSource Expr)
-          | LEQ (CarryingSource Expr) (CarryingSource Expr)
-          | EQ (CarryingSource Expr) (CarryingSource Expr)
-          | And (CarryingSource Expr) (CarryingSource Expr)
-          | Or (CarryingSource Expr) (CarryingSource Expr)
-          | Not (CarryingSource Expr)
-           deriving Show
-
-
-
+data Expr
+ = Constant [Char]
+ | ThoughtsExpr Side
+ | KnowledgeExpr Knowledge Side
+ | Self Field
+ | Var Field String
+ | Sum (CarryingSource Expr) (CarryingSource Expr)
+ | Difference (CarryingSource Expr) (CarryingSource Expr)
+ | Product (CarryingSource Expr) (CarryingSource Expr)
+ | Quotient (CarryingSource Expr) (CarryingSource Expr)
+ | Mod (CarryingSource Expr) (CarryingSource Expr)
+ | Always {-add more booleans later.....    again... nullable.-}
+ | GT (CarryingSource Expr) (CarryingSource Expr)
+ | GEQ (CarryingSource Expr) (CarryingSource Expr)
+ | LT (CarryingSource Expr) (CarryingSource Expr)
+ | LEQ (CarryingSource Expr) (CarryingSource Expr)
+ | EQ (CarryingSource Expr) (CarryingSource Expr)
+ | And (CarryingSource Expr) (CarryingSource Expr)
+ | Or (CarryingSource Expr) (CarryingSource Expr)
+ | Not (CarryingSource Expr)
+ deriving Show
+-------------------------------------------------------------------------------
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
-getTokens s = case Lexer.runAlex s Lexer.gather of Left _ -> []
-                                                   Right x -> x {-(map fst x)-}
-
+getTokens s =
+ case Lexer.runAlex s Lexer.gather of
+  Left _ -> []
+  Right x -> x {-(map fst x)-}
+-------------------------------------------------------------------------------
 extractSurface :: Lexer.Token -> String
 extractSurface (Lexer.Token _ (Lexer.SurfaceData _ _ s)) = s
-
+-------------------------------------------------------------------------------
 extractSurfaceData :: Lexer.Token -> Lexer.SurfaceData
 extractSurfaceData (Lexer.Token _ surfaceData) = surfaceData
-
+-------------------------------------------------------------------------------
 prettyPrint :: [String] -> String
 prettyPrint [] = ""
 prettyPrint (x:[]) = x
 prettyPrint (x1:x2:xs) = x1 ++ " " ++ (prettyPrint (x2:xs))
-
-
+-------------------------------------------------------------------------------
 generateTokenLocation :: [Lexer.Token] -> HashMap.Map (Int,Int) String
 generateTokenLocation [] = HashMap.empty
-generateTokenLocation ((Lexer.Token tokenValue (Lexer.SurfaceData line column surface)):xs) = HashMap.insert (line,column) surface (generateTokenLocation xs)
-
-
-
-
-
+generateTokenLocation ((Lexer.Token tokenValue (Lexer.SurfaceData line column surface)):xs) =
+ HashMap.insert (line,column) surface (generateTokenLocation xs)
+-------------------------------------------------------------------------------
 
 
 
