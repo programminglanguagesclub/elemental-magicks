@@ -3,4 +3,7 @@ Invalid reference to self in subexpression:
 self
 on line 5, column 9
 
-Main: should I handle variable errors here too? otherwise this is maybe fine...
+Invalid reference to self in subexpression:
+self
+on line 12, column 9
+

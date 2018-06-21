@@ -322,16 +322,10 @@ data LHpStat
  deriving Show
 -------------------------------------------------------------------------------
 data RStat
- = RStat RModifier ParseTree.Stat
+ = RStat ParseTree.Temporality ParseTree.Stat
  | RHpStat RHpStat
  | REngagement -- same as LEngagement...
 {-unimplemented. Like LStat but allows reference to base-}
- deriving Show
--------------------------------------------------------------------------------
-data RModifier
- = RTemporary
- | RPermanent
- | RBase
  deriving Show
 -------------------------------------------------------------------------------
 data RHpStat
@@ -398,7 +392,8 @@ typeCheckRStatSelf = typeCheckLStat
 typeCheckRStatVar :: ParseTree.Field -> TC RStat
 typeCheckRStatVar field =
  case field of
-  ParseTree.StatField surfaceData stat temporality -> error "statField case not implemented"
+  ParseTree.StatField surfaceData (ParseTree.CarryingSource surfaceData' stat) temporality ->
+   pure $ RStat temporality stat
   ParseTree.HpStatField surfaceData hpStat ->
    case hpStat of
     (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) ->
@@ -1074,7 +1069,7 @@ noSelfReferencesRInt rInt =
       ["Invalid reference to self in subexpression:\n" ++
        (getSurfaceSyntax surfaceData) ++
        (getLocationMessage surfaceData)]
-    RVarProjection surfaceData rStat variable -> error "should I handle variable errors here too? otherwise this is maybe fine..."
+    RVarProjection surfaceData rStat variable -> pure rInt
     RSum surfaceData firstRInt secondRInt ->
      joinTC $
      pure $
