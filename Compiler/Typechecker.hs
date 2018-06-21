@@ -981,7 +981,7 @@ typeCheckDeath (Just (ParseTree.CarryingSource surfaceData (ParseTree.Death skil
 typeCheckAuto :: Maybe (ParseTree.CarryingSource ParseTree.Auto) -> TC (Maybe Auto)
 typeCheckAuto Nothing = pure Nothing
 typeCheckAuto (Just (ParseTree.CarryingSource surfaceData (ParseTree.Auto skill))) =
- trace "typecheckauto not implemented" $
+ --trace "typecheckauto not implemented" $ -- could eventually prevent from referencing self engagement? similar for other skill types..
  Just
  <$> Auto surfaceData
  <$> typeCheckSkill skill
@@ -1415,7 +1415,7 @@ assumeFailure (Right _) = []
 -------------------------------------------------------------------------------
 typeCheck :: ParseTree.File -> TC File
 typeCheck (ParseTree.File units spells) =
- trace (show units) $
+ --trace (show units) $
  File <$> (typeCheckUnits units)
       <*> (typeCheckSpells spells)
 -------------------------------------------------------------------------------
