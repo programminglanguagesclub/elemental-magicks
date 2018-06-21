@@ -319,7 +319,6 @@ data LModifier
 data LHpStat
  = LCurrentHp
  | LMaxHp
- | LBaseHp -- SHOULD THIS BE HERE???
  deriving Show
 -------------------------------------------------------------------------------
 data RStat
@@ -367,8 +366,14 @@ typeCheckLModifier temporality =
  case temporality of
   ParseTree.Temporary surfaceData -> pure $ LTemporary
   ParseTree.Permanent surfaceData -> pure $ LPermanent
-  ParseTree.Base surfaceData -> error "foo"
+  ParseTree.Base surfaceData ->
+   TC $
+   Left
+    ["Attempted assignment to base value in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
 
+-------------------------------------------------------------------------------
 typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat field =
  case field of
@@ -380,11 +385,12 @@ typeCheckLStat field =
    <*> (pure $ removeSurface stat)
   ParseTree.HpStatField surfaceData hpStat ->
    case hpStat of
-    (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) -> pure $ LHpStat LCurrentHp
-    (ParseTree.CarryingSource surfaceData' ParseTree.MaxHp) -> pure $ LHpStat LMaxHp
-    (ParseTree.CarryingSource surfaceData' ParseTree.BaseHp) -> pure $ LHpStat LBaseHp
+    (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) ->
+     pure $ LHpStat LCurrentHp
+    (ParseTree.CarryingSource surfaceData' ParseTree.MaxHp) ->
+     pure $ LHpStat LMaxHp
   ParseTree.EngagementField surfaceData ->
-   error "engagementfield case not implemented"
+   pure LEngagement
 -------------------------------------------------------------------------------
 typeCheckRStatSelf :: ParseTree.Field -> TC LStat
 typeCheckRStatSelf = typeCheckLStat
@@ -395,37 +401,16 @@ typeCheckRStatVar field =
   ParseTree.StatField surfaceData stat temporality -> error "statField case not implemented"
   ParseTree.HpStatField surfaceData hpStat ->
    case hpStat of
-    (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) -> pure $ RHpStat RCurrentHp
-    (ParseTree.CarryingSource surfaceData' ParseTree.MaxHp) -> pure $ RHpStat RMaxHp
-    (ParseTree.CarryingSource surfaceData' ParseTree.BaseHp) -> pure $ RHpStat RBaseHp
+    (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) ->
+     pure $ RHpStat RCurrentHp
+    (ParseTree.CarryingSource surfaceData' ParseTree.MaxHp) ->
+     pure $ RHpStat RMaxHp
+    (ParseTree.CarryingSource surfaceData' ParseTree.BaseHp) ->
+     pure $ RHpStat RBaseHp
 -- don't check for assigning from a soul card, which is not allowed...
-
-
-{-error "hpstatfield case not implemented"-}
-  ParseTree.EngagementField surfaceData -> error "engagementfield case not implemented"
+  ParseTree.EngagementField surfaceData -> pure REngagement
 -------------------------------------------------------------------------------
-
-
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
-
-{-
-
-
-data Field = StatField Lexer.SurfaceData Stat Temporality
-           | HpStatField Lexer.SurfaceData HpStat
-           | EngagementField Lexer.SurfaceData
-           deriving Show
--}
-
-
-{-
- -
- - .... Level MaxHp BaseAttack BaseDefense BaseSpeed BaseRange
- -
- -
- - also engagement...
--}
-
 
 -------------------------------------------------------------------------------
 data SkillEffect
@@ -443,17 +428,6 @@ data LExpr
  | LVarProjection SurfaceData Variable LStat
  {- Cardinality not implemented... -}
  deriving Show
--------------------------------------------------------------------------------
-      
-{-                   
-data Mutator = Increment SurfaceData
-             | Decrement SurfaceData
-             | Assign SurfaceData
-             deriving Show
-
--}
-
-
 -------------------------------------------------------------------------------
 getDistance :: String -> String -> Int
 getDistance s1 s2 = restrictedDamerauLevenshteinDistance defaultEditCosts s1 s2
@@ -547,21 +521,36 @@ getSurface knowledge =
 schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
 schoolsFromKnowledge school1 school2 =
  case (school1,school2) of
-  (Earth surfaceData1, Fire surfaceData2) -> pure . EarthFire $ error "earthfire not implemented"
-  (Earth surfaceData1, Water surfaceData2) -> pure . EarthWater $ error "earthwater not implemented"
-  (Earth surfaceData1, Air surfaceData2) -> pure . EarthAir $ error "earthair not implemented"
-  (Earth surfaceData1, Spirit surfaceData2) -> pure . EarthSpirit $ error "earthspirit not implemented"
-  (Earth surfaceData1, Void surfaceData2) -> pure . EarthVoid $ error "earthvoid not implemented"
-  (Fire surfaceData1, Water surfaceData2) -> pure . FireWater $ error "firewater not implemented"
-  (Fire surfaceData1, Air surfaceData2) -> pure . FireAir $ error "fireair not implemented"
-  (Fire surfaceData1, Spirit surfaceData2) -> pure . FireSpirit $ error "firespirit not implemented"
-  (Fire surfaceData1, Void surfaceData2) -> pure . FireVoid $ error "firevoid not implemented"
-  (Water surfaceData1, Air surfaceData2) -> pure . WaterAir $ error "waterair not implemented"
-  (Water surfaceData1, Spirit surfaceData2) -> pure . WaterSpirit $ error "waterspirit not implemented"
-  (Water surfaceData1, Void surfaceData2) -> pure . WaterVoid $ error "watervoid not implemented"
-  (Air surfaceData1, Spirit surfaceData2) -> pure . AirSpirit $ error "airspirit not implemented"
-  (Air surfaceData1, Void surfaceData2) -> pure . AirVoid $ error "airvoid not implemented"
-  (Spirit surfaceData1, Void surfaceData2) -> pure . SpiritVoid $ error "spiritvoid not implemented"
+  (Earth surfaceData1, Fire surfaceData2) ->
+   pure . EarthFire $ error "earthfire not implemented"
+  (Earth surfaceData1, Water surfaceData2) ->
+   pure . EarthWater $ error "earthwater not implemented"
+  (Earth surfaceData1, Air surfaceData2) ->
+   pure . EarthAir $ error "earthair not implemented"
+  (Earth surfaceData1, Spirit surfaceData2) ->
+   pure . EarthSpirit $ error "earthspirit not implemented"
+  (Earth surfaceData1, Void surfaceData2) ->
+   pure . EarthVoid $ error "earthvoid not implemented"
+  (Fire surfaceData1, Water surfaceData2) ->
+   pure . FireWater $ error "firewater not implemented"
+  (Fire surfaceData1, Air surfaceData2) ->
+   pure . FireAir $ error "fireair not implemented"
+  (Fire surfaceData1, Spirit surfaceData2) ->
+   pure . FireSpirit $ error "firespirit not implemented"
+  (Fire surfaceData1, Void surfaceData2) ->
+   pure . FireVoid $ error "firevoid not implemented"
+  (Water surfaceData1, Air surfaceData2) ->
+   pure . WaterAir $ error "waterair not implemented"
+  (Water surfaceData1, Spirit surfaceData2) ->
+   pure . WaterSpirit $ error "waterspirit not implemented"
+  (Water surfaceData1, Void surfaceData2) ->
+   pure . WaterVoid $ error "watervoid not implemented"
+  (Air surfaceData1, Spirit surfaceData2) ->
+   pure . AirSpirit $ error "airspirit not implemented"
+  (Air surfaceData1, Void surfaceData2) ->
+   pure . AirVoid $ error "airvoid not implemented"
+  (Spirit surfaceData1, Void surfaceData2) ->
+   pure . SpiritVoid $ error "spiritvoid not implemented"
   (k1,k2) ->
    let ((Lexer.SurfaceData line1 column1 surface1),(Lexer.SurfaceData line2 column2 surface2)) = (getSurface k1, getSurface k2) in
    let prefix = errorPrefix line1 column1 in
@@ -587,8 +576,6 @@ schoolsFromKnowledge school1 school2 =
 -------------------------------------------------------------------------------
 
 
-joinTC :: TC (TC a) -> TC a
-joinTC = TC . join . fmap runTC . runTC
 
 
 {-Need to wrap variable, and not just have String...-}
@@ -701,11 +688,13 @@ lExprError (Lexer.SurfaceData _ _ s) = lExprError' s
 
 {-currently, am not checking for how a variable is used (certain stats cannot be accessed or set based on where the card is)-}
 typeCheckVariable :: Context -> Variable -> TC Variable
-typeCheckVariable context var=
+typeCheckVariable context var =
  case varIn var context of
   True -> pure var
   False ->
-   TC $ Left $ ["variable " ++ variableName ++" not defined in " ++ (show context) ++ "."]
+   TC $
+   Left $
+   ["variable " ++ variableName ++" not defined in " ++ (show context) ++ "."]
    where (Variable surfaceData variableName) = var
 
 
@@ -798,17 +787,6 @@ And/Or maybe I should just convert to LExprs here.
 
 
 {-
-checkSkillEffect :: Context -> ParseTree.SkillEffect -> [String]
-checkSkillEffect context skillEffect =
- case skillEffect of
-  (ParseTree.Assignment surfaceData exprs mutator rExpr) -> error "checkSkillEffect case ParseTree.Assignment not implemented"
--}
-
-
-
-
-
-{-
  - THE difference between Judgements in contexts here, and sets in the parser, is for convenience we might want to additionally allow the soul to be an additional area to select, even though
  - we don't want other cards to select that. The reason for that is so that SELF can be bound then to the soul, and we can typecheck references to self.
  -
@@ -838,49 +816,109 @@ typeCheckRBool :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC RBool
 typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
  case expr of
   ParseTree.Constant value ->
-    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of integer literal) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (type of integer literal) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.ThoughtsExpr side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
-    TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of thoughts) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+    TC $
+    Left
+     ["Type mismatch between Boolean (required type) and " ++ 
+      "Integer (type of thoughts) in subexpression:\n" ++
+      (getSurfaceSyntax surfaceData) ++
+      (getLocationMessage surfaceData)]
   ParseTree.KnowledgeExpr knowledge side ->
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of knowledge) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (type of knowledge) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Self field ->
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from self) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (type of projection from self) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Var field var ->
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (type of projection from variable " ++ var ++ ") in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (type of projection from variable " ++
+     var ++
+     ") in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Sum expr1 expr2 ->
-    TC $ Left ["Type mismatch between Boolean (requied type) and Integer (result type of (+) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]    
+    TC $
+    Left
+     ["Type mismatch between Boolean (requied type) and " ++
+      "Integer (result type of (+) operator) in subexpression:\n" ++
+      (getSurfaceSyntax surfaceData) ++
+      (getLocationMessage surfaceData)]    
   ParseTree.Difference expr1 expr2 ->
-    TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (-) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+    TC $
+    Left
+     ["Type mismatch between Boolean (required type) and " ++
+      "Integer (result type of (-) operator) in subexpression:\n" ++
+      (getSurfaceSyntax surfaceData) ++
+      (getLocationMessage surfaceData)]
   ParseTree.Product expr1 expr2 ->
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (*) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (result type of (*) operator) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Quotient expr1 expr2 ->
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of (/) operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (result type of (/) operator) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Mod expr1 expr2 ->                                      {-Have to make sure this implements modulus, not remainder...-}
-   TC $ Left ["Type mismatch between Boolean (required type) and Integer (result type of modulus operator) in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+   TC $
+   Left
+    ["Type mismatch between Boolean (required type) and " ++
+     "Integer (result type of modulus operator) in subexpression:\n" ++
+     (getSurfaceSyntax surfaceData) ++
+     (getLocationMessage surfaceData)]
   ParseTree.Always -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
   ParseTree.GT expr1 expr2 ->
-   RGT surfaceData <$> typeCheckRInt context expr1
-                   <*> typeCheckRInt context expr2
+   RGT surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.GEQ expr1 expr2 ->
-   RGEQ surfaceData <$> typeCheckRInt context expr1
-                    <*> typeCheckRInt context expr2
+   RGEQ surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.LT expr1 expr2 ->
-   RLT surfaceData <$> typeCheckRInt context expr1
-                   <*> typeCheckRInt context expr2
+   RLT surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.LEQ expr1 expr2 ->
-   RLEQ surfaceData <$> typeCheckRInt context expr1
-                    <*> typeCheckRInt context expr2
+   RLEQ surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.EQ expr1 expr2 ->
-   REQ surfaceData <$> typeCheckRInt context expr1
-                   <*> typeCheckRInt context expr2
+   REQ surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.And expr1 expr2 ->
-   RAnd surfaceData <$> typeCheckRBool context expr1
-                    <*> typeCheckRBool context expr2
+   RAnd surfaceData
+   <$> typeCheckRBool context expr1
+   <*> typeCheckRBool context expr2
   ParseTree.Or expr1 expr2 ->
-   ROr surfaceData <$> typeCheckRBool context expr1
-                   <*> typeCheckRBool context expr2
+   ROr surfaceData
+   <$> typeCheckRBool context expr1
+   <*> typeCheckRBool context expr2
   ParseTree.Not expr ->
-   RNot surfaceData <$> typeCheckRBool context expr
+   RNot surfaceData
+   <$> typeCheckRBool context expr
 -------------------------------------------------------------------------------
 typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
@@ -909,43 +947,49 @@ typeCheckStart :: Maybe (ParseTree.CarryingSource ParseTree.Start) -> TC (Maybe 
 typeCheckStart Nothing = pure Nothing
 typeCheckStart (Just (ParseTree.CarryingSource surfaceData (ParseTree.Start skill))) =
  trace "typeCheckStart not implemented" $
- Just <$> Start surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> Start surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckEnd :: Maybe (ParseTree.CarryingSource ParseTree.End) -> TC (Maybe End)
 typeCheckEnd Nothing = pure Nothing
 typeCheckEnd (Just (ParseTree.CarryingSource surfaceData (ParseTree.End skill))) =
  trace "typecheckEnd not implemented" $
- Just <$> End surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> End surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckCounter :: Maybe (ParseTree.CarryingSource ParseTree.Counter) -> TC (Maybe Counter)
 typeCheckCounter Nothing = pure Nothing
 typeCheckCounter (Just (ParseTree.CarryingSource surfaceData (ParseTree.Counter skill))) =
  trace "typecheckCounter not implemented" $
- Just <$> Counter surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> Counter surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckSpawnUnit :: Maybe (ParseTree.CarryingSource ParseTree.Spawn) -> TC (Maybe SpawnUnit)
 typeCheckSpawnUnit Nothing = pure Nothing
 typeCheckSpawnUnit (Just (ParseTree.CarryingSource surfaceData (ParseTree.Spawn skill))) =
  trace "typecheckSpawnUnit not implemented" $
- Just <$> SpawnUnit surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> SpawnUnit surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckDeath :: Maybe (ParseTree.CarryingSource ParseTree.Death) -> TC (Maybe Death)
 typeCheckDeath Nothing = pure Nothing
 typeCheckDeath (Just (ParseTree.CarryingSource surfaceData (ParseTree.Death skill))) =
  trace "typecheckDeath not implemented" $
- Just <$> Death surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> Death surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckAuto :: Maybe (ParseTree.CarryingSource ParseTree.Auto) -> TC (Maybe Auto)
 typeCheckAuto Nothing = pure Nothing
 typeCheckAuto (Just (ParseTree.CarryingSource surfaceData (ParseTree.Auto skill))) =
  trace "typecheckauto not implemented" $
- Just <$> Auto surfaceData
-      <$> typeCheckSkill skill
+ Just
+ <$> Auto surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckAction :: ParseTree.CarryingSource ParseTree.Action -> TC Action
 typeCheckAction (ParseTree.CarryingSource surfaceData (ParseTree.Action skill)) =
@@ -1025,7 +1069,11 @@ noSelfReferencesRInt rInt =
     RThoughts surfaceData side -> pure rInt
     RKnowledge surfaceData knowledge side -> pure rInt
     RSelfProjection surfaceData lStat ->
-     TC $ Left ["Invalid reference to self in subexpression:\n" ++ (getSurfaceSyntax surfaceData) ++ (getLocationMessage surfaceData)]
+     TC $
+     Left
+      ["Invalid reference to self in subexpression:\n" ++
+       (getSurfaceSyntax surfaceData) ++
+       (getLocationMessage surfaceData)]
     RVarProjection surfaceData rStat variable -> error "should I handle variable errors here too? otherwise this is maybe fine..."
     RSum surfaceData firstRInt secondRInt ->
      joinTC $
@@ -1170,12 +1218,34 @@ typeCheckInt s name lowerBound upperBound =
  case (readMaybe s :: Maybe Int) of
   Nothing -> TC $ Left [name ++ " must be an integer"]
   Just i ->
-   if i < lowerBound then putErr $ name ++ " must be at least " ++ (show lowerBound)
-   else if i > upperBound then putErr $ name ++ " cannot exceed " ++ (show upperBound)
+   if i < lowerBound
+   then
+    putErr $
+    name ++
+    " must be at least " ++
+    (show lowerBound)
+  else if i > upperBound
+   then
+    putErr $
+    name ++
+    " cannot exceed " ++
+    (show upperBound)
    else pure i
 -------------------------------------------------------------------------------
 typeCheckConstant :: Lexer.SurfaceData -> String -> TC Int
-typeCheckConstant (Lexer.SurfaceData row column surfaceSyntax) s = typeCheckInt s ("at position " ++ (show row) ++ "," ++ (show column) ++ ", " ++ "constant expression" ++ " " ++ surfaceSyntax) minInt maxInt
+typeCheckConstant (Lexer.SurfaceData row column surfaceSyntax) s =
+ typeCheckInt
+  s
+  ("at position " ++
+   (show row) ++
+   "," ++
+   (show column) ++
+   ", " ++
+   "constant expression" ++
+   " " ++
+   surfaceSyntax)
+  minInt
+  maxInt
 -------------------------------------------------------------------------------
 typeCheckLInt :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC LExpr {-and apparently these are all ints...-}
 typeCheckLInt context (ParseTree.CarryingSource surfaceData expr) =
@@ -1190,8 +1260,9 @@ typeCheckLInt context (ParseTree.CarryingSource surfaceData expr) =
   ParseTree.Self field ->
    LSelfProjection surfaceData <$> typeCheckRStatSelf field
   ParseTree.Var field variable ->
-   LVarProjection surfaceData <$> typeCheckVariable context (Variable surfaceData variable)
-                              <*> typeCheckRStatSelf field
+   LVarProjection surfaceData
+   <$> typeCheckVariable context (Variable surfaceData variable)
+   <*> typeCheckRStatSelf field
   ParseTree.Sum expr1 expr2 ->
    TC $ Left ["cannot assign to sum result"]
   ParseTree.Difference expr1 expr2 ->
@@ -1376,6 +1447,9 @@ main = do
        
 -------------------------------------------------------------------------------       
 newtype TC a = TC {runTC :: Either [String] a} deriving Functor
+-------------------------------------------------------------------------------
+joinTC :: TC (TC a) -> TC a
+joinTC = TC . join . fmap runTC . runTC
 -------------------------------------------------------------------------------
 getErr (TC (Right _)) = []
 getErr (TC (Left x)) = x
