@@ -277,7 +277,10 @@ tryVarPut var set (ExtendContext context judgment) =
   then
    TC $
    Left $
-   ["variable " ++ varName ++ " already bound to " ++ (show set)]
+   ["variable "
+    ++ varName
+    ++ " already bound to "
+    ++ (show set)]
   else
    pure $
    ExtendContext (ExtendContext context judgment) $
@@ -302,42 +305,15 @@ tryExtendContextMultiple context (x:xs) =
  <$> tryExtendContext context x
  <*> pure xs
 -------------------------------------------------------------------------------
-
-{-
-data Set = SimpleSet SurfaceData ParseTree.Side RelativeSet
-         | UnionSet SurfaceData Set Set
-         deriving Show
-         {-
-data Side = Friendly SurfaceData
-          | Enemy SurfaceData
-          deriving Show
--}
-data RelativeSet = Field SurfaceData
-                 | Hand SurfaceData
-                 | Graveyard SurfaceData
-                 | Banished SurfaceData
-                 | SpawnLocation SurfaceData
-                 deriving Show
--}
--------------------------------------------------------------------------------
 data LStat
- = LStatField Modifier LStatField
+ = LStatField LModifier ParseTree.Stat
  | LHpStat LHpStat
  | LEngagement
  deriving Show
 -------------------------------------------------------------------------------
-data Modifier
- = Temporary
- | Permanent
- | Base -- SHOULD THIS BE HERE???
- deriving Show
--------------------------------------------------------------------------------
-data LStatField
- = LAttack
- | LDefense
- | LSpeed
- | LRange
- | LLevel
+data LModifier
+ = LTemporary
+ | LPermanent
  deriving Show
 -------------------------------------------------------------------------------
 data LHpStat
@@ -347,18 +323,10 @@ data LHpStat
  deriving Show
 -------------------------------------------------------------------------------
 data RStat
- = RStat RModifier RStatField
+ = RStat RModifier ParseTree.Stat
  | RHpStat RHpStat
  | REngagement -- same as LEngagement...
 {-unimplemented. Like LStat but allows reference to base-}
- deriving Show
--------------------------------------------------------------------------------
-data RStatField
- = RAttack
- | RDefense
- | RSpeed
- | RRange
- | RLevel
  deriving Show
 -------------------------------------------------------------------------------
 data RModifier
@@ -373,11 +341,43 @@ data RHpStat
  | RBaseHp
  deriving Show
 -------------------------------------------------------------------------------
+{-
+
+
+data Field
+ = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
+ | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
+ | EngagementField Lexer.SurfaceData
+ deriving Show
+
+data LStat
+ = LStatField Modifier LStatField
+ | LHpStat LHpStat
+ | LEngagement
+ deriving Show
+-------------------------------------------------------------------------------
+
+-}
+
+removeSurface :: ParseTree.CarryingSource a -> a
+removeSurface (ParseTree.CarryingSource surfaceData a) = a
+
+typeCheckLModifier :: ParseTree.Temporality -> TC LModifier
+typeCheckLModifier temporality =
+ case temporality of
+  ParseTree.Temporary surfaceData -> pure $ LTemporary
+  ParseTree.Permanent surfaceData -> pure $ LPermanent
+  ParseTree.Base surfaceData -> error "foo"
+
 typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat field =
  case field of
   ParseTree.StatField surfaceData stat temporality ->
-   error "statfield case not implemented"
+   joinTC $
+   pure $
+   LStatField
+   <$> typeCheckLModifier temporality
+   <*> (pure $ removeSurface stat)
   ParseTree.HpStatField surfaceData hpStat ->
    case hpStat of
     (ParseTree.CarryingSource surfaceData' ParseTree.CurrentHp) -> pure $ LHpStat LCurrentHp
