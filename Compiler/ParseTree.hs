@@ -81,7 +81,10 @@ getFileSurfaceData = undefined
 
 
 getFoo :: [String] -> Set -> [(String,Set)]
-getFoo _ _ = error "what is getFoo??"
+getFoo variables set =
+ case variables of
+  [] -> []
+  (x:xs) -> (x,set) : (getFoo xs set)
 
 data File = File [Unit] [Spell]
              deriving Show

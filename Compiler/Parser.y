@@ -156,7 +156,7 @@ OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
 OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
-Nonautomatic : {TerminatedSkillComponent}
+Nonautomatic : {TerminatedSkillComponent} -- the nullableexpr needs to be changed to be prefixed by where syntax.
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
 Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 {-Ignoring Universal case for now-} }
           | for each var in Side RelativeSet OptionalFilter comma {undefined {-Only allow one universally quantified variable at once. No pairs -}}
@@ -165,7 +165,7 @@ IfUnableCase : {Automatic dummySurfaceData [] (TerminatedSkillComponent {-NOT PA
              | if unable lbracket Automatic rbracket {$4}
 NextAutomatic : {Automatic dummySurfaceData [] (TerminatedSkillComponent)}
               | lbracket Automatic rbracket {$2}
-SelectionStatement : Variables in Set RestSelectionStatement {[] ++ $4}
+SelectionStatement : Variables in Set RestSelectionStatement {(getFoo $1 $3) ++ $4}
 Set : Side RelativeSet {SimpleSet dummySurfaceData $1 $2}
     | Set union Set {UnionSet dummySurfaceData $1 $3}
 RestSelectionStatement : {[]}
@@ -216,9 +216,9 @@ Field : Stat Temporality {StatField dummySurfaceData $1 $2}
 Temporality : current {Temporary (extractSurfaceData $1)}
             | permanent {Permanent (extractSurfaceData $1)}
             | base {Base (extractSurfaceData $1)}
-HpStat : hp {CarryingSource undefined CurrentHp}
-       | max hp {CarryingSource undefined MaxHp}
-       | base hp {CarryingSource undefined BaseHp}
+HpStat : hp {CarryingSource dummySurfaceData CurrentHp}
+       | max hp {CarryingSource dummySurfaceData MaxHp}
+       | base hp {CarryingSource dummySurfaceData BaseHp}
 Stat : attack {CarryingSource $1 Attack}
      | defense {CarryingSource $1 Defense}
      | speed {CarryingSource $1 Speed}

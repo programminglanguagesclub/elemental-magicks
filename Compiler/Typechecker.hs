@@ -271,7 +271,7 @@ varMatches var1 var2 = varName1 == varName2
 
 {-does not display surface data in error message-}
 tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
-tryVarPut _ _ EmptyContext = pure EmptyContext
+tryVarPut var set EmptyContext = pure (ExtendContext EmptyContext (Judgment (var, set)))
 tryVarPut var set (ExtendContext context judgment) =
  if varMatches var var2
   then
@@ -280,12 +280,12 @@ tryVarPut var set (ExtendContext context judgment) =
    ["variable "
     ++ varName
     ++ " already bound to "
-    ++ (show set)]
+    ++ (show set2)]
   else
    pure $
    ExtendContext (ExtendContext context judgment) $
    Judgment (var,set)
- where (Judgment (var2, set)) = judgment
+ where (Judgment (var2, set2)) = judgment
        (Variable _ varName) = var
 -------------------------------------------------------------------------------
 tryExtendContext :: Context -> Judgment -> TC Context
@@ -614,7 +614,7 @@ getSet :: Context -> Variable ->
 -------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 typeCheckAutomatic context automatic =
- trace (show context) $
+ --trace (show context) $
  Automatic surfaceData
  <$> traverse (typeCheckSkillEffect context) skillEffects
  <*> typeCheckNonautomatic context nonautomatic
@@ -632,9 +632,10 @@ extendContext = error "extend context not implemented"
 -------------------------------------------------------------------------------
 typeCheckNonautomatic :: Context -> ParseTree.Nonautomatic -> TC Nonautomatic
 typeCheckNonautomatic context nonautomatic =
- trace (show context) $
+ --trace (show context) $
  case nonautomatic of
   ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
+   --trace (show newBindings) $
    Selection surfaceData (map mkJudgment newBindings)
    <$> typeCheckCondition condition
    <*> (joinTC $
