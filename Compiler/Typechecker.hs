@@ -1067,44 +1067,41 @@ noSelfReferencesCondition maybeCondition =
    fmap Just $
    noSelfReferencesRBool condition
 -------------------------------------------------------------------------------
-{-
-data SkillEffect
- = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
- deriving Show
+noSelfReferencesLExpr :: LExpr -> TC LExpr
+noSelfReferencesLExpr lExpr =
+ case lExpr of
+  LThoughtsExpr surfaceData side -> pure lExpr
+  LKnowledgeExpr surfaceData knowledge side -> pure lExpr
+  LSelfProjection surfaceData lStat ->
+   TC $
+   Left
+    ["Invalid reference to self in subexpression:\n"
+     ++ (getSurfaceSyntax surfaceData)
+     ++ (getLocationMessage surfaceData)]
+  LVarProjection surfaceData variable lStat -> pure lExpr
 -------------------------------------------------------------------------------
-data Assignment
- = Assignment [LExpr] ParseTree.Mutator RInt
- deriving Show
------------------------
-
-
-data Automatic
- = Automatic SurfaceData [SkillEffect] Nonautomatic
- deriving Show
-
-
-data Assignment
- = Assignment [LExpr] ParseTree.Mutator RInt
--}
-
-
-noSelfReferencesJudgment :: Judgment -> TC Judgment
-noSelfReferencesJudgment sdgsgd = error "no self references judgment not implemented"
-
-noSelfReferencesJudgments :: [Judgment] -> TC [Judgment]
-noSelfReferencesJudgments judgments = traverse noSelfReferencesJudgment judgments
-
 noSelfReferencesAssignment :: Assignment -> TC Assignment
-noSelfReferencesAssignment (Assignment lExprs mutator rInt) = error "no self references assignment not implement"
-
+noSelfReferencesAssignment (Assignment lExprs mutator rInt) =
+ joinTC $
+ pure $
+ Assignment
+ <$> traverse noSelfReferencesLExpr lExprs
+ <*> pure mutator
+ <*> noSelfReferencesRInt rInt
+-------------------------------------------------------------------------------
 noSelfReferencesSkillEffect :: SkillEffect -> TC SkillEffect
 noSelfReferencesSkillEffect skillEffect =
  case skillEffect of
-  SkillEffectAssignment assignment -> joinTC $ pure $ SkillEffectAssignment <$> noSelfReferencesAssignment assignment
-
+  SkillEffectAssignment assignment ->
+   joinTC $
+   pure $
+   SkillEffectAssignment
+   <$> noSelfReferencesAssignment assignment
+-------------------------------------------------------------------------------
 noSelfReferencesSkillEffects :: [SkillEffect] -> TC [SkillEffect]
-noSelfReferencesSkillEffects skillEffects = traverse noSelfReferencesSkillEffect skillEffects
-
+noSelfReferencesSkillEffects skillEffects =
+ traverse noSelfReferencesSkillEffect skillEffects
+-------------------------------------------------------------------------------
 noSelfReferencesAutomatic :: Automatic -> TC Automatic
 noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
  joinTC $
@@ -1112,7 +1109,6 @@ noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
  Automatic surfaceData
  <$> noSelfReferencesSkillEffects skillEffects
  <*> noSelfReferencesNonautomatic nonAutomatic
-
 -------------------------------------------------------------------------------
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
 noSelfReferencesNonautomatic nonAutomatic =
@@ -1120,9 +1116,8 @@ noSelfReferencesNonautomatic nonAutomatic =
   Selection surfaceData judgments maybeCondition thenCase ifUnableCase nextAutomatic ->
    joinTC $
    pure $
-   Selection surfaceData
-   <$> noSelfReferencesJudgments judgments
-   <*> noSelfReferencesCondition maybeCondition
+   Selection surfaceData judgments
+   <$> noSelfReferencesCondition maybeCondition
    <*> noSelfReferencesAutomatic thenCase
    <*> noSelfReferencesAutomatic ifUnableCase
    <*> noSelfReferencesAutomatic nextAutomatic
@@ -1143,22 +1138,25 @@ noSelfReferences f skill =
 -------------------------------------------------------------------------------
 typeCheckSoul :: ParseTree.CarryingSource ParseTree.Soul -> TC Soul
 typeCheckSoul (ParseTree.CarryingSource surfaceData (ParseTree.Soul skill)) =
- trace "typeCheckSoul not implemented" $
- joinTC $ noSelfReferences (Soul surfaceData)
+ joinTC $
+ noSelfReferences (Soul surfaceData)
  <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 {-level, etc, should be an arbitrary string in parsing... but a number after type checking..-}
 typeCheckBaseLevel :: Lexer.SurfaceData -> TC BaseLevel
 typeCheckBaseLevel (Lexer.SurfaceData row column surface) = 
- BaseLevel (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base level" 1 9)
+ BaseLevel (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base level" 1 9)
 -------------------------------------------------------------------------------
 typeCheckBaseHp :: Lexer.SurfaceData -> TC BaseHp
 typeCheckBaseHp (Lexer.SurfaceData row column surface) =
- BaseHp (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base hp" 1 1000) 
+ BaseHp (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base hp" 1 1000) 
 -------------------------------------------------------------------------------
 typeCheckBaseAttack :: SurfaceData -> TC BaseAttack
 typeCheckBaseAttack (Lexer.SurfaceData row column surface) =
- BaseAttack (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base attack" 0 1000)
+ BaseAttack (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base attack" 0 1000)
 -------------------------------------------------------------------------------
 typeCheckInt :: String -> String -> Int -> Int -> TC Int
 typeCheckInt s name lowerBound upperBound =
