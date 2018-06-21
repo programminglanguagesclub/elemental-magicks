@@ -1067,11 +1067,64 @@ noSelfReferencesCondition maybeCondition =
    fmap Just $
    noSelfReferencesRBool condition
 -------------------------------------------------------------------------------
-noSelfReferencesAutomatic :: Automatic -> TC Automatic
-noSelfReferencesAutomatic = error "no self references automatic not implemented"
+{-
+data SkillEffect
+ = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
+ deriving Show
 -------------------------------------------------------------------------------
+data Assignment
+ = Assignment [LExpr] ParseTree.Mutator RInt
+ deriving Show
+-----------------------
+
+
+data Automatic
+ = Automatic SurfaceData [SkillEffect] Nonautomatic
+ deriving Show
+-}
+
+
+noSelfReferencesJudgment :: Judgment -> TC Judgment
+noSelfReferencesJudgment sdgsgd = error "no self references judgment not implemented"
+
+noSelfReferencesJudgments :: [Judgment] -> TC [Judgment]
+noSelfReferencesJudgments judgments = traverse noSelfReferencesJudgment judgments
+
+
+noSelfReferencesSkillEffect :: SkillEffect -> TC SkillEffect
+noSelfReferencesSkillEffect skillEffect =
+ case skillEffect of
+  SkillEffectAssignment assignment -> error "no self references assignment not implemented"
+
+noSelfReferencesSkillEffects :: [SkillEffect] -> TC [SkillEffect]
+noSelfReferencesSkillEffects skillEffects = traverse noSelfReferencesSkillEffect skillEffects
+
+noSelfReferencesAutomatic :: Automatic -> TC Automatic
+noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
+ joinTC $
+ pure $
+ Automatic surfaceData
+ <$> noSelfReferencesSkillEffects skillEffects
+ <*> noSelfReferencesNonautomatic nonAutomatic
+
+-------------------------------------------------------------------------------
+
+{-
+data Nonautomatic
+ = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
+ | TerminatedSkillComponent
+
+-}
+
+
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
-noSelfReferencesNonautomatic = error "no self references nonautomatic not implemented"
+noSelfReferencesNonautomatic nonAutomatic =
+ case nonAutomatic of
+  Selection surfaceData judgments maybeCondition thenCase ifUnableCase nextAutomatic -> error "no self references selection case not implemented"
+  TerminatedSkillComponent -> pure nonAutomatic
+
+
+
 -------------------------------------------------------------------------------
 noSelfReferencesSkill :: Skill -> TC Skill
 noSelfReferencesSkill skill =
