@@ -611,13 +611,15 @@ getSet :: Context -> Variable ->
 
 
 
-
+-------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
-typeCheckAutomatic context automatic  = trace (show context) $
- Automatic surfaceData <$> traverse (typeCheckSkillEffect context) skillEffects
-                       <*> typeCheckNonautomatic context nonautomatic
+typeCheckAutomatic context automatic =
+ trace (show context) $
+ Automatic surfaceData
+ <$> traverse (typeCheckSkillEffect context) skillEffects
+ <*> typeCheckNonautomatic context nonautomatic
  where ParseTree.Automatic surfaceData skillEffects nonautomatic = automatic
-
+-------------------------------------------------------------------------------
 
 
 {-
@@ -627,17 +629,22 @@ extendContext = error "extend context not implemented"
 
 
 {-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
+-------------------------------------------------------------------------------
 typeCheckNonautomatic :: Context -> ParseTree.Nonautomatic -> TC Nonautomatic
-typeCheckNonautomatic context nonautomatic = trace (show context) $
+typeCheckNonautomatic context nonautomatic =
+ trace (show context) $
  case nonautomatic of
-  ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch -> trace (show $ newBindings) $
+  ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
    Selection surfaceData (map mkJudgment newBindings)
    <$> typeCheckCondition condition
-   <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure thenBranch)
-   <*> (joinTC $ typeCheckAutomatic <$> tryExtendContextMultiple context (map mkJudgment newBindings) <*> pure elseBranch)
-   <*> typeCheckAutomatic context nextBranch {-error "nonautomatic not implemented"-}
+   <*> (joinTC $
+        typeCheckAutomatic
+        <$> tryExtendContextMultiple context (map mkJudgment newBindings)
+        <*> pure thenBranch)
+   <*> typeCheckAutomatic context elseBranch
+   <*> typeCheckAutomatic context nextBranch
   ParseTree.TerminatedSkillComponent -> pure TerminatedSkillComponent -- don't make sure all of context used yet or anything.
-
+-------------------------------------------------------------------------------
 
 {-
 Also need to know that variables in the next branch are disjoint from the then and else branches 
@@ -876,7 +883,6 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
 -------------------------------------------------------------------------------
 typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
- trace "typecheckskill not implemented"
  Skill surfaceData
   <$> typeCheckCost cost
   <*> typeCheckCondition condition
