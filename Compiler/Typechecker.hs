@@ -1081,6 +1081,10 @@ data Assignment
 data Automatic
  = Automatic SurfaceData [SkillEffect] Nonautomatic
  deriving Show
+
+
+data Assignment
+ = Assignment [LExpr] ParseTree.Mutator RInt
 -}
 
 
@@ -1090,11 +1094,13 @@ noSelfReferencesJudgment sdgsgd = error "no self references judgment not impleme
 noSelfReferencesJudgments :: [Judgment] -> TC [Judgment]
 noSelfReferencesJudgments judgments = traverse noSelfReferencesJudgment judgments
 
+noSelfReferencesAssignment :: Assignment -> TC Assignment
+noSelfReferencesAssignment (Assignment lExprs mutator rInt) = error "no self references assignment not implement"
 
 noSelfReferencesSkillEffect :: SkillEffect -> TC SkillEffect
 noSelfReferencesSkillEffect skillEffect =
  case skillEffect of
-  SkillEffectAssignment assignment -> error "no self references assignment not implemented"
+  SkillEffectAssignment assignment -> joinTC $ pure $ SkillEffectAssignment <$> noSelfReferencesAssignment assignment
 
 noSelfReferencesSkillEffects :: [SkillEffect] -> TC [SkillEffect]
 noSelfReferencesSkillEffects skillEffects = traverse noSelfReferencesSkillEffect skillEffects
@@ -1108,23 +1114,19 @@ noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
  <*> noSelfReferencesNonautomatic nonAutomatic
 
 -------------------------------------------------------------------------------
-
-{-
-data Nonautomatic
- = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
- | TerminatedSkillComponent
-
--}
-
-
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
 noSelfReferencesNonautomatic nonAutomatic =
  case nonAutomatic of
-  Selection surfaceData judgments maybeCondition thenCase ifUnableCase nextAutomatic -> error "no self references selection case not implemented"
+  Selection surfaceData judgments maybeCondition thenCase ifUnableCase nextAutomatic ->
+   joinTC $
+   pure $
+   Selection surfaceData
+   <$> noSelfReferencesJudgments judgments
+   <*> noSelfReferencesCondition maybeCondition
+   <*> noSelfReferencesAutomatic thenCase
+   <*> noSelfReferencesAutomatic ifUnableCase
+   <*> noSelfReferencesAutomatic nextAutomatic
   TerminatedSkillComponent -> pure nonAutomatic
-
-
-
 -------------------------------------------------------------------------------
 noSelfReferencesSkill :: Skill -> TC Skill
 noSelfReferencesSkill skill =
