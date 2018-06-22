@@ -174,6 +174,8 @@ data Nonautomatic
 -------------------------------------------------------------------------------
 data Automatic
  = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
+--                              var     set    optional condition      
+ | Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) [SkillEffect] Nonautomatic
  deriving Show
 -------------------------------------------------------------------------------
 data Stats

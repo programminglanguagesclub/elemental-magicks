@@ -158,8 +158,11 @@ OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent} -- the nullableexpr needs to be changed to be prefixed by where syntax.
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
-Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 {-Ignoring Universal case for now-} }
-          | for each var in Side RelativeSet OptionalFilter comma {undefined {-Only allow one universally quantified variable at once. No pairs -}}
+Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 }
+
+--| Universal Lexer.SurfaceData (String, Set) (Maybe (CarryingSource Expr)) [SkillEffect] Nonautomatic
+
+          | for each var in Set OptionalFilter comma SkillEffects Nonautomatic {Universal dummySurfaceData ($3,$5) $6 $8 $9 {-Only allow one universally quantified variable at once. No pairs -}}
 ThenCase : then lbracket Automatic rbracket {$3}
 IfUnableCase : {Automatic dummySurfaceData [] (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}

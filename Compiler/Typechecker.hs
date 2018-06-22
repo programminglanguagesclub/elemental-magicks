@@ -158,6 +158,7 @@ typeCheckAssignment context lExprs mutator rExpr =
 -------------------------------------------------------------------------------
 data Automatic
  = Automatic SurfaceData [SkillEffect] Nonautomatic
+ | Universal SurfaceData Judgment RBool [SkillEffect] Nonautomatic
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic
@@ -595,12 +596,20 @@ getSet :: Context -> Variable ->
 
 -------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
-typeCheckAutomatic context automatic =
+typeCheckAutomatic context (ParseTree.Automatic surfaceData skillEffects nonautomatic) =
  --trace (show context) $
  Automatic surfaceData
  <$> traverse (typeCheckSkillEffect context) skillEffects
  <*> typeCheckNonautomatic context nonautomatic
- where ParseTree.Automatic surfaceData skillEffects nonautomatic = automatic
+typeCheckAutomatic context (ParseTree.Universal surfaceData (var,set) condition skillEffects nonautomatic) =
+ Universal surfaceData
+ <$> tryVarPut var set context
+ <*> typeCheckRBool condition
+ <*> traverse (typeCheckSkillEffect context {- context needs to be extended -}) skillEffects
+ <*> typeCheckNonautomatic context nonautomatic
+
+--Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) [SkillEffect] Nonautomatic
+--tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
 -------------------------------------------------------------------------------
 
 
