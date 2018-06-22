@@ -601,14 +601,14 @@ typeCheckAutomatic context (ParseTree.Automatic surfaceData skillEffects nonauto
  Automatic surfaceData
  <$> traverse (typeCheckSkillEffect context) skillEffects
  <*> typeCheckNonautomatic context nonautomatic
-typeCheckAutomatic context (ParseTree.Universal surfaceData (var,set) condition skillEffects nonautomatic) =
+typeCheckAutomatic context (ParseTree.Universal surfaceData binding condition skillEffects nonautomatic) =
  Universal surfaceData
- -- <$> tryVarPut var set context
- <$> (pure $ mkJudgment (var, set))
+ <$> (pure judgment)
  <*> (joinTC $ typeCheckRBool <$> context' <*> pure condition)
- <*> undefined --traverse (typeCheckSkillEffect context') skillEffects
+ <*> joinTC (traverse (typeCheckSkillEffect <$> context') skillEffects)
  <*> typeCheckNonautomatic context nonautomatic
- where context' = tryVarPut var set context
+ where judgment = mkJudgment binding
+       context' = tryExtendContext context judgment
 
 -- <$> tryExtendContextMultiple context (map mkJudgment newBindings)
 --Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) [SkillEffect] Nonautomatic
