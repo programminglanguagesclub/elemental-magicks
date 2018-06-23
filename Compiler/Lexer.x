@@ -17,9 +17,14 @@ tokens :-
 <0> end { \s i -> return (Token EndSkill $ SurfaceData (lineNumber s) (columnNumber s) "end")}
 <0> counter { \s i -> return (Token CounterSkill $ SurfaceData (lineNumber s) (columnNumber s) "counter")}
 <0> spawn { \s i -> return (Token SpawnSkill $ SurfaceData (lineNumber s) (columnNumber s) "spawn")}
+<0> dead { \s i -> return (Token Dead $ SurfaceData (lineNumber s) (columnNumber s) "dead")}
 <0> death { \s i -> return (Token DeathSkill $ SurfaceData (lineNumber s) (columnNumber s) "death")}
 <0> auto { \s i -> return (Token AutoSkill $ SurfaceData (lineNumber s) (columnNumber s) "auto")}
 <0> action { \s i -> return (Token ActionSkill $ SurfaceData (lineNumber s) (columnNumber s) "action")}
+
+<0> cost { \s i -> return (Token Cost $ SurfaceData (lineNumber s) (columnNumber s) "cost")}
+<0> condition { \s i -> return (Token Condition $ SurfaceData (lineNumber s) (columnNumber s) "condition")}
+
 <0> union { \s i -> return (Token Union $ SurfaceData (lineNumber s) (columnNumber s) "union")}
 <0> unit { \s i -> return (Token Unit $ SurfaceData (lineNumber s) (columnNumber s) "unit")}
 <0> spell { \s i -> return (Token Spell $ SurfaceData (lineNumber s) (columnNumber s) "spell")}
@@ -167,6 +172,8 @@ data TokenInner =
   | Temporary
   | Engagement
   | In
+
+
   | Where
   | Then
   | Next
@@ -182,6 +189,7 @@ data TokenInner =
   | Unit
   | Spell
   | Cost
+  | Dead
   | SoulPoints
   | SoulSkill
   | StartSkill

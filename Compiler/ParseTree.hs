@@ -165,6 +165,7 @@ Either skill effects, or automatic should be allowed to have conditions and/or i
 -------------------------------------------------------------------------------
 data SkillEffect
  = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
+ | Revive Lexer.SurfaceData String
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic
@@ -248,7 +249,7 @@ data Engagement
  deriving Show
 -------------------------------------------------------------------------------
 data Knowledge
- = Knowledge Lexer.SurfaceData
+ = Knowledge Lexer.SurfaceData -- ugh I have to get the value from the surface data :/
  deriving Show
 -------------------------------------------------------------------------------
 data Schools
@@ -273,6 +274,7 @@ data Expr
  | KnowledgeExpr Knowledge Side
  | Self Field
  | Var Field String
+ | Dead String
  | Sum (CarryingSource Expr) (CarryingSource Expr)
  | Difference (CarryingSource Expr) (CarryingSource Expr)
  | Product (CarryingSource Expr) (CarryingSource Expr)

@@ -34,6 +34,7 @@ import Text.EditDistance
  counter {Lexer.Token Lexer.CounterSkill (_)}
  crush {Lexer.Token Lexer.Crush (_)}
  current {Lexer.Token Lexer.Temporary (_)}
+ dead {Lexer.Token Lexer.Dead (_)}
  death {Lexer.Token Lexer.DeathSkill (_)}
  decrement {Lexer.Token Lexer.Decrement (_)}
  defense {Lexer.Token Lexer.Defense $$}
@@ -70,6 +71,7 @@ import Text.EditDistance
  quotient {Lexer.Token Lexer.Quotient (_)}
  range {Lexer.Token Lexer.Range $$}
  rbracket {Lexer.Token Lexer.Rbracket (_)}
+ revive {Lexer.Token Lexer.Revive (_)}
  rparen {Lexer.Token Lexer.Rparen (_)}
  select {Lexer.Token Lexer.Select (_)}
  self {Lexer.Token Lexer.Self (_)}
@@ -150,8 +152,8 @@ Actions : {[]}
 Action : action colon Skill {CarryingSource (getSurfaceData' $3) $ Action $3}
 Soul : soul colon Skill {CarryingSource dummySurfaceData $ Soul $3}
 Skill : OptionalCost OptionalCondition Automatic {CarryingSource dummySurfaceData $ AutomaticSkill $1 $2 $3}
-OptionalCost : {Nothing} -- OPTIONAL COSTS SHOULD ALLOW ANY EXPRESSION FOR THE COST NOT JUST A NUMBER
-             | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant "LALALA"}
+OptionalCost : {Nothing} -- OPTIONAL COSTS SHOULD ALLOW ANY EXPRESSION FOR THE COST NOT JUST A NUMBER (right now it's just a number)
+             | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant (getSurfaceContents $3)}
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
 OptionalFilter : {CarryingSource dummySurfaceData Always}
@@ -180,7 +182,9 @@ SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
 
 SkillEffect : Assignment {$1}
+            | Revive {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
+Revive : revive var {Revive (extractSurfaceData $1) $2}
 Mutator : assign {Set $ extractSurfaceData $1}
         | increment {Increment $ extractSurfaceData $1}
         | decrement {Decrement $ extractSurfaceData $1}
@@ -197,6 +201,7 @@ NullableExpr : {Nothing}
 Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Field self {CarryingSource (extractSurfaceData $2) $ Self $1}
      | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
+     | dead var {CarryingSource dummySurfaceData $ Dead $2}
      | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
      | Side thoughts {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
      | Side thought {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 }
@@ -213,6 +218,7 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
      | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
      | not Expr {CarryingSource (dummySurfaceData) $ Not $2}
+     | word Side {CarryingSource (dummySurfaceData) $ KnowledgeExpr (Knowledge $1) $2}
 Field : Temporality Stat {StatField dummySurfaceData $2 $1}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  
@@ -265,5 +271,9 @@ parseError tokens = do
  Lexer.alexError $ show i
 
 
+
+-- move the following code eventually
+getSurfaceContents :: Lexer.SurfaceData -> String
+getSurfaceContents (Lexer.SurfaceData _ _ contents) = contents
 }
 

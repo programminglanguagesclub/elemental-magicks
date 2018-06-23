@@ -112,6 +112,7 @@ data RBool
  | RAnd SurfaceData RBool RBool
  | ROr SurfaceData RBool RBool
  | RNot SurfaceData RBool
+ | Dead SurfaceData String
  deriving Show
 -------------------------------------------------------------------------------
 data Knowledge
@@ -142,6 +143,8 @@ typeCheckSkillEffect context skillEffect =
   ParseTree.Assignment surfaceData lExprs mutator rExpr ->
    SkillEffectAssignment
    <$> typeCheckAssignment context lExprs mutator rExpr
+  ParseTree.Revive surfaceData variableName ->
+   pure $ SkillEffectRevive surfaceData variableName -- does not check variable name length currently, although maybe this caught earlier
 -------------------------------------------------------------------------------
 typeCheckAssignment ::
  Context ->
@@ -411,9 +414,10 @@ typeCheckRStatVar field =
 -------------------------------------------------------------------------------
 data SkillEffect
  = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
+ | SkillEffectRevive Lexer.SurfaceData String
  deriving Show
 -------------------------------------------------------------------------------
-data Assignment
+data Assignment -- why does this exist as a separate datatype rather than just being part of skilleffect?
  = Assignment [LExpr] ParseTree.Mutator RInt
  deriving Show
 -------------------------------------------------------------------------------
@@ -825,6 +829,8 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
      "Integer (type of integer literal) in subexpression:\n" ++
      (getSurfaceSyntax surfaceData) ++
      (getLocationMessage surfaceData)]
+  ParseTree.Dead var ->
+   pure $ Dead surfaceData var
   ParseTree.ThoughtsExpr side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
     TC $
     Left
