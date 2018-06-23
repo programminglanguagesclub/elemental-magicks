@@ -109,19 +109,17 @@ soulSkill : cost : 1 select x in friendly field then {(permanent attack x) *= 2;
 
 unit "Merfolk Warrior" water level : 3 hp : 50 attack : 30 defense : 10 speed : 2 range : 2 soulPoints : 2
 auto : (hp self) += 5;
-soulSkill : for each x in friendly field union enemy field, (engagement x) += 2;
-/*I should also be able to use two for each statements, instead of having a union.*/
-
+soulSkill : for each x in friendly field, (engagement x) += 2;, for each x in enemy field, (engagement x) += 2;
+/*or friendly field union enemy field*/
 
 unit "Chupacabra" fire level : 5 hp : 60 attack : 0 defense : 0 speed : 5 range : 1 soulPoints : 2
 auto : (hp self) += fire friendly * 5; /*I don't allow parentheses so I can specify order of operations yet*/
 soulSkill : cost : 1 for each x in friendly field, (permanent attack x) += 5 * fire friendly;
 
 
-unit "Voidling" void level : 1 hp : 30 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 2
+unit "Voidling" void level : 1 hp : 30 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 1
 start : for each x in enemy field, (temporary defense x) -= 5;
-soulSkill : for each x in enemy field, (permanent defense x) := 0;
-/*I should be able to combine universal and normal automatic, such as gain 1 thought, then do something to all enemy*/
+soulSkill : for each x in enemy field, (permanent defense x) := 0;, (friendly thoughts) += 1;
 
 
 unit "God of War" fire level : 9 hp : 135 attack : 70 defense : 0 speed : 3 range : 5 soulPoints : 2
@@ -151,14 +149,20 @@ auto : for each x in enemy field, (permanent attack x) -= 5;
 soulSkill : for each x in enemy field, (hp x) -= temporary attack x; /*do damage instead*/
 
 
-
-
+unit "Demon Whisperer" void level : 3 hp : 60 attack : 20 defense : 0 speed : 2 range : 2 soulPoints : 1
+auto : (friendly thoughts) -= 1;
+action : (earth enemy) -= 1; (fire enemy) -= 1; (water enemy) -= 1; (air enemy) -= 1; (spirit enemy) -= 1; (void enemy) -= 1;
+soulSkill : (enemy thoughts) -= 2;
+/*I need an "all schools" option*/
 
 
 
 /*I should do damage here. Also, temporary attack always appears as the RValue. I shouldn't have to say temporary!!!*/
 
+unit "Serpent Swordswoman of the Void" void level : 3 hp : 50 attack : 40 defense : 0 speed : 2 range : 1 soulPoints : 1
+action : for each x in enemy field where x in range self, (hp x) := 0;
+soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
 
-
+/*Need to be able to filter by "in range"*/
 
 

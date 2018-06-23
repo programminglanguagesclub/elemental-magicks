@@ -171,6 +171,7 @@ data SkillEffect
 data Nonautomatic
  = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
  | TerminatedSkillComponent
+ | Next Automatic
  deriving Show
 -------------------------------------------------------------------------------
 data Automatic
@@ -289,6 +290,9 @@ data Expr
  | And (CarryingSource Expr) (CarryingSource Expr)
  | Or (CarryingSource Expr) (CarryingSource Expr)
  | Not (CarryingSource Expr)
+ | SelfInRangeVar String
+ | VarInRangeSelf String
+ | VarInRangeVar String String
  deriving Show
 -------------------------------------------------------------------------------
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}

@@ -160,11 +160,17 @@ OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
 Nonautomatic : {TerminatedSkillComponent} -- the nullableexpr needs to be changed to be prefixed by where syntax.
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
+             | comma Automatic {Next $2}
 Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 }
+          
 
 --| Universal Lexer.SurfaceData (String, Set) (Maybe (CarryingSource Expr)) [SkillEffect] Nonautomatic
+-- Universal Lexer.SurfaceData [(String, Set) (Maybe (CarryingSource Expr)) [SkillEffect]] Nonautomatic
 
           | for each var in Set OptionalFilter comma SkillEffects Nonautomatic {Universal dummySurfaceData ($3,$5) $6 $8 $9 {-Only allow one universally quantified variable at once. No pairs -}}
+
+
+
 ThenCase : then lbracket Automatic rbracket {$3}
 IfUnableCase : {Automatic dummySurfaceData [] (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}
@@ -180,7 +186,10 @@ RestVariable : {[]}
              | comma var RestVariable {$2 : $3}
 SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
-
+-- skill effect needs to be able to include conditionals. This is because
+-- I am executing lists of skill effects, and conditions can change between skill effects in the list.
+-- I also want to be able to do universal quantification of the form
+-- do 50 damage to x. for all units with less than 0 hp, ....
 SkillEffect : Assignment {$1}
             | Revive {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
@@ -218,7 +227,11 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
      | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
      | not Expr {CarryingSource (dummySurfaceData) $ Not $2}
-     | word Side {CarryingSource (dummySurfaceData) $ KnowledgeExpr (Knowledge $1) $2}
+     | word {-should change word so it has to be a school-} Side {CarryingSource (dummySurfaceData) $ KnowledgeExpr (Knowledge $1) $2}
+     | self in range var {CarryingSource dummySurfaceData $ SelfInRangeVar $4}
+     | var in range var {CarryingSource dummySurfaceData $ VarInRangeVar $1 $4}
+     | var in range self {CarryingSource dummySurfaceData $ VarInRangeSelf $1}
+     {- x in range y means that y can target x -}
 Field : Temporality Stat {StatField dummySurfaceData $2 $1}
       | HpStat {HpStatField dummySurfaceData $1}
       | engagement {EngagementField dummySurfaceData}  

@@ -167,6 +167,7 @@ data Automatic
 data Nonautomatic
  = Selection SurfaceData [Judgment] (Maybe RBool) Automatic Automatic Automatic
  | TerminatedSkillComponent
+ | Next Automatic
  deriving Show
 -------------------------------------------------------------------------------
 data Stats
@@ -639,6 +640,8 @@ typeCheckNonautomatic context nonautomatic =
    <*> typeCheckAutomatic context elseBranch
    <*> typeCheckAutomatic context nextBranch
   ParseTree.TerminatedSkillComponent -> pure TerminatedSkillComponent -- don't make sure all of context used yet or anything.
+  ParseTree.Next automatic ->
+   joinTC $ pure $ Next <$> typeCheckAutomatic context automatic
 -------------------------------------------------------------------------------
 
 {-
@@ -930,6 +933,7 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
   ParseTree.Not expr ->
    RNot surfaceData
    <$> typeCheckRBool context expr
+  ParseTree.VarInRangeSelf var -> 
 -------------------------------------------------------------------------------
 typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
@@ -1197,6 +1201,7 @@ noSelfReferencesNonautomatic nonAutomatic =
    <*> noSelfReferencesAutomatic ifUnableCase
    <*> noSelfReferencesAutomatic nextAutomatic
   TerminatedSkillComponent -> pure nonAutomatic
+  Next automatic -> Next <$> noSelfReferencesAutomatic automatic
 -------------------------------------------------------------------------------
 noSelfReferencesSkill :: Skill -> TC Skill
 noSelfReferencesSkill skill =
