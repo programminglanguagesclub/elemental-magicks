@@ -597,30 +597,26 @@ getSet :: Context -> Variable ->
 -------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 typeCheckAutomatic context (ParseTree.Automatic surfaceData skillEffects nonautomatic) =
- --trace (show context) $
  Automatic surfaceData
  <$> traverse (typeCheckSkillEffect context) skillEffects
  <*> typeCheckNonautomatic context nonautomatic
 typeCheckAutomatic context (ParseTree.Universal surfaceData binding condition skillEffects nonautomatic) =
  Universal surfaceData
  <$> (pure judgment)
- <*> (joinTC $ typeCheckRBool <$> context' <*> pure condition)
- <*> joinTC (traverse (typeCheckSkillEffect <$> context') skillEffects)
+ <*>
+  (joinTC $
+   typeCheckRBool
+   <$> context'
+   <*> pure condition)
+ <*>
+  (joinTC $
+   traverse
+   <$> (typeCheckSkillEffect <$> context')
+   <*> pure skillEffects)
  <*> typeCheckNonautomatic context nonautomatic
  where judgment = mkJudgment binding
        context' = tryExtendContext context judgment
-
--- <$> tryExtendContextMultiple context (map mkJudgment newBindings)
---Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) [SkillEffect] Nonautomatic
---tryVarPut :: Variable -> ParseTree.Set -> Context -> TC Context
 -------------------------------------------------------------------------------
-
-
-{-
-extendContext :: [(String, ParseTree.Set)] -> Context -> Context {-hmm... should be able to throw an error if var already bound?-}
-extendContext = error "extend context not implemented"
--}
-
 
 {-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
 -------------------------------------------------------------------------------
@@ -894,7 +890,9 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
      "Integer (result type of modulus operator) in subexpression:\n" ++
      (getSurfaceSyntax surfaceData) ++
      (getLocationMessage surfaceData)]
-  ParseTree.Always -> error "always not implemented, and should not exist" {-add more booleans later.....    again... nullable.... ALWAYS SHOULD BE REMOVED UNTIL CODE GEN PHASE.-}
+  ParseTree.Always ->
+   pure $
+   RAlways surfaceData
   ParseTree.GT expr1 expr2 ->
    RGT surfaceData
    <$> typeCheckRInt context expr1
@@ -953,7 +951,9 @@ data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against
 typeCheckStart :: Maybe (ParseTree.CarryingSource ParseTree.Start) -> TC (Maybe Start)
 typeCheckStart Nothing = pure Nothing
 typeCheckStart (Just (ParseTree.CarryingSource surfaceData (ParseTree.Start skill))) =
- trace "typeCheckStart not implemented" $
+ --trace "typeCheckStart not implemented" $
+ -- check engagement conditions? (it doesn't make sense to condition on engagement of self)
+ -- similar for other skill types I guess..
  Just
  <$> Start surfaceData
  <$> typeCheckSkill skill
@@ -961,7 +961,6 @@ typeCheckStart (Just (ParseTree.CarryingSource surfaceData (ParseTree.Start skil
 typeCheckEnd :: Maybe (ParseTree.CarryingSource ParseTree.End) -> TC (Maybe End)
 typeCheckEnd Nothing = pure Nothing
 typeCheckEnd (Just (ParseTree.CarryingSource surfaceData (ParseTree.End skill))) =
- trace "typecheckEnd not implemented" $
  Just
  <$> End surfaceData
  <$> typeCheckSkill skill
@@ -969,7 +968,8 @@ typeCheckEnd (Just (ParseTree.CarryingSource surfaceData (ParseTree.End skill)))
 typeCheckCounter :: Maybe (ParseTree.CarryingSource ParseTree.Counter) -> TC (Maybe Counter)
 typeCheckCounter Nothing = pure Nothing
 typeCheckCounter (Just (ParseTree.CarryingSource surfaceData (ParseTree.Counter skill))) =
- trace "typecheckCounter not implemented" $
+ -- here we can also check self hp and max hp conditions
+ -- same for death
  Just
  <$> Counter surfaceData
  <$> typeCheckSkill skill
@@ -977,15 +977,15 @@ typeCheckCounter (Just (ParseTree.CarryingSource surfaceData (ParseTree.Counter 
 typeCheckSpawnUnit :: Maybe (ParseTree.CarryingSource ParseTree.Spawn) -> TC (Maybe SpawnUnit)
 typeCheckSpawnUnit Nothing = pure Nothing
 typeCheckSpawnUnit (Just (ParseTree.CarryingSource surfaceData (ParseTree.Spawn skill))) =
- trace "typecheckSpawnUnit not implemented" $
- Just
- <$> SpawnUnit surfaceData
- <$> typeCheckSkill skill
+ Just 
+ <$>
+  (joinTC $
+   noSelfReferences (SpawnUnit surfaceData)
+   <$> typeCheckSkill skill)
 -------------------------------------------------------------------------------
 typeCheckDeath :: Maybe (ParseTree.CarryingSource ParseTree.Death) -> TC (Maybe Death)
 typeCheckDeath Nothing = pure Nothing
 typeCheckDeath (Just (ParseTree.CarryingSource surfaceData (ParseTree.Death skill))) =
- trace "typecheckDeath not implemented" $
  Just
  <$> Death surfaceData
  <$> typeCheckSkill skill
@@ -1000,8 +1000,8 @@ typeCheckAuto (Just (ParseTree.CarryingSource surfaceData (ParseTree.Auto skill)
 -------------------------------------------------------------------------------
 typeCheckAction :: ParseTree.CarryingSource ParseTree.Action -> TC Action
 typeCheckAction (ParseTree.CarryingSource surfaceData (ParseTree.Action skill)) =
- trace "typeCheckAction not implemented" $
- Action surfaceData <$> typeCheckSkill skill
+ Action surfaceData
+ <$> typeCheckSkill skill
 -------------------------------------------------------------------------------
 typeCheckActions :: [ParseTree.CarryingSource ParseTree.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
@@ -1171,6 +1171,13 @@ noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
  Automatic surfaceData
  <$> noSelfReferencesSkillEffects skillEffects
  <*> noSelfReferencesNonautomatic nonAutomatic
+noSelfReferencesAutomatic (Universal surfaceData judgment condition skillEffects nonautomatic) =
+ joinTC $
+ pure $
+ Universal surfaceData judgment
+ <$> noSelfReferencesRBool condition
+ <*> traverse noSelfReferencesSkillEffect skillEffects
+ <*> noSelfReferencesNonautomatic nonautomatic
 -------------------------------------------------------------------------------
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
 noSelfReferencesNonautomatic nonAutomatic =
