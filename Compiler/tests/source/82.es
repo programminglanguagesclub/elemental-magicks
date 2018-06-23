@@ -113,5 +113,9 @@ soulSkill : for each x in friendly field union enemy field, (engagement x) += 2;
 /*I should also be able to use two for each statements, instead of having a union.*/
 
 
+unit "Chupacabra" fire level : 5 hp : 60 attack : 0 defense : 0 speed : 5 range : 1 soulPoints : 2
+auto : (hp self) += fire friendly * 5; /*I don't allow parentheses so I can specify order of operations yet*/
+soulSkill : cost : 1 for each x in friendly field, (permanent attack x) += 5 * fire friendly;
+
 
 
