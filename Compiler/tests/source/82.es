@@ -118,4 +118,47 @@ auto : (hp self) += fire friendly * 5; /*I don't allow parentheses so I can spec
 soulSkill : cost : 1 for each x in friendly field, (permanent attack x) += 5 * fire friendly;
 
 
+unit "Voidling" void level : 1 hp : 30 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 2
+start : for each x in enemy field, (temporary defense x) -= 5;
+soulSkill : for each x in enemy field, (permanent defense x) := 0;
+/*I should be able to combine universal and normal automatic, such as gain 1 thought, then do something to all enemy*/
+
+
+unit "God of War" fire level : 9 hp : 135 attack : 70 defense : 0 speed : 3 range : 5 soulPoints : 2
+start : for each x in enemy field, (hp x) -= 10; /*switch to damage for all three skills*/
+action : for each x in enemy field, (hp x) -= temporary attack self;
+soulSkill : for each x in enemy field, (hp x) -= 10;
+
+
+unit "Spectre" spirit level : 2 hp : 40 attack : 0 defense : 0 speed : 1 range : 1 soulPoints : 2
+auto : for each x in enemy field where hp x < max hp x / 4, (hp x) := 0;
+soulSkill : for each x in enemy field where hp x < max hp x / 4, (hp x) := 0;
+
+
+unit "Combat Sorceress of the Void" void level : 2 hp : 30 attack : 20 defense : 0 speed : 2 range : 2 soulPoints : 2
+action : cost : 2 for each x in enemy field, (hp x) -= temporary attack x;
+soulSkill : cost : 2 for each x in enemy field, (hp x) -= temporary attack x;
+
+
+unit "Corrupted Watchtower" void level : 2 hp : 30 attack : 0 defense : 0 speed : 1 range : 4 soulPoints : 1
+start : for each x in enemy field, (permanent speed x) -= 1;
+auto : (max hp self) -= 10;
+soulSkill : for each x in enemy field, (permanent range x) := 1;
+
+
+unit "Clown of Horror" void level : 3 hp : 40 attack : 10 defense : 0 speed : 1 range : 2 soulPoints : 2
+auto : for each x in enemy field, (permanent attack x) -= 5;
+soulSkill : for each x in enemy field, (hp x) -= temporary attack x; /*do damage instead*/
+
+
+
+
+
+
+
+/*I should do damage here. Also, temporary attack always appears as the RValue. I shouldn't have to say temporary!!!*/
+
+
+
+
 
