@@ -232,9 +232,9 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | self in range var {CarryingSource dummySurfaceData $ SelfInRangeVar $4}
      | var in range var {CarryingSource dummySurfaceData $ VarInRangeVar $1 $4}
      | var in range self {CarryingSource dummySurfaceData $ VarInRangeSelf $1}
-     | cardinality Expr Set {undefined}
+     | cardinality lparen var in Set where Expr rparen {CarryingSource dummySurfaceData $ Cardinality $3 $5 $7}
 --| RCardinality SurfaceData RBool ParseTree.Set
-
+--| Cardinality String Set Expr
      {- x in range y means that y can target x -}
 Field : Temporality Stat {StatField dummySurfaceData $2 $1}
       | HpStat {HpStatField dummySurfaceData $1}

@@ -169,11 +169,11 @@ soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
 
 
 unit "TEST" spirit level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 2 soulPoints : 2
-auto : (temporary attack self) += cardinality dead x enemy field; /*need some way to quantify...*/
-soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
+auto : (temporary attack self) += cardinality (x in enemy field where dead x) * 20; /*need some way to quantify...*/
+soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
 
 
-
+/* cardinality lparen var in Set where Expr rparen */
 
 
 

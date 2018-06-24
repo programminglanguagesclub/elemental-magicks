@@ -103,7 +103,7 @@ data RInt
  | RProduct SurfaceData RInt RInt
  | RQuotient SurfaceData RInt RInt
  | RMod SurfaceData RInt RInt
- | RCardinality SurfaceData RBool ParseTree.Set
+ | RCardinality SurfaceData String ParseTree.Set RBool
 -- eventually set should nest its own conditions so I can have multiple conditions over a union
 -- but for now just have the condition here
  deriving Show
@@ -1044,6 +1044,7 @@ noSelfReferencesRBool rBool =
       -- (getSurfaceSyntax surfaceData) ++
       -- (getLocationMessage surfaceData)]
   VarInRangeVar var1 var2 -> pure $ VarInRangeVar var1 var2
+  Dead surfaceData var -> pure $ Dead surfaceData var
 -------------------------------------------------------------------------------
 noSelfReferencesRInt :: RInt -> TC RInt
 noSelfReferencesRInt rInt =
@@ -1088,6 +1089,11 @@ noSelfReferencesRInt rInt =
      RMod surfaceData
      <$> noSelfReferencesRInt firstRInt
      <*> noSelfReferencesRInt secondRInt
+    RCardinality surfaceData var set condition ->
+     joinTC $
+     pure $
+     RCardinality surfaceData var set
+     <$> noSelfReferencesRBool condition
 -------------------------------------------------------------------------------
 noSelfReferencesCost :: Maybe RInt -> TC (Maybe RInt)
 noSelfReferencesCost maybeCost =
@@ -1338,6 +1344,13 @@ typeCheckRInt context (ParseTree.CarryingSource surfaceData expr) = {-error "typ
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "or"]
   ParseTree.Not expr ->
    TC $ Left [typeMismatchMessage surfaceData "Integer" "Boolean" "not"]
+  ParseTree.Cardinality var set expr ->
+   joinTC $
+   pure $
+   RCardinality surfaceData var set -- don't worry about correctness of var again for now... (also don't check or extend? context for now)
+   <$> typeCheckRBool context expr
+-- | RCardinality SurfaceData String ParseTree.Set RBool
+
 -------------------------------------------------------------------------------
 typeMismatchMessage :: Lexer.SurfaceData -> String -> String -> String -> String
 typeMismatchMessage surfaceData requiredType resultType operator =

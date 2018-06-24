@@ -296,6 +296,7 @@ data Expr
  | SelfInRangeVar String
  | VarInRangeSelf String
  | VarInRangeVar String String
+ | Cardinality String Set (CarryingSource Expr)
  deriving Show
 -------------------------------------------------------------------------------
 getTokens :: String -> [Lexer.Token] {-For now, no error handling-}
