@@ -20,6 +20,9 @@ minInt :: Int
 minInt = (-1000)
 
 {-
+cabal install edit-distance
+
+
 levenshteinDistance
 
 defaultEditCosts :: EditCosts
@@ -342,27 +345,9 @@ data RHpStat
  | RBaseHp
  deriving Show
 -------------------------------------------------------------------------------
-{-
-
-
-data Field
- = StatField Lexer.SurfaceData (CarryingSource Stat) Temporality
- | HpStatField Lexer.SurfaceData (CarryingSource HpStat)
- | EngagementField Lexer.SurfaceData
- deriving Show
-
-data LStat
- = LStatField Modifier LStatField
- | LHpStat LHpStat
- | LEngagement
- deriving Show
--------------------------------------------------------------------------------
-
--}
-
 removeSurface :: ParseTree.CarryingSource a -> a
 removeSurface (ParseTree.CarryingSource surfaceData a) = a
-
+-------------------------------------------------------------------------------
 typeCheckLModifier :: ParseTree.Temporality -> TC LModifier
 typeCheckLModifier temporality =
  case temporality of
@@ -374,7 +359,6 @@ typeCheckLModifier temporality =
     ["Attempted assignment to base value in subexpression:\n" ++
      (getSurfaceSyntax surfaceData) ++
      (getLocationMessage surfaceData)]
-
 -------------------------------------------------------------------------------
 typeCheckLStat :: ParseTree.Field -> TC LStat
 typeCheckLStat field =
@@ -651,40 +635,6 @@ typeCheckNonautomatic context nonautomatic =
 Also need to know that variables in the next branch are disjoint from the then and else branches 
 -}
 
-
-{-
-
-
-Selection SurfaceData [Judgement] RBool Automatic Automatic Automatic
-                  deriving Show
-
-Lexer.SurfaceData [(String, Set)] (Maybe Expr) Automatic Automatic Automatic {-variables, where condition-}
-                  | TerminatedSkillComponent
-
-
--}
-
-
-{-(concat $ map (checkSkillEffect context) skillEffects) ++ (checkNonautomatic context nonautomatic) -}
-
-
-{-
-checkNonautomatic :: Context -> ParseTree.Nonautomatic -> [String]
-checkNonautomatic context (ParseTree.Nonautomatic surfaceData variables condition thenAutomatic otherwiseAutomatic nextAutomatic) = error "checkNonautomatic not implemented"
-
-
--}
-
-
-
-
-
-
-
-
-
-
-
 lExprError' :: String -> String
 lExprError' s = s ++ " is not a valid L expression."
 
@@ -811,9 +761,17 @@ And/Or maybe I should just convert to LExprs here.
 {-Certain effects and conditions are not valid depending on the set. You cannot damage cards in the graveyard, for instance-}
 -------------------------------------------------------------------------------
 typeCheckSchools :: ParseTree.Schools -> TC Schools
-typeCheckSchools (ParseTree.NoSchools) = pure $ NoSchools
-typeCheckSchools (ParseTree.OneSchool surfaceData s) = schoolFromKnowledge <$> typeCheckSchool surfaceData
-typeCheckSchools (ParseTree.TwoSchools surfaceData s1 s2) = joinTC $ schoolsFromKnowledge <$> typeCheckSchool s1 <*> typeCheckSchool s2
+typeCheckSchools (ParseTree.NoSchools) =
+ pure $
+ NoSchools
+typeCheckSchools (ParseTree.OneSchool surfaceData s) =
+ schoolFromKnowledge
+ <$> typeCheckSchool surfaceData
+typeCheckSchools (ParseTree.TwoSchools surfaceData s1 s2) =
+ joinTC $
+ schoolsFromKnowledge
+ <$> typeCheckSchool s1
+ <*> typeCheckSchool s2
 -------------------------------------------------------------------------------
 getLocationMessage :: Lexer.SurfaceData -> String
 getLocationMessage (Lexer.SurfaceData lineNumber columnNumber _) =
@@ -1021,17 +979,6 @@ typeCheckAction (ParseTree.CarryingSource surfaceData (ParseTree.Action skill)) 
 typeCheckActions :: [ParseTree.CarryingSource ParseTree.Action] -> TC [Action]
 typeCheckActions = traverse typeCheckAction
 -------------------------------------------------------------------------------
-
-
-{-
-
-
-data Skill = Skill SurfaceData (Maybe RInt) (Maybe RBool) Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
-           deriving Show
-
-
--}
-
 noSelfReferencesRBool :: RBool -> TC RBool
 noSelfReferencesRBool rBool =
  case rBool of
@@ -1094,8 +1041,6 @@ noSelfReferencesRBool rBool =
       -- (getSurfaceSyntax surfaceData) ++
       -- (getLocationMessage surfaceData)]
   VarInRangeVar var1 var2 -> pure $ VarInRangeVar var1 var2
-
-
 -------------------------------------------------------------------------------
 noSelfReferencesRInt :: RInt -> TC RInt
 noSelfReferencesRInt rInt =
@@ -1344,25 +1289,32 @@ typeCheckRInt context (ParseTree.CarryingSource surfaceData expr) = {-error "typ
    <$> typeCheckKnowledge knowledge
    <*> pure side
   ParseTree.Self field ->
-   RSelfProjection surfaceData <$> typeCheckRStatSelf field
+   RSelfProjection surfaceData
+   <$> typeCheckRStatSelf field
   ParseTree.Var field variable ->
-   RVarProjection surfaceData <$> typeCheckRStatVar field
-                              <*> typeCheckVariable context (Variable surfaceData variable)
+   RVarProjection surfaceData
+   <$> typeCheckRStatVar field
+   <*> typeCheckVariable context (Variable surfaceData variable)
   ParseTree.Sum expr1 expr2 ->
-   RSum surfaceData <$> typeCheckRInt context expr1
-                    <*> typeCheckRInt context expr2
+   RSum surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.Difference expr1 expr2 ->
-   RDifference surfaceData <$> typeCheckRInt context expr1
-                           <*> typeCheckRInt context expr2
+   RDifference surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.Product expr1 expr2 ->
-   RProduct surfaceData <$> typeCheckRInt context expr1
-                        <*> typeCheckRInt context expr2
+   RProduct surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.Quotient expr1 expr2 ->
-   RQuotient surfaceData <$> typeCheckRInt context expr1
-                         <*> typeCheckRInt context expr2
+   RQuotient surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
   ParseTree.Mod expr1 expr2 ->
-   RMod surfaceData <$> typeCheckRInt context expr1
-                    <*> typeCheckRInt context expr2
+   RMod surfaceData
+   <$> typeCheckRInt context expr1
+   <*> typeCheckRInt context expr2
 
 {-PARSE TREE ALWAYS STILL EXISTS!??!?!?!?!?!?!?!??!?!?!?!?!?-}
 
@@ -1399,32 +1351,35 @@ typeMismatchMessage surfaceData requiredType resultType operator =
 {-Again... need to pass row and column to typecheckint... can actually pass entire surface syntax to it...-}
 typeCheckBaseDefense :: SurfaceData -> TC BaseDefense
 typeCheckBaseDefense (Lexer.SurfaceData row column surface) =
- BaseDefense (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base defense" 0 1000)
+ BaseDefense (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base defense" 0 1000)
 -------------------------------------------------------------------------------
 typeCheckBaseSpeed :: SurfaceData -> TC BaseSpeed
 typeCheckBaseSpeed (Lexer.SurfaceData row column surface) =
- BaseSpeed (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base speed" 1 5)
+ BaseSpeed (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base speed" 1 5)
 -------------------------------------------------------------------------------
 typeCheckBaseRange :: SurfaceData -> TC BaseRange
 typeCheckBaseRange (Lexer.SurfaceData row column surface) =
- BaseRange (Lexer.SurfaceData row column surface) <$> (typeCheckInt surface "Base range" 1 5)
+ BaseRange (Lexer.SurfaceData row column surface)
+ <$> (typeCheckInt surface "Base range" 1 5)
 -------------------------------------------------------------------------------
 typeCheckBaseSoulPoints :: SurfaceData -> TC BaseSoulPoints
 typeCheckBaseSoulPoints (Lexer.SurfaceData row column surface) =
  BaseSoulPoints (Lexer.SurfaceData row column surface)
-  <$> (typeCheckInt surface "Base soul points" 1 2)
+ <$> (typeCheckInt surface "Base soul points" 1 2)
 -------------------------------------------------------------------------------
 typeCheckStats :: ParseTree.CarryingSource ParseTree.Stats -> TC Stats
 typeCheckStats (ParseTree.CarryingSource _ (ParseTree.Stats surfaceData schools level hp attack defense speed range soulPoints)) =
  Stats surfaceData
-  <$> typeCheckSchools schools
-  <*> typeCheckBaseLevel level
-  <*> typeCheckBaseHp hp
-  <*> typeCheckBaseAttack attack
-  <*> typeCheckBaseDefense defense
-  <*> typeCheckBaseSpeed speed
-  <*> typeCheckBaseRange range
-  <*> typeCheckBaseSoulPoints soulPoints
+ <$> typeCheckSchools schools
+ <*> typeCheckBaseLevel level
+ <*> typeCheckBaseHp hp
+ <*> typeCheckBaseAttack attack
+ <*> typeCheckBaseDefense defense
+ <*> typeCheckBaseSpeed speed
+ <*> typeCheckBaseRange range
+ <*> typeCheckBaseSoulPoints soulPoints
 -------------------------------------------------------------------------------
 typeCheckSpawnSpell :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSpawnSpell skill =
@@ -1434,22 +1389,22 @@ typeCheckSpawnSpell skill =
 typeCheckSpell :: ParseTree.Spell -> TC Spell
 typeCheckSpell (ParseTree.Spell surfaceData name (ParseTree.Knowledge surfaceDataSchool) level skill) =
  Spell surfaceData name
-  <$> typeCheckSchool surfaceDataSchool
-  <*> typeCheckBaseLevel level
-  <*> typeCheckSpawnSpell skill
+ <$> typeCheckSchool surfaceDataSchool
+ <*> typeCheckBaseLevel level
+ <*> typeCheckSpawnSpell skill
 -------------------------------------------------------------------------------
 typeCheckUnit :: ParseTree.Unit -> TC Unit
 typeCheckUnit (ParseTree.Unit name stats start end counter spawn death auto actions soul) =
  Unit name
-  <$> typeCheckStats stats
-  <*> typeCheckStart start 
-  <*> typeCheckEnd end
-  <*> typeCheckCounter counter
-  <*> typeCheckSpawnUnit spawn
-  <*> typeCheckDeath death
-  <*> typeCheckAuto auto
-  <*> typeCheckActions actions 
-  <*> typeCheckSoul soul
+ <$> typeCheckStats stats
+ <*> typeCheckStart start 
+ <*> typeCheckEnd end
+ <*> typeCheckCounter counter
+ <*> typeCheckSpawnUnit spawn
+ <*> typeCheckDeath death
+ <*> typeCheckAuto auto
+ <*> typeCheckActions actions 
+ <*> typeCheckSoul soul
 -------------------------------------------------------------------------------
 typeCheckUnits :: [ParseTree.Unit] -> TC [Unit]
 typeCheckUnits = traverse typeCheckUnit
@@ -1464,30 +1419,13 @@ assumeFailure (Right _) = []
 typeCheck :: ParseTree.File -> TC File
 typeCheck (ParseTree.File units spells) =
  --trace (show units) $
- File <$> (typeCheckUnits units)
-      <*> (typeCheckSpells spells)
+ File
+ <$> (typeCheckUnits units)
+ <*> (typeCheckSpells spells)
 -------------------------------------------------------------------------------
-
- {-cabal install edit-distance-}
-
-
-
-
-
-{-
-
-
-main = do
- x <- getContents
- case Lexer.runAlex x calc of
-  Right y -> error $ show $ (prettyPrint $ map extractSurface (getTokens x)) {-show y-}
-  Left y -> error $ show {-x-} y
-
-
--}
-
-      
-       
+-------------------------------------------------------------------------------
+-- CUSTOM APPLICATIVE FUNCTOR FOR COLLECTING ERRORS
+-------------------------------------------------------------------------------
 -------------------------------------------------------------------------------       
 newtype TC a = TC {runTC :: Either [String] a} deriving Functor
 -------------------------------------------------------------------------------
