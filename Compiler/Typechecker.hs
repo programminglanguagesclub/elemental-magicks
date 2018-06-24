@@ -113,6 +113,9 @@ data RBool
  | ROr SurfaceData RBool RBool
  | RNot SurfaceData RBool
  | Dead SurfaceData String
+ | VarInRangeSelf String
+ | SelfInRangeVar String
+ | VarInRangeVar String String
  deriving Show
 -------------------------------------------------------------------------------
 data Knowledge
@@ -933,7 +936,9 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
   ParseTree.Not expr ->
    RNot surfaceData
    <$> typeCheckRBool context expr
-  ParseTree.VarInRangeSelf var -> 
+  ParseTree.VarInRangeSelf var -> pure $ VarInRangeSelf var
+  ParseTree.SelfInRangeVar var -> pure $ SelfInRangeVar var
+  ParseTree.VarInRangeVar var1 var2 -> pure $ VarInRangeVar var1 var2
 -------------------------------------------------------------------------------
 typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
@@ -1078,6 +1083,19 @@ noSelfReferencesRBool rBool =
    pure $
    RNot surfaceData
    <$> noSelfReferencesRBool negatedRBool
+  VarInRangeSelf var ->      TC $
+     Left
+      ["Invalid reference to self in subexpression:\n"]-- ++
+      -- (getSurfaceSyntax surfaceData) ++
+      -- (getLocationMessage surfaceData)]
+  SelfInRangeVar var ->      TC $
+     Left
+      ["Invalid reference to self in subexpression:\n"]-- ++
+      -- (getSurfaceSyntax surfaceData) ++
+      -- (getLocationMessage surfaceData)]
+  VarInRangeVar var1 var2 -> pure $ VarInRangeVar var1 var2
+
+
 -------------------------------------------------------------------------------
 noSelfReferencesRInt :: RInt -> TC RInt
 noSelfReferencesRInt rInt =

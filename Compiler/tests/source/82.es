@@ -17,7 +17,7 @@ soulSkill : for each x in friendly field, (hp x) -= temporary speed x; (temporar
 unit "Tank" level : 5 hp : 45 attack : 40 defense : 20 speed : 1 range : 2 soulPoints : 2
 soulSkill : for each x in friendly field, (permanent defense x) += 10;
 
-unit "Water Colossus" water level : 7 hp : 70 attack : 40 defense : 20 speed : 1 range : 3 soulPoints : 1
+unit "Water Colossus" water level : 7 hp : 70 attack : 40 defense : 10 speed : 1 range : 3 soulPoints : 1
 start : for each x in enemy field, (temporary attack x) -= temporary defense self;
 end : for each x in enemy field, (hp x) -= temporary defense self; /*change to dealing damage*/
 spawn : for each x in enemy field, (temporary range x) -= 1;
@@ -79,10 +79,12 @@ soulSkill : select x in friendly field then {(permanent defense x) += water frie
 /*make sure that I am not selecting dead units when not applicable*/
 /*note modifying permanent stats causes the same command to be performed on the temporary stats.*/
 
-/*
+
 unit "Orc Militia" spirit level : 3 hp : 30 attack : 30 defense : 20 speed : 3 range : 1 soulPoints : 2
-action : do damage attack * 2 to target enemy unit in range (costs 1 thought)....
-*/
+action : cost : 1 select x in enemy field x in range self then{(hp x) -= temporary attack self * 2;}
+/* do damage not -=hp*/
+/*I should make the presence of the "where" keyword consistent*/
+soulSkill : cost : 1 select x in friendly field then {(permanent attack x) += 30; (permanent defense x) += 20;}
 
 
 unit "Earth Warbeast" earth level : 5 hp : 65 attack : 20 defense : 10 speed : 1 range : 1 soulPoints : 2
@@ -94,7 +96,7 @@ unit "Goblin Berserker" level : 3 hp : 40 attack : 30 defense : 0 speed : 4 rang
 soulSkill : for each x in friendly field, (permanent speed x) += temporary level x;
 
 
-unit "Heavily Armored Water Colossus" water level : 7 hp : 100 attack : 80 defense : 30 speed : 1 range : 1 soulPoints : 2
+unit "Heavily Armored Water Colossus" water level : 7 hp : 100 attack : 50 defense : 30 speed : 1 range : 1 soulPoints : 2
 soulSkill : for each x in friendly field, (permanent defense x) += 15; (engagement x) += 1;
 
 
@@ -164,5 +166,17 @@ action : for each x in enemy field where x in range self, (hp x) := 0;
 soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
 
 /*Need to be able to filter by "in range"*/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
