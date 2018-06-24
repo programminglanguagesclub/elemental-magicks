@@ -168,6 +168,10 @@ soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
 /*Need to be able to filter by "in range"*/
 
 
+unit "TEST" spirit level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 2 soulPoints : 2
+auto : (temporary attack self) += cardinality dead x enemy field; /*need some way to quantify...*/
+soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
+
 
 
 

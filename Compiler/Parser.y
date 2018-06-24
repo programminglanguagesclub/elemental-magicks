@@ -26,6 +26,7 @@ import Text.EditDistance
  auto {Lexer.Token Lexer.AutoSkill (_)}
  banished {Lexer.Token Lexer.Banished (_)}
  base {Lexer.Token Lexer.Base (_)}
+ cardinality {Lexer.Token Lexer.Cardinality (_)}
  colon {Lexer.Token Lexer.Colon (_)}
  comma {Lexer.Token Lexer.Comma (_)}
  condition {Lexer.Token Lexer.Condition (_)}
@@ -231,6 +232,9 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | self in range var {CarryingSource dummySurfaceData $ SelfInRangeVar $4}
      | var in range var {CarryingSource dummySurfaceData $ VarInRangeVar $1 $4}
      | var in range self {CarryingSource dummySurfaceData $ VarInRangeSelf $1}
+     | cardinality Expr Set {undefined}
+--| RCardinality SurfaceData RBool ParseTree.Set
+
      {- x in range y means that y can target x -}
 Field : Temporality Stat {StatField dummySurfaceData $2 $1}
       | HpStat {HpStatField dummySurfaceData $1}

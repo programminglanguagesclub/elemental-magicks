@@ -152,6 +152,9 @@ data Set
  = SimpleSet Lexer.SurfaceData Side RelativeSet
  | UnionSet Lexer.SurfaceData Set Set
  deriving Show
+-- RIGHT NOW I don't allow sets to be qualified differently and then unioned.
+-- You can't for instance select units which have less than 20 hp in the enemy field and less than 10 hp in the friendly field.
+-- This should be changed.
 -------------------------------------------------------------------------------
 
 

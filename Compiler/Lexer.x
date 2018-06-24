@@ -22,6 +22,10 @@ tokens :-
 <0> auto { \s i -> return (Token AutoSkill $ SurfaceData (lineNumber s) (columnNumber s) "auto")}
 <0> action { \s i -> return (Token ActionSkill $ SurfaceData (lineNumber s) (columnNumber s) "action")}
 
+
+<0> cardinality { \s i -> return (Token Cardinality $ SurfaceData (lineNumber s) (columnNumber s) "cardinality")}
+
+
 <0> cost { \s i -> return (Token Cost $ SurfaceData (lineNumber s) (columnNumber s) "cost")}
 <0> condition { \s i -> return (Token Condition $ SurfaceData (lineNumber s) (columnNumber s) "condition")}
 
@@ -172,6 +176,8 @@ data TokenInner =
   | Temporary
   | Engagement
   | In
+
+  | Cardinality
 
 
   | Where

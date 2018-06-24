@@ -103,6 +103,9 @@ data RInt
  | RProduct SurfaceData RInt RInt
  | RQuotient SurfaceData RInt RInt
  | RMod SurfaceData RInt RInt
+ | RCardinality SurfaceData RBool ParseTree.Set
+-- eventually set should nest its own conditions so I can have multiple conditions over a union
+-- but for now just have the condition here
  deriving Show
 -------------------------------------------------------------------------------
 data RBool
