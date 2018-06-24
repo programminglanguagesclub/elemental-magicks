@@ -154,6 +154,21 @@ typeCheckSkillEffect context skillEffect =
    <$> typeCheckAssignment context lExprs mutator rExpr
   ParseTree.Revive surfaceData variableName ->
    pure $ SkillEffectRevive surfaceData variableName -- does not check variable name length currently, although maybe this caught earlier
+  ParseTree.DamageSelf surfaceData damage ->
+   joinTC $
+   pure $
+   SkillEffectDamageSelf surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageVar surfaceData var damage -> -- again not typechecking var
+   joinTC $
+   pure $
+   SkillEffectDamageVar surfaceData var
+   <$> typeCheckRInt context damage
+
+
+-- | SkillEffectDamageSelf Lexer.Surface RInt
+-- | SkillEffectDamageVar Lexer.SurfaceData String RInt
+
 -------------------------------------------------------------------------------
 typeCheckAssignment ::
  Context ->
@@ -406,6 +421,9 @@ typeCheckRStatVar field =
 data SkillEffect
  = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
  | SkillEffectRevive Lexer.SurfaceData String
+ | SkillEffectDamageSelf Lexer.SurfaceData RInt
+ | SkillEffectDamageVar Lexer.SurfaceData String RInt
+-- INCLUDE DAMAGE SKILL EFFECTS HERE!!!!!!
  deriving Show
 -------------------------------------------------------------------------------
 data Assignment -- why does this exist as a separate datatype rather than just being part of skilleffect?
@@ -1141,6 +1159,22 @@ noSelfReferencesSkillEffect skillEffect =
    pure $
    SkillEffectAssignment
    <$> noSelfReferencesAssignment assignment
+  SkillEffectDamageSelf surfaceData damage ->
+   joinTC $
+   pure $
+   SkillEffectDamageSelf surfaceData
+   <$> noSelfReferencesRInt damage
+  SkillEffectDamageVar surfaceData var damage ->
+   joinTC $
+   pure $
+   SkillEffectDamageVar surfaceData var
+   <$> noSelfReferencesRInt damage
+
+{- | SkillEffectDamageSelf Lexer.Surface RInt
+ | SkillEffectDamageVar Lexer.SurfaceData String RInt
+-}
+
+-- NEED TO ADD REVIVE CASE
 -------------------------------------------------------------------------------
 noSelfReferencesSkillEffects :: [SkillEffect] -> TC [SkillEffect]
 noSelfReferencesSkillEffects skillEffects =

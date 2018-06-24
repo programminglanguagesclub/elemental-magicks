@@ -169,6 +169,8 @@ Either skill effects, or automatic should be allowed to have conditions and/or i
 data SkillEffect
  = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
  | Revive Lexer.SurfaceData String
+ | DamageSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageVar Lexer.SurfaceData String (CarryingSource Expr)
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic

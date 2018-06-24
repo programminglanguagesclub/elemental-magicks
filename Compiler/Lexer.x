@@ -24,6 +24,7 @@ tokens :-
 
 
 <0> cardinality { \s i -> return (Token Cardinality $ SurfaceData (lineNumber s) (columnNumber s) "cardinality")}
+<0> damage { \s i -> return (Token Damage $ SurfaceData (lineNumber s) (columnNumber s) "damage")}
 
 
 <0> cost { \s i -> return (Token Cost $ SurfaceData (lineNumber s) (columnNumber s) "cost")}
@@ -178,7 +179,7 @@ data TokenInner =
   | In
 
   | Cardinality
-
+  | Damage
 
   | Where
   | Then

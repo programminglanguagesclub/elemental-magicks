@@ -35,6 +35,7 @@ import Text.EditDistance
  counter {Lexer.Token Lexer.CounterSkill (_)}
  crush {Lexer.Token Lexer.Crush (_)}
  current {Lexer.Token Lexer.Temporary (_)}
+ damage {Lexer.Token Lexer.Damage (_)}
  dead {Lexer.Token Lexer.Dead (_)}
  death {Lexer.Token Lexer.DeathSkill (_)}
  decrement {Lexer.Token Lexer.Decrement (_)}
@@ -193,8 +194,18 @@ SkillEffects : {[]}
 -- do 50 damage to x. for all units with less than 0 hp, ....
 SkillEffect : Assignment {$1}
             | Revive {$1}
+            | Damage {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
 Revive : revive var {Revive (extractSurfaceData $1) $2}
+Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
+       | damage self Expr {DamageSelf dummySurfaceData $3}
+
+{-
+
+ | DamageSelf Lexer.SurfaceData
+ | DamageVar Lexer.SurfaceData String
+
+-}
 Mutator : assign {Set $ extractSurfaceData $1}
         | increment {Increment $ extractSurfaceData $1}
         | decrement {Decrement $ extractSurfaceData $1}

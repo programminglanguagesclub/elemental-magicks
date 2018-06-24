@@ -19,7 +19,7 @@ soulSkill : for each x in friendly field, (permanent defense x) += 10;
 
 unit "Water Colossus" water level : 7 hp : 70 attack : 40 defense : 10 speed : 1 range : 3 soulPoints : 1
 start : for each x in enemy field, (temporary attack x) -= temporary defense self;
-end : for each x in enemy field, (hp x) -= temporary defense self; /*change to dealing damage*/
+end : for each x in enemy field, damage x temporary defense self;
 spawn : for each x in enemy field, (temporary range x) -= 1;
 soulSkill : for each x in friendly field, (permanent defense x) += max hp x - hp x;
 
@@ -148,7 +148,7 @@ soulSkill : for each x in enemy field, (permanent range x) := 1;
 
 unit "Clown of Horror" void level : 3 hp : 40 attack : 10 defense : 0 speed : 1 range : 2 soulPoints : 2
 auto : for each x in enemy field, (permanent attack x) -= 5;
-soulSkill : for each x in enemy field, (hp x) -= temporary attack x; /*do damage instead*/
+soulSkill : for each x in enemy field, damage x temporary attack x;
 
 
 unit "Demon Whisperer" void level : 3 hp : 60 attack : 20 defense : 0 speed : 2 range : 2 soulPoints : 1
