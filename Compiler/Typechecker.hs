@@ -164,10 +164,15 @@ typeCheckSkillEffect context skillEffect =
    pure $
    SkillEffectDamageVar surfaceData var
    <$> typeCheckRInt context damage
-
+  ParseTree.SendVarToGraveyard surfaceData var -> pure $ SendVarToGraveyard surfaceData var -- not typechecking var currently
+  ParseTree.SendSelfToGraveyard surfaceData -> pure $ SendSelfToGraveyard surfaceData
 
 -- | SkillEffectDamageSelf Lexer.Surface RInt
 -- | SkillEffectDamageVar Lexer.SurfaceData String RInt
+{-
+SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
+SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
+-}
 
 -------------------------------------------------------------------------------
 typeCheckAssignment ::
@@ -423,7 +428,11 @@ data SkillEffect
  | SkillEffectRevive Lexer.SurfaceData String
  | SkillEffectDamageSelf Lexer.SurfaceData RInt
  | SkillEffectDamageVar Lexer.SurfaceData String RInt
--- INCLUDE DAMAGE SKILL EFFECTS HERE!!!!!!
+ | SendVarToGraveyard Lexer.SurfaceData String
+ | SendSelfToGraveyard Lexer.SurfaceData
+
+
+
  deriving Show
 -------------------------------------------------------------------------------
 data Assignment -- why does this exist as a separate datatype rather than just being part of skilleffect?
