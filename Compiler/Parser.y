@@ -78,6 +78,7 @@ import Text.EditDistance
  select {Lexer.Token Lexer.Select (_)}
  self {Lexer.Token Lexer.Self (_)}
  semicolon {Lexer.Token Lexer.Semicolon (_)}
+ send {Lexer.Token Lexer.Send (_)}
  soul {Lexer.Token Lexer.SoulSkill (_)}
  soulPoints {Lexer.Token Lexer.SoulPoints (_)}
  spawn {Lexer.Token Lexer.SpawnSkill (_)}
@@ -89,6 +90,7 @@ import Text.EditDistance
  then {Lexer.Token Lexer.Then (_)}
  thought {Lexer.Token Lexer.Thought (_)}
  thoughts {Lexer.Token Lexer.Thoughts (_)}
+ to {Lexer.Token Lexer.To (_)}
  unable {Lexer.Token Lexer.Unable (_)}
  union {Lexer.Token Lexer.Union (_)}
  unit {Lexer.Token Lexer.Unit (_)}
@@ -195,10 +197,15 @@ SkillEffects : {[]}
 SkillEffect : Assignment {$1}
             | Revive {$1}
             | Damage {$1}
+            | SendVarToGraveyard {$1}
+            | SendSelfToGraveyard {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
 Revive : revive var {Revive (extractSurfaceData $1) $2}
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
-       | damage self Expr {DamageSelf dummySurfaceData $3}
+       | damage self Expr {DamageSelf dummySurfaceData $3 }
+SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
+SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
+
 
 {-
 

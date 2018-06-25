@@ -171,6 +171,9 @@ data SkillEffect
  | Revive Lexer.SurfaceData String
  | DamageSelf Lexer.SurfaceData (CarryingSource Expr)
  | DamageVar Lexer.SurfaceData String (CarryingSource Expr)
+ | SendVarToGraveyard Lexer.SurfaceData String
+ | SendSelfToGraveyard Lexer.SurfaceData
+
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic
