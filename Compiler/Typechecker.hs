@@ -647,18 +647,23 @@ typeCheckNonautomatic context nonautomatic =
  --trace (show context) $
  case nonautomatic of
   ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
-   --trace (show newBindings) $
-   Selection surfaceData (map mkJudgment newBindings)
-   <$> typeCheckCondition condition
-   <*> (joinTC $
-        typeCheckAutomatic
-        <$> tryExtendContextMultiple context (map mkJudgment newBindings)
-        <*> pure thenBranch)
-   <*> typeCheckAutomatic context elseBranch
-   <*> typeCheckAutomatic context nextBranch
+   case tryExtendContextMultiple context (map mkJudgment newBindings) of
+   _ -> 
+    --trace (show newBindings) $
+    Selection surfaceData (map mkJudgment newBindings)
+    <$> typeCheckCondition condition undefined
+    <*> (joinTC $
+         typeCheckAutomatic
+         <$> tryExtendContextMultiple context (map mkJudgment newBindings)
+         <*> pure thenBranch)
+    <*> typeCheckAutomatic context elseBranch
+    <*> typeCheckAutomatic context nextBranch
   ParseTree.TerminatedSkillComponent -> pure TerminatedSkillComponent -- don't make sure all of context used yet or anything.
   ParseTree.Next automatic ->
    joinTC $ pure $ Next <$> typeCheckAutomatic context automatic
+
+
+-- I want to make sure that binding errors aren't reported more than they should be..
 -------------------------------------------------------------------------------
 
 {-
@@ -932,16 +937,18 @@ typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
  Skill surfaceData
   <$> typeCheckCost cost
-  <*> typeCheckCondition condition
+  <*> typeCheckCondition condition EmptyContext
   <*> typeCheckAutomatic EmptyContext automatic
 -------------------------------------------------------------------------------
 typeCheckCost :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> TC (Maybe RInt)
 typeCheckCost Nothing = pure Nothing
 typeCheckCost (Just expr) = Just <$> typeCheckRInt EmptyContext expr
 -------------------------------------------------------------------------------
-typeCheckCondition :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> TC (Maybe RBool)
-typeCheckCondition Nothing = pure Nothing
-typeCheckCondition (Just expr) = Just <$> typeCheckRBool EmptyContext expr
+typeCheckCondition :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> Context -> TC (Maybe RBool)
+-- if I have maybe here shouldn't I get rid of always as a condition?
+
+typeCheckCondition Nothing _ = pure Nothing
+typeCheckCondition (Just expr) context = Just <$> typeCheckRBool context expr
 -------------------------------------------------------------------------------
 
 {-
@@ -1457,11 +1464,15 @@ typeCheckStats (ParseTree.CarryingSource _ (ParseTree.Stats surfaceData schools 
 typeCheckSpawnSpell :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSpawnSpell skill =
 -- There are other issues like can't send to field but for now just check against self reference
- trace "typeCheckSpawnSpell not implemented" $
- noSelfReferences (Spell surfaceData)
- <$> typeCheckSkill skill
+-- Actually for now I'm struggling to check against self reference so just don't for now.
+ typeCheckSkill skill
 
 {-
+
+data Spell
+ = Spell SurfaceData String Knowledge BaseLevel Skill {- name, school, level, skill -}
+
+
  joinTC $
  noSelfReferences (Soul surfaceData)
  <$> typeCheckSkill skill
@@ -1475,6 +1486,13 @@ typeCheckSpell (ParseTree.Spell surfaceData name (ParseTree.Knowledge surfaceDat
  <$> typeCheckSchool surfaceDataSchool
  <*> typeCheckBaseLevel level
  <*> typeCheckSpawnSpell skill
+
+{-
+(joinTC $
+   noSelfReferences (SpawnUnit surfaceData)
+   <$> typeCheckSkill skill)
+-}
+
 -------------------------------------------------------------------------------
 typeCheckUnit :: ParseTree.Unit -> TC Unit
 typeCheckUnit (ParseTree.Unit name stats start end counter spawn death auto actions soul) =

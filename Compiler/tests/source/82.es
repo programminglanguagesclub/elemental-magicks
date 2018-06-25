@@ -174,16 +174,28 @@ soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= car
 
 unit "TEST" spirit level : 3 hp : 50 attack : 0 defense : 0 speed : 3 range : 1 soulPoints : 1
 auto : (temporary attack self) += cardinality (y in enemy graveyard) * 5; /*want to be able to specify y is a unit, not a spell*/
-soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
+action : select x in enemy field hp x < temporary attack self then {send x to graveyard;}
+/*THIS ACTION SKILL'S WHERE CONDITION IS HAVING AN ERROR BECAUSE IT DOES NOT HAVE ITS CONTEXT EXTENDED PROPERLY*/
+soulSkill : for each x in enemy field, damage x 20;
+
+
+unit "Uriel" fire air level : 6 hp : 120 attack : 70 defense : 15 speed : 5 range : 2 soulPoints : 1
+end : for each x in enemy field, damage x temporary level x;
+soulSkill : for each x in enemy field, damage x temporary level x;
+
+
+unit "Greater Succubus" spirit level : 3 hp : 60 attack : 0 defense : 0 speed : 1 range : 3 soulPoints : 2
+auto : for each x in enemy field where engagement x > 0, damage x temporary attack self;
+soulSkill : for each x in enemy field where engagement x > 0, damage x 40;
 
 
 spell "Fire Bolt" fire level : 3
-spawn : (friendly thoughts) -= 1; /*DUMMY NOT ACTUAL SKILL*/
+spawn : select x in enemy field not dead x then {damage x fire friendly * 10;}
 
+spell "Ice Bolt" fire level : 2
+spawn : select x in enemy field not dead x then {damage x fire friendly * 5;}
 
-
-
-
-
+spell "Frozen Cage" water level : 4
+spawn : select x in enemy field not dead x then {(engagement x) += fire friendly;}
 
 
