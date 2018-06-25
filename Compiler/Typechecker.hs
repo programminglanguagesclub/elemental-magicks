@@ -1178,9 +1178,23 @@ noSelfReferencesSkillEffect skillEffect =
    pure $
    SkillEffectDamageVar surfaceData var
    <$> noSelfReferencesRInt damage
+  SendVarToGraveyard surfaceData var ->
+   pure $
+   SendVarToGraveyard surfaceData var
+  SendSelfToGraveyard surfaceData ->
+    TC $
+    Left
+    ["Invalid reference to self in subexpression:\n"
+     ++ (getSurfaceSyntax surfaceData)
+     ++ (getLocationMessage surfaceData)]
+  
 
 {- | SkillEffectDamageSelf Lexer.Surface RInt
  | SkillEffectDamageVar Lexer.SurfaceData String RInt
+SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
+SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
+
+
 -}
 
 -- NEED TO ADD REVIVE CASE
@@ -1442,8 +1456,18 @@ typeCheckStats (ParseTree.CarryingSource _ (ParseTree.Stats surfaceData schools 
 -------------------------------------------------------------------------------
 typeCheckSpawnSpell :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSpawnSpell skill =
+-- There are other issues like can't send to field but for now just check against self reference
  trace "typeCheckSpawnSpell not implemented" $
- typeCheckSkill skill
+ noSelfReferences (Spell surfaceData)
+ <$> typeCheckSkill skill
+
+{-
+ joinTC $
+ noSelfReferences (Soul surfaceData)
+ <$> typeCheckSkill skill
+
+-}
+
 -------------------------------------------------------------------------------
 typeCheckSpell :: ParseTree.Spell -> TC Spell
 typeCheckSpell (ParseTree.Spell surfaceData name (ParseTree.Knowledge surfaceDataSchool) level skill) =

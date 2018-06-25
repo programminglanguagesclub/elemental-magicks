@@ -162,7 +162,7 @@ soulSkill : (enemy thoughts) -= 2;
 
 unit "Serpent Swordswoman of the Void" void level : 3 hp : 50 attack : 40 defense : 0 speed : 2 range : 1 soulPoints : 1
 action : for each x in enemy field where x in range self, (hp x) := 0;
-soulSkill : select x in enemy field dead x then {send x to graveyard;}
+soulSkill : cost : 6 select x in enemy field dead x then {send x to graveyard;}
 
 /*Need to be able to filter by "in range"*/
 
@@ -177,7 +177,8 @@ auto : (temporary attack self) += cardinality (y in enemy graveyard) * 5; /*want
 soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
 
 
-
+spell "Fire Bolt" fire level : 3
+spawn : (friendly thoughts) -= 1; /*DUMMY NOT ACTUAL SKILL*/
 
 
 
