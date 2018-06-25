@@ -12,7 +12,6 @@ soulSkill : select x in friendly field then {(max hp x) += 50; (hp x) += 50;}
 unit "Lightning Crawler" air level : 2 hp : 20 attack : 30 defense : 0 speed : 2 range : 2 soulPoints : 2
 start : for each x in enemy field, (hp x) -= temporary speed x;
 soulSkill : for each x in friendly field, (hp x) -= temporary speed x; (temporary attack x) += temporary speed x * 5;
-/*removing hp instead of dealing damage, both because I want that and because idk if I have damage implemented yet*/
 
 unit "Tank" level : 5 hp : 45 attack : 40 defense : 20 speed : 1 range : 2 soulPoints : 2
 soulSkill : for each x in friendly field, (permanent defense x) += 10;
@@ -81,7 +80,7 @@ soulSkill : select x in friendly field then {(permanent defense x) += water frie
 
 
 unit "Orc Militia" spirit level : 3 hp : 30 attack : 30 defense : 20 speed : 3 range : 1 soulPoints : 2
-action : cost : 1 select x in enemy field x in range self then{(hp x) -= temporary attack self * 2;}
+action : cost : 1 select x in enemy field x in range self then{damage x temporary attack self * 2;}
 /* do damage not -=hp*/
 /*I should make the presence of the "where" keyword consistent*/
 soulSkill : cost : 1 select x in friendly field then {(permanent attack x) += 30; (permanent defense x) += 20;}
@@ -169,11 +168,14 @@ soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) := 0;
 
 
 unit "TEST" spirit level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 2 soulPoints : 2
-auto : (temporary attack self) += cardinality (x in enemy field where dead x) * 20; /*need some way to quantify...*/
+auto : (temporary attack self) += cardinality (x in enemy field where dead x) * 20;
 soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
 
 
-/* cardinality lparen var in Set where Expr rparen */
+unit "TEST" spirit level : 3 hp : 50 attack : 0 defense : 0 speed : 3 range : 1 soulPoints : 1
+auto : (temporary attack self) += cardinality (y in enemy graveyard) * 5; /*want to be able to specify y is a unit, not a spell*/
+soulSkill : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
+
 
 
 
