@@ -167,15 +167,18 @@ soulSkill : cost : 6 select x in enemy field dead x then {send x to graveyard;}
 /*Need to be able to filter by "in range"*/
 
 
-unit "TEST" spirit level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 2 soulPoints : 2
+unit "Spirit Mage" spirit level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 2 soulPoints : 2
 auto : (temporary attack self) += cardinality (x in enemy field where dead x) * 20;
-soulSkill  : /*DUMMY NOT ACTUAL SKILL*/ for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
+soulSkill : for each x in friendly field, (temporary attack x) += cardinality (y in friendly graveyard) * 5;
+/*again I only want to take the cardinality of units, not spells, in the graveyard*/
 
 
-unit "TEST" spirit level : 3 hp : 50 attack : 0 defense : 0 speed : 3 range : 1 soulPoints : 1
+/*soulSkill  : for each x in enemy field, (hp x) -= cardinality (y in friendly field where dead y) * 100;
+*/
+
+unit "Zombified Reaper" spirit level : 3 hp : 50 attack : 0 defense : 0 speed : 3 range : 1 soulPoints : 1
 auto : (temporary attack self) += cardinality (y in enemy graveyard) * 5; /*want to be able to specify y is a unit, not a spell*/
-action : select x in enemy field hp x < temporary attack self then {send x to graveyard;}
-/*THIS ACTION SKILL'S WHERE CONDITION IS HAVING AN ERROR BECAUSE IT DOES NOT HAVE ITS CONTEXT EXTENDED PROPERLY*/
+action : cost : 1 select x in enemy field hp x < temporary attack self then {send x to graveyard;}
 soulSkill : for each x in enemy field, damage x 20;
 
 

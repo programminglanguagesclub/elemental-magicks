@@ -648,16 +648,14 @@ typeCheckNonautomatic context nonautomatic =
  case nonautomatic of
   ParseTree.Nonautomatic surfaceData newBindings condition thenBranch elseBranch nextBranch ->
    case tryExtendContextMultiple context (map mkJudgment newBindings) of
-   _ -> 
-    --trace (show newBindings) $
-    Selection surfaceData (map mkJudgment newBindings)
-    <$> typeCheckCondition condition undefined
-    <*> (joinTC $
-         typeCheckAutomatic
-         <$> tryExtendContextMultiple context (map mkJudgment newBindings)
-         <*> pure thenBranch)
-    <*> typeCheckAutomatic context elseBranch
-    <*> typeCheckAutomatic context nextBranch
+    TC (Right context') -> 
+     --trace (show newBindings) $
+     Selection surfaceData (map mkJudgment newBindings)
+     <$> typeCheckCondition condition context'
+     <*> typeCheckAutomatic context' thenBranch
+     <*> typeCheckAutomatic context elseBranch
+     <*> typeCheckAutomatic context nextBranch
+    TC (Left errors) -> TC (Left errors)
   ParseTree.TerminatedSkillComponent -> pure TerminatedSkillComponent -- don't make sure all of context used yet or anything.
   ParseTree.Next automatic ->
    joinTC $ pure $ Next <$> typeCheckAutomatic context automatic
