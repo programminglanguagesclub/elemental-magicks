@@ -190,6 +190,7 @@ RestVariable : {[]}
              | comma var RestVariable {$2 : $3}
 SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
+             | if condition then SkillEffect semicolon SkillEffects {undefined}
 -- skill effect needs to be able to include conditionals. This is because
 -- I am executing lists of skill effects, and conditions can change between skill effects in the list.
 -- I also want to be able to do universal quantification of the form

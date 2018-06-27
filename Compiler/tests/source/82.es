@@ -191,6 +191,51 @@ unit "Greater Succubus" spirit level : 3 hp : 60 attack : 0 defense : 0 speed : 
 auto : for each x in enemy field where engagement x > 0, damage x temporary attack self;
 soulSkill : for each x in enemy field where engagement x > 0, damage x 40;
 
+unit "Vicious Soul Reaper" void level : 4 hp : 45 attack : 40 defense : 10 speed : 4 range : 1 soulPoints : 2
+action : select x in enemy field then{damage x temporary attack self / 2;}
+action : for each x in enemy field, (hp x) := 0;
+/*DUMMIES*/
+soulSkill : select x in enemy field dead x then{send x to graveyard;}
+/*Do damage [attack / 2] to target enemy unit in range. If it has 0 or fewer hp, send it to the first position in its graveyard.
+Action SkillDevastating Strike2 Thoughts
+Do damage [current attack * 2] to target enemy unit in range.
+*/
+
+unit "Death Colossus" void level : 5 hp : 90 attack : 30 defense : 0 speed : 2 range : 3 soulPoints : 2
+counter : for each x in enemy field where not dead x, damage x cardinality (x in enemy field where not dead x);
+/*THE ABOVE SHOULD THROW AN ERROR AS X IS ALREADY DEFINED (I should have to use y or something instead)*/
+auto : (hp self) += cardinality (x in enemy field where dead x) * 10; (permanent attack self) += cardinality (x in friendly field where dead x) * 10;
+/*DUMMY*/
+soulSkill : 
+for each x in enemy field where not dead x, damage x cardinality (y in friendly graveyard);
+/*again units in graveyard not all cards*/
+
+
+unit "Flesh Knight" void level : 5 hp : 70 attack : 40 defense : 0 speed : 3 range : 1 soulPoints : 2
+auto : for each x in enemy field, (max hp x) -= 10;
+soulSkill : for each x in enemy field, (max hp x) -= 20;
+
+unit "Orb Eyed Monster" void level : 5 hp : 70 attack : 50 defense : 0 speed : 3 range : 1 soulPoints : 2
+counter : select x in enemy field x in range self and dead x then {damage x temporary attack self;}
+soulSkill : for each x in friendly field, (permanent speed x) := 0;
+
+unit "Orc Conquerer" spirit level : 4 hp : 60 attack : 50 defense : 0 speed : 3 range : 1 soulPoints : 2
+action : cost : 2 for each x in enemy field where x in range self, damage x temporary attack self;
+action : cost : 1 select x in enemy field not dead x then {damage x temporary attack self * 2;}
+soulSkill : for each x in friendly field, (temporary attack x) += 10; (temporary defense x) += 10; (permanent speed x) += 1;
+
+
+unit "Sword Dancer" spirit level : 4 hp : 50 attack : 40 defense : 0 speed : 5 range : 1 soulPoints : 1
+auto : (permanent speed self) -= 1; (permanent range self) += 1;
+action : for each x in enemy field where engagement x > 0, damage x temporary attack self;
+soulSkill : (friendly spirit) += 1; select x in enemy field then {(engagement x) += 1;} 
+
+unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
+auto : (temporary attack self) += 10 * friendly fire;
+action : for each x in enemy field where x in range self, damage x temporary attack self;
+soulSkill : for each x in enemy field, damage x friendly thoughts * 10;
+/*Now I want to say friendly thoughts = 0, but I need to make sure all enemy units get hit for the friendly thoughts damage * 10 FIRST*/
+
 
 spell "Fire Bolt" fire level : 3
 spawn : select x in enemy field not dead x then {damage x fire friendly * 10;}
