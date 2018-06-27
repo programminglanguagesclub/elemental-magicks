@@ -1,3 +1,33 @@
+/*
+Version 1.0 objectives:
+
+units:
+       have objective missing
+lvl 1  1    9         8
+    2  2    9         7
+    3  1    9         8
+    4  0    9         9
+    5  3    9         6
+    6  1    9         8
+    7  0    9         9
+    8  0    9         9
+    9  0    9         9
+spells:
+       have objective missing
+lvl 1  0    3         3
+    2  0    3         3
+    3  0    3         3
+    4  0    3         3
+    5  0    3         3
+    6  0    3         3
+    7  0    3         3
+    8  0    3         3
+    9  0    3         3
+
+
+*/
+
+
 
 unit "Guardian Toad" earth level : 1 hp : 30 attack : 0 defense : 0 speed : 1 range : 1 soulPoints : 2
 counter : for each x in friendly field, (max hp x) += 5; (hp x) += 5;

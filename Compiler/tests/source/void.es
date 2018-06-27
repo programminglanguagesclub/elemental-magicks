@@ -1,3 +1,33 @@
+/*
+Version 1.0 objectives:
+
+units:
+       have objective missing
+lvl 1  1    9         8
+    2  3    9         6
+    3  4    9         5
+    4  1    9         8
+    5  3    9         6
+    6  0    9         9
+    7  0    9         9
+    8  0    9         9
+    9  0    9         9
+spells:
+       have objective missing
+lvl 1  0    3         3
+    2  0    3         3
+    3  0    3         3
+    4  0    3         3
+    5  0    3         3
+    6  0    3         3
+    7  0    3         3
+    8  0    3         3
+    9  0    3         3
+
+
+*/
+
+
 
 unit "Voidling" void level : 1 hp : 30 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 1
 start : for each x in enemy field, (temporary defense x) -= 5;

@@ -1,3 +1,33 @@
+/*
+Version 1.0 objectives:
+
+units:
+       have objective missing
+lvl 1  0    9         9
+    2  1    9         8
+    3  2    9         7
+    4  1    9         8
+    5  0    9         9
+    6  0    9         9
+    7  0    9         9
+    8  0    9         9
+    9  0    9         9
+spells:
+       have objective missing
+lvl 1  0    3         3
+    2  0    3         3
+    3  0    3         3
+    4  0    3         3
+    5  0    3         3
+    6  0    3         3
+    7  0    3         3
+    8  0    3         3
+    9  0    3         3
+
+
+*/
+
+
 
 unit "Lightning Crawler" air level : 2 hp : 20 attack : 30 defense : 0 speed : 2 range : 2 soulPoints : 2
 start : for each x in enemy field, (hp x) -= temporary speed x;

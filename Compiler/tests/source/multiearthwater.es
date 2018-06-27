@@ -1,3 +1,24 @@
+/*
+Version 1.0 objectives:
+
+units:
+       have objective missing
+lvl 1  0    3         3
+    2  0    3         3
+    3  1    3         2
+    4  1    3         2
+    5  0    3         3
+    6  0    3         3
+    7  0    3         3
+    8  0    3         3
+    9  0    3         3
+
+*/
+
+
+~                                                                                                                                               
+~                     
+
 unit "Oceanic Earth Elemental" earth water level : 3 hp : 20 attack : 20 defense : 0 speed : 1 range : 2 soulPoints : 2
 death : (permanent attack self) -= 20; (max hp self) -= 20; (hp self) := max hp self;
 auto : (permanent attack self) += 20; (max hp self) += 20; (hp self) += 20;

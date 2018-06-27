@@ -1,3 +1,33 @@
+/*
+Version 1.0 objectives:
+
+units:
+       have objective missing
+lvl 1  0    9         9
+    2  0    9         9
+    3  1    9         8
+    4  0    9         9
+    5  3    9         6
+    6  0    9         9
+    7  0    9         9
+    8  1    9         8
+    9  1    9         8
+spells:
+       have objective missing
+lvl 1  0    3         3
+    2  1    3         2
+    3  1    3         2
+    4  0    3         3
+    5  0    3         3
+    6  0    3         3
+    7  0    3         3
+    8  0    3         3
+    9  0    3         3
+
+
+*/
+
+
 unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
 auto : (temporary attack self) += 10 * friendly fire;
 action : for each x in enemy field where x in range self, damage x temporary attack self;
