@@ -202,12 +202,9 @@ Do damage [current attack * 2] to target enemy unit in range.
 */
 
 unit "Death Colossus" void level : 5 hp : 90 attack : 30 defense : 0 speed : 2 range : 3 soulPoints : 2
-counter : for each x in enemy field where not dead x, damage x cardinality (x in enemy field where not dead x);
-/*THE ABOVE SHOULD THROW AN ERROR AS X IS ALREADY DEFINED (I should have to use y or something instead)*/
+counter : for each x in enemy field where not dead x, damage x cardinality (y in enemy field where not dead y);
 auto : (hp self) += cardinality (x in enemy field where dead x) * 10; (permanent attack self) += cardinality (x in friendly field where dead x) * 10;
-/*DUMMY*/
-soulSkill : 
-for each x in enemy field where not dead x, damage x cardinality (y in friendly graveyard);
+soulSkill : for each x in enemy field where not dead x, damage x cardinality (y in friendly graveyard);
 /*again units in graveyard not all cards*/
 
 
@@ -233,9 +230,35 @@ soulSkill : (friendly spirit) += 1; select x in enemy field then {(engagement x)
 unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
 auto : (temporary attack self) += 10 * friendly fire;
 action : for each x in enemy field where x in range self, damage x temporary attack self;
-soulSkill : for each x in enemy field, damage x friendly thoughts * 10;
+soulSkill : for each x in enemy field, damage x friendly thoughts * 10;, (friendly thoughts) := 0;
 /*Now I want to say friendly thoughts = 0, but I need to make sure all enemy units get hit for the friendly thoughts damage * 10 FIRST*/
 
+unit "Titanic Infernal Centaur" fire level : 8 hp : 120 attack : 80 defense : 10 speed : 1 range : 2 soulPoints : 1
+counter : (permanent speed self) += 1;
+action : cost : 1 select x in enemy field x in range self then {damage x temporary attack self * 2;}
+soulSkill : for each x in enemy field, damage x friendly fire * 10;, (friendly fire) := 0;
+/*the little comma is the only difference between doing 0 damage to every enemy past the first one, and doing fire*10 to all.
+I should probably think of a better syntax*/
+
+/*I think maybe every effect that's in a universal should HAVE TO reference the bound variable*/
+
+unit "Emissary of fire" fire level : 5 hp : 90 attack : 40 defense : 10 speed : 3 range : 1 soulPoints : 1
+end : select x in enemy field then {damage x 20; (permanent speed x) -= 1;}
+soulSkill : for each x in enemy field, damage x cardinality (y in enemy field where not dead y);
+
+unit "Infernal Commander" fire level : 5 hp : 40 attack : 50 defense : 0 speed : 3 range : 1 soulPoints : 2
+spawn : for each x in enemy field, damage x 10;
+death : for each x in enemy field, damage x 20;
+soulSkill : cost : 10 for each x in enemy field, (hp x) := 0;
+
+unit "Chimera" earth level : 5 hp : 60 attack : 0 defense : 0 speed : 5 range : 1 soulPoints : 2
+start : for each x in friendly field, (temporary attack self) += temporary attack x;
+soulSkill : select x in friendly field, y in enemy field then {damage y temporary attack x;}
+
+
+unit "Gold Spawn" earth level : 5 hp : 100 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 1
+counter : (friendly thoughts) += 1;
+soulSkill : (friendly thoughts) += cardinality (x in enemy field where engagement x = 0); /*and not dead...*/
 
 spell "Fire Bolt" fire level : 3
 spawn : select x in enemy field not dead x then {damage x fire friendly * 10;}

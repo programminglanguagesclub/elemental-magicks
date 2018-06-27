@@ -118,10 +118,10 @@ data RBool
  | RAnd SurfaceData RBool RBool
  | ROr SurfaceData RBool RBool
  | RNot SurfaceData RBool
- | Dead SurfaceData String
- | VarInRangeSelf String
- | SelfInRangeVar String
- | VarInRangeVar String String
+ | Dead SurfaceData Variable
+ | VarInRangeSelf Variable
+ | SelfInRangeVar Variable
+ | VarInRangeVar Variable Variable
  deriving Show
 -------------------------------------------------------------------------------
 data Knowledge
@@ -827,7 +827,7 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
      (getSurfaceSyntax surfaceData) ++
      (getLocationMessage surfaceData)]
   ParseTree.Dead var ->
-   pure $ Dead surfaceData var
+   joinTC $ pure $ Dead surfaceData <$> typeCheckVariable context (Variable ParseTree.dummySurfaceData var)
   ParseTree.ThoughtsExpr side ->                             {-Ignoring distinction between Thought and Thoughts for now-}
     TC $
     Left
@@ -927,9 +927,10 @@ typeCheckRBool context (ParseTree.CarryingSource surfaceData expr) =
   ParseTree.Not expr ->
    RNot surfaceData
    <$> typeCheckRBool context expr
-  ParseTree.VarInRangeSelf var -> pure $ VarInRangeSelf var
-  ParseTree.SelfInRangeVar var -> pure $ SelfInRangeVar var
-  ParseTree.VarInRangeVar var1 var2 -> pure $ VarInRangeVar var1 var2
+  ParseTree.VarInRangeSelf var -> pure $ VarInRangeSelf (Variable ParseTree.dummySurfaceData var)
+  ParseTree.SelfInRangeVar var -> pure $ SelfInRangeVar (Variable ParseTree.dummySurfaceData var)
+  ParseTree.VarInRangeVar var1 var2 ->
+   pure $ VarInRangeVar (Variable ParseTree.dummySurfaceData var1) (Variable ParseTree.dummySurfaceData var2)
 -------------------------------------------------------------------------------
 typeCheckSkill :: ParseTree.CarryingSource ParseTree.Skill -> TC Skill
 typeCheckSkill (ParseTree.CarryingSource surfaceData (ParseTree.AutomaticSkill cost condition automatic)) =
@@ -1410,7 +1411,11 @@ typeCheckRInt context (ParseTree.CarryingSource surfaceData expr) = {-error "typ
    joinTC $
    pure $
    RCardinality surfaceData var set -- don't worry about correctness of var again for now... (also don't check or extend? context for now)
-   <$> typeCheckRBool context expr
+   <$> (joinTC $ typeCheckRBool <$> context' <*> pure expr)
+   where binding = (var, set)
+         judgment = mkJudgment binding
+         context' = tryExtendContext context judgment
+
 -- | RCardinality SurfaceData String ParseTree.Set RBool
 
 -------------------------------------------------------------------------------
