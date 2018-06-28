@@ -4,7 +4,7 @@ Version 1.0 objectives:
 units:
        have objective missing
 lvl 1  0    9         9
-    2  0    9         9
+    2  1    9         8
     3  1    9         8
     4  0    9         9
     5  3    9         6
@@ -14,23 +14,25 @@ lvl 1  0    9         9
     9  1    9         8
 spells:
        have objective missing
-lvl 1  0    3         3
+lvl 1  3    3         0
     2  1    3         2
     3  1    3         2
-    4  0    3         3
+    4  2    3         1
     5  0    3         3
     6  0    3         3
     7  0    3         3
-    8  0    3         3
-    9  0    3         3
+    8  3    3         0
+    9  3    3         0
 
 
 */
 
-
+/*THIS UNIT NOT FULLY WORKING IN TYPECHECKER (undefined)*/
 unit "Pyromancer" fire level : 2 hp : 30 attack : 0 defense : 0 speed : 1 range : 3 soulPoints : 1
-action : select x in enemy field then {damage x friendly fire * 5;}
-soulSkill : for each x in friendly field, damage x 10;
+action : select x in enemy field then {damage x friendly fire * 5; damage unit to the left of x friendly fire * 5; damage unit to the right of x friendly fire * 5; damage unit behind x friendly fire * 5; damage unit in front of x friendly fire * 5;}
+/*I should be able to damage everything in a set like this...*/
+soulSkill : cost : 1 select x in enemy field then {damage x friendly fire * 5; damage unit to the left of x friendly fire * 5; damage unit to the right of x friendly fire * 5; damage unit behind x friendly fire * 5; damage unit in front of x friendly fire * 5;}
+
 
 unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
 auto : (temporary attack self) += 10 * friendly fire;
@@ -67,12 +69,49 @@ action : cost : 4 for each x in enemy field, (hp x) -= temporary attack self;
 soulSkill : for each x in enemy field, (hp x) -= 10;
 
 
+spell "Flare" fire level : 1
+spawn : select x in enemy field not dead x then {damage x 20;}
 
+spell "Spark-----Burst of Flame" fire level : 1
+spawn : select x in enemy field not dead x then {damage x 10; (friendly fire) += 1;}
 
-spell "Ice Bolt" fire level : 2
+spell "Ignition" fire level : 1
+spawn : for each x in friendly field, (permanent attack x) += 10; (temporary speed x) += 10; (hp x) -= 10;
+
+spell "Flame Strike" fire level : 2
 spawn : select x in enemy field not dead x then {damage x fire friendly * 5;}
+
+
 
 spell "Fire Bolt" fire level : 3
 spawn : select x in enemy field not dead x then {damage x fire friendly * 10;}
+
+spell "Incinerate" fire level : 4
+spawn : select x in enemy field not dead x then {damage x fire friendly * 20;}
+
+spell "??????" fire level : 4
+spawn : for each x in enemy field, damage x max hp x - hp x;
+
+spell "Inferno" fire level : 8
+spawn : select x in enemy field then {damage x 400; damage unit to the left of x friendly fire * 250; damage unit to the right of x friendly fire * 250; damage unit behind x friendly fire * 250; damage unit in front of x friendly fire * 250;}
+
+spell "Endless Flames" fire level : 8
+spawn : for each x in enemy field, damage x 50;, (friendly thoughts) += cardinality (x in enemy field where not dead x and hp x <= 0);
+
+spell "Mass Immolation" fire level : 8
+spawn : for each x in enemy field, (hp x) := 0; (friendly fire) -= cardinality (x in enemy field where not dead x and hp x <= 0);
+
+spell "Fire Tornado" fire level : 9
+spawn : for each x in enemy field, damage x 180;
+
+spell "Fire Blast" fire level : 9
+spawn : for each x in enemy field, damage x 45;
+/*And then damage enemy Life Points by the number of units with hp <= 0*/
+
+spell "Summoning of the Sun" fire level : 9
+spawn : cost : 3 for each x in enemy field, (hp x) := 0;
+
+
+
 
 
