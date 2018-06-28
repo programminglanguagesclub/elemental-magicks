@@ -166,6 +166,8 @@ typeCheckSkillEffect context skillEffect =
    <$> typeCheckRInt context damage
   ParseTree.SendVarToGraveyard surfaceData var -> pure $ SendVarToGraveyard surfaceData var -- not typechecking var currently
   ParseTree.SendSelfToGraveyard surfaceData -> pure $ SendSelfToGraveyard surfaceData
+  ParseTree.DamageSameSquareVar surfaceData var damage ->
+   joinTC $ pure $ DamageSameSquareVar surfaceData var <$> typeCheckRInt context damage -- not type checking var currently
 
 -- | SkillEffectDamageSelf Lexer.Surface RInt
 -- | SkillEffectDamageVar Lexer.SurfaceData String RInt
@@ -430,7 +432,7 @@ data SkillEffect
  | SkillEffectDamageVar Lexer.SurfaceData String RInt
  | SendVarToGraveyard Lexer.SurfaceData String
  | SendSelfToGraveyard Lexer.SurfaceData
-
+ | DamageSameSquareVar Lexer.SurfaceData String RInt
 
 
  deriving Show

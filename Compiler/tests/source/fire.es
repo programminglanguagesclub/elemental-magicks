@@ -28,6 +28,10 @@ lvl 1  0    3         3
 */
 
 
+unit "Pyromancer" fire level : 2 hp : 30 attack : 0 defense : 0 speed : 1 range : 3 soulPoints : 1
+action : select x in enemy field then {damage x friendly fire * 5;}
+soulSkill : for each x in friendly field, damage x 10;
+
 unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
 auto : (temporary attack self) += 10 * friendly fire;
 action : for each x in enemy field where x in range self, damage x temporary attack self;

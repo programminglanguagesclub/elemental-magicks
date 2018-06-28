@@ -6,8 +6,8 @@ units:
 lvl 1  1    9         8
     2  5    9         4
     3  2    9         7
-    4  0    9         9
-    5  3    9         6
+    4  2    9         7
+    5  4    9         5
     6  1    9         8
     7  0    9         9
     8  0    9         9
@@ -65,6 +65,14 @@ unit "Ent Sapling" earth level : 3 hp : 35 attack : 25 defense : 10 speed : 2 ra
 auto : (max hp self) += 5; (hp self) += 15;
 soulSkill : select x in friendly field then {(max hp x) += 50; (hp x) += 50;}
 
+unit "Dragontaur" earth level : 4 hp : 60 attack : 40 defense : 10 speed : 2 range : 2 soulPoints : 2
+action : for each x in enemy field where x in range self, damage x temporary attack self / 2;
+soulSkill : select x in friendly field then {(permanent defense x) += earth friendly * 5;}
+
+unit "Ent Dragon" earth level : 4 hp : 70 attack : 20 defense : 10 speed : 2 range : 1 soulPoints : 2
+counter : for each x in friendly field, (permanent attack x) += 10;
+soulSkill : for each x in friendly field, (permanent attack x) += permanent defense x;
+
 unit "Chimera" earth level : 5 hp : 60 attack : 0 defense : 0 speed : 5 range : 1 soulPoints : 2
 start : for each x in friendly field, (temporary attack self) += temporary attack x;
 soulSkill : select x in friendly field, y in enemy field then {damage y temporary attack x;}
@@ -73,6 +81,10 @@ unit "Earth Warbeast" earth level : 5 hp : 65 attack : 20 defense : 10 speed : 1
 end : (hp self) := max hp self;
 auto : (permanent attack self) := 15;
 soulSkill : for each x in friendly field, (hp x) := max hp x;
+
+unit "Ent Warbeast" earth level : 5 hp : 60 attack : 5 defense : 10 speed : 4 range : 1 soulPoints : 1
+auto : (permanent attack self) += temporary attack self;
+soulSkill : for each x in friendly field, (permanent attack x) += temporary attack x;
 
 
 unit "Gold Spawn" earth level : 5 hp : 100 attack : 20 defense : 0 speed : 1 range : 1 soulPoints : 1
