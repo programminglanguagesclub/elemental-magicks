@@ -439,11 +439,38 @@ data Assignment -- why does this exist as a separate datatype rather than just b
  = Assignment [LExpr] ParseTree.Mutator RInt
  deriving Show
 -------------------------------------------------------------------------------
+data FieldLocation
+ = OneFL
+ | TwoFL
+ | ThreeFL
+ | FourFL
+ | FiveFL
+ | SixFL
+ | SevenFL
+ | EightFL
+ | NineFL
+ | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf Variable
+ | ToTheRightOf Variable
+ | InFrontOf Variable
+ | Behind Variable 
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf -- this refers to friendly...
+ | ToTheRightOfSelf
+ | InFrontOfSelf
+ | BehindSelf
+ deriving Show
+
+ 
+-- Stuff for affecting entire rows or columns to be dealt with elsewhere.
+-- This just indexes a particular square.
+-------------------------------------------------------------------------------
 data LExpr
  = LThoughtsExpr SurfaceData ParseTree.Side
  | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
  | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
  | LVarProjection SurfaceData Variable LStat
+ | LFieldProjection SurfaceData FieldLocation
  {- Cardinality not implemented... -}
  deriving Show
 -------------------------------------------------------------------------------
@@ -1193,7 +1220,8 @@ noSelfReferencesSkillEffect skillEffect =
     ["Invalid reference to self in subexpression:\n"
      ++ (getSurfaceSyntax surfaceData)
      ++ (getLocationMessage surfaceData)]
-  
+  SkillEffectRevive surfaceData var ->
+   pure $ SkillEffectRevive surfaceData var
 
 {- | SkillEffectDamageSelf Lexer.Surface RInt
  | SkillEffectDamageVar Lexer.SurfaceData String RInt

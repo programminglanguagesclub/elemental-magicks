@@ -21,11 +21,13 @@ import Text.EditDistance
 %token
  action {Lexer.Token Lexer.ActionSkill (_)}
  and {Lexer.Token Lexer.And (_)}
+ as {Lexer.Token Lexer.LexerAs (_)}
  assign {Lexer.Token Lexer.Assignment (_)}
  attack {Lexer.Token Lexer.Attack $$}
  auto {Lexer.Token Lexer.AutoSkill (_)}
  banished {Lexer.Token Lexer.Banished (_)}
  base {Lexer.Token Lexer.Base (_)}
+ behind {Lexer.Token Lexer.LexerBehind (_)}
  cardinality {Lexer.Token Lexer.Cardinality (_)}
  colon {Lexer.Token Lexer.Colon (_)}
  comma {Lexer.Token Lexer.Comma (_)}
@@ -49,6 +51,7 @@ import Text.EditDistance
  field {Lexer.Token Lexer.Field (_)}
  for {Lexer.Token Lexer.For (_)}
  friendly {Lexer.Token Lexer.Friendly (_)}
+ front {Lexer.Token Lexer.LexerFront (_)}
  geq {Lexer.Token Lexer.GEQ (_)}
  graveyard {Lexer.Token Lexer.Graveyard (_)}
  gt {Lexer.Token Lexer.Gt (_)}
@@ -58,6 +61,7 @@ import Text.EditDistance
  in {Lexer.Token Lexer.In (_)}
  increment {Lexer.Token Lexer.Increment (_)}
  lbracket {Lexer.Token Lexer.Lbracket (_)}
+ left {Lexer.Token Lexer.LexerLeft (_)}
  leq {Lexer.Token Lexer.LEQ (_)}
  level {Lexer.Token Lexer.Level (_)}
  lparen  {Lexer.Token Lexer.Lparen (_)}
@@ -67,14 +71,19 @@ import Text.EditDistance
  name {Lexer.Token (Lexer.TargetString $$) (_)}
  not {Lexer.Token Lexer.Not (_)}
  number {Lexer.Token (Lexer.Number _) $$  {-This is going to need a projection function probably??-}}
+ of {Lexer.Token Lexer.LexerOf (_)}
+ on {Lexer.Token Lexer.LexerOn (_)}
  or {Lexer.Token Lexer.Or (_)}
  permanent {Lexer.Token Lexer.Permanent (_)}
+ position {Lexer.Token Lexer.LexerPosition (_)}
  product {Lexer.Token Lexer.Product (_)}
  quotient {Lexer.Token Lexer.Quotient (_)}
  range {Lexer.Token Lexer.Range $$}
  rbracket {Lexer.Token Lexer.Rbracket (_)}
  revive {Lexer.Token Lexer.Revive (_)}
+ right {Lexer.Token Lexer.LexerRight (_)}
  rparen {Lexer.Token Lexer.Rparen (_)}
+ same {Lexer.Token Lexer.LexerSame (_)}
  select {Lexer.Token Lexer.Select (_)}
  self {Lexer.Token Lexer.Self (_)}
  semicolon {Lexer.Token Lexer.Semicolon (_)}
@@ -84,10 +93,13 @@ import Text.EditDistance
  spawn {Lexer.Token Lexer.SpawnSkill (_)}
  speed {Lexer.Token Lexer.Speed $$}
  spell {Lexer.Token Lexer.Spell (_)}
+ square {Lexer.Token Lexer.LexerSquare (_)}
  start {Lexer.Token Lexer.StartSkill (_)}
  stretch {Lexer.Token Lexer.Stretch (_)}
  sum {Lexer.Token Lexer.Sum (_)}
+ the {Lexer.Token Lexer.LexerThe (_)}
  then {Lexer.Token Lexer.Then (_)}
+ this {Lexer.Token Lexer.LexerThis (_)}
  thought {Lexer.Token Lexer.Thought (_)}
  thoughts {Lexer.Token Lexer.Thoughts (_)}
  to {Lexer.Token Lexer.To (_)}
@@ -200,15 +212,62 @@ SkillEffect : Assignment {$1}
             | Damage {$1}
             | SendVarToGraveyard {$1}
             | SendSelfToGraveyard {$1}
+            | SendSquareToGraveyard {$1}
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
 Revive : revive var {Revive (extractSurfaceData $1) $2}
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage self Expr {DamageSelf dummySurfaceData $3 }
+       | damage Side unit on position number Expr {undefined}
+       | damage unit on the same square as var Expr {DamageSameSquareVar dummySurfaceData $8 $9}
+       | damage unit to the left of var Expr {undefined}
+       | damage unit to the right of var Expr {undefined}
+       | damage unit in front of var Expr {undefined}
+       | damage unit behind var Expr {undefined}
+       | damage unit on the same square as this unit Expr {undefined}
+       | damage unit to the left of this unit Expr {undefined}
+       | damage unit to the right of this unit Expr {undefined}
+       | damage unit in front of this unit Expr {undefined}
+       | damage unit behind this unit Expr {undefined}
+
 SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
 SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
+SendSquareToGraveyard : send Side unit on position number to graveyard {undefined}
+                      | send to graveyard unit on the same square as var {undefined}
+                      | send to graveyard unit to the left of var {undefined}
+                      | send to graveyard unit to the right of var {undefined}
+                      | send to graveyard unit in front of var {undefined}
+                      | send to graveyard unit behind var {undefined}
+                      | send to graveyard unit on the same square as this unit {undefined}
+                      | send to graveyard unit to the left of this unit {undefined}
+                      | send to graveyard unit to the right of this unit {undefined}
+                      | send to graveyard unit in front of this unit {undefined}
+                      | send to graveyard unit behind this unit {undefined}
+
 
 
 {-
+use this for field above, and also for damage in effects
+data FieldLocation
+ = OneFL
+ | TwoFL
+ | ThreeFL
+ | FourFL
+ | FiveFL
+ | SixFL
+ | SevenFL
+ | EightFL
+ | NineFL
+ | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf Variable
+ | ToTheRightOf Variable
+ | InFrontOf Variable
+ | Behind Variable
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf -- this refers to friendly...
+ | ToTheRightOfSelf
+ | InFrontOfSelf
+ | BehindSelf
+ deriving Show
 
  | DamageSelf Lexer.SurfaceData
  | DamageVar Lexer.SurfaceData String
@@ -253,6 +312,56 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | var in range self {CarryingSource dummySurfaceData $ VarInRangeSelf $1}
      | cardinality lparen var in Set where Expr rparen {CarryingSource dummySurfaceData $ Cardinality $3 $5 $7}
      | cardinality lparen var in Set rparen {CarryingSource dummySurfaceData $ Cardinality $3 $5 (CarryingSource dummySurfaceData Always)}
+     | Field unit in Side position number {undefined}
+     | Field unit on the same square as var {undefined}
+     | Field unit to the left of var {undefined}
+     | Field unit to the right of var {undefined}
+     | Field unit in front of var {undefined}
+     | Field unit behind var {undefined}
+     | Field unit on the same square as this unit {undefined}
+     | Field unit to the left of this unit {undefined}
+     | Field unit to the right of this unit {undefined}
+     | Field unit in front of this unit {undefined}
+     | Field unit behind this unit {undefined}
+
+{-
+use this for field above, and also for damage in effects
+data FieldLocation
+ = OneFL
+ | TwoFL
+ | ThreeFL
+ | FourFL
+ | FiveFL
+ | SixFL
+ | SevenFL
+ | EightFL
+ | NineFL
+ | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf Variable
+ | ToTheRightOf Variable
+ | InFrontOf Variable
+ | Behind Variable
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf -- this refers to friendly...
+ | ToTheRightOfSelf
+ | InFrontOfSelf
+ | BehindSelf
+ deriving Show
+
+
+-- Stuff for affecting entire rows or columns to be dealt with elsewhere.
+-- This just indexes a particular square.
+-------------------------------------------------------------------------------
+data LExpr
+ = LThoughtsExpr SurfaceData ParseTree.Side
+ | LKnowledgeExpr SurfaceData Knowledge ParseTree.Side
+ | LSelfProjection SurfaceData LStat {-should exclude base stats, soul points...-}
+ | LVarProjection SurfaceData Variable LStat
+ | LFieldProjection SurfaceData FieldLocation
+
+
+-}
+
 
 --| RCardinality SurfaceData RBool ParseTree.Set
 --| Cardinality String Set Expr

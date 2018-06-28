@@ -26,6 +26,20 @@ tokens :-
 <0> cardinality { \s i -> return (Token Cardinality $ SurfaceData (lineNumber s) (columnNumber s) "cardinality")}
 <0> damage { \s i -> return (Token Damage $ SurfaceData (lineNumber s) (columnNumber s) "damage")}
 
+<0> position { \s i -> return (Token LexerPosition $ SurfaceData (lineNumber s) (columnNumber s) "position")}
+<0> on { \s i -> return (Token LexerOn $ SurfaceData (lineNumber s) (columnNumber s) "on")}
+<0> the { \s i -> return (Token LexerThe $ SurfaceData (lineNumber s) (columnNumber s) "the")}
+<0> same { \s i -> return (Token LexerSame $ SurfaceData (lineNumber s) (columnNumber s) "same")}
+<0> square { \s i -> return (Token LexerSquare $ SurfaceData (lineNumber s) (columnNumber s) "square")}
+<0> as { \s i -> return (Token LexerAs $ SurfaceData (lineNumber s) (columnNumber s) "as")}
+<0> left { \s i -> return (Token LexerLeft $ SurfaceData (lineNumber s) (columnNumber s) "left")}
+<0> of { \s i -> return (Token LexerOf $ SurfaceData (lineNumber s) (columnNumber s) "of")}
+<0> right { \s i -> return (Token LexerRight $ SurfaceData (lineNumber s) (columnNumber s) "right")}
+<0> front { \s i -> return (Token LexerFront $ SurfaceData (lineNumber s) (columnNumber s) "front")}
+<0> behind { \s i -> return (Token LexerBehind $ SurfaceData (lineNumber s) (columnNumber s) "behind")}
+<0> this { \s i -> return (Token LexerThis $ SurfaceData (lineNumber s) (columnNumber s) "this")}
+
+
 
 <0> cost { \s i -> return (Token Cost $ SurfaceData (lineNumber s) (columnNumber s) "cost")}
 <0> condition { \s i -> return (Token Condition $ SurfaceData (lineNumber s) (columnNumber s) "condition")}
@@ -118,8 +132,24 @@ data Token = Token TokenInner SurfaceData
            deriving Show
 data SurfaceData = SurfaceData Int Int String
                  deriving Show
+
+
+
+
 data TokenInner =
   Program
+  | LexerPosition
+  | LexerOn
+  | LexerThe
+  | LexerSame
+  | LexerSquare
+  | LexerAs
+  | LexerLeft
+  | LexerOf
+  | LexerRight
+  | LexerFront
+  | LexerBehind
+  | LexerThis
   | Else
   | If
   | Identifier String

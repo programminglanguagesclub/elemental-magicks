@@ -173,8 +173,42 @@ data SkillEffect
  | DamageVar Lexer.SurfaceData String (CarryingSource Expr)
  | SendVarToGraveyard Lexer.SurfaceData String
  | SendSelfToGraveyard Lexer.SurfaceData
-
+ | DamageSquare Lexer.SurfaceData Side String (CarryingSource Expr)
+ | DamageSameSquareSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageSameSquareVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageLeftSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageRightSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageBehindSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageInFrontOfSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageLeftVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageRightVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageBehindVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageInFrontOfVar Lexer.SurfaceData String (CarryingSource Expr)
  deriving Show
+
+
+
+
+{-
+
+
+       | damage Side unit on position number Expr {undefined}
+       | damage unit on the same square as var Expr {undefined}
+       | damage unit to the left of var Expr {undefined}
+       | damage unit to the right of var Expr {undefined}
+       | damage unit in front of var Expr {undefined}
+       | damage unit behind var Expr {undefined}
+       | damage unit on the same square as this unit Expr {undefined}
+       | damage unit to the left of this unit Expr {undefined}
+       | damage unit to the right of this unit Expr {undefined}
+       | damage unit in front of this unit Expr {undefined}
+       | damage unit behind this unit Expr {undefined}
+
+
+
+
+-}
+
 -------------------------------------------------------------------------------
 data Nonautomatic
  = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}
