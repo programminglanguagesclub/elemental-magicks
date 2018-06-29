@@ -15,12 +15,12 @@ lvl 1  0    9         9
 spells:
        have objective missing
 lvl 1  3    3         0
-    2  1    3         2
-    3  1    3         2
-    4  2    3         1
-    5  0    3         3
-    6  0    3         3
-    7  0    3         3
+    2  3    3         0
+    3  3    3         0
+    4  3    3         0
+    5  3    3         0
+    6  3    3         0
+    7  3    3         0
     8  3    3         0
     9  3    3         0
 
@@ -72,7 +72,7 @@ soulSkill : for each x in enemy field, (hp x) -= 10;
 spell "Flare" fire level : 1
 spawn : select x in enemy field not dead x then {damage x 20;}
 
-spell "Spark-----Burst of Flame" fire level : 1
+spell "Spark" fire level : 1
 spawn : select x in enemy field not dead x then {damage x 10; (friendly fire) += 1;}
 
 spell "Ignition" fire level : 1
@@ -81,16 +81,66 @@ spawn : for each x in friendly field, (permanent attack x) += 10; (temporary spe
 spell "Flame Strike" fire level : 2
 spawn : select x in enemy field not dead x then {damage x fire friendly * 5;}
 
+spell "Burning Fury" fire level : 2
+spawn : for each x in friendly field, (temporary attack x) += hp x; (hp x) := 10;
 
+spell "Inner Fire" fire level : 2
+spawn : select x in friendly field then {(permanent attack x) += friendly fire * 10; (permanent speed x) += friendly fire;}
+
+spell "Heat Wave" fire level : 3
+spawn : for each x in enemy field, damage x cardinality (y in enemy field where not dead y) * 5; /*if I say not dead x, it should be an error*/
 
 spell "Fire Bolt" fire level : 3
 spawn : select x in enemy field not dead x then {damage x fire friendly * 10;}
+
+spell "????" fire level : 3
+spawn : select x in enemy field then {damage x 50;}
 
 spell "Incinerate" fire level : 4
 spawn : select x in enemy field not dead x then {damage x fire friendly * 20;}
 
 spell "??????" fire level : 4
 spawn : for each x in enemy field, damage x max hp x - hp x;
+
+spell "Fireball" fire level : 4
+spawn : for each x in enemy field, (hp x) -= 30; select x in enemy field then {damage x 30;}
+
+
+/*
+level 5s: do fire knowledge * 10 to enemy units in positions 1-2-3; 4-5-6; 7-8-9
+*/
+
+
+
+spell "@?@?@?@" fire level : 6
+spawn : for each x in enemy field, damage x 40;
+
+/*
+spell "@??@@@@@@" fire level : 6
+spawn : select x in enemy field, damage x 40;, if hp x <= 0, damage enemy 1 life point
+*/
+
+
+spell "sgssdjgslkgddsfglkj" fire level : 6
+spawn : for each x in enemy field, damage x temporary attack x;
+
+/*
+spell "?????????????????????????????????" fire level : 7
+
+damage enemy life points by 1
+
+*/
+
+
+spell "Greater Fireball" fire level : 7
+spawn : for each x in enemy field, (hp x) -= 100; select x in enemy field then {damage x 50;}
+
+
+spell "Massive Fireball" fire level : 7
+spawn : cost : 2 for each x in enemy field, (hp x) -= 150; select x in enemy field then {damage x 50;}
+
+
+
 
 spell "Inferno" fire level : 8
 spawn : select x in enemy field then {damage x 400; damage unit to the left of x friendly fire * 250; damage unit to the right of x friendly fire * 250; damage unit behind x friendly fire * 250; damage unit in front of x friendly fire * 250;}

@@ -49,5 +49,73 @@ soulSkill : for each x in friendly field, (permanent defense x) += max hp x - hp
 
 
 
-spell "Frozen Cage" water level : 4
-spawn : select x in enemy field not dead x then {(engagement x) += fire friendly;}
+
+spell "Frost" water level : 1
+spawn : select x in enemy field then {(temporary attack x) := 0;}
+
+spell "Cold Snap" water level : 1
+spawn : select x in enemy field then {(temporary range x) := 0;}
+
+
+spell "34234sdhsdh" water level : 1
+spawn : select x in friendly field then {(permanent range x) := 5;}
+
+/*
+spell "Frost Bite" water level : 2
+*/
+
+spell "Thermal Transfer" water level : 2
+spawn : select x in enemy field then {(permanent speed x) -= 5;} {select y in friendly field then {(permanent speed y) += 5;}}
+
+
+spell "Frost Bite" water level : 3
+spawn : select x in enemy field then {(permanent range x) := 0;}
+
+spell "sdhsdahf" water level : 3
+spawn : for each x in friendly field, (permanent range x) := 5;
+
+spell "sdgsdhdsh" water level : 3
+spawn : for each x in friendly field, (hp x) := max hp x;
+
+
+spell "Snow Storm" water level : 4
+spawn : for each x in enemy field, (temporary range x) := 0;
+
+spell "Ice Storm" water level : 4
+spawn : for each x in enemy field, (temporary attack x) := 0; (temporary speed x) := 0;
+
+spell "Frost Armor" water level : 4
+spawn : for each x in friendly field, (permanent defense x) += 10; (temporary defense x) += 50;
+
+spell "Frozen Cage" water level : 5
+spawn : select x in enemy field not dead x then {(engagement x) += water friendly;}
+
+spell "dgkgksdg" water level : 9
+spawn : for each x in enemy field, (engagement x) += 10;
+
+/*
+spell "asdgjsgj" water level : 9
+spawn : select x in enemy field, RETURN X TO HAND
+*/
+
+spell "gjdsgksg" water level : 9
+spawn : for each x in enemy field, (permanent range x) := 0; (permanent speed x) := 0; (permanent attack x) := 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
