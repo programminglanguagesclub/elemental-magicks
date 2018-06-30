@@ -162,3 +162,36 @@ soulSkill : (friendly spirit) += 1; select x in enemy field then {(engagement x)
 
 
 
+unit "Death Ogre" spirit level : 6 hp : 80 attack : 60 defense : 10 speed : 2 range : 1 soulPoints : 1
+action : select x in enemy field x in range self then {damage x temporary attack self * 2;}
+soulSkill : select x in enemy field then {damage x friendly spirit * 20;}
+
+
+unit "Skeletal Colossus" spirit level : 6 hp : 80 attack : 80 defense : 0 speed : 3 range : 1 soulPoints : 2
+/*death : refresh ... need to add this to compiler*/
+soulSkill : for each x in friendly field, (permanent defense x) += 10;
+
+
+unit "Titanic Heavily Armoured Robot Soldier" spirit level : 6 hp : 90 attack : 70 defense : 10 speed : 1 range : 1 soulPoints : 1
+auto : (permanent defense self) += 5;
+soulSkill : for each x in friendly field, (permanent defense x) += 15;
+
+
+unit "Tyrant" spirit level : 7 hp : 90 attack : 0 defense : 0 speed : 3 range : 2 soulPoints : 2
+auto : (temporary attack self) += cardinality (x in enemy graveyard) * 10;
+action : condition : cardinality (x in friendly graveyard) >= 10 select x in enemy field not dead x then {send x to graveyard;}
+soulSkill : select x in friendly field then {(permanent attack x) += cardinality (y in friendly graveyard) * 10;}
+/*again should be units in grave, not cards*/
+
+unit "Undead Wyrm" spirit level : 7 hp : 100 attack : 50 defense : 0 speed : 2 range : 3 soulPoints : 1
+action : (enemy thoughts) -= 1; select x in enemy field x in range self then {damage x temporary attack self;}
+soulSkill : cost : 2 (enemy thoughts) -= 5;
+
+unit "Titanic Death Knight" spirit level : 8 hp : 80 attack : 50 defense : 20 speed : 3 range : 1 soulPoints : 1
+action : cost : 2 for each x in enemy field, damage x cardinality (y in enemy graveyard) * 5;
+soulSkill : select x in friendly field then {(permanent defense x) += cardinality (y in friendly graveyard) * 5;}
+/*again units not cards*/
+
+
+
+
