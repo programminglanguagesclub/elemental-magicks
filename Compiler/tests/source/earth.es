@@ -100,11 +100,11 @@ soulSkill : for each x in friendly field, (max hp x) += 15; (hp x) += 15;
 
 
 
-
-
-
-
-
+unit "God of Earth" earth level : 9 hp : 150 attack : 70 defense : 10 speed : 2 range : 5 soulPoints : 2
+start : for each x in friendly field, (max hp x) += 10; (hp x) += 20; (permanent attack x) += 10; (temporary defense x) += 10;
+end : for each x in friendly field, (hp x) := max hp x;
+spawn : for each x in friendly field, (hp x) := max hp x;
+soulSkill : for each x in friendly field, (hp x) := max hp x;
 
 
 
