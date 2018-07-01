@@ -56,9 +56,16 @@ youSpawn =
 opponentSpawns =
  "Wait for your opponent to level their schools of thought, and decide whether or not to spawn a card."
 -------------------------------------------------------------------------------
-stepSpawnPhase : WhichPlayer -> Player -> Player -> Maybe ClientInstruction
+stepSpawnPhase :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ Maybe ClientInstruction
+
 stepSpawnPhase initiative playerA playerB with (spawnCard (getPlayer initiative playerA playerB))
- | Nothing = Just $ generateClientInstruction initiative youSpawn opponentSpawns
+ | Nothing =
+  Just $
+  generateClientInstruction initiative youSpawn opponentSpawns
  | Just _ =
   let onMove = getOpponent initiative in
   case spawnCard $ getPlayer onMove playerA playerB of
@@ -85,7 +92,10 @@ transformSpawnPhase actor a b initiative update =
   False => Left (notYourTurn, temporaryId $ getPlayer actor a b) -- This Not Player On Move!!
   True =>
    case update of
-    SpawnCard knowledge' handIndex => ?hole
+    SpawnCard knowledge' handIndex =>
+     case dominatesVect knowledge' (knowledge ?hole) of
+      True => ?hole
+      False => Left ("You cannot lower your knowledge in the spawn phase!", ?hole)
     Skip knowledge' =>
      case dominatesVect knowledge' (knowledge a {-not always playerA-}) of
       True =>
