@@ -80,8 +80,9 @@ transformSpawnPhase :
 
 transformSpawnPhase actor a b initiative update =
  let whichPlayerOnMove = PlayerA in -- Isn't this just wrong?
+ let playerToUpdate = getPlayer whichPlayerOnMove a b in
  case (whichPlayerOnMove == actor) of
-  False => Left (notYourTurn, ?hole{-the player id-}) -- Not Correct Player On Move!!
+  False => Left (notYourTurn, temporaryId $ getPlayer actor a b) -- This Not Player On Move!!
   True =>
    case update of
     SpawnCard knowledge' handIndex => ?hole
@@ -91,7 +92,7 @@ transformSpawnPhase actor a b initiative update =
        let cost = totalDifferenceVect knowledge' (knowledge a) in
        let currentThoughts = extractBounded $ thoughtsResource a {-not always playerA-} in
        case currentThoughts >= cost of
-        True => Right ((?hole,?hole {-assuming playerA for now....-}), ?hole)
+        True => Right ((record {thoughtsResource $= ?hole, knowledge $= ?hole} a,?hole {-assuming playerA for now....-}), ?hole)
         False => Left ("You cannot afford to raise your knowledge by that much!",?hole)
       False => Left("You cannot lower your knowledge in the spawn phase!", ?hole)
     _ => Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
