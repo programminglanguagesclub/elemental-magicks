@@ -1,12 +1,7 @@
 module Main.Transform_game
 
-{-import Data.Vect
-import Data.So
-import Base.Preliminaries
--}
 import Data.Fin
 import Base.Phase
-{-import Base.Objects_basic-}
 import Base.Preliminaries
 import Base.Skill_dsl_data
 import Base.Player
@@ -41,7 +36,7 @@ transformGame' :
  ServerUpdate ->
  (Either WhichPlayer Game, List ClientUpdate)
 
-transformGame' game actor serverUpdate with (phase game) {-I'm going to pass in phase even though it's bad form, just so I don't have to reconstruct game for now-}
+transformGame' game actor serverUpdate with (phase game)
  | _ = ?hole
 
 {-

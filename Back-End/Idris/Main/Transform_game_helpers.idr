@@ -320,14 +320,14 @@ moveUnit moveFrom moveTo board =
 -- return proof that
 -- ??
 
-
+{-
 implementation DecEq (Bool -> Bool) where
  decEq f g with (decEq (f True) (g True), decEq (f False) (g False))
   | (Yes _, Yes _) = Yes $ the (f=g) $ believe_me Refl
   | (Yes _, No _) = No ?hole
   | (No _, Yes _) = No ?hole
   | (No _, No _) = Yes $ the (f=g) $ believe_me Refl
-
+-}
 restUnit :
  (location : Fin 9) -> -- data
  (game : Game) -> -- data

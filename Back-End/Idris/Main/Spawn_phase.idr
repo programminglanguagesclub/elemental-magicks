@@ -61,58 +61,20 @@ opponentSpawns =
 
 stepSpawnPhase : WhichPlayer -> Player -> Player -> Maybe ClientInstruction
 stepSpawnPhase PlayerA playerA playerB with (spawnCard playerA)
- | Nothing = Just $ MkClientInstruction (youSpawn, opponentSpawns, ?hole)
+ | Nothing = Just $ MkClientInstruction (youSpawn, opponentSpawns, PlayerA)
  | Just _ = case spawnCard playerB of
-                 Nothing => Just $ MkClientInstruction (opponentSpawns, youSpawn, ?hole)
+                 Nothing => Just $ MkClientInstruction (opponentSpawns, youSpawn, PlayerB)
                  Just _ => Nothing
 stepSpawnPhase PlayerB playerA playerB with (spawnCard playerB)
- | Nothing = Just $ MkClientInstruction (opponentSpawns, youSpawn, ?hole)
- | Just _ = case (spawnCard playerA) of
-                 Nothing => Just $ MkClientInstruction (youSpawn, opponentSpawns, ?hole)
+ | Nothing = Just $ MkClientInstruction (opponentSpawns, youSpawn, PlayerB)
+ | Just _ = case spawnCard playerA of
+                 Nothing => Just $ MkClientInstruction (youSpawn, opponentSpawns, PlayerA)
                  Just _ => Nothing
 
 {-I can remove some boilerplate by having a function that generates client instructions given who has the initiative,
 and the message for the player with and without the initiative-}
 
-
-
-
-{-
- let player = getPlayer initiative playerA playerB in
- case (spawnCard player) of
-
-{-This is all wrong, since I'm giving the first instruction to player A when player A might not be the one to spawn... now.......-}
-
-      Nothing => Just $ MkClientInstruction (youSpawn,opponentSpawns)
-      Just _ => case (spawnCard $ getOpponent initiative playerA playerB) of
-                     Nothing => Just $ MkClientInstruction (opponentSpawns,youSpawn)
--}
-
-
-
-{-
-
- | SpawnPhase = case transformSpawnPhase actor (player_A game) (player_B game) (initiative game) serverUpdate of
-                     Right (errorMessage, playerId) => ?hole
-                     Left ((playerA', playerB'), updates) => ?hole
-
-
--}
 -------------------------------------------------------------------------------
-{-
-
- | SpawnPhase =
-   case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right ((playerA', playerB'), updates) => ?hole
- 
- | MkPhaseCycle SpellPhase playerA playerB =
-   case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
--}
-
-
 transformSpawnPhase :
  (actor : WhichPlayer) ->
  (playerA : Player) ->
@@ -125,19 +87,16 @@ transformSpawnPhase :
 
 -- hand index should really be a Fin or w/e, not a nat.....
 
-transformSpawnPhase actor a b initiative (SpawnCard knowledge handIndex) =
- ?hole
-transformSpawnPhase actor a b initiative (Skip knowledge) =
- ?hole
-transformSpawnPhase actor a b initiative _ =
- Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
+transformSpawnPhase actor a b initiative update =
+ let whichPlayerOnMove = PlayerA in
+ case (whichPlayerOnMove == actor) of
+  False => ?hole -- Not Correct Player On Move!!
+  True =>
+   case update of
+    SpawnCard knowledge handIndex => ?hole
+    Skip knowledge => ?hole
+    _ => Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
 -------------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 
