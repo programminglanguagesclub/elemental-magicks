@@ -73,6 +73,7 @@ stepSpawnPhase PlayerB playerA playerB with (spawnCard playerB)
 
 {-I can remove some boilerplate by having a function that generates client instructions given who has the initiative,
 and the message for the player with and without the initiative-}
+-- IS THE first player in the client update string the PLAYERA message or the message for the player that sent this request????
 
 -------------------------------------------------------------------------------
 transformSpawnPhase :
