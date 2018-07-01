@@ -79,13 +79,21 @@ transformSpawnPhase :
 -- hand index should really be a Fin or w/e, not a nat.....
 
 transformSpawnPhase actor a b initiative update =
- let whichPlayerOnMove = PlayerA in
+ let whichPlayerOnMove = PlayerA in -- Isn't this just wrong?
  case (whichPlayerOnMove == actor) of
   False => Left (notYourTurn, ?hole{-the player id-}) -- Not Correct Player On Move!!
   True =>
    case update of
-    SpawnCard knowledge handIndex => ?hole
-    Skip knowledge => ?hole
+    SpawnCard knowledge' handIndex => ?hole
+    Skip knowledge' =>
+     case dominatesVect knowledge' (knowledge a {-not always playerA-}) of
+      True =>
+       let cost = totalDifferenceVect knowledge' (knowledge a) in
+       let currentThoughts = extractBounded $ thoughtsResource a {-not always playerA-} in
+       case currentThoughts >= cost of
+        True => Right ((?hole,?hole {-assuming playerA for now....-}), ?hole)
+        False => Left ("You cannot afford to raise your knowledge by that much!",?hole)
+      False => Left("You cannot lower your knowledge in the spawn phase!", ?hole)
     _ => Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
 -------------------------------------------------------------------------------
 
