@@ -213,7 +213,7 @@ transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
      Nothing => Just $ Left (cardInvalid, playerId)
      Just cardFactory => Just $ Right $ drawHandCard cardsDrawn playerId cardFactory player
  else
-  Just $ Left (notYourTurn, playerId)
+  Just $ Left (Draw_phase.notYourTurn, playerId)
 
 
 transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
@@ -238,14 +238,14 @@ transformDrawPhase actor playerA playerB (DrawCardSoul cardId soulIndex) =
        Nothing =>
         Just $ Right $ assignSoulSkill soulIndex cardsDrawn playerId monsterFactory player
  else
-  Just $ Left (notYourTurn, playerId)
+  Just $ Left (Draw_phase.notYourTurn, playerId)
 
 transformDrawPhase actor playerA playerB _  =
  let playerId = temporaryId $ getActor actor playerA playerB in
  getCardDraw playerA playerB >>= \turn =>
  if yourTurnToDraw turn actor
   then Just $ Left (invalidActionDrawPhase, playerId)
-  else Just $ Left (notYourTurn, playerId)
+  else Just $ Left (Draw_phase.notYourTurn, playerId)
 
 
 

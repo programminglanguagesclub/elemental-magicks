@@ -56,25 +56,15 @@ youSpawn =
 opponentSpawns =
  "Wait for your opponent to level their schools of thought, and decide whether or not to spawn a card."
 -------------------------------------------------------------------------------
-
-{-getMessageSpawnPhase : WhichPlayer -> Player -> Player -> ClientInstruction-}
-
 stepSpawnPhase : WhichPlayer -> Player -> Player -> Maybe ClientInstruction
-stepSpawnPhase PlayerA playerA playerB with (spawnCard playerA)
- | Nothing = Just $ MkClientInstruction (youSpawn, opponentSpawns, PlayerA)
- | Just _ = case spawnCard playerB of
-                 Nothing => Just $ MkClientInstruction (opponentSpawns, youSpawn, PlayerB)
-                 Just _ => Nothing
-stepSpawnPhase PlayerB playerA playerB with (spawnCard playerB)
- | Nothing = Just $ MkClientInstruction (opponentSpawns, youSpawn, PlayerB)
- | Just _ = case spawnCard playerA of
-                 Nothing => Just $ MkClientInstruction (youSpawn, opponentSpawns, PlayerA)
-                 Just _ => Nothing
-
-{-I can remove some boilerplate by having a function that generates client instructions given who has the initiative,
-and the message for the player with and without the initiative-}
--- IS THE first player in the client update string the PLAYERA message or the message for the player that sent this request????
-
+stepSpawnPhase initiative playerA playerB with (spawnCard (getPlayer initiative playerA playerB))
+ | Nothing = Just $ generateClientInstruction initiative youSpawn opponentSpawns
+ | Just _ =
+  let onMove = getOpponent initiative in
+  case spawnCard $ getPlayer onMove playerA playerB of
+   Nothing =>
+    Just $ generateClientInstruction onMove youSpawn opponentSpawns
+   Just _ => Nothing
 -------------------------------------------------------------------------------
 transformSpawnPhase :
  (actor : WhichPlayer) ->
@@ -91,7 +81,7 @@ transformSpawnPhase :
 transformSpawnPhase actor a b initiative update =
  let whichPlayerOnMove = PlayerA in
  case (whichPlayerOnMove == actor) of
-  False => ?hole -- Not Correct Player On Move!!
+  False => Left (notYourTurn, ?hole{-the player id-}) -- Not Correct Player On Move!!
   True =>
    case update of
     SpawnCard knowledge handIndex => ?hole

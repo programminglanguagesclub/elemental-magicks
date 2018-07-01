@@ -14,6 +14,24 @@ data Result
 data ClientInstruction = MkClientInstruction (String,String,WhichPlayer)
                        -- not integrated yet
                        -- whichPlayer refers to whose turn it is now.
+                       -- the strings are the messages for players a and b
+                       -- not in terms of who made the request because
+                       -- I also use this in step game which doesn't know
+
+generateClientInstruction :
+ WhichPlayer ->
+ String ->
+ String ->
+ ClientInstruction
+generateClientInstruction whichPlayerOnMove onMoveMessage notOnMoveMessage with (whichPlayerOnMove)
+ | PlayerA = MkClientInstruction (onMoveMessage, notOnMoveMessage, PlayerA)
+ | PlayerB = MkClientInstruction (notOnMoveMessage, onMoveMessage, PlayerB)
+
+
+
+notYourTurn : String
+notYourTurn = "It is not your turn to act!"
+
 -------------------------------------------------------------------------------
 
 --hack for now
