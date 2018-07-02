@@ -94,7 +94,11 @@ transformSpawnPhase actor a b initiative update =
    case update of
     SpawnCard knowledge' handIndex =>
      case dominatesVect knowledge' (knowledge ?hole) of
-      True => ?hole
+      True =>
+       case index' handIndex (hand a) {-not always player a-} of
+        Nothing => Left ("You selected a position in your hand that does not contain a card", ?hole)
+        Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
+        Just (MonsterCard monster) => ?hole
       False => Left ("You cannot lower your knowledge in the spawn phase!", ?hole)
     Skip knowledge' =>
      case dominatesVect knowledge' (knowledge a {-not always playerA-}) of
