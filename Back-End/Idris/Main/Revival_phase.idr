@@ -13,13 +13,13 @@ import Base.Skill_dsl_data
 %default total
 
 -------------------------------------------------------------------------------
-getNumberOfSchools : BasicMonster -> Nat
+getNumberOfSchools : BasicFieldedMonster -> Nat
 getNumberOfSchools monster with (schools monster)
  | NoSchools      = 0
  | OneSchool _    = 1
  | TwoSchools _ _ = 2
 -------------------------------------------------------------------------------
-getReviveCost : (toRevive : List Monster) -> Nat -- refactor
+getReviveCost : (toRevive : List FieldedMonster) -> Nat -- refactor
 getReviveCost toRevive =
  foldl (\n => \m => (n + (getNumberOfSchools (basic m)))) 0 toRevive
 -------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ _removeMonsterFromHandByPermanentId :
  (acc : List Card) ->
  (hand : List Card) ->
  (id : Nat) ->
- (Maybe Monster, List Card)
+ (Maybe UnfieldedMonster, List Card)
 
 _removeMonsterFromHandByPermanentId _ [] _ = (Nothing,[])
 _removeMonsterFromHandByPermanentId acc ((SpellCard _)::xs) id =
@@ -55,7 +55,7 @@ _removeMonsterFromHandByPermanentId acc ((MonsterCard m)::xs) permanentId =
 removeMonsterFromHandByPermanentId :
  (hand : List Card) ->
  (id : Nat) ->
- (Maybe Monster, List Card)
+ (Maybe UnfieldedMonster, List Card)
 
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 -------------------------------------------------------------------------------
@@ -70,21 +70,28 @@ moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
   (Nothing, hand') => Nothing
   (Just m, hand') => Just (hand', (graveyard ++ [MonsterCard m]))
 -------------------------------------------------------------------------------
-reviveMonster : Monster -> Monster
+reviveMonster : FieldedMonster -> FieldedMonster
 
 --thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
 
-_revive : Vect 9 Bool -> Vect 9 (Maybe Monster) -> (thoughts : Bounded 0 Preliminaries.absoluteUpperBound) -> List Card -> List Card -> Maybe (Vect 9 (Maybe Monster),Bounded 0 Preliminaries.absoluteUpperBound,List Card,List Card)
+_revive :
+ Vect 9 Bool ->
+ Vect 9 (Maybe FieldedMonster) ->
+ (thoughts : Bounded 0 Preliminaries.absoluteUpperBound) ->
+ List Card ->
+ List Card ->
+ Maybe (Vect 9 (Maybe FieldedMonster),Bounded 0 Preliminaries.absoluteUpperBound,List Card,List Card)
+
 _revive positions board thoughts hand graveyard =
  let zipped = zipWith reviveSelectedMonsters positions board in
  let revivedMonsters = justRevivedMonsters (toList zipped) in
  (case moveMonsterFromHandToGraveyardByPermanentId hand graveyard ?hole of
       Nothing => Nothing
       Just (hand', graveyard') => Just (board, thoughts, hand, graveyard)) where
-  reviveSelectedMonsters : Bool -> Maybe Monster -> Maybe Monster
+  reviveSelectedMonsters : Bool -> Maybe FieldedMonster -> Maybe FieldedMonster
   reviveSelectedMonsters True (Just m) = Just (reviveMonster m)
   reviveSelectedMonsters _ _ = Nothing
-  justRevivedMonsters : List (Maybe Monster) -> List Monster
+  justRevivedMonsters : List (Maybe FieldedMonster) -> List FieldedMonster
   justRevivedMonsters [] = []
   justRevivedMonsters (Nothing::xs) = justRevivedMonsters xs
   justRevivedMonsters ((Just m)::xs) = [m] ++ (justRevivedMonsters xs)

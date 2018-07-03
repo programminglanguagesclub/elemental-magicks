@@ -13,7 +13,7 @@ import Base.Skill_dsl_data
 
 
 {-these can be refactored-}
-_allUnitsDead : List (Maybe Monster) -> Bool
+_allUnitsDead : List (Maybe FieldedMonster) -> Bool
 _allUnitsDead (Nothing::tl) = _allUnitsDead tl
 _allUnitsDead ((Just m)::tl) with (aliveness (basic m))
  | Alive = False
@@ -21,7 +21,7 @@ _allUnitsDead ((Just m)::tl) with (aliveness (basic m))
  | DeadStale = _allUnitsDead tl
 _allUnitsDead [] = True
 
-allUnitsDead : Vect n (Maybe Monster) -> Bool
+allUnitsDead : Vect n (Maybe FieldedMonster) -> Bool
 allUnitsDead board = _allUnitsDead (toList board)
 
 

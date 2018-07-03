@@ -130,10 +130,10 @@ initialPhase = SpawnPhase
 -------------------------------------------------------------------------------
 newGame :
  String ->
- Vect 5 Monster ->
+ Vect 5 SoulCard ->
  Vect 30 Card ->
  String ->
- Vect 5 Monster ->
+ Vect 5 SoulCard ->
  Vect 30 Card ->
  Game
 
@@ -204,29 +204,29 @@ updatePlayer whichPlayer game mutator =
 
 modifyHp :
  (Integer -> Integer) ->
- Monster ->
- Monster
+ FieldedMonster ->
+ FieldedMonster
 
 modifyHp mutator monster =
  record {basic -> hp $= transformHp mutator} monster
 -------------------------------------------------------------------------------
 subtractHp :
  Nat ->
- Monster ->
- (Bool, Monster)
+ FieldedMonster ->
+ (Bool, FieldedMonster)
 
 subtractHp value monster with (value)
  | Z = (False, monster)
  | S _ = (True, modifyHp (\x => x - (toIntegerNat value)) monster)
 -------------------------------------------------------------------------------
-fatallyDamaged : Monster -> Bool
+fatallyDamaged : FieldedMonster -> Bool
 fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 -------------------------------------------------------------------------------
 transformMonsterInGame :
  Fin 3 ->
  Fin 3 ->
  WhichPlayer ->
- (Monster -> Monster) ->
+ (FieldedMonster -> FieldedMonster) ->
  Game ->
  Game
 

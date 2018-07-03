@@ -110,14 +110,14 @@ basicStatType stat =
  let base = Bounded (statTypeLowerBase stat) (statTypeUpperBase stat) in
  (temporary, permanent, base)
 -------------------------------------------------------------------------------
-basicStat : (s : Stat) -> BasicMonster -> basicStatType s
+basicStat : (s : Stat) -> BasicFieldedMonster -> basicStatType s
 basicStat Attack = attack
 basicStat Defense = defense
 basicStat Speed = speed
 basicStat Range = range
 basicStat Level = level
 -------------------------------------------------------------------------------
-basicStatSetter : (s : Stat) -> basicStatType s -> BasicMonster -> BasicMonster
+basicStatSetter : (s : Stat) -> basicStatType s -> BasicFieldedMonster -> BasicFieldedMonster
 basicStatSetter Attack = set_attack
 basicStatSetter Defense = set_defense
 basicStatSetter Speed = set_speed
@@ -273,9 +273,9 @@ data FixedStatEffect
 applyFixedStatEffect :
  (Fin 9) ->
  WhichPlayer ->
- BasicMonster ->
+ BasicFieldedMonster ->
  FixedStatEffect ->
- (BasicMonster, ClientUpdate)
+ (BasicFieldedMonster, ClientUpdate)
 ---------------------------------------
 applyFixedStatEffect
  monsterIndex

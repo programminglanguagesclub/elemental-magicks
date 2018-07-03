@@ -44,8 +44,28 @@ basicMonsterFactoryDecEq : (x, y : BasicMonsterFactory) -> Dec (x = y)
 DecEq BasicMonsterFactory where
  decEq x y = basicMonsterFactoryDecEq x y
 -------------------------------------------------------------------------------
-record BasicMonster where
- constructor MkBasicMonster
+record BasicUnfieldedMonster where
+ constructor MkBasicUnfieldedMonster
+ name : String
+ id : Nat
+ schools : MonsterSchools
+ hp : Bounded 1 Preliminaries.absoluteUpperBound
+ attack : Bounded 0 Preliminaries.absoluteUpperBound
+ defense : Bounded 0 Preliminaries.absoluteUpperBound
+ speed : Bounded 1 5
+ range : Bounded 1 5
+ level : Bounded 1 9
+ soulPoints : Bounded 1 2
+
+basicUnfieldedMonsterDecEq : (x, y : BasicUnfieldedMonster) -> Dec (x = y)
+%runElab deriveDecEq `{basicUnfieldedMonsterDecEq}
+
+DecEq BasicUnfieldedMonster where
+ decEq x y = basicUnfieldedMonsterDecEq x y
+
+-------------------------------------------------------------------------------
+record BasicFieldedMonster where
+ constructor MkBasicFieldedMonster
  name : String
  id : Nat
  schools : MonsterSchools
@@ -59,11 +79,11 @@ record BasicMonster where
  engagement : Bounded 0 Preliminaries.absoluteUpperBound
  aliveness : Aliveness
 
-basicMonsterDecEq : (x, y : BasicMonster) -> Dec (x = y)
-%runElab deriveDecEq `{basicMonsterDecEq}
+basicFieldedMonsterDecEq : (x, y : BasicFieldedMonster) -> Dec (x = y)
+%runElab deriveDecEq `{basicFieldedMonsterDecEq}
 
-DecEq BasicMonster where
- decEq x y = basicMonsterDecEq x y
+DecEq BasicFieldedMonster where
+ decEq x y = basicFieldedMonsterDecEq x y
 -------------------------------------------------------------------------------
 resetHp : Hp -> Hp
 resetHp (MkHp (_,base)) = generateHp base
@@ -115,7 +135,7 @@ resetEngagement :
 
 resetEngagement _ = bind 0
 -------------------------------------------------------------------------------
-revive : BasicMonster -> BasicMonster
+revive : BasicFieldedMonster -> BasicFieldedMonster
 revive basic =
  record {
   hp $= resetHp,
@@ -127,26 +147,41 @@ revive basic =
   engagement $= resetEngagement,
   aliveness = Alive
  } basic
+-- could also compose unfield and field...
 -------------------------------------------------------------------------------
 triple : t -> (t,t,t)
 triple t = (t,t,t)
 -------------------------------------------------------------------------------
-instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicMonster
+instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicUnfieldedMonster
 
 instantiateBasicMonster basicMonsterFactory cardId =
- MkBasicMonster
+ MkBasicUnfieldedMonster
   (name basicMonsterFactory)
   cardId
   (schools basicMonsterFactory)
-  (generateHp $ hp basicMonsterFactory)
-  (triple $ attack basicMonsterFactory)
-  (triple $ defense basicMonsterFactory)
-  (extendBounds (speed basicMonsterFactory) , extendBounds (speed basicMonsterFactory), extendBounds (speed basicMonsterFactory)) 
-  (extendBounds (range basicMonsterFactory), extendBounds (range basicMonsterFactory), extendBounds (range basicMonsterFactory))
-  (extendLowerBound (level basicMonsterFactory) Oh, extendLowerBound (level basicMonsterFactory) Oh, level basicMonsterFactory)
-  (extendLowerBound (soulPoints basicMonsterFactory) Oh, soulPoints basicMonsterFactory)
+  (hp basicMonsterFactory)
+  (attack basicMonsterFactory)
+  (defense basicMonsterFactory)
+  (speed basicMonsterFactory) 
+  (range basicMonsterFactory)
+  (level basicMonsterFactory)
+  (soulPoints basicMonsterFactory)
+-------------------------------------------------------------------------------
+fieldMonster : BasicUnfieldedMonster -> BasicFieldedMonster
+fieldMonster basicUnfieldedMonster =
+  MkBasicFieldedMonster
+  (name basicUnfieldedMonster)
+  (id basicUnfieldedMonster)
+  (schools basicUnfieldedMonster)
+  (generateHp $ hp basicUnfieldedMonster)
+  (triple $ attack basicUnfieldedMonster)
+  (triple $ defense basicUnfieldedMonster)
+  (extendBounds (speed basicUnfieldedMonster) , extendBounds (speed basicUnfieldedMonster), extendBounds (speed basicUnfieldedMonster))
+  (extendBounds (range basicUnfieldedMonster), extendBounds (range basicUnfieldedMonster), extendBounds (range basicUnfieldedMonster))
+  (extendLowerBound (level basicUnfieldedMonster) Oh, extendLowerBound (level basicUnfieldedMonster) Oh, level basicUnfieldedMonster)
+  (extendLowerBound (soulPoints basicUnfieldedMonster) Oh, soulPoints basicUnfieldedMonster)
   (bind 0)
-  Alive   
+  Alive
 -------------------------------------------------------------------------------
 setTemporary :
  ((Bounded lower upper),t2,t3) ->
@@ -199,6 +234,23 @@ getPermanent (_,x,_) = x
 getBase : (t1,t2,Bounded lower upper) -> Bounded lower upper
 getBase (_,_,x) = x
 -------------------------------------------------------------------------------
+unfieldMonster : BasicFieldedMonster -> BasicUnfieldedMonster
+unfieldMonster basicFieldedMonster =
+ MkBasicUnfieldedMonster
+ (name basicFieldedMonster)
+ (id basicFieldedMonster)
+ (schools basicFieldedMonster)
+ (?hole) -- hp
+ (getBase $ attack basicFieldedMonster)
+ (getBase $ defense basicFieldedMonster)
+ (getBase $ speed basicFieldedMonster)
+ (getBase $ range basicFieldedMonster)
+ (getBase $ level basicFieldedMonster)
+ (?hole) -- soul points
+
+-------------------------------------------------------------------------------
+
+
 record BasicSpellFactory where
  constructor MkBasicSpellFactory
  name : String
@@ -232,6 +284,6 @@ instantiateBasicSpell basicSpellFactory id =
    (school basicSpellFactory)
    (level basicSpellFactory)
 -------------------------------------------------------------------------------
-data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicMonster
+data BasicCard = BasicSpellCard BasicSpell | BasicMonsterCard BasicUnfieldedMonster
 -------------------------------------------------------------------------------
 

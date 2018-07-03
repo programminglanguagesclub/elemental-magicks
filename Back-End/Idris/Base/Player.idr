@@ -27,13 +27,13 @@ DecEq Ordering where
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
- board : Vect 3 (Vect 3 (Maybe Monster)) -- should wrap this in a datatype, and/or use matrix..
+ board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
  rowTarget : Vect 3 (Fin 3)
  hand : List Card
  graveyard : List Card
  discard : List Card
  spawnCard : Maybe Card
- soulCards : Vect 5 Monster
+ soulCards : Vect 5 SoulCard
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
@@ -42,7 +42,7 @@ record Player where
 record DrawPlayer where
  constructor MkDrawPlayer
  hand : BoundedList 25 Card -- might want to make this a normal list.
- soulCards : Vect 5 (Maybe Monster)
+ soulCards : Vect 5 (Maybe SoulCard)
  temporaryId : String
 -------------------------------------------------------------------------------
 initialRowTarget : Vect 3 (Fin 3)
@@ -60,10 +60,10 @@ emptyDiscard = []
 emptyGraveyard : List Card
 emptyGraveyard = []
 -------------------------------------------------------------------------------
-emptyBoard : Vect 3 (Vect 3 (Maybe Monster))
+emptyBoard : Vect 3 (Vect 3 (Maybe FieldedMonster))
 emptyBoard = replicate 3 $ replicate 3 Nothing
 -------------------------------------------------------------------------------
-emptySoul : Vect 5 (Maybe Monster)
+emptySoul : Vect 5 (Maybe SoulCard)
 emptySoul = replicate 5 Nothing
 -------------------------------------------------------------------------------
 emptySpawn : Maybe Card
@@ -71,7 +71,7 @@ emptySpawn = Nothing
 -------------------------------------------------------------------------------
 newPlayer :
  String ->
- Vect 5 Monster ->
+ Vect 5 SoulCard ->
  Vect 30 Card ->
  Player
 
@@ -155,14 +155,15 @@ getAll v1 v2 l1 l2 f =
  concatBoundedList x4 x3        
 -------------------------------------------------------------------------------
 buildDrawnCardsList :
- Vect 5 (Maybe Monster) ->
- Vect 5 (Maybe Monster) ->
+ Vect 5 (Maybe SoulCard) ->
+ Vect 5 (Maybe SoulCard) ->
  BoundedList 25 Card ->
  BoundedList 25 Card ->
  BoundedList 60 Card
 
-buildDrawnCardsList v1 v2 l1 l2 = getAll v1 v2 l1 l2 (\x => MonsterCard x)
+buildDrawnCardsList v1 v2 l1 l2 = ?hole --getAll v1 v2 l1 l2 (\x => MonsterCard x)
 -------------------------------------------------------------------------------
+{-
 filterVectMaybeToList : Vect n (Maybe Monster) -> List Monster
 filterVectMaybeToList [] = []
 filterVectMaybeToList (Nothing::xs) = filterVectMaybeToList xs
@@ -189,6 +190,7 @@ getAllList v1 v2 l1 l2 f = ?hole
 getAllCardsDrawn : Vect 5 (Maybe Monster) -> Vect 5 (Maybe Monster) -> BoundedList 25 Card -> BoundedList 25 Card -> List Card
 getAllCardsDrawn soulA soulB handA handB = getAllList soulA soulB handA handB (\x => MonsterCard x)
 -------------------------------------------------------------------------------
+
 finSum : Fin n -> Fin m -> Fin (n + m)
 finSum FZ _ = FZ
 finSum (FS k) x = FS (finSum k x)
@@ -207,31 +209,44 @@ unflattenBoard : Vect 9 (Maybe Monster) -> Vect 3 (Vect 3 (Maybe Monster))
 unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] =
  [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
 -------------------------------------------------------------------------------
-idMatches :
- Nat ->
- Maybe Monster ->
- Bool
+-}
+namespace fielded
+ idMatches :
+  Nat ->
+  Maybe FieldedMonster ->
+  Bool
 
-idMatches monsterId Nothing = False
-idMatches monsterId (Just monster) = (id $ basic monster) == monsterId
+ idMatches monsterId Nothing = False
+ idMatches monsterId (Just monster) = (id $ basic monster) == monsterId
+
+namespace unfielded
+ idMatches :
+  Nat ->
+  Maybe UnfieldedMonster ->
+  Bool
+
+ idMatches monsterId Nothing = False
+ idMatches monsterId (Just monster) = (id $ basic monster) == monsterId
+
+
 -------------------------------------------------------------------------------
 findBoardMonsterIndex :
  Nat ->
- Vect 3 (Vect 3 (Maybe Monster)) ->
+ Vect 3 (Vect 3 (Maybe FieldedMonster)) ->
  Maybe (Fin 9)
 
 findBoardMonsterIndex monsterId board =
- findIndex (idMatches monsterId) (flattenBoard board)
+ ?hole --findIndex (idMatches monsterId) ?hole --(flattenBoard board)
 -------------------------------------------------------------------------------
 findBoardMonster :
  Nat ->
- Vect 3 (Vect 3 (Maybe Monster)) ->
- Maybe Monster
+ Vect 3 (Vect 3 (Maybe FieldedMonster)) ->
+ Maybe FieldedMonster
 
 findBoardMonster monsterId board =
  case findBoardMonsterIndex monsterId board of
   Nothing => Nothing
-  Just monsterIndex => Vect.index monsterIndex (flattenBoard board)
+  Just monsterIndex => Vect.index monsterIndex ?hole --(flattenBoard board)
 -------------------------------------------------------------------------------
 incrementRowTarget : Fin 3 -> Fin 3
 incrementRowTarget FZ = FS FZ
@@ -449,7 +464,7 @@ findWithIndexPreferentiallyFrom p begin v with (findWithIndexPreferentiallyFromS
  | Nothing = Left (foo p begin v betaReduction)
  | Just (i,e) = Right ((i,e) ** findWithIndexPreferentiallyFromProof p begin v i e betaReduction)
 -------------------------------------------------------------------------------
-actualAlive : Maybe Monster -> Bool
+actualAlive : Maybe FieldedMonster -> Bool
 
 actualAlive Nothing = False
 actualAlive (Just monster) with (aliveness $ basic monster)
@@ -459,19 +474,20 @@ actualAlive (Just monster) with (aliveness $ basic monster)
 -------------------------------------------------------------------------------
 findNextLivingMonster :
  Fin n ->
- Vect n (Maybe Monster) ->
+ Vect n (Maybe FieldedMonster) ->
  Maybe (Fin n)
 
 findNextLivingMonster fin vect =
  findIndexPreferentiallyFrom actualAlive fin vect
 -------------------------------------------------------------------------------
-indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe Monster
+indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe FieldedMonster
 indexMonster = ?hole
 -------------------------------------------------------------------------------
 
 -- Does not generate any client updates
 transformMonster :
- (Monster -> Monster) -> Fin 3 ->
+ (FieldedMonster -> FieldedMonster) ->
+ Fin 3 ->
  Fin 3 ->
  Player ->
  Player

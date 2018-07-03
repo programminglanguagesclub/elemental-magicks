@@ -195,7 +195,16 @@ getActor PlayerB a b = b
 
 
 
-transformDrawPhase : WhichPlayer -> DrawPlayer -> DrawPlayer -> ServerUpdate -> Maybe (Either (String, String) (DrawPlayer, List ClientUpdate))
+transformDrawPhase :
+ WhichPlayer ->
+ DrawPlayer ->
+ DrawPlayer ->
+ ServerUpdate ->
+ Maybe (Either (String, String) (DrawPlayer, List ClientUpdate))
+
+-- getAllCardsDrawn commented out now temporarily or something. will fix later
+{-
+
 transformDrawPhase actor playerA playerB (DrawCardHand cardId) =
  let player = getActor actor playerA playerB in
  let playerId = temporaryId $ getActor actor playerA playerB in
@@ -248,7 +257,7 @@ transformDrawPhase actor playerA playerB _  =
   else Just $ Left (Draw_phase.notYourTurn, playerId)
 
 
-
+-}
 
 
 

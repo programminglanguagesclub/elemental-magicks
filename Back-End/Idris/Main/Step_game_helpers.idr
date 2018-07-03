@@ -42,11 +42,11 @@ Selection game (board, hand, graveyard) with (skillHead game)
 
 
 {- SHOULD FOLD HERE -}
-getSoulPointsRemainingOnMonster : Monster -> Integer
-getSoulPointsRemainingOnMonster m with (soulPoints ( basic(m) ))
+getSoulPointsRemainingOnMonster : SoulCard -> Integer
+getSoulPointsRemainingOnMonster m with (soulPoints m)
   | (MkBounded (current ** _),_) = current
 -------------------------------------------------------------------------------
-getPointsFromSoul : Vect 5 Monster -> Integer
+getPointsFromSoul : Vect 5 SoulCard -> Integer
 getPointsFromSoul n =
  foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) n
 -------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ resetSkill : Maybe (Skill, SkillUsedness) -> Maybe (Skill, SkillUsedness)
 resetSkill Nothing = Nothing
 resetSkill (Just (s,_)) = Just (s,Unused)
 -------------------------------------------------------------------------------
-resetAllSkillsMonster : Monster -> Monster
+resetAllSkillsMonster : FieldedMonster -> FieldedMonster
 resetAllSkillsMonster monster =
  record {
   startSkill $= resetSkill,
@@ -128,10 +128,10 @@ resetAllSkillsMonster monster =
   autoSkill $= resetSkill
  } monster
 -------------------------------------------------------------------------------
-resetAllSkillsSquare : Maybe Monster -> Maybe Monster
+resetAllSkillsSquare : Maybe FieldedMonster -> Maybe FieldedMonster
 resetAllSkillsSquare square = map resetAllSkillsMonster square
 -------------------------------------------------------------------------------
-resetAllSkillsBoard : Vect 9 (Maybe Monster) -> Vect 9 (Maybe Monster)
+resetAllSkillsBoard : Vect 9 (Maybe FieldedMonster) -> Vect 9 (Maybe FieldedMonster)
 resetAllSkillsBoard board = map resetAllSkillsSquare board
 -------------------------------------------------------------------------------
 resetAllSkillsPlayer : Player -> Player

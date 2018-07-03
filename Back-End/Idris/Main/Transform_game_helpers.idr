@@ -20,6 +20,9 @@ schoolsHighEnoughToPlayCard :
 schoolsHighEnoughToPlayCard player (SpellCard card) =
  geq (index (school $ basic card) $ knowledge player) (level $ basic card)
 
+
+-- disabled for now
+{-
 schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
  | NoSchools = True
  | OneSchool s =
@@ -27,6 +30,7 @@ schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card)
  | TwoSchools s1 s2 =
   geq (index s1 $ knowledge player) (snd $ snd $ level $ basic card) &&
   geq (index s2 $ knowledge player) (snd $ snd $ level $ basic card)
+-}
 -------------------------------------------------------------------------------
 
 
@@ -44,7 +48,7 @@ schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card)
 -}
 
 -------------------------------------------------------------------------------
-standardEngagementPriority : (Monster, Fin n) -> (Integer, Fin n)
+standardEngagementPriority : (FieldedMonster, Fin n) -> (Integer, Fin n)
 standardEngagementPriority (monster, boardIndex) = (removeBounds $ fst $ speed $ basic monster, boardIndex)
 
 getMonstersWithPositions : Vect n (Maybe a) -> Vect n (Maybe a, Fin n) -- store your index
@@ -77,7 +81,7 @@ reindex board engagementPriority = -- is this even provable given present genera
 
 -- just gets for single player...
 
-validForAction : Maybe Monster -> Maybe (Monster, Fin n)
+validForAction : Maybe FieldedMonster -> Maybe (FieldedMonster, Fin n)
 -- says if a card exists, is alive, and is disengaged.
 {-
 isValidForAction : Maybe Monster -> Bool
@@ -98,9 +102,9 @@ compareMonsterPriority (square1, speed1) (square2, speed2) with (compare speed1 
 -- define a function for getting either the highest priority monster next or a proof that there is no monster that is alive and disengaged.
 
 
-priority : (Monster, Fin n) -> (Integer, Fin n) -- have to invert speed so this works. smaller here gives higher priority.
+priority : (FieldedMonster, Fin n) -> (Integer, Fin n) -- have to invert speed so this works. smaller here gives higher priority.
 
-integerSpeed : Monster -> Integer
+integerSpeed : FieldedMonster -> Integer
 integerSpeed monster = extractBounded $ getTemporary $ speed $ basic monster
 -------------------------------------------------------------------------------
 doubleIndex : Vect n a -> Vect n a -> Bool -> Fin n -> a
@@ -109,7 +113,7 @@ doubleIndex x y False i = index i y
 -------------------------------------------------------------------------------
 --UNTRUSTED COMPONENT
 -------------------------------------------------------------------------------
-incrementIndex : Either a (Monster, Fin n) -> Either a (Monster, Fin (S n))
+incrementIndex : Either a (FieldedMonster, Fin n) -> Either a (FieldedMonster, Fin (S n))
 incrementIndex (Left x) = Left x
 incrementIndex (Right (m, k)) = Right (m, FS k)
 
@@ -124,13 +128,13 @@ valid (Just _) = True
 
 
 getNext :
- (initiativeBoard : Vect n (Maybe Monster)) ->
- (otherBoard : Vect n (Maybe Monster)) ->
- (validityCondition : Maybe Monster -> Maybe Integer) ->
+ (initiativeBoard : Vect n (Maybe FieldedMonster)) ->
+ (otherBoard : Vect n (Maybe FieldedMonster)) ->
+ (validityCondition : Maybe FieldedMonster -> Maybe Integer) ->
  Either
   (Data.Vect.find (Main.Transform_game_helpers.valid . validityCondition) initiativeBoard = Nothing,
    Data.Vect.find (Main.Transform_game_helpers.valid . validityCondition) otherBoard = Nothing)
-  (Monster, Fin n)
+  (FieldedMonster, Fin n)
 
 getNext [] [] _ = Left (Refl, Refl)
 getNext (x::xs) (y::ys) validityCondition with (validityCondition x, validityCondition y)
@@ -165,36 +169,36 @@ getNext ((Just monster)::xs) with (incrementIndex $ getNext xs)
    -}
 -------------------------------------------------------------------------------
 buildFlattenedVector :
- Vect n (Maybe Monster) ->
- Vect n (Maybe Monster) ->
- Vect (n + n) (Maybe Monster)
+ Vect n (Maybe FieldedMonster) ->
+ Vect n (Maybe FieldedMonster) ->
+ Vect (n + n) (Maybe FieldedMonster)
 
 buildFlattenedVector [] [] = []
 buildFlattenedVector {n=S n} (x::xs) (y::ys) =
  rewrite pullOutPlus n n in x::y::(buildFlattenedVector xs ys)
 -------------------------------------------------------------------------------
 getNextMonsterSimplyTyped' :
- Vect 9 (Maybe Monster) ->
- Vect 9 (Maybe Monster) ->
- Maybe (Monster, Fin 18)
+ Vect 9 (Maybe FieldedMonster) ->
+ Vect 9 (Maybe FieldedMonster) ->
+ Maybe (FieldedMonster, Fin 18)
 
 getNextMonsterSimplyTyped' initiativeBoard otherBoard = ?term
  --getNext (buildFlattenedVector initiativeBoard otherBoard)
 -------------------------------------------------------------------------------
 getNextMonster :
- (initiativePlayerBoard : Vect 9 (Maybe Monster)) ->
- (otherPlayerBoard : Vect 9 (Maybe Monster)) ->
- (validityCondition : Maybe Monster -> Bool) ->
+ (initiativePlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+ (otherPlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+ (validityCondition : Maybe FieldedMonster -> Bool) ->
  Either
   (find validityCondition initiativePlayerBoard = Nothing,
    find validityCondition otherPlayerBoard = Nothing)
   (DPair
-   (Monster, Fin 9, Bool)
+   (FieldedMonster, Fin 9, Bool)
    (\(monster, i, whichBoard) => (
     doubleIndex initiativePlayerBoard otherPlayerBoard whichBoard i = Just monster,
     (otherIndex : Fin 9) ->
     (otherWhichBoard : Bool) ->
-    (otherMonster : Monster) ->
+    (otherMonster : FieldedMonster) ->
     doubleIndex initiativePlayerBoard otherPlayerBoard otherWhichBoard otherIndex = Just otherMonster ->
     ((otherIndex, otherWhichBoard) = (i,whichBoard) -> Void) ->
     compareMonsterPriority (i, extractBounded $ getTemporary $ speed $ basic monster) (otherIndex, extractBounded $ getTemporary $ speed $ basic otherMonster) = GT)))
@@ -230,15 +234,15 @@ getNextMonster :
 
 
 engagementPhaseOnMove :
- (board : Vect n (Maybe Monster)) ->
+ (board : Vect n (Maybe FieldedMonster)) ->
  Either
   (Fin n -> validForAction $ index i board = Nothing)
   (DPair
-   (Monster, Fin n)
+   (FieldedMonster, Fin n)
    (
     \(monster, square) => (
      validForAction $ index square board = Just (monster,square),
-     (otherMonster : Monster) -> 
+     (otherMonster : FieldedMonster) -> 
      (otherSquare : Fin n) ->
      validForAction $ index otherSquare board = Just (otherMonster, otherSquare) ->
      (otherSquare = square -> Void) ->
@@ -261,8 +265,8 @@ engagementPhaseOnMove board =
 {-For now, completely ignore the possibility of the user using skills! :D -}
 {-
 _engagementOnMove :
- (playerABoard : Vect 9 (Maybe Monster)) ->
- (playerBBoard : Vect 9 (Maybe Monster)) ->
+ (playerABoard : Vect 9 (Maybe FieldedMonster)) ->
+ (playerBBoard : Vect 9 (Maybe FieldedMonster)) ->
  (initiative : WhichPlayer) ->
  (WhichPlayer, Fin 9)
 
@@ -287,8 +291,8 @@ _engagementOnMove playerABoard playerBBoard initiative = ?hole
 -------------------------------------------------------------------------------
 
 _getEnemyStuffInFront : (defenderBoard) -> (row : Fin 3) -> Nat
-_getFriendlyStuffInFront : (attackerBoard : Vect 9 (Maybe Monster)) -> (attackerSquare : Fin 9) -> Nat 
-inRangeRow : (attackerBoard : Vect 9 (Maybe Monster)) -> (defenderBoard : Vect 9 (Maybe Monster)) -> (attackerSquare : Fin 9) -> (row : Fin 3) -> Maybe Bool
+_getFriendlyStuffInFront : (attackerBoard : Vect 9 (Maybe FieldedMonster)) -> (attackerSquare : Fin 9) -> Nat 
+inRangeRow : (attackerBoard : Vect 9 (Maybe FieldedMonster)) -> (defenderBoard : Vect 9 (Maybe FieldedMonster)) -> (attackerSquare : Fin 9) -> (row : Fin 3) -> Maybe Bool
 inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSquare attackerBoard)
  | Nothing = Nothing
  | Just monster with (aliveness (basic monster))
@@ -302,8 +306,8 @@ inRangeRow attackerBoard defenderBoard attackerSquare row with (index attackerSq
 moveUnit :
  (moveFrom : Fin 9) ->
  (moveTo : Fin 9) ->
- (board : Vect 9 (Maybe Monster)) ->
- Vect 9 (Maybe Monster) {-this actually does a swap-}
+ (board : Vect 9 (Maybe FieldedMonster)) ->
+ Vect 9 (Maybe FieldedMonster) {-this actually does a swap-}
 
 
 moveUnit moveFrom moveTo board =

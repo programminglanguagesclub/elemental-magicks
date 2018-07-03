@@ -1,6 +1,7 @@
 module Base.Card
 
 import Data.Vect
+import Base.Bounded
 import Base.Objects_basic
 import Base.Skill_dsl_data
 
@@ -33,7 +34,7 @@ data SkillFactory
 data SkillUsedness
  = Unused
  | Used
--- if a skill is put on the head, I need to purge the skill queue for copies of the skill.
+-- if a skill is put on the head, I need to purge the skill queue for copies of the skill. (what does this mean???)
 -- equivalently, I need to check against whether a skill is used before putting it on the head.
 -------------------------------------------------------------------------------
 data Skill
@@ -74,9 +75,9 @@ record Spell where
  basic : BasicSpell
  spawnSkill : Skill
 -------------------------------------------------------------------------------
-record Monster where
- constructor MkMonster
- basic : BasicMonster
+record FieldedMonster where
+ constructor MkFieldedMonster
+ basic : BasicFieldedMonster
  muted : Bool
 
 -- This isn't implemented yet, but the first turn
@@ -100,13 +101,12 @@ record Monster where
  deathSkill : Maybe (Skill, SkillUsedness)
  autoSkill : Maybe (Skill, SkillUsedness)
  actionSkills : List Skill
- soulSkill : Skill
 -------------------------------------------------------------------------------
 
-{-
-record InactiveMonster where -- in the spawn position, hand, or graveyard
- constructor MkInactiveMonster
- basic : BasicMonster -- actually not.... only needs base stats....
+
+record UnfieldedMonster where -- in the spawn position, hand, graveyard, or banished
+ constructor MkUnfieldedMonster
+ basic : BasicUnfieldedMonster -- actually not.... only needs base stats....
  startSkill : Maybe Skill
  endSkill : Maybe Skill
  counterSkill : Maybe Skill
@@ -116,6 +116,7 @@ record InactiveMonster where -- in the spawn position, hand, or graveyard
  actionSkills : List Skill
 ---- This is actually quite similar to monster factory...
 
+
 record SoulCard where
  constructor MkSoulCard
  name : String
@@ -124,31 +125,6 @@ record SoulCard where
 -- but I should also include the fact
 -- that the current can't be greater than the max
  soulSkill : Skill
-
--}
-
-{-
-
-
-record BasicMonster where
- constructor MkBasicMonster
- name : String
- id : Nat
- schools : MonsterSchools
- hp : Hp
- attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
- defense : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
- speed : (Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded Preliminaries.absoluteLowerBound Preliminaries.absoluteUpperBound, Bounded 1 5)
- range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
- level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
- soulPoints : ((Bounded 0 2),(Bounded 1 2))
- engagement : Bounded 0 Preliminaries.absoluteUpperBound
- aliveness : Aliveness
-
-
--}
-
-
 
 
 -------------------------------------------------------------------------------
@@ -162,18 +138,19 @@ instantiateSpecificSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
  
 instantiateSpecificSkill skillType cardId playerId monsterFactory =
  let accessor = getFactoryAccessor skillType in
- initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (accessor monsterFactory) <*> (pure skillType)
+-- initializeSkillUsedness $ (instantiateSkill cardId playerId) <$> (accessor monsterFactory) <*> (pure skillType)
+ (instantiateSkill cardId playerId) <$> (accessor monsterFactory) <*> (pure skillType)
 
 -------------------------------------------------------------------------------
 instantiateStartSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
 
 instantiateStartSkill = instantiateSpecificSkill StartSkill
 -------------------------------------------------------------------------------
@@ -181,7 +158,7 @@ instantiateEndSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
 
 instantiateEndSkill = instantiateSpecificSkill EndSkill
 -------------------------------------------------------------------------------
@@ -189,7 +166,7 @@ instantiateCounterSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
 
 instantiateCounterSkill = instantiateSpecificSkill CounterSkill
 -------------------------------------------------------------------------------
@@ -203,7 +180,7 @@ instantiateDeathSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
 
 instantiateDeathSkill = instantiateSpecificSkill DeathSkill
 -------------------------------------------------------------------------------
@@ -211,7 +188,7 @@ instantiateAutoSkill :
  Nat ->
  String ->
  MonsterFactory ->
- Maybe (Skill, SkillUsedness)
+ Maybe Skill
 
 instantiateAutoSkill = instantiateSpecificSkill AutoSkill
 -------------------------------------------------------------------------------
@@ -233,12 +210,11 @@ instantiateSoulSkill :
 instantiateSoulSkill cardId playerId monsterFactory =
  (instantiateSkill cardId playerId) (soulSkill monsterFactory) SoulSkill
 -------------------------------------------------------------------------------
-instantiateMonster : Nat -> String -> MonsterFactory -> Monster
+instantiateMonster : Nat -> String -> MonsterFactory -> UnfieldedMonster
 
 instantiateMonster cardId playerId monsterFactory =
- MkMonster
+ MkUnfieldedMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
-  False
   (instantiateStartSkill cardId playerId monsterFactory)
   (instantiateEndSkill cardId playerId monsterFactory)
   (instantiateCounterSkill cardId playerId monsterFactory)
@@ -246,8 +222,8 @@ instantiateMonster cardId playerId monsterFactory =
   (instantiateDeathSkill cardId playerId monsterFactory)
   (instantiateAutoSkill cardId playerId monsterFactory)
   (instantiateActionSkills cardId playerId monsterFactory)
-  (instantiateSoulSkill cardId playerId monsterFactory)
-------------------------------------------------------------------------------0
+ -- (instantiateSoulSkill cardId playerId monsterFactory)
+-------------------------------------------------------------------------------
 instantiateSpell : Nat -> String -> SpellFactory -> Spell
 
 instantiateSpell cardId playerId spellFactory =
@@ -261,9 +237,9 @@ data CardFactory
 -------------------------------------------------------------------------------
 data Card
  = SpellCard Spell
- | MonsterCard Monster
+ | MonsterCard UnfieldedMonster
 -------------------------------------------------------------------------------
-getLiving : Maybe Monster -> Bool
+getLiving : Maybe FieldedMonster -> Bool
 
 getLiving Nothing = False
 getLiving (Just m) with (aliveness (basic m))
@@ -272,8 +248,8 @@ getLiving (Just m) with (aliveness (basic m))
  | DeadStale = False
 -------------------------------------------------------------------------------
 getCanUseSkill :
- (Monster -> Maybe (Skill, SkillUsedness)) ->
- Monster ->
+ (FieldedMonster -> Maybe (Skill, SkillUsedness)) ->
+ FieldedMonster ->
  Maybe Skill
 
 getCanUseSkill accessor monster with (accessor monster)
@@ -281,47 +257,47 @@ getCanUseSkill accessor monster with (accessor monster)
  | Just (skill,Used) = Just (skill)
  | Just (_,Unused) = Nothing
 -------------------------------------------------------------------------------
-getCanUseDeathSkill : Monster -> Maybe Skill
+getCanUseDeathSkill : FieldedMonster -> Maybe Skill
 getCanUseDeathSkill = getCanUseSkill deathSkill
 -------------------------------------------------------------------------------
-getCanUseCounterSkill : Monster -> Maybe Skill
+getCanUseCounterSkill : FieldedMonster -> Maybe Skill
 getCanUseCounterSkill = getCanUseSkill counterSkill
 -------------------------------------------------------------------------------
-getCanUseAutoSkill : Monster -> Maybe Skill
+getCanUseAutoSkill : FieldedMonster -> Maybe Skill
 getCanUseAutoSkill = getCanUseSkill autoSkill
 -------------------------------------------------------------------------------
-getCanUseStartSkill : Monster -> Maybe Skill
+getCanUseStartSkill : FieldedMonster -> Maybe Skill
 getCanUseStartSkill = getCanUseSkill startSkill
 -------------------------------------------------------------------------------
-getCanUseEndSkill : Monster -> Maybe Skill
+getCanUseEndSkill : FieldedMonster -> Maybe Skill
 getCanUseEndSkill = getCanUseSkill endSkill
 -------------------------------------------------------------------------------
-getCanUseSpawnSkill : Monster -> Maybe Skill
+getCanUseSpawnSkill : FieldedMonster -> Maybe Skill
 getCanUseSpawnSkill = spawnSkill
 -------------------------------------------------------------------------------
 setCanUseSkill :
- (Monster -> Maybe (Skill, SkillUsedness)) ->
+ (FieldedMonster -> Maybe (Skill, SkillUsedness)) ->
  Bool ->
- Monster ->
- Monster
+ FieldedMonster ->
+ FieldedMonster
 
 setCanUseSkill accessor value monster with (accessor monster)
  | Nothing = monster
  | Just (skill, usedness) = ?hole -- set appropriately.
 -------------------------------------------------------------------------------
-setCanUseDeathSkill : Bool -> Monster -> Monster
+setCanUseDeathSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseDeathSkill = setCanUseSkill deathSkill
 -------------------------------------------------------------------------------
-setCanUseCounterSkill : Bool -> Monster -> Monster
+setCanUseCounterSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseCounterSkill = setCanUseSkill counterSkill
 -------------------------------------------------------------------------------
-setCanUseAutoSkill : Bool -> Monster -> Monster
+setCanUseAutoSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseAutoSkill = setCanUseSkill autoSkill
 -------------------------------------------------------------------------------
-setCanUseStartSkill : Bool -> Monster -> Monster
+setCanUseStartSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseStartSkill = setCanUseSkill startSkill
 -------------------------------------------------------------------------------
-setCanUseEndSkill : Bool -> Monster -> Monster
+setCanUseEndSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseEndSkill = setCanUseSkill endSkill
 -------------------------------------------------------------------------------
 
