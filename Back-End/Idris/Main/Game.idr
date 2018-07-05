@@ -44,6 +44,7 @@ record Game where
  phase : Phase
  playerA : Player
  playerB : Player
+ playerOnMove : WhichPlayer
 -------------------------------------------------------------------------------
 data MonsterLocation
  = HandLocation (Fin 25)
@@ -132,20 +133,23 @@ newGame :
  String ->
  Vect 5 SoulCard ->
  Vect 30 Card ->
+ Nat ->
  String ->
  Vect 5 SoulCard ->
  Vect 30 Card ->
+ Nat ->
  Game
 
-newGame aId aHand aSoul bId bHand bSoul =
+newGame aId aHand aSoul aRemainingTime bId bHand bSoul bRemainingTime =
  MkGame
   initialTurnNumber
   initialSkillHead
   initialSkillQueue
   initialDeathQueue
   initialPhase
-  (newPlayer aId aHand aSoul)
-  (newPlayer bId bHand bSoul)
+  (newPlayer aId aHand aSoul $ aRemainingTime + timeIncrementMilliseconds) -- not sure if I should increment here
+  (newPlayer bId bHand bSoul $ bRemainingTime + timeIncrementMilliseconds) -- not sure if I should increment here
+  PlayerA
 -------------------------------------------------------------------------------
 initialCardsDrawn : Fin 60
 initialCardsDrawn = 0

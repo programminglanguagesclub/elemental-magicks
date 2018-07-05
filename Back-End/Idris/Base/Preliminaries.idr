@@ -26,8 +26,11 @@ implementation Show (Fin n) where
 
 
 
+initialTimeRemainingMilliseconds : Nat
+initialTimeRemainingMilliseconds = 900000 -- 15 minutes
 
-
+timeIncrementMilliseconds : Nat -- per action
+timeIncrementMilliseconds = 5000
 
 -- for some reason did not have to declare Eq or DecEq on a.
 data UniqueVector : Nat -> Type -> Type where

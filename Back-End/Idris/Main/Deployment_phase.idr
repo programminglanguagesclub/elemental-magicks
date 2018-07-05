@@ -18,3 +18,19 @@ boardFull board = _boardFull (toList board)
 
 stepDeploymentPhase : Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepDeploymentPhase player opponent = ?hole
+
+
+{-
+transformDeploymentPhase :
+ (actor : WhichPlayer) ->
+ (playerA : Player) ->
+ (playerB : Player) ->
+ (initiative : WhichPlayer) ->
+ (serverUpdate : ServerUpdate) ->
+ Either
+  (String, String)
+  ((Player,Player),List ClientUpdate)
+
+transformDeploymentPhase = ?hole
+
+-}

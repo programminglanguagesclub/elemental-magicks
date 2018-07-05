@@ -96,10 +96,12 @@ mutual
    | SpawnPhase =
        case stepSpawnPhase initiative playerA playerB of
         Nothing =>
-         let (game', acc') = goToNextPhase (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc) in   
+         let playerOnMove' = initiative in
+         let (game', acc') = goToNextPhase (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB playerOnMove', acc) in   
          continueStep (game', acc', Nothing)
         Just clientInstruction =>
-         (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB, acc, clientInstruction)
+         let playerOnMove' = initiative in
+         (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB playerOnMove', acc, clientInstruction)
    
    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     

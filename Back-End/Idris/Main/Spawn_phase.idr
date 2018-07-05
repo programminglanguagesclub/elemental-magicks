@@ -77,7 +77,7 @@ transformSpawnPhase :
  (actor : WhichPlayer) ->
  (playerA : Player) ->
  (playerB : Player) ->
- (initiative : WhichPlayer) ->
+ (whichPlayerOnMove : WhichPlayer) -> -- THIS IS CALLED WITH INITIATIVE??? IF SO THAT MIGHT BE WRONG...
  (serverUpdate : ServerUpdate) ->
  Either
   (String, String)
@@ -85,12 +85,11 @@ transformSpawnPhase :
 
 -- hand index should really be a Fin or w/e, not a nat.....
 
-transformSpawnPhase actor a b initiative update =
- let whichPlayerOnMove = PlayerA in -- Isn't this just wrong?
- let playerToUpdate = getPlayer whichPlayerOnMove a b in
+transformSpawnPhase actor a b whichPlayerOnMove update =
  case (whichPlayerOnMove == actor) of
   False => Left (notYourTurn, temporaryId $ getPlayer actor a b) -- This Not Player On Move!!
   True =>
+   let playerToUpdate = getPlayer whichPlayerOnMove a b in
    case update of
     SpawnCard knowledge' handIndex =>
      case dominatesVect knowledge' (knowledge ?hole) of

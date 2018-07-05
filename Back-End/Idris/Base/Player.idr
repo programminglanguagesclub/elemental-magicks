@@ -38,12 +38,14 @@ record Player where
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
 -- should add proof that the total number of cards controlled is 30.
+ timeRemainingMilliseconds : Nat
 
 record DrawPlayer where
  constructor MkDrawPlayer
  hand : BoundedList 25 Card -- might want to make this a normal list.
  soulCards : Vect 5 (Maybe SoulCard)
  temporaryId : String
+ timeRemainingMilliseconds : Nat
 -------------------------------------------------------------------------------
 initialRowTarget : Vect 3 (Fin 3)
 initialRowTarget = replicate 3 FZ
@@ -73,9 +75,10 @@ newPlayer :
  String ->
  Vect 5 SoulCard ->
  Vect 30 Card ->
+ Nat ->
  Player
 
-newPlayer playerId soul hand =
+newPlayer playerId soul hand timeRemainingMilliseconds =
  MkPlayer
   emptyBoard
   initialRowTarget
@@ -87,9 +90,10 @@ newPlayer playerId soul hand =
   initialThoughts
   initialKnowledge
   playerId
+  timeRemainingMilliseconds
 -------------------------------------------------------------------------------
 newDrawPlayer : String -> DrawPlayer
-newDrawPlayer playerId = MkDrawPlayer [] emptySoul playerId
+newDrawPlayer playerId = MkDrawPlayer [] emptySoul playerId initialTimeRemainingMilliseconds
 -------------------------------------------------------------------------------
 weakenS : BoundedList n a -> BoundedList (S n) a
 weakenS [] = []
