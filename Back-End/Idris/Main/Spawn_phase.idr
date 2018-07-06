@@ -83,29 +83,30 @@ transformSpawnPhase :
   (String, String)
   ((Player,Player),List ClientUpdate)
 
--- hand index should really be a Fin or w/e, not a nat.....
-
 transformSpawnPhase actor a b whichPlayerOnMove update =
  case (whichPlayerOnMove == actor) of
-  False => Left (notYourTurn, temporaryId $ getPlayer actor a b) -- This Not Player On Move!!
+  False => Left (notYourTurn, temporaryId $ getPlayer actor a b)
   True =>
    let playerToUpdate = getPlayer whichPlayerOnMove a b in
    case update of
     SpawnCard knowledge' handIndex =>
-     case dominatesVect knowledge' (knowledge ?hole) of
+     case dominatesVect knowledge' (knowledge playerToUpdate) of
       True =>
-       case index' handIndex (hand a) {-not always player a-} of
+       case index' handIndex (hand playerToUpdate) of
         Nothing => Left ("You selected a position in your hand that does not contain a card", ?hole)
         Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
         Just (MonsterCard monster) => ?hole
       False => Left ("You cannot lower your knowledge in the spawn phase!", ?hole)
     Skip knowledge' =>
-     case dominatesVect knowledge' (knowledge a {-not always playerA-}) of
+     case dominatesVect knowledge' (knowledge playerToUpdate) of
       True =>
-       let cost = totalDifferenceVect knowledge' (knowledge a) in
-       let currentThoughts = extractBounded $ thoughtsResource a {-not always playerA-} in
+       let cost = totalDifferenceVect knowledge' (knowledge playerToUpdate) in
+       let currentThoughts = extractBounded $ thoughtsResource playerToUpdate {-not always playerA-} in
        case currentThoughts >= cost of
-        True => Right ((record {thoughtsResource $= ?hole, knowledge $= ?hole} a,?hole {-assuming playerA for now....-}), ?hole)
+        True =>
+         Right
+          ((record {thoughtsResource $= (\x => x - cost), knowledge = knowledge'} playerToUpdate,
+          getOpponent playerToUpdate), ?hole)
         False => Left ("You cannot afford to raise your knowledge by that much!",?hole)
       False => Left("You cannot lower your knowledge in the spawn phase!", ?hole)
     _ => Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
