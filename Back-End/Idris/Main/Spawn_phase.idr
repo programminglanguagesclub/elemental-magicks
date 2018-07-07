@@ -80,7 +80,7 @@ transformSpawnPhase : -- assumes the player is on move.
   String
   (Player,List ClientUpdate)
 
-transformSpawnPhase actor a b whichPlayerOnMove update =
+transformSpawnPhase playerToUpdate update =
  case update of
   
   SpawnCard knowledge' handIndex =>
@@ -90,7 +90,7 @@ transformSpawnPhase actor a b whichPlayerOnMove update =
       Nothing => Left "You selected a position in your hand that does not contain a card"
       Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
       Just (MonsterCard monster) => ?hole
-      False => Left "You cannot lower your knowledge in the spawn phase!"
+    False => Left "You cannot lower your knowledge in the spawn phase!"
   
   Skip knowledge' =>
    case dominatesVect knowledge' (knowledge playerToUpdate) of

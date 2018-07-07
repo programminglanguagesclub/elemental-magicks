@@ -30,14 +30,57 @@ import Main.Step_game
 {-returned values need to allow for transitions between phases causing further changes to the game outside of fields set in the current phase...-}
 -------------------------------------------------------------------------------
 partial
+transformGame'' :
+ Player ->
+ Phase ->
+ Either
+  String
+  (Player,List ClientUpdate)
+
+transformGame'' player phase =
+ case phase of
+  SpawnPhase => ?hole
+  SpellPhase => ?hole
+  RemovalPhase => ?hole
+  StartPhase => ?hole
+  EngagementPhase => ?hole
+  EndPhase => ?hole
+  Revival => ?hole
+
+
+
+partial
 transformGame' :
  Game ->
  WhichPlayer ->
  ServerUpdate ->
- (Either WhichPlayer Game, List ClientUpdate)
+ (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
 
-transformGame' game actor serverUpdate with (phase game)
- | _ = ?hole
+transformGame' game actor serverUpdate =
+ case (playerOnMove game == actor) of
+  False => ?hole --Left notYourTurn
+  True =>
+   let (player, mutator) = getStatefulPlayer actor game in
+   case transformGame'' player (phase game) of
+    Left errorMessage => ?hole
+    Right (player', updates) =>
+     ---- if I assume I am always in the same phase after the transform, how do I tell
+             -- the difference between the spawn phase where nobody has moved and the spawn phase after both skipped,
+                                                             -- assuming I am only keeping track of the move by a single boolean flag
+
+{-
+
+transformSpawnPhase : -- assumes the player is on move.
+                       (playerToUpdate : Player) ->
+                        (serverUpdate : ServerUpdate) ->
+                         Either
+                           String
+                             (Player,List ClientUpdate)
+
+                             -}
+
+
+{-| _ = ?hole-}
 
 {-
  | SpawnPhase =
