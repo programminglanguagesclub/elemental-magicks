@@ -51,9 +51,8 @@ transformGame'' player phase update =
   StartPhase => ?hole
   EngagementPhase => ?hole
   EndPhase => ?hole
-  Revival => ?hole
-
-  -- why is this not RevivalPhase?
+  RevivalPhase => ?hole
+  DeploymentPhase => ?hole
 
 
 partial
@@ -64,7 +63,7 @@ transformGame' :
  (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
 
 
-
+-- NEED TO STEP GAME TOO?
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
   False => ?hole --Left notYourTurn
@@ -76,18 +75,47 @@ transformGame' game actor serverUpdate =
      Left error => ?hole
      Right (player', updates) =>
       case (getInitiative game == playerOnMove game) of
-       True => (Right $ mutator player' game, updates)
+       True =>
+        let foo = stepGame (mutator player' game, updates) in ?hole
        False =>
         let phase' = nextPhase (phase game) in
-        (Right $ mutator player' (record {phase = phase'} game), updates)
-    SpellPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
-    RemovalPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
-    StartPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
+        let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
+    --SpellPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
+    --RemovalPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
+    --StartPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
     EngagementPhase => ?hole -- This phase is different. Must handle unit actions as well.
-    EndPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
-    Revival => ?hole -- This phase is different. Must handle revival only.
+    --EndPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
+    RevivalPhase => ?hole -- This phase is different. Must handle revival only.
+    DeploymentPhase =>
+     case transformDeploymentPhase player serverUpdate of
+      Left error => ?hole
+      Right (player', updates) =>
+       case (getInitiative game == playerOnMove game) of
+        True =>
+         let foo = stepGame (mutator player' game, updates) in ?hole
+        False =>
+         let phase' = nextPhase (phase game) in
+         let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
+    _ =>
+     case serverUpdate of
+      SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
+      _ => ?hole -- invalid update type for this phase.
 
 
+
+
+--| SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
+                      
+                      -- ?hole -- This phase is different. Must handle deployment only.
+    
+   
+   
+   
+   
+   
+   
+   
+   
    {-
        case transformGame'' player (phase game) serverUpdate {- (myNot (getInitiative game == playerOnMove game)) -} of
     Left errorMessage => ?hole
