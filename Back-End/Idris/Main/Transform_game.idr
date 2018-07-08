@@ -29,15 +29,21 @@ import Main.Step_game
 
 {-returned values need to allow for transitions between phases causing further changes to the game outside of fields set in the current phase...-}
 -------------------------------------------------------------------------------
+
+myNot : Bool -> Bool
+myNot True = False
+myNot False = True
+
 partial
 transformGame'' :
  Player ->
  Phase ->
+ ServerUpdate ->
  Either
   String
   (Player,List ClientUpdate)
 
-transformGame'' player phase =
+transformGame'' player phase update =
  case phase of
   SpawnPhase => ?hole
   SpellPhase => ?hole
@@ -47,6 +53,7 @@ transformGame'' player phase =
   EndPhase => ?hole
   Revival => ?hole
 
+  -- why is this not RevivalPhase?
 
 
 partial
@@ -56,17 +63,45 @@ transformGame' :
  ServerUpdate ->
  (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
 
+
+
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
   False => ?hole --Left notYourTurn
   True =>
    let (player, mutator) = getStatefulPlayer actor game in
-   case transformGame'' player (phase game) of
+   case (phase game) of
+    SpawnPhase =>
+     case transformSpawnPhase player serverUpdate of
+     Left error => ?hole
+     Right (player', updates) =>
+      case (getInitiative game == playerOnMove game) of
+       True => (Right $ mutator player' game, updates)
+       False =>
+        let phase' = nextPhase (phase game) in
+        (Right $ mutator player' (record {phase = phase'} game), updates)
+    SpellPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
+    RemovalPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
+    StartPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
+    EngagementPhase => ?hole -- This phase is different. Must handle unit actions as well.
+    EndPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
+    Revival => ?hole -- This phase is different. Must handle revival only.
+
+
+   {-
+       case transformGame'' player (phase game) serverUpdate {- (myNot (getInitiative game == playerOnMove game)) -} of
     Left errorMessage => ?hole
     Right (player', updates) =>
+    let game' = (case phase game of _ => 1) in
+    let (game'', (updates', clientInstruction)) = stepGame (mutator player' game, updates) in
+    (Right game'', updates ++ updates' ++ ?hole) -- append the instruction..
+    -}
      ---- if I assume I am always in the same phase after the transform, how do I tell
              -- the difference between the spawn phase where nobody has moved and the spawn phase after both skipped,
                                                              -- assuming I am only keeping track of the move by a single boolean flag
+                                                              -- This is only an issue for spawn and revival phases
+                                                              -- of these, spawn always requires a valid command from both players
+                                                              -- and revival requires a valid command from each player who can revive...
 
 {-
 
