@@ -80,11 +80,7 @@ transformGame' game actor serverUpdate =
        False =>
         let phase' = nextPhase (phase game) in
         let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
-    --SpellPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
-    --RemovalPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
-    --StartPhase => ?hole -- catch all case. Just mangage skills. Nothing is special about this phase!
     EngagementPhase => ?hole -- This phase is different. Must handle unit actions as well.
-    --EndPhase => ?hole -- catch all case. Just manage skills. Nothing is special about this phase!
     RevivalPhase => ?hole -- This phase is different. Must handle revival only.
     DeploymentPhase =>
      case transformDeploymentPhase player serverUpdate of
@@ -99,7 +95,7 @@ transformGame' game actor serverUpdate =
     _ =>
      case serverUpdate of
       SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
-      _ => ?hole -- invalid update type for this phase.
+      _ => (Right game, ?hole) -- invalid update type for this phase.
 
 
 
