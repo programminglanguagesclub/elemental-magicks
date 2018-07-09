@@ -7,6 +7,7 @@ import Base.Objects_basic
 import Base.Card
 import Base.Player
 import Main.Game
+import Main.Serverupdates
 import Base.Clientupdates
 import Base.Skill_dsl_data
 %access public export
@@ -130,10 +131,15 @@ stepRevivalPhase player opponent = ?hole
 
 
 transformRevivalPhase :
- WhichPlayer ->
- Player ->
- Player ->
- WhichPlayer ->
- List Nat ->
- Either (String,String) (Player, Player, List Nat, List ClientUpdate)
+ (playerToUpdate : Player) ->
+ (deathQueueByTemporaryId : List Nat) ->
+ (serverUpdate : ServerUpdate) ->
+ Either
+  String
+  (Player,List Nat, List ClientUpdate) -- also return an updated deathQueue
+ 
+ 
+
+
+
 

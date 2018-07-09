@@ -63,6 +63,8 @@ transformGame' :
  (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
 
 
+-- I can make a nice monad for this...
+
 -- NEED TO STEP GAME TOO?
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
@@ -72,16 +74,36 @@ transformGame' game actor serverUpdate =
    case (phase game) of
     SpawnPhase =>
      case transformSpawnPhase player serverUpdate of
-     Left error => ?hole
-     Right (player', updates) =>
-      case (getInitiative game == playerOnMove game) of
-       True =>
-        let foo = stepGame (mutator player' game, updates) in ?hole
-       False =>
-        let phase' = nextPhase (phase game) in
-        let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
-    EngagementPhase => ?hole -- This phase is different. Must handle unit actions as well.
-    RevivalPhase => ?hole -- This phase is different. Must handle revival only.
+      Left error => ?hole
+      Right (player', updates) =>
+       case (getInitiative game == playerOnMove game) of
+        True =>
+         let foo = stepGame (mutator player' game, updates) in ?hole
+        False =>
+         let phase' = nextPhase (phase game) in
+         let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
+    EngagementPhase =>
+     case (skillHead game) of
+      [] => ?hole -- process engagementPhase specific
+      (x::xs) =>
+       case serverUpdate of
+        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
+        _ => (Right game, ?hole) -- invalid update type for this phase.
+
+                      
+                      
+                      
+                     -- ?hole -- This phase is different. Must handle unit actions as well.
+    RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
+     case transformRevivalPhase player (deathQueue game) serverUpdate of
+      Left error => ?hole
+      Right (player', deathQueue', updates) =>
+       case or [myNot $ getInitiative game == playerOnMove game, ?hole {-first player cannot revive anything-}] of
+        True =>
+         let phase' = nextPhase (phase game) in
+         let foo = stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates) in ?hole
+        False =>
+         let foo = stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates) in ?hole
     DeploymentPhase =>
      case transformDeploymentPhase player serverUpdate of
       Left error => ?hole
