@@ -125,7 +125,7 @@ transformGame' game actor serverUpdate =
     _ =>
      case serverUpdate of
       SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
-      _ => (Right game, ?hole) -- invalid update type for this phase.
+      _ => (Right game, [InvalidMove "Invalid move. Select targets for your current skill." actor])
    
    {-
        case transformGame'' player (phase game) serverUpdate {- (myNot (getInitiative game == playerOnMove game)) -} of
