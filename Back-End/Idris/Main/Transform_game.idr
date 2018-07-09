@@ -1,5 +1,5 @@
 module Main.Transform_game
-
+import Data.Vect
 import Data.Fin
 import Base.Phase
 import Base.Preliminaries
@@ -55,6 +55,7 @@ transformGame'' player phase update =
   DeploymentPhase => ?hole
 
 
+
 partial
 transformGame' :
  Game ->
@@ -68,71 +69,63 @@ transformGame' :
 -- NEED TO STEP GAME TOO?
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
-  False => ?hole --Left notYourTurn
+  False => (Right game, [InvalidMove Clientupdates.notYourTurn actor])
   True =>
    let (player, mutator) = getStatefulPlayer actor game in
    case (phase game) of
     SpawnPhase =>
      case transformSpawnPhase player serverUpdate of
-      Left error => ?hole
+      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
       Right (player', updates) =>
        case (getInitiative game == playerOnMove game) of
         True =>
-         let foo = stepGame (mutator player' game, updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' game, updates) in
+         ?hole -- need to add instruction to updates for both players
         False =>
          let phase' = nextPhase (phase game) in
-         let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase'} game), updates) in
+         ?hole -- need to add instruction to updates for both players
     EngagementPhase =>
      case (skillHead game) of
-      [] => ?hole -- process engagementPhase specific
-      (x::xs) =>
-       case serverUpdate of
-        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
-        _ => (Right game, ?hole) -- invalid update type for this phase.
 
-                      
-                      
-                      
-                     -- ?hole -- This phase is different. Must handle unit actions as well.
+           -- THIS IS ONE BIG THING
+
+      TerminatedSkill => ?hole -- process engagementPhase specific
+      Existential selection condition ifSelected ifUnable cost s => -- what is the last argument??? I have no idea anymore
+       case serverUpdate of
+
+            -- THIS IS ONE BIG THING
+
+        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
+        _ => (Right game, [InvalidMove "Invalid move. Select targets for your current skill." actor])
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player (deathQueue game) serverUpdate of
-      Left error => ?hole
-      Right (player', deathQueue', updates) =>
-       case or [myNot $ getInitiative game == playerOnMove game, ?hole {-first player cannot revive anything-}] of
+      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
+      Right (player', deathQueue', updates) =>                  -- NEED HELPER HERE FOR CAN REVIVE ANYTHING..
+       case myNot $ getInitiative game == playerOnMove game || ?hole {-first player cannot revive anything-} of
         True =>
          let phase' = nextPhase (phase game) in
-         let foo = stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates) in
+         ?hole
         False =>
-         let foo = stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates) in
+         ?hole
     DeploymentPhase =>
      case transformDeploymentPhase player serverUpdate of
-      Left error => ?hole
+      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
       Right (player', updates) =>
        case (getInitiative game == playerOnMove game) of
         True =>
-         let foo = stepGame (mutator player' game, updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' game, updates) in
+         ?hole
         False =>
          let phase' = nextPhase (phase game) in
-         let foo = stepGame (mutator player' (record {phase = phase'} game), updates) in ?hole
+         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase'} game), updates) in
+         ?hole
     _ =>
      case serverUpdate of
       SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
       _ => (Right game, ?hole) -- invalid update type for this phase.
-
-
-
-
---| SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
-                      
-                      -- ?hole -- This phase is different. Must handle deployment only.
-    
-   
-   
-   
-   
-   
-   
-   
    
    {-
        case transformGame'' player (phase game) serverUpdate {- (myNot (getInitiative game == playerOnMove game)) -} of
