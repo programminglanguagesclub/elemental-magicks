@@ -1,6 +1,7 @@
 module Main.Step_game_helpers
 import Data.Vect
 import Data.So
+import Data.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic
@@ -46,9 +47,9 @@ getSoulPointsRemainingOnMonster : SoulCard -> Integer
 getSoulPointsRemainingOnMonster m with (soulPoints m)
   | (MkBounded (current ** _),_) = current
 -------------------------------------------------------------------------------
-getPointsFromSoul : Vect 5 SoulCard -> Integer
+getPointsFromSoul : BoundedList 5 SoulCard -> Integer
 getPointsFromSoul n =
- foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) n
+ foldrImpl (\x,y => getSoulPointsRemainingOnMonster(x)+y) 0 (\x => x) (toVect n)
 -------------------------------------------------------------------------------
 getSoulPoints : Player -> Integer
 getSoulPoints player = getPointsFromSoul(soulCards player)

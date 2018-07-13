@@ -59,7 +59,7 @@ nextRound PlayerB FirstRound = Right SecondRoundOriginalPlayerBWonFirstRound
 nextRound PlayerA SecondRoundOriginalPlayerAWonFirstRound = Left Tie
 nextRound PlayerB SecondRoundOriginalPlayerAWonFirstRound = Left OriginalPlayerAWon
 nextRound PlayerA SecondRoundOriginalPlayerBWonFirstRound = Left OriginalPlayerBWon
-nextRound PlayerB SecondRoundOriginlaPlayerBWonFirstRound = Left Tie
+nextRound PlayerB SecondRoundOriginalPlayerBWonFirstRound = Left Tie
 -------------------------------------------------------------------------------
 correctForRound :
  Round ->

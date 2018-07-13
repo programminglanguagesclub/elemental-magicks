@@ -2,7 +2,8 @@ module Base.Player
 
 import Data.So
 import Data.Vect
-import Base.BoundedList
+import Data.BoundedList
+--import Base.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic
@@ -33,7 +34,7 @@ record Player where
  graveyard : List Card
  discard : List Card
  spawnCard : Maybe Card
- soulCards : Vect 5 SoulCard
+ soulCards : BoundedList 5 SoulCard
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
@@ -86,7 +87,7 @@ newPlayer playerId soul hand timeRemainingMilliseconds =
   emptyGraveyard
   emptyDiscard
   emptySpawn
-  soul
+  (fromVect soul)
   initialThoughts
   initialKnowledge
   playerId

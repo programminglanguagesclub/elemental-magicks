@@ -1,10 +1,13 @@
 module Main.Transform_game
 import Data.Vect
 import Data.Fin
+import Base.BoundedList
+import Base.Bounded
 import Base.Phase
 import Base.Preliminaries
 import Base.Skill_dsl_data
 import Base.Player
+import Base.Card
 import Main.Game
 import Main.Serverupdates
 import Base.Clientupdates
@@ -56,6 +59,14 @@ transformGame'' player phase update =
 
 
 
+
+-- hack for now
+getMonsterOnMove : FieldedMonster
+getSquareOnMove : Fin 9
+damageSoul : BoundedList 5 SoulCard -> (BoundedList 5 SoulCard, Maybe (Maybe Skill))
+
+
+
 partial
 transformGame' :
  Game ->
@@ -67,6 +78,8 @@ transformGame' :
 -- I can make a nice monad for this...
 
 -- NEED TO STEP GAME TOO?
+
+
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
   False => (Right game, [InvalidMove Clientupdates.notYourTurn actor])
@@ -88,9 +101,36 @@ transformGame' game actor serverUpdate =
     EngagementPhase =>
      case (skillHead game) of
 
+
+
            -- THIS IS ONE BIG THING
 
-      TerminatedSkill => ?hole -- process engagementPhase specific
+      TerminatedSkill =>
+       case serverUpdate of
+        DirectAttack =>
+         let enemyFieldNoneAlive = ?hole in
+         case enemyFieldNoneAlive of
+          True =>
+           case (thoughtsResource player > 0) of
+            False => (Right game, [InvalidMove "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost." actor])
+            True =>
+             let player' = record {thoughtsResource $= \x => x - 1} player in
+             let player'' = record {board $= ?hole {-engage unit that is direct attacking!!-}} player' in
+             let (opponent, opponentMutator) = getStatefulPlayer (getOpponent actor) game in
+             let x = 56 in
+             let opponent' = record {soulCards = soulCards opponent} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
+
+                   -- ?hole -- actually damage enemy soul by 1 for a cost of 1 thought(and consume card turn)
+          False =>  (Right game, [InvalidMove "Invalid move. Direct attacks are only possible if there are no living units in the enemy field." actor])
+        AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
+        Rest => ?hole -- this is always valid
+        Move fieldIndex => ?hole -- this is valid if the fieldIndex given is empty
+        SkillInitiation skillIndex =>
+         case (muted getMonsterOnMove) of
+          True => (Right game, [InvalidMove "Invalid move. Your card cannot initiate action skills its first turn fielded" actor])
+          False => ?hole -- 
+        _ => (Right game, [InvalidMove "Invalid move. It is currently the action phase of your card. Please select a valid action for it." actor])
+                       -- ?hole -- process engagementPhase specific
       Existential selection condition ifSelected ifUnable cost s => -- what is the last argument??? I have no idea anymore
        case serverUpdate of
 

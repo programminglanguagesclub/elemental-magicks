@@ -76,7 +76,7 @@ data MonsterDictionary =
  MkMonsterDictionary
   (DPair
    (Vect m MonsterLocation, Vect n SpellLocation)
-   (\(monsterLocationDictionary, SpellLocationDictionary) =>
+   (\(monsterLocationDictionary, spellLocationDictionary) =>
     (i : Fin m) ->
     (j : Fin m) ->
     (i = j -> Void) ->
