@@ -2,7 +2,6 @@ var canvas = document.getElementById("c");
 var renderer = new THREE.WebGLRenderer({canvas: canvas});
 var camera = new THREE.PerspectiveCamera( 20, 1, 1, 10000 );
 var scene = new THREE.Scene();
-var sphereGeo = new THREE.PlaneGeometry( 90, 110, 1, 1 );
 camera.position.z = 800;
 THREE.ImageUtils.crossOrigin = ''; // Ended up not using this yet. Will want it when I start using actual images files.
 var cardFrontTexture = new THREE.Texture(cardFrontImage); // only the abomination, for now.
@@ -14,6 +13,7 @@ var cardMeshes = [];
 var selectionMeshes = [];
 var selectedField = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
 //-----------------------------------------------------------------------
+// (isSoul : Bool) -> (cardFront : Three.Mesh) -- soul cards are smaller
 function getCardFront(isSoul){
   var cardFrontTexture = new THREE.Texture(cardFrontImage);
   var cardFront;
@@ -35,6 +35,7 @@ function getCardFront(isSoul){
   return cardFront;
 }
 //-----------------------------------------------------------------------
+// (isSoul : Bool) -> (cardBack : Three.Mesh) -- soul cards are smaller
 function getCardBack(isSoul){
   var cardBackTexture = new THREE.Texture(cardBackImage);
   cardBackTexture.needsUpdate = true;
@@ -54,6 +55,7 @@ function getCardBack(isSoul){
   return cardBack;
 }
 //-----------------------------------------------------------------------
+// (isSoul : Bool) -> (card : Three.Object3D) -- soul cards are smaller
 function getCard(isSoul){
   var card = new THREE.Object3D();
   card.add(getCardFront(isSoul));
@@ -61,6 +63,7 @@ function getCard(isSoul){
   return card;
 }
 //-----------------------------------------------------------------------
+// (isSoul : Bool) -> (cardSlot : Three.Mesh) -- soul cards are smaller
 function getCardSelection(isSoul){
   var cardSlot;
   if(!isSoul){
@@ -82,6 +85,7 @@ var fieldPositions = [];
 var cards = [];
 var cardSlots = [];
 //-----------------------------------------------------------------------
+// (index : Nat /\ [0,8]) -> (fieldPosition : Three.Mesh)
 function getFieldIndex(index){
   var positionTexture = new THREE.Texture(positionImages[index]);
   positionTexture.needsUpdate = true;
@@ -90,6 +94,7 @@ function getFieldIndex(index){
   new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
 }
 //-----------------------------------------------------------------------
+// (index : Nat /\ [0,4]) -> (soulPosition : Three.Mesh)
 function getSoulIndex(index){
   var positionTexture = new THREE.Texture(positionImages[index]); // incorrect?
   positionTexture.needsUpdate = true;
@@ -98,10 +103,11 @@ function getSoulIndex(index){
   new THREE.MeshPhongMaterial({ map: positionTexture, shininess: 1 }))
 }
 //-----------------------------------------------------------------------
+// (index : Nat /\ [0,8]) -> (cardSlot : Three.Object3D)
 function getCardSlot(index){
   var cardSlot = new THREE.Object3D();
-  var card = getCard();
-  var cardSelection = getCardSelection();
+  var card = getCard(False);
+  var cardSelection = getCardSelection(False);
   var fieldIndex = getFieldIndex(index);
   cardSlot.add(card);
   cardSlot.add(cardSelection);
@@ -114,6 +120,7 @@ function getCardSlot(index){
   return cardSlot;
 }
 //------------------------------------------------------------------------
+// unit -> (cardSlot : Three.Object3D)
 function getSpawn(){
   var cardSlot = new THREE.Object3D();
   var card = getCard();
@@ -130,7 +137,7 @@ function getSpawn(){
   return cardSlot;
 }
 //-----------------------------------------------------------------------
-
+// (player : Bool) -> (boardContainer : Three.Object3D)
 function getBoard(player){
   var woodTexture = new THREE.Texture(wood);
   woodTexture.needsUpdate = true;
