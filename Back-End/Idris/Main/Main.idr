@@ -114,9 +114,9 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
  let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
  let whichPlayer' = correctForRound round whichPlayer in
  let transformGameResult = transformFullGame game whichPlayer' serverUpdate in
- let (transformedGame, clientUpdates) = transformGameResult in
-  case transformedGame of
-   Left winner =>
+  case transformGameResult of
+   Left errorMessage => ?hole
+   Center winner =>
     let winnerId = getPlayerTemporaryId winner game in
     case nextRound winner round of
      Left result =>
@@ -125,7 +125,7 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
      Right round' =>
       let serverResponse = replyWith clientUpdates whichPlayer in
       ([MkBattle round' (MkFullGameDrawPhase $ newDrawPhase bId aId)], serverResponse)
-   Right game' =>
+   Right (game', clientUpdates) =>
     ([MkBattle round game'], replyWith clientUpdates whichPlayer)
 -------------------------------------------------------------------------------
 processServerUpdate :

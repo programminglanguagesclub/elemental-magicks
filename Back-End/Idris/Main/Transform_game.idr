@@ -81,34 +81,49 @@ test : Game -> (Either WhichPlayer Game, List ClientUpdate)
 test game = runPure (statefulTransformGame game PlayerA Rest)
 -}
 
+{-
+
+generateClientInstruction :
+  WhichPlayer ->
+    String ->
+      String ->
+        ClientInstruction
+         generateClientInstruction whichPlayerOnMove onMoveMessage notOnMoveMessage
+         -}
+
+
+data Three error center terminal
+ = Left error
+ | Center terminal
+ | Right continue
+
 partial
 transformGame' :
  Game ->
  WhichPlayer ->
  ServerUpdate ->
- (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
+ Three String WhichPlayer (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
+ --ignoring game logic error for the moment...
 
 -- I can make a nice monad for this...
 -- NEED TO STEP GAME TOO?
 
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
-  False => (Right game, [InvalidMove Clientupdates.notYourTurn actor])
+  False => Left Clientupdates.notYourTurn
   True =>
    let (player, mutator) = getStatefulPlayer actor game in
    case (phase game) of
     SpawnPhase =>
      case transformSpawnPhase player serverUpdate of
-      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
+      Left errorMessage => Left errorMessage
       Right (player', updates) =>
        case (getInitiative game == playerOnMove game) of
         True =>
-         let (game', updates', instruction) = stepGame (mutator player' game, updates) in
-         (Right game', updates' ++ ?hole) -- need to add instruction to updates for both players
+         Right $ stepGame (mutator player' game, updates)
         False =>
          let phase' = nextPhase (phase game) in
-         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase'} game), updates) in
-         (Right game', updates' ++ ?hole) -- need to add instruction to updates for both players
+         Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
     EngagementPhase =>
      case (skillHead game) of
 
@@ -123,7 +138,7 @@ transformGame' game actor serverUpdate =
          case enemyFieldNoneAlive of
           True =>
            case (thoughtsResource player > 0) of
-            False => (Right game, [InvalidMove "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost." actor])
+            False => Left "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost."
             True =>
              let player' = record {thoughtsResource $= \x => x - 1} player in
              let player'' = record {board $= ?hole {-engage unit that is direct attacking!!-}} player' in
@@ -132,15 +147,15 @@ transformGame' game actor serverUpdate =
              let opponent' = {-record {soulCards = soulCards opponent}-} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
 
                    -- ?hole -- actually damage enemy soul by 1 for a cost of 1 thought(and consume card turn)
-          False =>  (Right game, [InvalidMove "Invalid move. Direct attacks are only possible if there are no living units in the enemy field." actor])
+          False =>  Left "Invalid move. Direct attacks are only possible if there are no living units in the enemy field."
         AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
         Rest => ?hole -- this is always valid
         Move fieldIndex => ?hole -- this is valid if the fieldIndex given is empty
         SkillInitiation skillIndex =>
          case (muted getMonsterOnMove) of
-          True => (Right game, [InvalidMove "Invalid move. Your card cannot initiate action skills its first turn fielded" actor])
+          True => Left "Invalid move. Your card cannot initiate action skills its first turn fielded"
           False => ?hole -- 
-        _ => (Right game, [InvalidMove "Invalid move. It is currently the action phase of your card. Please select a valid action for it." actor])
+        _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
                        -- ?hole -- process engagementPhase specific
       Existential selection condition ifSelected ifUnable cost s => -- what is the last argument??? I have no idea anymore
        case serverUpdate of
@@ -148,35 +163,31 @@ transformGame' game actor serverUpdate =
             -- THIS IS ONE BIG THING
 
         SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
-        _ => (Right game, [InvalidMove "Invalid move. Select targets for your current skill." actor])
+        _ => Left "Invalid move. Select targets for your current skill."
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player (deathQueue game) serverUpdate of
-      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
+      Left errorMessage => Left errorMessage
       Right (player', deathQueue', updates) =>                  -- NEED HELPER HERE FOR CAN REVIVE ANYTHING..
        case myNot $ getInitiative game == playerOnMove game || ?hole {-first player cannot revive anything-} of
         True =>
          let phase' = nextPhase (phase game) in
-         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates) in
-         ?hole
+         Right $ stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates)
         False =>
-         let (game', updates', instruction) = stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates) in
-         ?hole
+         Right $ stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates)
     DeploymentPhase =>
      case transformDeploymentPhase player serverUpdate of
-      Left errorMessage => (Right game, [InvalidMove errorMessage actor])
+      Left errorMessage => Left errorMessage
       Right (player', updates) =>
        case (getInitiative game == playerOnMove game) of
         True =>
-         let (game', updates', instruction) = stepGame (mutator player' game, updates) in
-         ?hole
+         Right $ stepGame (mutator player' game, updates)
         False =>
          let phase' = nextPhase (phase game) in
-         let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase'} game), updates) in
-         ?hole
+         Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
     _ =>
      case serverUpdate of
       SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
-      _ => (Right game, [InvalidMove "Invalid move. Select targets for your current skill." actor])
+      _ => Left "Invalid move. Select targets for your current skill."
    
    {-
        case transformGame'' player (phase game) serverUpdate {- (myNot (getInitiative game == playerOnMove game)) -} of
@@ -193,26 +204,7 @@ transformGame' game actor serverUpdate =
                                                               -- of these, spawn always requires a valid command from both players
                                                               -- and revival requires a valid command from each player who can revive...
 
-{-
-
-transformSpawnPhase : -- assumes the player is on move.
-                       (playerToUpdate : Player) ->
-                        (serverUpdate : ServerUpdate) ->
-                         Either
-                           String
-                             (Player,List ClientUpdate)
-
-                             -}
-
-
-{-| _ = ?hole-}
-
-{-
- | SpawnPhase =
-   case transformSpawnPhase actor playerA playerB (initiative game) serverUpdate of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right ((playerA', playerB'), updates) => ?hole
- 
+{- 
  | MkPhaseCycle SpellPhase playerA playerB =
    case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
     Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
@@ -246,7 +238,11 @@ transformSpawnPhase : -- assumes the player is on move.
 -}
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 -------------------------------------------------------------------------------
-transformGame : Game -> WhichPlayer -> ServerUpdate -> (Either WhichPlayer Game, List ClientUpdate)
+transformGame :
+ Game ->
+ WhichPlayer ->
+ ServerUpdate ->
+ Three String WhichPlayer (Game, List ClientUpdate, ClientInstruction)
 transformGame = assert_total transformGame'
 
 {-with (phase game,serverUpdate)
@@ -329,13 +325,17 @@ transformDrawPhase :
  DrawPhase ->
  WhichPlayer ->
  ServerUpdate ->
- (FullGame, List ClientUpdate)
+ Three String WhichPlayer (FullGame, List ClientUpdate, ClientInstruction)
 
+transformDrawPhase = ?hole
 -------------------------------------------------------------------------------
 transformFullGame :
  FullGame ->
  WhichPlayer ->
  ServerUpdate ->
- (Either WhichPlayer FullGame, List ClientUpdate)
+ Three String WhichPlayer (FullGame, List ClientUpdate, ClientInstruction)
 
+transformFullGame gameType whichPlayer serverUpdate with (gameType)
+ | MkFullGameDrawPhase drawPhase = transformDrawPhase drawPhase whichPlayer serverUpdate
+ | MkFullGameGame game = let x = transformGame game whichPlayer serverUpdate in ?hole -- if someone wins a round have to handle going to the next round? (Is this handled in main?)
 -------------------------------------------------------------------------------
