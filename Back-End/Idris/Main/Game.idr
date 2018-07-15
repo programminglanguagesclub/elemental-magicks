@@ -19,10 +19,6 @@ import Pruviloj.Derive.DecEq
 
 %language ElabReflection
 -------------------------------------------------------------------------------
-getOpponent : WhichPlayer -> WhichPlayer
-getOpponent PlayerA = PlayerB
-getOpponent PlayerB = PlayerA
--------------------------------------------------------------------------------
 data Round
  = FirstRound
  | SecondRoundOriginalPlayerAWonFirstRound
@@ -170,13 +166,23 @@ record Battle where
  round : Round
  game : FullGame
 -------------------------------------------------------------------------------
-getPlayer :
- WhichPlayer ->
- Game ->
- Player
+namespace game
+  getPlayer :
+   WhichPlayer ->
+   Game ->
+   Player
 
-getPlayer PlayerA game = playerA game
-getPlayer PlayerB game = playerB game
+  getPlayer PlayerA game = playerA game
+  getPlayer PlayerB game = playerB game
+-------------------------------------------------------------------------------
+namespace draw
+  getPlayer :
+   WhichPlayer ->
+   DrawPhase ->
+   DrawPlayer
+
+  getPlayer PlayerA drawPhase = playerA drawPhase
+  getPlayer PlayerB drawPhase = playerB drawPhase
 -------------------------------------------------------------------------------
 namespace foo
   getStatefulPlayer :
@@ -192,8 +198,8 @@ getPlayerTemporaryId :
  FullGame ->
  String
 
-getPlayerTemporaryId whichPlayer gameCycle = ?hole
- --temporaryId $ getPlayer whichPlayer gameCycle
+getPlayerTemporaryId whichPlayer (MkFullGameGame game) = temporaryId $ getPlayer whichPlayer game
+getPlayerTemporaryId whichPlayer (MkFullGameDrawPhase drawPhase) = temporaryId $ getPlayer whichPlayer drawPhase
 -------------------------------------------------------------------------------
 transformPlayer :
  (Player -> Player) ->
@@ -204,6 +210,7 @@ transformPlayer :
 transformPlayer mutator PlayerA game = record {playerA $= mutator} game
 transformPlayer mutator PlayerB game = record {playerB $= mutator} game
 -------------------------------------------------------------------------------
+{-
 updatePlayer :
  WhichPlayer ->
  Game ->
@@ -212,6 +219,7 @@ updatePlayer :
 
 updatePlayer whichPlayer game mutator =
  let game' = transformPlayer (fst . mutator) whichPlayer game in ?hole
+ -}
 -------------------------------------------------------------------------------
 -- Move these helper functions to card. These also get used in the DSL.
 
@@ -291,7 +299,7 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
 -- this function probably needs to be able to modify more things..
 
 -------------------------------------------------------------------------------
-applyAttack :
+{-applyAttack :
  Bounded 0 Preliminaries.absoluteUpperBound ->
  Fin 3 ->
  Player ->
@@ -301,5 +309,5 @@ applyAttack :
 applyAttack atk row defendingPlayer = ?hole
 
 -- this function also probably needs to be able to modify more things.
-
+-}
 -------------------------------------------------------------------------------

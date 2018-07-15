@@ -2,8 +2,7 @@ module Base.Player
 
 import Data.So
 import Data.Vect
-import Data.BoundedList
---import Base.BoundedList
+import Base.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic

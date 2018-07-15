@@ -244,24 +244,21 @@ serializeMarshalled marshalledClientUpdate =
 -------------------------------------------------------------------------------
 serialize :
  ClientUpdate ->
- String -> -- SHOULD THIS BE WHICHPLAYER AND NOT STRING???
+ WhichPlayer ->
  String
 
--- ALSO: How am I keeping track of which updates get send to 1 player versus 2, etc?
-
-serialize clientUpdate playerId =
- let marshalledClientUpdate = marshallClientUpdate clientUpdate ?hole in
+serialize clientUpdate whichPlayer =
+ let marshalledClientUpdate = marshallClientUpdate clientUpdate whichPlayer in
  serializeMarshalled marshalledClientUpdate
 -------------------------------------------------------------------------------
 payload :
  ClientUpdate ->
- String ->
- String ->
+ WhichPlayer ->
  String
 
-payload clientUpdate playerId opponentId =
- let playerMessage = serialize clientUpdate playerId in
- let opponentMessage = serialize clientUpdate opponentId in
+payload clientUpdate whichPlayer =
+ let playerMessage = serialize clientUpdate whichPlayer in
+ let opponentMessage = serialize clientUpdate (getOpponent whichPlayer) in
  playerMessage ++ "~" ++ opponentMessage
 -------------------------------------------------------------------------------
 

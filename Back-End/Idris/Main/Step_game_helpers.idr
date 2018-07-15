@@ -1,7 +1,7 @@
 module Main.Step_game_helpers
 import Data.Vect
 import Data.So
-import Data.BoundedList
+import Base.BoundedList
 import Base.Bounded
 import Base.Preliminaries
 import Base.Objects_basic

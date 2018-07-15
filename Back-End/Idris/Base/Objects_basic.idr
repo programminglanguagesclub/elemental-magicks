@@ -36,7 +36,6 @@ record BasicMonsterFactory where
  speed : Bounded 1 5
  range : Bounded 1 5
  level : Bounded 1 9
- soulPoints : Bounded 1 2
 
 basicMonsterFactoryDecEq : (x, y : BasicMonsterFactory) -> Dec (x = y)
 %runElab deriveDecEq `{basicMonsterFactoryDecEq}
@@ -55,7 +54,6 @@ record BasicUnfieldedMonster where
  speed : Bounded 1 5
  range : Bounded 1 5
  level : Bounded 1 9
- soulPoints : Bounded 1 2
 
 basicUnfieldedMonsterDecEq : (x, y : BasicUnfieldedMonster) -> Dec (x = y)
 %runElab deriveDecEq `{basicUnfieldedMonsterDecEq}
@@ -75,7 +73,6 @@ record BasicFieldedMonster where
  speed : (Preliminaries.standardBounds, Preliminaries.standardBounds, Bounded 1 5)
  range : (Bounded 0 Preliminaries.absoluteUpperBound, Bounded 0 Preliminaries.absoluteUpperBound, Bounded 1 5)
  level : (Bounded 0 9, Bounded 0 9, Bounded 1 9)
- soulPoints : ((Bounded 0 2),(Bounded 1 2))
  engagement : Bounded 0 Preliminaries.absoluteUpperBound
  aliveness : Aliveness
 
@@ -165,7 +162,6 @@ instantiateBasicMonster basicMonsterFactory cardId =
   (speed basicMonsterFactory) 
   (range basicMonsterFactory)
   (level basicMonsterFactory)
-  (soulPoints basicMonsterFactory)
 -------------------------------------------------------------------------------
 fieldMonster : BasicUnfieldedMonster -> BasicFieldedMonster
 fieldMonster basicUnfieldedMonster =
@@ -179,7 +175,6 @@ fieldMonster basicUnfieldedMonster =
   (extendBounds (speed basicUnfieldedMonster) , extendBounds (speed basicUnfieldedMonster), extendBounds (speed basicUnfieldedMonster))
   (extendBounds (range basicUnfieldedMonster), extendBounds (range basicUnfieldedMonster), extendBounds (range basicUnfieldedMonster))
   (extendLowerBound (level basicUnfieldedMonster) Oh, extendLowerBound (level basicUnfieldedMonster) Oh, level basicUnfieldedMonster)
-  (extendLowerBound (soulPoints basicUnfieldedMonster) Oh, soulPoints basicUnfieldedMonster)
   (bind 0)
   Alive
 -------------------------------------------------------------------------------
@@ -240,13 +235,12 @@ unfieldMonster basicFieldedMonster =
  (name basicFieldedMonster)
  (id basicFieldedMonster)
  (schools basicFieldedMonster)
- (?hole) -- hp
+ (getBaseHp $ hp basicFieldedMonster) -- hp
  (getBase $ attack basicFieldedMonster)
  (getBase $ defense basicFieldedMonster)
  (getBase $ speed basicFieldedMonster)
  (getBase $ range basicFieldedMonster)
  (getBase $ level basicFieldedMonster)
- (?hole) -- soul points
 
 -------------------------------------------------------------------------------
 

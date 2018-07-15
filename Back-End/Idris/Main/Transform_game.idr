@@ -1,4 +1,5 @@
 module Main.Transform_game
+--import Control.ST
 import Data.Vect
 import Data.Fin
 import Base.BoundedList
@@ -37,27 +38,6 @@ myNot : Bool -> Bool
 myNot True = False
 myNot False = True
 
-partial
-transformGame'' :
- Player ->
- Phase ->
- ServerUpdate ->
- Either
-  String
-  (Player,List ClientUpdate)
-
-transformGame'' player phase update =
- case phase of
-  SpawnPhase => ?hole
-  SpellPhase => ?hole
-  RemovalPhase => ?hole
-  StartPhase => ?hole
-  EngagementPhase => ?hole
-  EndPhase => ?hole
-  RevivalPhase => ?hole
-  DeploymentPhase => ?hole
-
-
 
 
 -- hack for now
@@ -65,7 +45,41 @@ getMonsterOnMove : FieldedMonster
 getSquareOnMove : Fin 9
 damageSoul : BoundedList 5 SoulCard -> (BoundedList 5 SoulCard, Maybe (Maybe Skill))
 
+{-
+partial
+statefulTransformGame : (game : Game) -> (actor : WhichPlayer) -> (serverUpdate : ServerUpdate) -> STrans m (Either WhichPlayer Game, List ClientUpdate) [] (const [])
+statefulTransformGame init actor serverUpdate = do
+ game <- new init
+ updates <- new (the (List ClientUpdate) [])
+ 
+ if (playerOnMove init == actor)
+  then
+   let (player, mutator) = getStatefulPlayer actor init in
+   case phase init of
+    SpawnPhase =>
+     case transformSpawnPhase player serverUpdate of
+      Left errorMessage => write game init
+      Right (player', updates) =>
+       case (getInitiative init == playerOnMove init) of
+        True =>
+         let (game', updates', instruction) = stepGame (mutator player' init, []) in write game init
+        False => write game init 
+                 --write game init
+  else do
+   write updates [InvalidMove Clientupdates.notYourTurn actor]
+ write game init
 
+ resultGame <- read game
+ resultUpdates <- read updates
+ let result = (Right resultGame, resultUpdates)
+ delete game
+ delete updates
+ pure result
+ 
+
+test : Game -> (Either WhichPlayer Game, List ClientUpdate)
+test game = runPure (statefulTransformGame game PlayerA Rest)
+-}
 
 partial
 transformGame' :
@@ -74,11 +88,8 @@ transformGame' :
  ServerUpdate ->
  (Either WhichPlayer Game, List ClientUpdate) -- either winning player or the game
 
-
 -- I can make a nice monad for this...
-
 -- NEED TO STEP GAME TOO?
-
 
 transformGame' game actor serverUpdate =
  case (playerOnMove game == actor) of
@@ -93,11 +104,11 @@ transformGame' game actor serverUpdate =
        case (getInitiative game == playerOnMove game) of
         True =>
          let (game', updates', instruction) = stepGame (mutator player' game, updates) in
-         ?hole -- need to add instruction to updates for both players
+         (Right game', updates' ++ ?hole) -- need to add instruction to updates for both players
         False =>
          let phase' = nextPhase (phase game) in
          let (game', updates', instruction) = stepGame (mutator player' (record {phase = phase'} game), updates) in
-         ?hole -- need to add instruction to updates for both players
+         (Right game', updates' ++ ?hole) -- need to add instruction to updates for both players
     EngagementPhase =>
      case (skillHead game) of
 
@@ -118,7 +129,7 @@ transformGame' game actor serverUpdate =
              let player'' = record {board $= ?hole {-engage unit that is direct attacking!!-}} player' in
              let (opponent, opponentMutator) = getStatefulPlayer (getOpponent actor) game in
              let x = 56 in
-             let opponent' = record {soulCards = soulCards opponent} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
+             let opponent' = {-record {soulCards = soulCards opponent}-} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
 
                    -- ?hole -- actually damage enemy soul by 1 for a cost of 1 thought(and consume card turn)
           False =>  (Right game, [InvalidMove "Invalid move. Direct attacks are only possible if there are no living units in the enemy field." actor])
