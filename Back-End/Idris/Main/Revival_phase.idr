@@ -117,6 +117,16 @@ _revive positions board thoughts hand graveyard =
   -}
   -}
 -------------------------------------------------------------------------------
+
+removeFromDeathQueue : Nat -> List Nat -> List Nat
+removeFromDeathQueue _ [] = [] -- GAME LOGIC ERROR: card was revived but wasn't in the death queue
+removeFromDeathQueue n (x::xs) =
+ case x == n of
+  True => xs
+  False => x :: (removeFromDeathQueue n xs)
+
+
+-------------------------------------------------------------------------------
 removeMonsterFromHandByName :
  (hand : List Card) ->
  (name : String) ->
@@ -132,32 +142,23 @@ removeMonsterFromHandByName ((MonsterCard unfieldedMonster)::hs) n =
    case removeMonsterFromHandByName hs n of
     Nothing => Nothing
     Just (card, hand') => Just (card, (MonsterCard unfieldedMonster)::hand')
-  
-
-      {-
-
-      data Card
-         = SpellCard Spell
-          | MonsterCard UnfieldedMonster
-
-          -}
 -------------------------------------------------------------------------------
-revive : -- ignoring the death queue for now, although that also must be passed..
-
+revive :
  (positions : Vect n Bool) ->
  (board : Vect n (Maybe FieldedMonster)) ->
  (thoughts : Nat) ->
+ (deathQueue : List Nat) ->
  (hand : List Card) ->
- Either String (Vect n (Maybe FieldedMonster), Nat, List Card, List Card) -- hand and then grave at the end.
+ Either String (Vect n (Maybe FieldedMonster), Nat, List Nat, List Card, List Card) -- hand and then grave at the end.
 
-revive [] [] thoughts hand = Right ([],thoughts, hand, [])
-revive (False::ps) (b::bs) thoughts hand =
- case revive ps bs thoughts hand of
+revive [] [] thoughts deathQueue hand = Right ([],thoughts, deathQueue, hand, [])
+revive (False::ps) (b::bs) thoughts deathQueue hand =
+ case revive ps bs thoughts deathQueue hand of
   Left error => Left error
-  Right (board', thoughts', hand', graveyard') => Right (b::board', thoughts', hand', graveyard')
-revive (True::ps) (Nothing::bs) _ _ =
+  Right (board', thoughts', deathQueue', hand', graveyard') => Right (b::board', thoughts', deathQueue', hand', graveyard')
+revive (True::ps) (Nothing::bs) _ _ _ =
  Left "You cannot revive empty locations"
-revive (True::ps) ((Just fieldedMonster)::bs) thoughts hand =
+revive (True::ps) ((Just fieldedMonster)::bs) thoughts deathQueue hand =
  let reviveCost = getNumberOfSchools $ basic fieldedMonster in
  if thoughts >= reviveCost
   then
@@ -165,10 +166,10 @@ revive (True::ps) ((Just fieldedMonster)::bs) thoughts hand =
     Nothing =>
      Left "You do not have the replacement cards in your hand to afford this revival."
     Just (copy, hand') =>
-     case revive ps bs (minus thoughts reviveCost) hand' of
+     case revive ps bs (minus thoughts reviveCost) (removeFromDeathQueue (id $ basic fieldedMonster) deathQueue) hand' of
       Left error => Left error
-      Right (board', thoughts', hand'', graveyard') =>
-       Right ((Just (reviveMonster fieldedMonster))::board', thoughts', hand'', copy::graveyard')
+      Right (board', thoughts', deathQueue', hand'', graveyard') =>
+       Right ((Just (reviveMonster fieldedMonster))::board', thoughts', deathQueue', hand'', graveyard' ++ [copy])
   else
    Left "You do not have sufficient thoughts to afford this revival."
 
@@ -189,12 +190,37 @@ revive positions player = ?hole -- must figure out structure of board....
 
 {-Need to cause units to leave the field if not revived in order of death, and then in order of position on the field. For this we need another data structure in game to represent the order of death-}
 
+foo : Bool -> Selection
+foo True = Selected
+foo False = Unselected
+
 transformRevivalPhase :
  (playerToUpdate : Player) ->
- (deathQueueByTemporaryId : List Nat) ->
+ (whichPlayer : WhichPlayer) ->
+ (deathQueue : List Nat) ->
  (serverUpdate : ServerUpdate) ->
  Either
   String
   (Player,List Nat, List ClientUpdate) -- also return an updated deathQueue
  
- 
+
+-- The Client is required to remove thoughts and move copies from hand to graveyard in the right order, etc.
+-- I am only telling the client to perform the revival.
+transformRevivalPhase player actor deathQueue serverUpdate =
+ case serverUpdate of
+  Revive positions =>
+   case revive positions (flattenBoard $ board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
+    Left error => Left error
+    Right (board', thoughts', deathQueue', hand', additionalGraveyard') =>
+     Right
+      (record {
+        board = unflattenBoard board',
+        hand = hand',
+        graveyard = (graveyard player) ++ additionalGraveyard'
+       } player,
+       deathQueue',
+       [Revive (map foo positions) actor])
+  _ => Left "You can only revive cards in the revival phase"
+
+
+

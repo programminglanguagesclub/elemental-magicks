@@ -205,15 +205,17 @@ finSum3 (FS k) x y = FS (finSum3 k x y)
 
 finSum4 : Fin n1 -> Fin n2 -> Fin n3 -> Fin n4 -> Fin (n1 + (n2 + (n3 + n4)))
 -}
+
+-}
 -------------------------------------------------------------------------------
-flattenBoard : Vect 3 (Vect 3 (Maybe Monster)) -> Vect 9 (Maybe Monster)
+flattenBoard : Vect 3 (Vect 3 (Maybe FieldedMonster)) -> Vect 9 (Maybe FieldedMonster)
 flattenBoard [row0, row1, row2] = row0 ++ row1 ++ row2
 -------------------------------------------------------------------------------
-unflattenBoard : Vect 9 (Maybe Monster) -> Vect 3 (Vect 3 (Maybe Monster))
+unflattenBoard : Vect 9 (Maybe FieldedMonster) -> Vect 3 (Vect 3 (Maybe FieldedMonster))
 unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] =
  [[p0,p1,p2],[p3,p4,p5],[p6,p7,p8]]
 -------------------------------------------------------------------------------
--}
+
 namespace fielded
  idMatches :
   Nat ->

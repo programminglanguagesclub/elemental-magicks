@@ -165,7 +165,7 @@ transformGame' game actor serverUpdate =
         SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
         _ => Left "Invalid move. Select targets for your current skill."
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
-     case transformRevivalPhase player (deathQueue game) serverUpdate of
+     case transformRevivalPhase player actor (deathQueue game) serverUpdate of
       Left errorMessage => Left errorMessage
       Right (player', deathQueue', updates) =>                  -- NEED HELPER HERE FOR CAN REVIVE ANYTHING..
        case myNot $ getInitiative game == playerOnMove game || ?hole {-first player cannot revive anything-} of
