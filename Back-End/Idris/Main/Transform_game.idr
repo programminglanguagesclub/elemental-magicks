@@ -168,7 +168,7 @@ transformGame' game actor serverUpdate =
      case transformRevivalPhase player actor (deathQueue game) serverUpdate of
       Left errorMessage => Left errorMessage
       Right (player', deathQueue', updates) =>                  -- NEED HELPER HERE FOR CAN REVIVE ANYTHING..
-       case myNot $ getInitiative game == playerOnMove game || ?hole {-first player cannot revive anything-} of
+       case (myNot (getInitiative game == playerOnMove game)) || (myNot (canReviveAnything (getInitiative game))) of dsg;lds;lga;lhg
         True =>
          let phase' = nextPhase (phase game) in
          Right $ stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates)

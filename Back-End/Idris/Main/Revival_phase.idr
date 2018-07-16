@@ -222,5 +222,16 @@ transformRevivalPhase player actor deathQueue serverUpdate =
        [Revive (map foo positions) actor])
   _ => Left "You can only revive cards in the revival phase"
 
+-------------------------------------------------------------------------------
+-- this is useful to know if we should wait for player revival input or not.
+
+canReviveAnything : (player : Player) -> Bool
+
+canReviveAnything player = ?hole
+
+
+
+
+
 
 
