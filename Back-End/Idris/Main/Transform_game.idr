@@ -167,18 +167,18 @@ transformGame' game actor serverUpdate =
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player actor (deathQueue game) serverUpdate of
       Left errorMessage => Left errorMessage
-      Right (player', deathQueue', updates) =>                  -- NEED HELPER HERE FOR CAN REVIVE ANYTHING..
-       case (myNot (getInitiative game == playerOnMove game)) || (myNot (canReviveAnything (getInitiative game))) of dsg;lds;lga;lhg
+      Right (player', deathQueue', updates) =>
+       case (myNot (getInitiative game == playerOnMove game)) || (myNot (canReviveAnything (getPlayer (getOpponent actor) (playerA game) (playerB game)))) of
         True =>
          let phase' = nextPhase (phase game) in
          Right $ stepGame (mutator player' (record {phase = phase', deathQueue = deathQueue'} game), updates)
         False =>
          Right $ stepGame (mutator player' (record {deathQueue = deathQueue'} game), updates)
     DeploymentPhase =>
-     case transformDeploymentPhase player serverUpdate of
+     case transformDeploymentPhase player serverUpdate of --- Where I am checking if the field is full (if that happens the card gets sent to the graveyard from spawn)
       Left errorMessage => Left errorMessage
       Right (player', updates) =>
-       case (getInitiative game == playerOnMove game) of
+       case (getInitiative game == playerOnMove game) || .... of
         True =>
          Right $ stepGame (mutator player' game, updates)
         False =>
