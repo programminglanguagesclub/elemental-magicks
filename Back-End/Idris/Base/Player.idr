@@ -483,6 +483,9 @@ findNextLivingMonster :
 
 findNextLivingMonster fin vect =
  findIndexPreferentiallyFrom actualAlive fin vect
+
+
+ {-
 -------------------------------------------------------------------------------
 indexMonster : Fin 3 -> Fin 3 -> Player -> Maybe FieldedMonster
 indexMonster = ?hole
@@ -495,6 +498,12 @@ transformMonster :
  Fin 3 ->
  Player ->
  Player
-
-transformMonster mutator row column player = ?hole
+-- do I have the row and column order correct!?!?!
+transformMonster mutator row column player =
+ case Vect.index column (Vect.index row $ board player) of
+  Nothing => ?hole -- absurd error case.
+  Just fieldedMonster =>
+   let updatedBoard = updateAt column (\column' => updateAt row mutator (index column' $ board player)) (board player) in
+   record {board = updatedBoard} player
 -------------------------------------------------------------------------------
+   -}

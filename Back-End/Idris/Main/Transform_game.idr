@@ -92,7 +92,7 @@ generateClientInstruction :
          -}
 
 
-data Three error center terminal
+data Three error terminal continue
  = Left error
  | Center terminal
  | Right continue
@@ -102,7 +102,7 @@ transformGame' :
  Game ->
  WhichPlayer ->
  ServerUpdate ->
- Three String WhichPlayer (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
+ Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
  --ignoring game logic error for the moment...
 
 -- I can make a nice monad for this...
@@ -242,7 +242,7 @@ transformGame :
  Game ->
  WhichPlayer ->
  ServerUpdate ->
- Three String WhichPlayer (Game, List ClientUpdate, ClientInstruction)
+ Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction)
 transformGame = assert_total transformGame'
 
 {-with (phase game,serverUpdate)
@@ -325,7 +325,7 @@ transformDrawPhase :
  DrawPhase ->
  WhichPlayer ->
  ServerUpdate ->
- Three String WhichPlayer (FullGame, List ClientUpdate, ClientInstruction)
+ Three String (WhichPlayer, List ClientUpdate) (FullGame, List ClientUpdate, ClientInstruction)
 
 transformDrawPhase = ?hole
 -------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ transformFullGame :
  FullGame ->
  WhichPlayer ->
  ServerUpdate ->
- Three String WhichPlayer (FullGame, List ClientUpdate, ClientInstruction)
+ Three String (WhichPlayer, List ClientUpdate) (FullGame, List ClientUpdate, ClientInstruction)
 
 transformFullGame gameType whichPlayer serverUpdate with (gameType)
  | MkFullGameDrawPhase drawPhase = transformDrawPhase drawPhase whichPlayer serverUpdate

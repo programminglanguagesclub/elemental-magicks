@@ -113,7 +113,7 @@ mutual
     
    | EndPhase = continueStep (stepEndPhase initiative deathQueue playerA playerB)
     
-   | RevivalPhase = continueStep (stepRevivalPhase playerA playerB)
+   | RevivalPhase = ?hole --continueStep (stepRevivalPhase playerA playerB)
     
    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
 -------------------------------------------------------------------------------     

@@ -243,6 +243,7 @@ subtractHp value monster with (value)
 fatallyDamaged : FieldedMonster -> Bool
 fatallyDamaged monster = (getCurrentHp $ hp $ basic monster) <= 0
 -------------------------------------------------------------------------------
+{-
 transformMonsterInGame :
  Fin 3 ->
  Fin 3 ->
@@ -297,7 +298,7 @@ damageCard damage row column game whichPlayer with (indexMonster row column (the
 
 
 -- this function probably needs to be able to modify more things..
-
+-}
 -------------------------------------------------------------------------------
 {-applyAttack :
  Bounded 0 Preliminaries.absoluteUpperBound ->
