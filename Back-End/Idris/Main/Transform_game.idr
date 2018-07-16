@@ -156,13 +156,18 @@ transformGame' game actor serverUpdate =
           True => Left "Invalid move. Your card cannot initiate action skills its first turn fielded"
           False => ?hole -- 
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
-                       -- ?hole -- process engagementPhase specific
-      Existential selection condition ifSelected ifUnable cost s => -- what is the last argument??? I have no idea anymore
+      Existential selection condition ifSelected ifUnable cardId playerId =>
        case serverUpdate of
 
             -- THIS IS ONE BIG THING
 
-        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
+        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard =>
+         let x = move_interp selection condition ifSelected ifUnable cardId playerid friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection ?playerHole ?playerHole ?envHole in ?hole
+
+
+
+
+
         _ => Left "Invalid move. Select targets for your current skill."
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player actor (deathQueue game) serverUpdate of

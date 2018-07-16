@@ -334,14 +334,22 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
 -------------------------------------------------------------------------------
 move_interp :
  Nonautomatic ->
- Vect n Nat ->
+ (friendlyFieldSelection : List Nat) ->
+ (enemyFieldSelection : List Nat) ->
+ (friendlyHandSelection : List Nat)_ ->
+ (enemyHandSelection : List Nat) ->
+ (friendlyGraveyardSelection : List Nat) ->
+ (enemyGraveyardSelection : List Nat) ->
+ (friendlyBanishedSelection : List Nat) ->
+ (enemyBanishedSelection : List Nat)
+ List Nat ->
  Player ->
  Player ->
  Env ->
  (Player,Player, List ClientUpdate,Nonautomatic,Env)
 
 
-move_interp skill selection player opponent env with (skill)
+move_interp skill friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection player opponent env with (skill)
  | TerminatedSkill cardId playerId = 
     (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
  | Existential args condition selected failed cardId playerId
