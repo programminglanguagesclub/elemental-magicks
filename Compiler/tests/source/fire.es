@@ -28,10 +28,18 @@ lvl 1  3    3         0
 */
 
 /*THIS UNIT NOT FULLY WORKING IN TYPECHECKER (undefined)*/
+
+
+/*
 unit "Pyromancer" fire level : 2 hp : 30 attack : 0 defense : 0 speed : 1 range : 3 soulPoints : 1
 action : select x in enemy field then {damage x friendly fire * 5; damage unit to the left of x friendly fire * 5; damage unit to the right of x friendly fire * 5; damage unit behind x friendly fire * 5; damage unit in front of x friendly fire * 5;}
+*/
+
 /*I should be able to damage everything in a set like this...*/
+/*
 soulSkill : cost : 1 select x in enemy field then {damage x friendly fire * 5; damage unit to the left of x friendly fire * 5; damage unit to the right of x friendly fire * 5; damage unit behind x friendly fire * 5; damage unit in front of x friendly fire * 5;}
+
+*/
 
 
 unit "Initiate Dual Weirding Flame Sword Soldier" fire level : 3 hp : 40 attack : 0 defense : 0 speed : 2 range : 1 soulPoints : 2
@@ -141,21 +149,22 @@ spawn : cost : 2 for each x in enemy field, (hp x) -= 150; select x in enemy fie
 
 
 
-
+/*
 spell "Inferno" fire level : 8
 spawn : select x in enemy field then {damage x 400; damage unit to the left of x friendly fire * 250; damage unit to the right of x friendly fire * 250; damage unit behind x friendly fire * 250; damage unit in front of x friendly fire * 250;}
+*/
 
 spell "Endless Flames" fire level : 8
-spawn : for each x in enemy field, damage x 50;, (friendly thoughts) += cardinality (x in enemy field where not dead x and hp x <= 0);
+spawn : for each x in enemy field, damage x 50;, (friendly thoughts) += cardinality (x in enemy field where not dead x and (hp x <= 0));
 
 spell "Mass Immolation" fire level : 8
-spawn : for each x in enemy field, (hp x) := 0; (friendly fire) -= cardinality (x in enemy field where not dead x and hp x <= 0);
+spawn : for each x in enemy field, (hp x) := 0; (friendly fire) -= cardinality (y in enemy field where not dead y and (hp y <= 0));
 
 spell "Fire Tornado" fire level : 9
 spawn : for each x in enemy field, damage x 180;
 
 spell "Fire Blast" fire level : 9
-spawn : for each x in enemy field, damage x 45;
+spawn : for each x in enemy field, damage x 20;
 /*And then damage enemy Life Points by the number of units with hp <= 0*/
 
 spell "Summoning of the Sun" fire level : 9

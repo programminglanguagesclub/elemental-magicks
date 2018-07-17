@@ -119,19 +119,6 @@ data Skill = AutomaticSkill (Maybe (CarryingSource Expr)) (Maybe (CarryingSource
            deriving Show
 {-Cost, Condition, skill-}
 
-
-
-{-
-
-This is one place where syntatic sugar becomes interesting.
-
-I am creating a data structure which captures the surface level syntax, even though this is a terrible of representing the data for other purposes.
-
-This allows for better errors messages to be printed.
-
-
--}
-
 -------------------------------------------------------------------------------
 data VariableBindings = VariableBindings Lexer.SurfaceData [([String], Set)]
 -------------------------------------------------------------------------------
@@ -185,30 +172,6 @@ data SkillEffect
  | DamageBehindVar Lexer.SurfaceData String (CarryingSource Expr)
  | DamageInFrontOfVar Lexer.SurfaceData String (CarryingSource Expr)
  deriving Show
-
-
-
-
-{-
-
-
-       | damage Side unit on position number Expr {undefined}
-       | damage unit on the same square as var Expr {undefined}
-       | damage unit to the left of var Expr {undefined}
-       | damage unit to the right of var Expr {undefined}
-       | damage unit in front of var Expr {undefined}
-       | damage unit behind var Expr {undefined}
-       | damage unit on the same square as this unit Expr {undefined}
-       | damage unit to the left of this unit Expr {undefined}
-       | damage unit to the right of this unit Expr {undefined}
-       | damage unit in front of this unit Expr {undefined}
-       | damage unit behind this unit Expr {undefined}
-
-
-
-
--}
-
 -------------------------------------------------------------------------------
 data Nonautomatic
  = Nonautomatic Lexer.SurfaceData [(String, Set)] (Maybe (CarryingSource Expr)) Automatic Automatic Automatic {-variables, where condition-}

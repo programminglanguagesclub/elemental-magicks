@@ -98,8 +98,9 @@ spawn : for each x in friendly field where dead x, revive x;
 spell "dsgsdhs" water level : 5
 spawn : for each x in enemy field where engagement x > 0, (friendly thoughts) += 1;
 
+/*
 spell "sdhsdhs" water level : 6
-
+*/
 
 /*add spells for engaging a row or column, etc*/
 /*

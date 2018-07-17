@@ -27,6 +27,8 @@ lvl 1  0    3         3
 
 */
 
+
+
 unit "Keeper of the Night" air level : 1 hp : 30 attack : 10 defense : 0 speed : 2 range : 1 soulPoints : 1
 start : select x in friendly field then {(temporary speed x) += 1;}
 soulSkill : for each x in enemy field, (engagement x) += 1;
@@ -46,9 +48,9 @@ soulSkill : for each x in friendly field, (permanent speed x) += 3;
 unit "Lightning Crawler" air level : 2 hp : 20 attack : 30 defense : 0 speed : 2 range : 2 soulPoints : 2
 start : for each x in enemy field, (hp x) -= temporary speed x;
 soulSkill : for each x in friendly field, (hp x) -= temporary speed x; (temporary attack x) += temporary speed x * 5;
-
-
 /*
+
+
 
 change to earth-air, and have buff max hp as well.
 
@@ -67,6 +69,7 @@ All friendly units heal 5 times their agility.
 Soul SkillSong of Summoning2 Thoughts
 Target air unit from your hand with no additional schools and of level 3 or lower is sent to target position on your field.
 
+
 */
 
 unit "Bird of Pride" air level : 3 hp : 50 attack : 30 defense : 0 speed : 3 range : 2 soulPoints : 2
@@ -79,14 +82,18 @@ action : select x in enemy field then {damage x temporary speed self * 10;}
 soulSkill : select x in enemy field then {damage x air friendly * 10;}
 
 unit "Dracoavian Skirmisher" air level : 3 hp : 50 attack : 30 defense : 0 speed : 2 range : 1 soulPoints : 1
-start : (temporary defense self) += (temporary speed self) * cardinality (x in friendly field where not dead x);
-soulSkill : for x in friendly field, (temporary defense x) += (temporary speed x) * cardinality (y in friendly field where not dead y);
+start : (temporary defense self) += temporary speed self * cardinality (x in friendly field where not dead x);
+soulSkill : for each x in friendly field, (permanent defense x) += temporary speed x * cardinality (y in friendly field where not dead y);
+
+
 
 unit "Pegasus" air level : 3 hp : 40 attack : 20 defense : 0 speed : 2 range : 2 soulPoints : 2
+
 /*
 Start SkillMounted Combat
 For this turn, the units immediately to the left and right of this unit get +1 agility, the unit immediately in front of this unit gets +10 defense, and the unit immediately behind this unit gets +30 attack.
 */
+
 soulSkill : for each x in friendly field, (temporary attack x) += 10; (temporary defense x) += 10; (temporary speed x) += 10;
 
 

@@ -178,11 +178,6 @@ Nonautomatic : {TerminatedSkillComponent} -- the nullableexpr needs to be change
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
              | comma Automatic {Next $2}
 Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 }
-          
-
---| Universal Lexer.SurfaceData (String, Set) (Maybe (CarryingSource Expr)) [SkillEffect] Nonautomatic
--- Universal Lexer.SurfaceData [(String, Set) (Maybe (CarryingSource Expr)) [SkillEffect]] Nonautomatic
-
           | for each var in Set OptionalFilter comma SkillEffects Nonautomatic {Universal dummySurfaceData ($3,$5) $6 $8 $9 {-Only allow one universally quantified variable at once. No pairs -}}
 
 
@@ -293,19 +288,19 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Side School {CarryingSource dummySurfaceData $ KnowledgeExpr $2 $1}
      | Side thoughts {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 {-CURRENTLY DO NOT HAVE ERROR MESSAGE IF PLURALITY WRONG-}}
      | Side thought {CarryingSource (extractSurfaceData $2) $ ThoughtsExpr $1 }
-     | Expr sum Expr {CarryingSource (extractSurfaceData $2) $ Sum $1 $3}
-     | Expr difference Expr {CarryingSource (extractSurfaceData $2) $ Difference $1 $3}
-     | Expr product Expr {CarryingSource (extractSurfaceData $2) $ Product $1 $3}
-     | Expr quotient Expr {CarryingSource (extractSurfaceData $2) $ Quotient $1 $3}
-     | Expr mod Expr {CarryingSource (extractSurfaceData $2) $ Mod $1 $3} 
-     | Expr gt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.GT $1 $3}
-     | Expr geq Expr {CarryingSource (extractSurfaceData $2) $ GEQ $1 $3} -- currently missing surface data from the subtrees.
-     | Expr lt Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.LT $1 $3}
-     | Expr leq Expr {CarryingSource (extractSurfaceData $2) $ LEQ $1 $3}
-     | Expr eq Expr {CarryingSource (extractSurfaceData $2) $ ParseTree.EQ $1 $3}
-     | Expr and Expr {CarryingSource (extractSurfaceData $2) $ And $1 $3}
-     | Expr or Expr {CarryingSource (extractSurfaceData $2) $ Or $1 $3}
-     | not Expr {CarryingSource (dummySurfaceData) $ Not $2}
+     | Expr sum Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Sum $1 $3}
+     | Expr difference Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Difference $1 $3}
+     | Expr product Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Product $1 $3}
+     | Expr quotient Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Quotient $1 $3}
+     | Expr mod Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Mod $1 $3} 
+     | Expr gt Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ ParseTree.GT $1 $3}
+     | Expr geq Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ GEQ $1 $3} -- currently missing surface data from the subtrees.
+     | Expr lt Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ ParseTree.LT $1 $3}
+     | Expr leq Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ LEQ $1 $3}
+     | Expr eq Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ ParseTree.EQ $1 $3}
+     | Expr and Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ And $1 $3}
+     | Expr or Expr {CarryingSource (unionSurfaceData (getSurfaceData' $1) (unionSurfaceData (extractSurfaceData $2) (getSurfaceData' $3))) $ Or $1 $3}
+     | not Expr {CarryingSource (unionSurfaceData (extractSurfaceData $1) (getSurfaceData' $2)) $ Not $2}
      | word {-should change word so it has to be a school-} Side {CarryingSource (dummySurfaceData) $ KnowledgeExpr (Knowledge $1) $2}
      | self in range var {CarryingSource dummySurfaceData $ SelfInRangeVar $4}
      | var in range var {CarryingSource dummySurfaceData $ VarInRangeVar $1 $4}
@@ -323,6 +318,7 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Field unit to the right of this unit {undefined}
      | Field unit in front of this unit {undefined}
      | Field unit behind this unit {undefined}
+     | lparen Expr rparen {$2}
 
 {-
 use this for field above, and also for damage in effects
