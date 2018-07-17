@@ -7,6 +7,7 @@ import Base.Bounded
 import Base.Phase
 import Base.Preliminaries
 import Base.Skill_dsl_data
+import Base.Skill_dsl_logic
 import Base.Player
 import Base.Card
 import Main.Game
@@ -134,9 +135,9 @@ transformGame' game actor serverUpdate =
       TerminatedSkill =>
        case serverUpdate of
         DirectAttack =>
-         let enemyFieldNoneAlive = ?hole in
-         case enemyFieldNoneAlive of
-          True =>
+         let opponent = getPlayer (getOpponent actor) (playerA game) (playerB game) in
+         case Data.Vect.find (\x => actualAlive x) (flattenBoard $ board opponent) of
+          Nothing =>
            case (thoughtsResource player > 0) of
             False => Left "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost."
             True =>
@@ -147,7 +148,7 @@ transformGame' game actor serverUpdate =
              let opponent' = {-record {soulCards = soulCards opponent}-} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
 
                    -- ?hole -- actually damage enemy soul by 1 for a cost of 1 thought(and consume card turn)
-          False =>  Left "Invalid move. Direct attacks are only possible if there are no living units in the enemy field."
+          _ =>  Left "Invalid move. Direct attacks are only possible if there are no living units in the enemy field."
         AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
         Rest => ?hole -- this is always valid
         Move fieldIndex => ?hole -- this is valid if the fieldIndex given is empty
@@ -161,8 +162,8 @@ transformGame' game actor serverUpdate =
 
             -- THIS IS ONE BIG THING
 
-        SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard =>
-         let x = move_interp selection condition ifSelected ifUnable cardId playerid friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection ?playerHole ?playerHole ?envHole in ?hole
+        SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
+         let x = move_interp selection condition ifSelected ifUnable cardId playerId ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?playerHole ?playerHole ?envHole in ?hole
 
 
 
@@ -183,7 +184,7 @@ transformGame' game actor serverUpdate =
      case transformDeploymentPhase player serverUpdate of --- Where I am checking if the field is full (if that happens the card gets sent to the graveyard from spawn)
       Left errorMessage => Left errorMessage
       Right (player', updates) =>
-       case (getInitiative game == playerOnMove game) || .... of
+       case (getInitiative game == playerOnMove game) {-|| ....-} of
         True =>
          Right $ stepGame (mutator player' game, updates)
         False =>
