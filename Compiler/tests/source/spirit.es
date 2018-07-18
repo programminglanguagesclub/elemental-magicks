@@ -3,7 +3,7 @@ Version 1.0 objectives:
 
 units:
        have objective missing
-lvl 1  0    9         9
+lvl 1  9    9         0
     2  1    9         8
     3  4    9         5
     4  2    9         7
@@ -40,7 +40,42 @@ soulSkill : (enemy thoughts) -= 1; (spirit friendly) += 1;
 
 unit "WHY NOT" spirit level : 1 hp : 10 attack : 0 defense : 0 speed : 1 range : 1 soulPoints : 2
 auto : (temporary attack self) += 10 * spirit friendly;
-soulSkill : SD:LGJsgkl;sk;lgd
+soulSkill : cost : 1 (spirit friendly) += 3;
+
+
+unit "ARGLE" spirit level : 1 hp : 30 attack : 20 defense : 0 speed : 2 range : 1 soulPoints : 1
+death : select x in friendly field then {(permanent attack x) += 20;}
+soulSkill : select x in enemy field then {(permanent range x) := 0;}
+
+
+unit "HASG" spirit level : 1 hp : 20 attack : 20 defense : 0 speed : 2 range : 1 soulPoints : 1
+auto : select x in friendly field then {(engagement x) -= 1;}
+soulSkill : select x in enemy field then {damage x friendly spirit * 5;}
+
+
+unit "ASGADG" spirit level : 1 hp : 60 attack : 40 defense : 0 speed : 3 range : 1 soulPoints : 1
+auto : (friendly thoughts) -= 1;
+soulSkill : (friendly thoughts) := 0; (enemy thoughts) := 0;
+
+
+unit "asghsdhsdhf" spirit level : 1 hp : 20 attack : 20 defense : 0 speed : 3 range : 2 soulPoints : 2
+counter : (permanent attack self) += 10;
+death : select x in enemy field then {damage x (temporary attack self);}
+soulSkill : select x in enemy field then {damage x temporary attack x; (friendly spirit) += 1;}
+
+
+unit "ddsagfsdh" spirit level : 1 hp : 10 attack : 10 defense : 0 speed : 3 range : 2 soulPoints : 2
+start : for each x in friendly field where engagement x > 0, (temporary defense x) += 20;
+soulSkill : for each x in friendly field, (engagement x) := 1; (temporary defense x) += 100;
+
+
+unit "casdgsdfgzdfh" spirit level : 1 hp : 20 attack : 10 defense : 0 speed : 1 range : 1 soulPoints : 2
+end : select x in friendly field then {(permanent range x) += 1;}
+soulSkill : for each x in friendly field, (permanent range x) += 1;
+
+
+
+/*---------------------------------------------------------------------------*/
 
 
 

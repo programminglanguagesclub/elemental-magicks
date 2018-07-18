@@ -212,7 +212,7 @@ Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2
 Revive : revive var {Revive (extractSurfaceData $1) $2}
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage self Expr {DamageSelf dummySurfaceData $3 }
-       | damage Side unit on position number Expr {undefined}
+       | damage Side unit on position number word Expr {DamageSquare dummySurfaceData undefined undefined undefined}
        | damage unit on the same square as var Expr {DamageSameSquareVar dummySurfaceData $8 $9}
        | damage unit to the left of var Expr {undefined}
        | damage unit to the right of var Expr {undefined}
@@ -223,6 +223,29 @@ Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage unit to the right of this unit Expr {undefined}
        | damage unit in front of this unit Expr {undefined}
        | damage unit behind this unit Expr {undefined}
+
+{-
+ = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
+ | Revive Lexer.SurfaceData String
+ | DamageSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageVar Lexer.SurfaceData String (CarryingSource Expr)
+ | SendVarToGraveyard Lexer.SurfaceData String
+ | SendSelfToGraveyard Lexer.SurfaceData
+ | DamageSquare Lexer.SurfaceData Side String (CarryingSource Expr)
+ | DamageSameSquareSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageSameSquareVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageLeftSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageRightSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageBehindSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageInFrontOfSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageLeftVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageRightVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageBehindVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageInFrontOfVar Lexer.SurfaceData String (CarryingSource Expr)
+-}
+
+
+
 
 SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
 SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
