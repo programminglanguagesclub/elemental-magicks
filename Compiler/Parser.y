@@ -212,7 +212,7 @@ Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2
 Revive : revive var {Revive (extractSurfaceData $1) $2}
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage self Expr {DamageSelf dummySurfaceData $3 }
-       | damage Side unit on position number word Expr {DamageSquare dummySurfaceData undefined undefined undefined}
+       | damage Side unit on position number word Expr {DamageSquare dummySurfaceData undefined (getSurfaceContents $7) $8}
        | damage unit on the same square as var Expr {DamageSameSquareVar dummySurfaceData $8 $9}
        | damage unit to the left of var Expr {undefined}
        | damage unit to the right of var Expr {undefined}
