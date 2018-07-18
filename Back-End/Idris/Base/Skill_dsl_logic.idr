@@ -353,8 +353,10 @@ move_interp :
  List Nat ->
  Player ->
  Player ->
- Env ->
- (Player,Player, List ClientUpdate,Nonautomatic,Env)
+ Env -> -- if game over, who won                                    which is which?
+ (Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player), List ClientUpdate)
+
+ -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 
 {-
 move_interp skill friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection player opponent env with (skill)

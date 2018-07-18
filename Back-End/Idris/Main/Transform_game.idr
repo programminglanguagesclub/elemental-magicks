@@ -163,9 +163,20 @@ transformGame' game actor serverUpdate =
             -- THIS IS ONE BIG THING
 
         SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
-         let x = move_interp selection condition ifSelected ifUnable cardId playerId ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?playerHole ?playerHole ?envHole in ?hole
+         --  Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player)
+         case move_interp selection condition ifSelected ifUnable cardId playerId ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?deathQueue ?playerHole ?playerHole ?envHole of
+          (Left (Left winningPlayerBlarg), clientUpdates) => ?hole
+          (Left (Right winningPlayerOtherBlarg), clientUpdates) => ?hole
+          (Right (skillHead', skillQueue', deathQueue', somePlayer, someOtherPlayer), clientUpdates) =>
+            case skillHead' of
+             TerminatedSkill => Right $ stepGame (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game, clientUpdates)
+             Existential argsE conditionE selectedE failedE cardIdE playerIdE =>
+              let whichPlayer = ?hole in -- really want playerId to be a WhichPlayer, not an actually Id here...
+              Right $ (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
+               clientUpdates,
+               generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
 
-
+---- Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
 
 
 
