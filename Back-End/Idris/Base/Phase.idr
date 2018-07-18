@@ -13,7 +13,7 @@ data Phase
  | SpellPhase
  | RemovalPhase
  | StartPhase {-Let's damage soul at the start of this phase!-}
- | EngagementPhase (FieldedMonster, Fin 9, WhichPlayer)
+ | EngagementPhase (FieldedMonster, Fin 9)
  | EndPhase
  | RevivalPhase
  | DeploymentPhase

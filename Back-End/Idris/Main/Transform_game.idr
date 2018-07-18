@@ -1,5 +1,6 @@
 module Main.Transform_game
 --import Control.ST
+import Data.So
 import Data.Vect
 import Data.Fin
 import Base.BoundedList
@@ -9,6 +10,7 @@ import Base.Preliminaries
 import Base.Skill_dsl_data
 import Base.Skill_dsl_logic
 import Base.Player
+import Base.Objects_basic
 import Base.Card
 import Main.Game
 import Main.Serverupdates
@@ -125,7 +127,7 @@ transformGame' game actor serverUpdate =
         False =>
          let phase' = nextPhase (phase game) in
          Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
-    EngagementPhase _ =>
+    EngagementPhase (fieldedMonster, fieldedMonsterIndex) => -- no proof in engagement phase this is correct.... should change player or game from record to data..
      case (skillHead game) of
 
 
@@ -155,35 +157,12 @@ transformGame' game actor serverUpdate =
          let playerBoard = flattenBoard (board player) in
          case Vect.index fieldIndex playerBoard of
           Nothing =>
-
-                    {-
-                    --getNextMonster :
-                     (initiativePlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
-                      (otherPlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
-                       (validityCondition : Maybe FieldedMonster -> Bool) ->
-                        Either
-                          (find validityCondition initiativePlayerBoard = Nothing,
-                             find validityCondition otherPlayerBoard = Nothing)
-                               (DPair
-                                  (FieldedMonster, Fin 9, Bool)
-                                  -}
-
-           case getNextMonsterOnMove playerBoard (flattenBoard (board (getPlayer (getOpponent actor) (playerA game) (playerB game)))) of
-            Left _ => ?errorCase
-            Right ((fieldedMonster, boardIndex, False)** _) => ?errorCaseNotOurTurn
-            Right ((monsterOnMove, monsterOnMoveFieldIndex, True)** _) =>
-             let engagedMonsterOnMove = ?hole in --record {basic -> engagement = 0} monsterOnMove in
-             let movedToBoard = Vect.replaceAt fieldIndex engagedMonsterOnMove playerBoard in
-             let movedFromBoard = Vect.replaceAt monsterOnMoveFieldIndex Nothing movedToBoard in
-             Right $ stepGame (mutator (record {board = unflattenBoard movedFromBoard} player) game, [MoveUnit monsterOnMoveFieldIndex fieldIndex actor])
+-- Don't need to keep track of the side of the board that the unit on move is on in engagement phase, since I already know whose turn it is in game!!!
+           let engagedMonsterOnMove = record {basic -> engagement = bind 1} fieldedMonster in
+           let movedToBoard = Vect.replaceAt fieldIndex (Just engagedMonsterOnMove) playerBoard in
+           let movedFromBoard = Vect.replaceAt fieldedMonsterIndex Nothing movedToBoard in
+           Right $ stepGame (mutator (record {board = unflattenBoard movedFromBoard} player) game, [MoveUnit fieldedMonsterIndex fieldIndex actor])
           Just _ => Left "Invalid move. You may not move your card to an occupied square."
-
-                          
- --                    Fin len -> elem -> Vect len elem -> Vect len elem     
-                          
-                          ---?hole -- this is valid if the fieldIndex given is empty
-
-
         SkillInitiation skillIndex =>
          case (muted getMonsterOnMove) of
           True => Left "Invalid move. Your card cannot initiate action skills its first turn fielded"
