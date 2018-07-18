@@ -33,6 +33,17 @@ spawn : (enemy thoughts) -= 1;
 death : (friendly thoughts) -= 1;
 soulSkill : (enemy thoughts) -= 2;
 
+unit "HOW COULD YOU" spirit level : 1 hp : 20 attack : 0 defense : 0 speed : 5 range : 5 soulPoints : 1
+action : cost : 1 select x in enemy field, y in friendly field then {(engagement x) += 1; (engagement y) += 1; (friendly thoughts) += 1;}
+soulSkill : (enemy thoughts) -= 1; (spirit friendly) += 1;
+/*x and y not dead*/
+
+unit "WHY NOT" spirit level : 1 hp : 10 attack : 0 defense : 0 speed : 1 range : 1 soulPoints : 2
+auto : (temporary attack self) += 10 * spirit friendly;
+soulSkill : SD:LGJsgkl;sk;lgd
+
+
+
 unit "Acolyte" spirit level : 2 hp : 40 attack : 0 defense : 0 speed : 1 range : 1 soulPoints : 2
 auto : select x in friendly field then {(permanent level x) += 1;}
 action : select x in enemy field then {(permanent level x) -= 1;}
