@@ -166,7 +166,48 @@ transformGame' game actor serverUpdate =
         SkillInitiation skillIndex =>
          case (muted getMonsterOnMove) of
           True => Left "Invalid move. Your card cannot initiate action skills its first turn fielded"
-          False => ?hole -- 
+          False =>
+           case index' skillIndex (actionSkills getMonsterOnMove) of
+            Nothing => Left "Invalid move. You appear to not have that action skill."
+            -- skillType kind of pointless here....
+
+            Just (MkSkill automatic cost condition skillType) =>
+             let MkCost rInteger = cost in
+             case getValue rInteger ?player ?opponent ?env of
+              Nothing => ?errorCase
+              Just costValue =>
+               if (extractBounded $ thoughtsResource player) < costValue
+                then
+                 Left "Invalid move. You cannot afford the cost to activate this skill."
+                else
+                 case satisfiedExistentialCondition condition ?player ?opponent ?emptyEnv of
+                  Nothing => ?errorCase
+                  Just False => Left "Invalid move. The conditional for this skill is not satisfied."
+                  Just True =>
+                  Right $ stepGame (pushSkill automatic (mutator (record {thoughtsResource = thoughtsResource player - costValue} player) game), ?hole)
+                              
+                              --?deductCostFromThoughtsAndLoadSkill
+
+                 {-
+
+                 satisfiedExistentialCondition :
+                  Condition ->
+                   Player ->
+                    Player ->
+                     Env ->
+                      Maybe Bool
+
+                      -}
+             
+{-
+getValue :
+ RInteger ->
+  Player ->
+   Player ->
+    Env ->
+     Maybe Integer-}
+
+
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
       Existential selection condition ifSelected ifUnable cardId playerId =>
        case serverUpdate of
