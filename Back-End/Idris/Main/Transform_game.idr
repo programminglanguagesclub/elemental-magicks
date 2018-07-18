@@ -125,7 +125,7 @@ transformGame' game actor serverUpdate =
         False =>
          let phase' = nextPhase (phase game) in
          Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
-    EngagementPhase =>
+    EngagementPhase _ =>
      case (skillHead game) of
 
 
@@ -151,7 +151,39 @@ transformGame' game actor serverUpdate =
           _ =>  Left "Invalid move. Direct attacks are only possible if there are no living units in the enemy field."
         AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
         Rest => ?hole -- this is always valid
-        Move fieldIndex => ?hole -- this is valid if the fieldIndex given is empty
+        Move fieldIndex =>
+         let playerBoard = flattenBoard (board player) in
+         case Vect.index fieldIndex playerBoard of
+          Nothing =>
+
+                    {-
+                    --getNextMonster :
+                     (initiativePlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+                      (otherPlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+                       (validityCondition : Maybe FieldedMonster -> Bool) ->
+                        Either
+                          (find validityCondition initiativePlayerBoard = Nothing,
+                             find validityCondition otherPlayerBoard = Nothing)
+                               (DPair
+                                  (FieldedMonster, Fin 9, Bool)
+                                  -}
+
+           case getNextMonsterOnMove playerBoard (flattenBoard (board (getPlayer (getOpponent actor) (playerA game) (playerB game)))) of
+            Left _ => ?errorCase
+            Right ((fieldedMonster, boardIndex, False)** _) => ?errorCaseNotOurTurn
+            Right ((monsterOnMove, monsterOnMoveFieldIndex, True)** _) =>
+             let engagedMonsterOnMove = ?hole in --record {basic -> engagement = 0} monsterOnMove in
+             let movedToBoard = Vect.replaceAt fieldIndex engagedMonsterOnMove playerBoard in
+             let movedFromBoard = Vect.replaceAt monsterOnMoveFieldIndex Nothing movedToBoard in
+             Right $ stepGame (mutator (record {board = unflattenBoard movedFromBoard} player) game, [MoveUnit monsterOnMoveFieldIndex fieldIndex actor])
+          Just _ => Left "Invalid move. You may not move your card to an occupied square."
+
+                          
+ --                    Fin len -> elem -> Vect len elem -> Vect len elem     
+                          
+                          ---?hole -- this is valid if the fieldIndex given is empty
+
+
         SkillInitiation skillIndex =>
          case (muted getMonsterOnMove) of
           True => Left "Invalid move. Your card cannot initiate action skills its first turn fielded"

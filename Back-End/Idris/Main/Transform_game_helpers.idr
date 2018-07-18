@@ -356,7 +356,7 @@ restUnit :
  (location : Fin 9) -> -- data
  (game : Game) -> -- data
  (whichPlayer : WhichPlayer) -> -- data
- (phase game = EngagementPhase) -> -- refinement
+ (phase game = EngagementPhase stuffblah) -> -- refinement
  () -> -- refinement
  () -> -- refinement
  (Game,List ClientUpdate)
