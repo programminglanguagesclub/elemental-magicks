@@ -48,52 +48,6 @@ getMonsterOnMove : FieldedMonster
 getSquareOnMove : Fin 9
 damageSoul : BoundedList 5 SoulCard -> (BoundedList 5 SoulCard, Maybe (Maybe Skill))
 
-{-
-partial
-statefulTransformGame : (game : Game) -> (actor : WhichPlayer) -> (serverUpdate : ServerUpdate) -> STrans m (Either WhichPlayer Game, List ClientUpdate) [] (const [])
-statefulTransformGame init actor serverUpdate = do
- game <- new init
- updates <- new (the (List ClientUpdate) [])
- 
- if (playerOnMove init == actor)
-  then
-   let (player, mutator) = getStatefulPlayer actor init in
-   case phase init of
-    SpawnPhase =>
-     case transformSpawnPhase player serverUpdate of
-      Left errorMessage => write game init
-      Right (player', updates) =>
-       case (getInitiative init == playerOnMove init) of
-        True =>
-         let (game', updates', instruction) = stepGame (mutator player' init, []) in write game init
-        False => write game init 
-                 --write game init
-  else do
-   write updates [InvalidMove Clientupdates.notYourTurn actor]
- write game init
-
- resultGame <- read game
- resultUpdates <- read updates
- let result = (Right resultGame, resultUpdates)
- delete game
- delete updates
- pure result
- 
-
-test : Game -> (Either WhichPlayer Game, List ClientUpdate)
-test game = runPure (statefulTransformGame game PlayerA Rest)
--}
-
-{-
-
-generateClientInstruction :
-  WhichPlayer ->
-    String ->
-      String ->
-        ClientInstruction
-         generateClientInstruction whichPlayerOnMove onMoveMessage notOnMoveMessage
-         -}
-
 
 data Three error terminal continue
  = Left error
@@ -108,7 +62,6 @@ transformGame' :
  Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
  --ignoring game logic error for the moment...
 
--- I can make a nice monad for this...
 -- NEED TO STEP GAME TOO?
 
 transformGame' game actor serverUpdate =
@@ -128,13 +81,9 @@ transformGame' game actor serverUpdate =
         False =>
          let phase' = nextPhase (phase game) in
          Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
-    EngagementPhase (fieldedMonster, fieldedMonsterIndex) => -- no proof in engagement phase this is correct.... should change player or game from record to data..
+    EngagementPhase (fieldedMonster, fieldedMonsterIndex) =>
+     -- no proof in engagement phase this is correct.... should change player or game from record to data..
      case (skillHead game) of
-
-
-
-           -- THIS IS ONE BIG THING
-
       TerminatedSkill =>
        case serverUpdate of
         DirectAttack =>
@@ -145,8 +94,7 @@ transformGame' game actor serverUpdate =
             False => Left "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost."
             True =>
              let player' = record {thoughtsResource $= \x => x - 1} player in
-             let player'' = record {board $= ?hole {-engage unit that is direct attacking!!-}} player' in
-             let (opponent, opponentMutator) = getStatefulPlayer (getOpponent actor) game in
+             let player'' = record {board = unflattenBoard (Vect.replaceAt fieldedMonsterIndex (Just $ record {basic -> engagement = bind 1} fieldedMonster) (flattenBoard (board player))) {-engage unit that is direct attacking!!-}} player' in
              let x = 56 in
              let opponent' = {-record {soulCards = soulCards opponent}-} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
 
@@ -239,14 +187,14 @@ getValue :
 
 
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
-      Existential selection condition ifSelected ifUnable cardId playerId =>
+      Existential selection condition ifSelected ifUnable cardId whichPlayer =>
        case serverUpdate of
 
             -- THIS IS ONE BIG THING
 
         SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
          --  Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player)
-         case move_interp selection condition ifSelected ifUnable cardId playerId ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?deathQueue ?playerHole ?playerHole ?envHole of
+         case move_interp selection condition ifSelected ifUnable cardId whichPlayer ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?deathQueue ?playerHole ?playerHole ?envHole of
           (Left (Left winningPlayerBlarg), clientUpdates) => ?hole
           (Left (Right winningPlayerOtherBlarg), clientUpdates) => ?hole
           (Right (skillHead', skillQueue', deathQueue', somePlayer, someOtherPlayer), clientUpdates) =>

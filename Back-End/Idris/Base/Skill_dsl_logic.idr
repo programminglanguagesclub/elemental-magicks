@@ -341,7 +341,7 @@ move_interp :
  (ifSelected : Automatic) ->
  (ifUnable : Automatic) ->
  (cardId : Nat) -> 
- (playerId : String) ->
+ (whichPlayer : WhichPlayer) ->
  (friendlyFieldSelection : List Nat) ->
  (enemyFieldSelection : List Nat) ->
  (friendlyHandSelection : List Nat) ->
