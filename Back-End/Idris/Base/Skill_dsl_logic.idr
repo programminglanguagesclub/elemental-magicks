@@ -322,7 +322,16 @@ step_interp (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) player 
    case satisfiableExistentialCondition variables condition player opponent env of
     True => (player',opponent', deathQueue', messages, nonautomatic)
     False =>
-     let (player'',opponent'', deathQueue', messages', nonautomatic') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) failed) player' opponent' deathQueue' env in
+     let
+      (player'',opponent'', deathQueue', messages', nonautomatic') =
+     
+      step_interp
+       (assert_smaller (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) failed)
+       player'
+       opponent'
+       deathQueue'
+       env
+     in
      (player'',opponent'', deathQueue', messages ++ messages', nonautomatic')
 
 step_interp (Universal argument condition skillEffects next evokerId whichPlayer) player opponent deathQueue env = ?hole
