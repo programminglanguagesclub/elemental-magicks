@@ -184,8 +184,36 @@ transformGame' game actor serverUpdate =
                   Nothing => ?errorCase
                   Just False => Left "Invalid move. The conditional for this skill is not satisfied."
                   Just True =>
-                  Right $ stepGame (pushSkill automatic (mutator (record {thoughtsResource = thoughtsResource player - costValue} player) game), ?hole)
-                              
+                   case automatic of
+                    MkAutomatic skillEffects next evokerId playerId =>
+                     let x = applySkillEffects skillEffects ?player ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
+                     ?hole
+                    Universal var condition effects next evokerId playerId => ?hole
+
+                        
+                        
+                        ----?hole 
+                        {-
+                  
+                  $ stepGame (pushSkill automatic (mutator (record {thoughtsResource = thoughtsResource player - costValue} player) game), ?hole)
+             
+-}
+
+
+{-
+
+data Automatic
+     = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
+        | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String
+
+ List SkillEffect ->
+  Player ->
+   Player ->
+    Env ->
+     (Player,Player,List ClientUpdate) --- I also need the death queue to be updated, right!?!?
+     -}
+
+
                               --?deductCostFromThoughtsAndLoadSkill
 
                  {-
@@ -406,5 +434,14 @@ transformFullGame :
 
 transformFullGame gameType whichPlayer serverUpdate with (gameType)
  | MkFullGameDrawPhase drawPhase = transformDrawPhase drawPhase whichPlayer serverUpdate
- | MkFullGameGame game = let x = transformGame game whichPlayer serverUpdate in ?hole -- if someone wins a round have to handle going to the next round? (Is this handled in main?)
+ | MkFullGameGame game =
+   case transformGame game whichPlayer serverUpdate of
+    Left errorMessage => Left errorMessage
+    Center (winner, updates) => Center (winner, updates)
+    Right (game', updates, instruction) => Right (MkFullGameGame game', updates, instruction)
+        
+        -- if someone wins a round have to handle going to the next round? (Is this handled in main?)
 -------------------------------------------------------------------------------
+--Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction)
+
+
