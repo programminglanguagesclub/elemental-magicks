@@ -116,6 +116,7 @@ transformGame' game actor serverUpdate =
   False => Left Clientupdates.notYourTurn
   True =>
    let (player, mutator) = getStatefulPlayer actor game in
+   let (opponent, opponentMutator) = getStatefulPlayer (getOpponent actor) game in
    case (phase game) of
     SpawnPhase =>
      case transformSpawnPhase player serverUpdate of
@@ -184,9 +185,10 @@ transformGame' game actor serverUpdate =
                   Nothing => ?errorCase
                   Just False => Left "Invalid move. The conditional for this skill is not satisfied."
                   Just True =>
+                   let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
-                    MkAutomatic skillEffects next evokerId playerId =>
-                     let x = applySkillEffects skillEffects ?player ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
+                    MkAutomatic skillEffects next evokerId whichPlayer =>
+                     let x = applySkillEffects skillEffects player' ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
                      ?hole
                     Universal var condition effects next evokerId playerId => ?hole
 
