@@ -1,6 +1,7 @@
 module Base.Card
 
 import Data.Vect
+import Base.Preliminaries
 import Base.Bounded
 import Base.Objects_basic
 import Base.Skill_dsl_data
@@ -45,13 +46,13 @@ data Skill
 -------------------------------------------------------------------------------
 instantiateSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  SkillFactory ->
  SkillType ->
  Skill
 
-instantiateSkill cardId playerId (MkSkillFactory automaticFactory cost condition) skillType =
- MkSkill (instantiateAutomatic automaticFactory cardId playerId) cost condition skillType
+instantiateSkill cardId whichPlayer (MkSkillFactory automaticFactory cost condition) skillType =
+ MkSkill (instantiateAutomatic automaticFactory cardId whichPlayer) cost condition skillType
 -------------------------------------------------------------------------------
 record MonsterFactory where
  constructor MkMonsterFactory
@@ -136,7 +137,7 @@ getFactoryAccessor : SkillType -> (MonsterFactory -> Maybe SkillFactory)
 instantiateSpecificSkill :
  SkillType ->
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
  
@@ -148,7 +149,7 @@ instantiateSpecificSkill skillType cardId playerId monsterFactory =
 -------------------------------------------------------------------------------
 instantiateStartSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 
@@ -156,7 +157,7 @@ instantiateStartSkill = instantiateSpecificSkill StartSkill
 -------------------------------------------------------------------------------
 instantiateEndSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 
@@ -164,7 +165,7 @@ instantiateEndSkill = instantiateSpecificSkill EndSkill
 -------------------------------------------------------------------------------
 instantiateCounterSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 
@@ -172,13 +173,13 @@ instantiateCounterSkill = instantiateSpecificSkill CounterSkill
 -------------------------------------------------------------------------------
 instantiateSpawnSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 -------------------------------------------------------------------------------
 instantiateDeathSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 
@@ -186,7 +187,7 @@ instantiateDeathSkill = instantiateSpecificSkill DeathSkill
 -------------------------------------------------------------------------------
 instantiateAutoSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Maybe Skill
 
@@ -194,7 +195,7 @@ instantiateAutoSkill = instantiateSpecificSkill AutoSkill
 -------------------------------------------------------------------------------
 instantiateActionSkills :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  List Skill
 
@@ -203,33 +204,33 @@ instantiateActionSkills cardId playerId monsterFactory =
 -------------------------------------------------------------------------------
 instantiateSoulSkill :
  Nat ->
- String ->
+ WhichPlayer ->
  MonsterFactory ->
  Skill
 
-instantiateSoulSkill cardId playerId monsterFactory =
- (instantiateSkill cardId playerId) (soulSkill monsterFactory) SoulSkill
+instantiateSoulSkill cardId whichPlayer monsterFactory =
+ (instantiateSkill cardId whichPlayer) (soulSkill monsterFactory) SoulSkill
 -------------------------------------------------------------------------------
-instantiateMonster : Nat -> String -> MonsterFactory -> UnfieldedMonster
+instantiateMonster : Nat -> WhichPlayer -> MonsterFactory -> UnfieldedMonster
 
-instantiateMonster cardId playerId monsterFactory =
+instantiateMonster cardId whichPlayer monsterFactory =
  MkUnfieldedMonster
   (instantiateBasicMonster (basic monsterFactory) cardId)
-  (instantiateStartSkill cardId playerId monsterFactory)
-  (instantiateEndSkill cardId playerId monsterFactory)
-  (instantiateCounterSkill cardId playerId monsterFactory)
-  (instantiateSpawnSkill cardId playerId monsterFactory)
-  (instantiateDeathSkill cardId playerId monsterFactory)
-  (instantiateAutoSkill cardId playerId monsterFactory)
-  (instantiateActionSkills cardId playerId monsterFactory)
+  (instantiateStartSkill cardId whichPlayer monsterFactory)
+  (instantiateEndSkill cardId whichPlayer monsterFactory)
+  (instantiateCounterSkill cardId whichPlayer monsterFactory)
+  (instantiateSpawnSkill cardId whichPlayer monsterFactory)
+  (instantiateDeathSkill cardId whichPlayer monsterFactory)
+  (instantiateAutoSkill cardId whichPlayer monsterFactory)
+  (instantiateActionSkills cardId whichPlayer monsterFactory)
  -- (instantiateSoulSkill cardId playerId monsterFactory)
 -------------------------------------------------------------------------------
-instantiateSpell : Nat -> String -> SpellFactory -> Spell
+instantiateSpell : Nat -> WhichPlayer -> SpellFactory -> Spell
 
-instantiateSpell cardId playerId spellFactory =
+instantiateSpell cardId whichPlayer spellFactory =
  MkSpell
   (instantiateBasicSpell (basic spellFactory) cardId)
-  (instantiateSkill cardId playerId (spawnSkill spellFactory) SpawnSkill)
+  (instantiateSkill cardId whichPlayer (spawnSkill spellFactory) SpawnSkill)
 -------------------------------------------------------------------------------
 data CardFactory
  = SpellCardFactory SpellFactory

@@ -161,9 +161,9 @@ odd that in the client update though, I have "cardId" rather than card name then
 
 
 
-instantiateCardFactory : Nat -> String -> CardFactory -> Card
-instantiateCardFactory cardId playerId (SpellCardFactory SpellFactory) = SpellCard $ instantiateSpell cardId playerId SpellFactory
-instantiateCardFactory cardId playerId (MonsterCardFactory MonsterFactory) = MonsterCard $ instantiateMonster cardId playerId MonsterFactory
+instantiateCardFactory : Nat -> WhichPlayer -> CardFactory -> Card
+instantiateCardFactory cardId whichPlayer (SpellCardFactory SpellFactory) = SpellCard $ instantiateSpell cardId whichPlayer SpellFactory
+instantiateCardFactory cardId whichPlayer (MonsterCardFactory MonsterFactory) = MonsterCard $ instantiateMonster cardId whichPlayer MonsterFactory
 
 
 
