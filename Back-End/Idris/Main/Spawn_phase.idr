@@ -73,44 +73,79 @@ stepSpawnPhase initiative playerA playerB with (spawnCard (getPlayer initiative 
     Just $ generateClientInstruction onMove youSpawn opponentSpawns
    Just _ => Nothing
 -------------------------------------------------------------------------------
-transformSpawnPhase :
- (actor : WhichPlayer) ->
- (playerA : Player) ->
- (playerB : Player) ->
- (whichPlayerOnMove : WhichPlayer) -> -- THIS IS CALLED WITH INITIATIVE??? IF SO THAT MIGHT BE WRONG...
+transformSpawnPhase : -- assumes the player is on move.
+ (playerToUpdate : Player) ->
  (serverUpdate : ServerUpdate) ->
  Either
-  (String, String)
-  ((Player,Player),List ClientUpdate)
+  String
+  (Player,List ClientUpdate)
 
-transformSpawnPhase actor a b whichPlayerOnMove update =
- case (whichPlayerOnMove == actor) of
-  False => Left (notYourTurn, temporaryId $ getPlayer actor a b)
-  True =>
-   let playerToUpdate = getPlayer whichPlayerOnMove a b in
-   case update of
-    SpawnCard knowledge' handIndex =>
-     case dominatesVect knowledge' (knowledge playerToUpdate) of
+transformSpawnPhase playerToUpdate update =
+ case update of
+  
+  SpawnCard knowledge' handIndex =>
+   case dominatesVect knowledge' (knowledge playerToUpdate) of
+    True =>
+     case index' handIndex (hand playerToUpdate) of
+      Nothing => Left "You selected a position in your hand that does not contain a card"
+      Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
+      Just (MonsterCard monster) => ?hole
+    False => Left "You cannot lower your knowledge in the spawn phase!"
+  
+  Skip knowledge' =>
+   case dominatesVect knowledge' (knowledge playerToUpdate) of
+    True =>
+     let cost = totalDifferenceVect knowledge' (knowledge playerToUpdate) in
+     let currentThoughts = extractBounded $ thoughtsResource playerToUpdate {-not always playerA-} in
+     case currentThoughts >= cost of
       True =>
-       case index' handIndex (hand playerToUpdate) of
-        Nothing => Left ("You selected a position in your hand that does not contain a card", ?hole)
-        Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
-        Just (MonsterCard monster) => ?hole
-      False => Left ("You cannot lower your knowledge in the spawn phase!", ?hole)
-    Skip knowledge' =>
-     case dominatesVect knowledge' (knowledge playerToUpdate) of
-      True =>
-       let cost = totalDifferenceVect knowledge' (knowledge playerToUpdate) in
-       let currentThoughts = extractBounded $ thoughtsResource playerToUpdate {-not always playerA-} in
-       case currentThoughts >= cost of
-        True =>
-         Right
-          ((record {thoughtsResource $= (\x => x - cost), knowledge = knowledge'} playerToUpdate,
-          getOpponent playerToUpdate), ?hole)
-        False => Left ("You cannot afford to raise your knowledge by that much!",?hole)
-      False => Left("You cannot lower your knowledge in the spawn phase!", ?hole)
-    _ => Left ("You can only play cards or skip in the spawn phase",{-temporaryId someplayer-} ?hole) -- can only play cards in spawn.
+       Right ?hole
+        --((record {thoughtsResource $= ?hole, knowledge = knowledge'} playerToUpdate,
+        --getOpponent playerToUpdate), ?hole)
+      False => Left "You cannot afford to raise your knowledge by that much!"
+    False => Left "You cannot lower your knowledge in the spawn phase!"
+  
+  _ => Left "You can only play cards or skip in the spawn phase"
 -------------------------------------------------------------------------------
 
 
+{-
+transformSpawnPhase :
+  (actor : WhichPlayer) ->
+  (playerA : Player) ->
+  (playerB : Player) ->
+  (whichPlayerOnMove : WhichPlayer) -> -- THIS IS CALLED WITH INITIATIVE??? IF SO THAT MIGHT BE WRONG...
+  (serverUpdate : ServerUpdate) ->
+  Either
+   String
+   (Player,List ClientUpdate)
+ 
+ transformSpawnPhase actor a b whichPlayerOnMove update =
+  case (whichPlayerOnMove == actor) of
+   False => Left notYourTurn
+   True =>
+    let playerToUpdate = getPlayer whichPlayerOnMove a b in
+    case update of
+     SpawnCard knowledge' handIndex =>
+      case dominatesVect knowledge' (knowledge playerToUpdate) of
+       True =>
+        case index' handIndex (hand playerToUpdate) of
+         Nothing => Left "You selected a position in your hand that does not contain a card"
+         Just (SpellCard spell) => ?hole -- shouldn't cards in the hand not have a permanent or temporary stat????
+         Just (MonsterCard monster) => ?hole
+       False => Left "You cannot lower your knowledge in the spawn phase!"
+     Skip knowledge' =>
+      case dominatesVect knowledge' (knowledge playerToUpdate) of
+       True =>
+        let cost = totalDifferenceVect knowledge' (knowledge playerToUpdate) in
+        let currentThoughts = extractBounded $ thoughtsResource playerToUpdate {-not always playerA-} in
+        case currentThoughts >= cost of
+         True =>
+          Right ?hole
+           --((record {thoughtsResource $= ?hole, knowledge = knowledge'} playerToUpdate,
+           --getOpponent playerToUpdate), ?hole)
+         False => Left "You cannot afford to raise your knowledge by that much!"
+       False => Left "You cannot lower your knowledge in the spawn phase!"
+     _ => Left "You can only play cards or skip in the spawn phase"
 
+-}
