@@ -52,6 +52,8 @@ Show Selection where
  show Selected = "selected"
  show Unselected = "unselected"
 
+
+
 data ClientUpdate
   = GameLogicError
   | GameTerminated WhichPlayer --winning player
@@ -64,7 +66,7 @@ data ClientUpdate
   | EndPhaseToRevivalPhase
   | RevivalPhaseToDeploymentPhase
   | DeploymentPhaseToSpawnPhase
-  | InvalidMove String WhichPlayer
+---  | InvalidMove String WhichPlayer
   | Revive (Vect 9 Selection) WhichPlayer
   | Kill (Vect 9 Selection) WhichPlayer
   | DrawHand Nat WhichPlayer
@@ -147,13 +149,13 @@ marshallClientUpdate RevivalPhaseToDeploymentPhase _ =
                                                                              --
 marshallClientUpdate DeploymentPhaseToSpawnPhase _ =
  MkMarshalledClientUpdate "deploymentPhaseToSpawnPhase" []
-   
+   {-
 marshallClientUpdate (InvalidMove errorMessage whichPlayer) player =
   let fields = [("errorMessage", errorMessage)] in
   augment
    (MkMarshalledClientUpdate "invalidMove" fields)
    (whichPlayer == player)
-                                                                             --
+   -}                                                                        --
 marshallClientUpdate (Revive selection whichPlayer) player =
  let fields = [("selections", show selection)] in
  augment (MkMarshalledClientUpdate "revive" fields) (whichPlayer == player)
@@ -244,26 +246,22 @@ serializeMarshalled marshalledClientUpdate =
 -------------------------------------------------------------------------------
 serialize :
  ClientUpdate ->
- String -> -- SHOULD THIS BE WHICHPLAYER AND NOT STRING???
+ WhichPlayer ->
  String
 
--- ALSO: How am I keeping track of which updates get send to 1 player versus 2, etc?
-
-serialize clientUpdate playerId =
- let marshalledClientUpdate = marshallClientUpdate clientUpdate ?hole in
+serialize clientUpdate whichPlayer =
+ let marshalledClientUpdate = marshallClientUpdate clientUpdate whichPlayer in
  serializeMarshalled marshalledClientUpdate
 -------------------------------------------------------------------------------
 payload :
  ClientUpdate ->
- String ->
- String ->
+ WhichPlayer ->
  String
 
-payload clientUpdate playerId opponentId =
- let playerMessage = serialize clientUpdate playerId in
- let opponentMessage = serialize clientUpdate opponentId in
+payload clientUpdate whichPlayer =
+ let playerMessage = serialize clientUpdate whichPlayer in
+ let opponentMessage = serialize clientUpdate (getOpponent whichPlayer) in
  playerMessage ++ "~" ++ opponentMessage
 -------------------------------------------------------------------------------
-
 
 

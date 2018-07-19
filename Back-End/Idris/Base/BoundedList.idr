@@ -9,6 +9,7 @@ It appears to not be included with any installation of Idris.
 module Base.BoundedList
 
 import Data.Fin
+import Data.Vect
 
 %access public export
 %default total
@@ -102,3 +103,15 @@ pad {n=S n'} (x :: xs) padding = x :: pad {n=n'} xs padding
 zeroBoundIsEmpty : (xs : BoundedList 0 a) -> xs = the (BoundedList 0 a) []
 zeroBoundIsEmpty [] = Refl
 zeroBoundIsEmpty (_ :: _) impossible
+
+
+||| Convert bounded list to vector.
+toVect : (xs : BoundedList n a) -> Vect (finToNat (length xs)) a
+toVect [] = []
+toVect (x :: xs) = x :: toVect xs
+
+||| Convert vector to bounded list.
+fromVect : (xs : Vect n a) -> BoundedList n a
+fromVect [] = []
+fromVect (x :: xs) = x :: fromVect xs
+

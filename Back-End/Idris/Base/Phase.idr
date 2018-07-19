@@ -1,8 +1,10 @@
 module Base.Phase
+import Base.Preliminaries
 import Base.Clientupdates
 import Data.Vect
 import Data.Fin
 import Base.Player
+import Base.Card
 
 
 public export
@@ -11,7 +13,7 @@ data Phase
  | SpellPhase
  | RemovalPhase
  | StartPhase {-Let's damage soul at the start of this phase!-}
- | EngagementPhase
+ | EngagementPhase (FieldedMonster, Fin 9)
  | EndPhase
  | RevivalPhase
  | DeploymentPhase
@@ -21,7 +23,7 @@ nextPhase : Phase -> Phase
 nextPhase SpawnPhase = SpellPhase
 nextPhase SpellPhase = RemovalPhase
 nextPhase RemovalPhase = StartPhase
-nextPhase StartPhase = EngagementPhase
+nextPhase StartPhase = EngagementPhase ?hole
 nextPhase EngagementPhase = EndPhase
 nextPhase EndPhase = RevivalPhase
 nextPhase RevivalPhase = DeploymentPhase

@@ -22,7 +22,7 @@ modules =
  Main.Responsivity,
  Main.Main 
 
-opts = "-p effects" 
+opts = "-p effects"
 
 executable = elementalmagicks
 main = Main.Main

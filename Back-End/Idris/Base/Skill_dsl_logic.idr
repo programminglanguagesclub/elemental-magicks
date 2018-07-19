@@ -26,7 +26,7 @@ data Env = MkEnv (List (String,Nat))
 {-also need to deal with forcing uniqueness of selection here and with the user input-}
 
 
-
+{-
 getValidTargets' : List (Maybe Monster) -> List Monster
 getValidTargets' [] = []
 getValidTargets' (Nothing::xs) = getValidTargets' xs
@@ -34,13 +34,13 @@ getValidTargets' ((Just monster)::xs) = monster :: (getValidTargets' xs)
 
 getValidTargets : Player -> List Monster
 getValidTargets player = ?hole {-getValidTargets' $ toList $ board player-}
-
+-}
 
 {-this probably should have a function for what is valid... -}
 
 -------------------------------------------------------------------------------
 lookupStat :
- BasicMonster ->
+ BasicFieldedMonster ->
  StatR ->
  Integer
 
@@ -58,11 +58,11 @@ lookupStat b HpR = extractBounded $ getCurrentHp $ hp $ b
 lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 {-I also need to be able to access the base stats....-}
 -------------------------------------------------------------------------------
-correctId : Nat -> Maybe Monster -> Bool
+correctId : Nat -> Maybe FieldedMonster -> Bool -- and one for unfielded?
 correctId _ Nothing = False
 correctId id' (Just monster) = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
-lookupBasicCard : Nat -> Player -> Player -> Maybe BasicMonster {-no targetting spell cards for now!-} 
+lookupBasicCard : Nat -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
 lookupBasicCard temporaryId player opponent = ?hole
 
 
@@ -96,22 +96,22 @@ getValue (Constant x) _ _ _ = Just x
 getValue (Variable statR var) player opponent env =
  lookupCardId var env >>= \id => {-THIS IS CURRENTLY ONLY SET UP TO LOOK FOR THINGS IN THE FRIENDLY AND ENEMY BOARDS!!!!-}
  lookupBasicCard id player opponent >>= \basicMonster =>
- lookupStat basicMonster statR
+ pure $ lookupStat basicMonster statR
 
 getValue (Plus a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x+y
+ pure $ x+y
 
 getValue (Minus a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x-y
+ pure $ x-y
 
 getValue (Mult a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x*y
+ pure $ x*y
 
 getValue (ThoughtsR b) player opponent env =
  Just $ extractBounded $ thoughtsResource $ if b then player else opponent
@@ -142,9 +142,9 @@ satisfiedExistentialCondition (RDead var) player opponent env =
  lookupCardId var env >>= \id =>
  lookupBasicCard id player opponent >>= \card =>
  case aliveness card of
-  Alive => False
-  DeadFresh => True
-  DeadStale => True) -- should be made into a function delegation and not boolean blind case statement.
+  Alive => Just False
+  DeadFresh => Just True
+  DeadStale => Just True -- should be made into a function delegation and not boolean blind case statement.
 
 -- ought to be able to have less repeated code for these conditions....
 satisfiedExistentialCondition (NotX evokerId arg) player opponent env = ?hole
@@ -152,42 +152,42 @@ satisfiedExistentialCondition (NotX evokerId arg) player opponent env = ?hole
 satisfiedExistentialCondition (LT a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x < y 
+ pure $ x < y 
 
 satisfiedExistentialCondition (EQ a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x == y
+ pure $ x == y
 
 satisfiedExistentialCondition (GT a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x > y
+ pure $ x > y
 
 satisfiedExistentialCondition (LEQ a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x <= y
+ pure $ x <= y
 
 satisfiedExistentialCondition (GEQ a b) player opponent env =
  getValue a player opponent env >>= \x =>
  getValue b player opponent env >>= \y =>
- x >= y
+ pure $ x >= y
 
 satisfiedExistentialCondition (And cond1 cond2) player opponent env =
  satisfiedExistentialCondition cond1 player opponent env >>= \x =>
- satisfiedExistentialCondition cond2 player opponent env >> \y =>
- x && y
+ satisfiedExistentialCondition cond2 player opponent env >>= \y =>
+ pure $ x && y
 
 
 satisfiedExistentialCondition (Or cond1 cond2) player opponent env =
  satisfiedExistentialCondition cond1 player opponent env >>= \x =>
  satisfiedExistentialCondition cond2 player opponent env >>= \y =>
- x || y
+ pure $ x || y
 
 satisfiedExistentialCondition (Not cond) player opponent env =
  satisfiedExistentialCondition cond player opponent env >>= \x =>
- not x
+ pure $ not x
 
 {- these need a relative set and side as well -}
 satisfiedExistentialCondition (Exists var cond) player opponent env = ?hole
@@ -216,8 +216,8 @@ extend_env (MkEnv env) arguments selection =
 -------------------------------------------------------------------------------
 satisfiableExistentialCondition' :
  List String ->
- List Monster ->
- List Monster ->
+ List FieldedMonster ->
+ List FieldedMonster ->
  Condition ->
  Player ->
  Player ->
@@ -246,6 +246,8 @@ satisfiableExistentialCondition :
  Env ->
  Bool {-for now, don't try to optimize this: just try all assignments-}
 
+
+{-
 satisfiableExistentialCondition arguments condition player opponent env =
   satisfiableExistentialCondition'
    (toList arguments)
@@ -255,9 +257,10 @@ satisfiableExistentialCondition arguments condition player opponent env =
    player
    opponent
    env
+   -}
 -------------------------------------------------------------------------------
 updateMonster :
- BasicMonster ->
+ BasicFieldedMonster ->
  Player ->
  Player ->
  (Player, Player) {-updates the monster where it belongs?-}
@@ -307,8 +310,8 @@ step_interp :
 step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player opponent env =
  let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
  case nonautomatic of
-  TerminatedSkill cardId' playerId' =>
-   (player',opponent',messages,TerminatedSkill cardId' playerId',env)
+  TerminatedSkill =>
+   (player',opponent',messages,TerminatedSkill,env)
   Existential arguments condition selected failed cardId' playerId' =>
    let (variables,sets) = unzip arguments in
    case satisfiableExistentialCondition variables condition player opponent env of
@@ -333,15 +336,30 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
 
 -------------------------------------------------------------------------------
 move_interp :
- Nonautomatic ->
- Vect n Nat ->
+ (selection : Vect n (String,Set)) -> 
+ (condition : Condition) -> 
+ (ifSelected : Automatic) ->
+ (ifUnable : Automatic) ->
+ (cardId : Nat) -> 
+ (playerId : String) ->
+ (friendlyFieldSelection : List Nat) ->
+ (enemyFieldSelection : List Nat) ->
+ (friendlyHandSelection : List Nat) ->
+ (enemyHandSelection : List Nat) ->
+ (friendlyGraveyardSelection : List Nat) ->
+ (enemyGraveyardSelection : List Nat) ->
+ (friendlyBanishedSelection : List Nat) ->
+ (enemyBanishedSelection : List Nat) ->
+ List Nat ->
  Player ->
  Player ->
- Env ->
- (Player,Player, List ClientUpdate,Nonautomatic,Env)
+ Env -> -- if game over, who won                                    which is which?
+ (Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player), List ClientUpdate)
 
+ -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 
-move_interp skill selection player opponent env with (skill)
+{-
+move_interp skill friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection player opponent env with (skill)
  | TerminatedSkill cardId playerId = 
     (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
  | Existential args condition selected failed cardId playerId
@@ -354,10 +372,10 @@ move_interp skill selection player opponent env with (skill)
       False =>
        let ex = Existential args condition selected failed cardId playerId in
        (player,opponent,[],ex,env) 
---could add a "failed selection" message-}
+--could add a "failed selection" message
       True => step_interp selected player opponent env'
 
-
+-}
 
 {-Somewhere I also want to take into account that certain skills can't be executed from certain areas: if a card has a skill queued but the card is moved to the graveyard, that probably ends the effect-}
 {-Also need to keep track of the evoker of skills. Note I need to both know that certain skills can't be used from certain areas AND certain skills can't be used ON cards in certain areas...-}

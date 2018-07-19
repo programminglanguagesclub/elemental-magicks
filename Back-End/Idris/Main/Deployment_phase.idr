@@ -4,6 +4,7 @@ import Base.Card
 import Base.Player
 import Main.Game
 import Base.Clientupdates
+import Main.Serverupdates
 %access public export
 %default total
 
@@ -34,3 +35,10 @@ transformDeploymentPhase :
 transformDeploymentPhase = ?hole
 
 -}
+
+transformDeploymentPhase : -- assumes the player is on move.
+ (playerToUpdate : Player) ->
+ (serverUpdate : ServerUpdate) ->
+ Either
+  String
+  (Player,List ClientUpdate)

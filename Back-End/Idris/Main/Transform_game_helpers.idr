@@ -19,18 +19,18 @@ schoolsHighEnoughToPlayCard :
 
 schoolsHighEnoughToPlayCard player (SpellCard card) =
  geq (index (school $ basic card) $ knowledge player) (level $ basic card)
-
+schoolsHighEnoughToPlayCard player (MonsterCard card) = ?hole
 
 -- disabled for now
 {-
 schoolsHighEnoughToPlayCard player (MonsterCard card) with (schools (basic card))
  | NoSchools = True
  | OneSchool s =
-  geq (index s $ knowledge player) (snd $ snd $ level $ basic card)
+  (extractBounded $ index s $ knowledge player) >= (extractBounded $ snd $ snd $ level $ basic card)
  | TwoSchools s1 s2 =
   geq (index s1 $ knowledge player) (snd $ snd $ level $ basic card) &&
   geq (index s2 $ knowledge player) (snd $ snd $ level $ basic card)
--}
+  -}
 -------------------------------------------------------------------------------
 
 
@@ -206,13 +206,33 @@ getNextMonster :
 
 -------------------------------------------------------------------------------
 
+validityCondition : Maybe FieldedMonster -> Bool
+validityCondition Nothing = False
+validityCondition (Just fieldedMonster) with (aliveness (basic fieldedMonster))
+ | Alive = True
+ | _ = False
 
 
 
 
+getNextMonsterOnMove :
+  (initiativePlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+  (otherPlayerBoard : Vect 9 (Maybe FieldedMonster)) ->
+  Either
+   (find Main.Transform_game_helpers.validityCondition initiativePlayerBoard = Nothing,
+    find Main.Transform_game_helpers.validityCondition otherPlayerBoard = Nothing)
+   (DPair
+    (FieldedMonster, Fin 9, Bool)
+    (\(monster, i, whichBoard) => (
+     doubleIndex initiativePlayerBoard otherPlayerBoard whichBoard i = Just monster,
+     (otherIndex : Fin 9) ->
+     (otherWhichBoard : Bool) ->
+     (otherMonster : FieldedMonster) ->
+     doubleIndex initiativePlayerBoard otherPlayerBoard otherWhichBoard otherIndex = Just otherMonster ->
+     ((otherIndex, otherWhichBoard) = (i,whichBoard) -> Void) ->
+     compareMonsterPriority (i, extractBounded $ getTemporary $ speed $ basic monster) (otherIndex, extractBounded $ getTemporary $ speed $ basic otherMonster) = GT)))
 
-
-
+--getNextMonsterOnMove a b = getNext a b validityCondition -- this should work but it doesn't because Idris is lame.
 
 
 
@@ -336,7 +356,7 @@ restUnit :
  (location : Fin 9) -> -- data
  (game : Game) -> -- data
  (whichPlayer : WhichPlayer) -> -- data
- (phase game = EngagementPhase) -> -- refinement
+ (phase game = EngagementPhase stuffblah) -> -- refinement
  () -> -- refinement
  () -> -- refinement
  (Game,List ClientUpdate)

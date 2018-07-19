@@ -59,7 +59,7 @@ nextRound PlayerB FirstRound = Right SecondRoundOriginalPlayerBWonFirstRound
 nextRound PlayerA SecondRoundOriginalPlayerAWonFirstRound = Left Tie
 nextRound PlayerB SecondRoundOriginalPlayerAWonFirstRound = Left OriginalPlayerAWon
 nextRound PlayerA SecondRoundOriginalPlayerBWonFirstRound = Left OriginalPlayerBWon
-nextRound PlayerB SecondRoundOriginlaPlayerBWonFirstRound = Left Tie
+nextRound PlayerB SecondRoundOriginalPlayerBWonFirstRound = Left Tie
 -------------------------------------------------------------------------------
 correctForRound :
  Round ->
@@ -80,20 +80,16 @@ correctForRound _ PlayerB = PlayerA
 trivial : (String -> String -> String) -> Maybe String -> Maybe String -> Maybe String
 trivial f a b = f <$> a <*> b -- THIS IS CAUSING COMPILE ISSUE WITH IMPLICITS
 -------------------------------------------------------------------------------
-replyWith' : List ClientUpdate -> String -> String -> String
+replyWith' : List ClientUpdate -> WhichPlayer -> String
 
-replyWith' [] playerId opponentId = "" -- this is probably an error case.
-replyWith' [x] playerId opponentId = payload x playerId opponentId
-replyWith' (x1::x2::xs) playerId opponentId =
- let firstPayload = ((++) "|") $ (payload x1 playerId opponentId) in
- (++) firstPayload (replyWith' (x2::xs) playerId opponentId)
+replyWith' [] whichPlayer = "" -- this is probably an error case.
+replyWith' [x] whichPlayer = payload x whichPlayer
+replyWith' (x1::x2::xs) whichPlayer =
+ let firstPayload = ((++) "|") $ (payload x1 whichPlayer) in
+ (++) firstPayload (replyWith' (x2::xs) whichPlayer)
 -------------------------------------------------------------------------------
-replyWith : List ClientUpdate -> String -> String -> String
-replyWith clientUpdates playerId opponentId = replyWith' clientUpdates playerId opponentId 
-{-
-  Nothing => ?hole -- can probably make this impossible (by making updates have playerIds in their type?)
-  Just serverResponse => serverResponse
-  -}
+replyWith : List ClientUpdate -> WhichPlayer -> String
+replyWith clientUpdates whichPlayer = replyWith' clientUpdates whichPlayer
 -------------------------------------------------------------------------------
 playerIdOpponentId :
  WhichPlayer ->
@@ -118,20 +114,21 @@ processServerUpdate' (MkBattle round game) whichPlayer serverUpdate =
  let (playerId, opponentId) = playerIdOpponentId whichPlayer aId bId in
  let whichPlayer' = correctForRound round whichPlayer in
  let transformGameResult = transformFullGame game whichPlayer' serverUpdate in
- let (transformedGame, clientUpdates) = transformGameResult in
-  case transformedGame of
-   Left winner =>
+  case transformGameResult of
+   Left errorMessage => ?hole
+   Center (winner, clientUpdates) =>
     let winnerId = getPlayerTemporaryId winner game in
     case nextRound winner round of
      Left result =>
-      let serverResponse = replyWith clientUpdates playerId opponentId in
+      let serverResponse = replyWith clientUpdates whichPlayer in
       ([], serverResponse)
      Right round' =>
-      let serverResponse = replyWith clientUpdates playerId opponentId in
+      let serverResponse = replyWith clientUpdates whichPlayer in
       ([MkBattle round' (MkFullGameDrawPhase $ newDrawPhase bId aId)], serverResponse)
-   Right game' =>
-    ([MkBattle round game'], replyWith clientUpdates playerId opponentId)
-processServerUpdate' (MkBattle round (MkFullGameDrawPhase drawPhase)) whichPlayer serverUpdate = ?hole
+   Right (game', clientUpdates, clientInstruction) =>
+    let replyWithInstructions = ?hole in -- have to handle client instructions
+    ([MkBattle round game'], replyWithInstructions)
+    --([MkBattle round game'], replyWith clientUpdates whichPlayer)
 -------------------------------------------------------------------------------
 processServerUpdate :
  List Battle ->
@@ -139,7 +136,7 @@ processServerUpdate :
  (List Battle, String)
 
 
-{-
+
 
 {-can make the two messages for ur/web delimited with a special character like ~ ... actually can have opponent second.-}
 processServerUpdate [] _ = ([],"{updateType: notInAnyGame}") {- what about opponent? Also include playerID???? -}
@@ -159,7 +156,7 @@ processServerUpdate ((MkBattle round game)::battles) (MkServerUpdateWrapper serv
      let (battles', reply) = processServerUpdate battles (MkServerUpdateWrapper serverUpdate playerId) in
      ((MkBattle round game)::battles', reply)
 
--}
+
 
 
 {-assuming not the same token for both players...-}
@@ -202,7 +199,7 @@ processMessage :
 processMessage battles message =
  case parseJson message of
   InvalidRequest =>
-   pure (battles, Just ?hole) {- should maybe handle the message for this in client updates -}
+   pure (battles, Just "{updateType: invalidRequest}") {- should maybe handle the message for this in client updates -}
   NewGameMessage playerId opponentId =>
    randomlyDecidePlayer >>= \whichPlayer =>
    pure $ (addBattle playerId opponentId whichPlayer battles, Nothing)
