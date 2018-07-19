@@ -269,26 +269,30 @@ updateMonster basicMonster player opponent = ?hole
 -------------------------------------------------------------------------------
 applySkillEffect :
  SkillEffect ->
- Player ->
- Player ->
+ (player : Player) ->
+ (opponent : Player) ->
+ (evokerId : Nat) -> -- eventually I may want another way of identifying cards to make them easier to look up. For now just use an id. It will work.
+ List Nat ->
  Env ->
- (Player,Player,List ClientUpdate)
+ (Player,Player,List Nat, List ClientUpdate)
 
-applySkillEffect skillEffect player opponent env = ?hole {-(player, opponent, [])-}
+applySkillEffect skillEffect player opponent deathQueue env = ?hole {-(player, opponent, [])-}
 -------------------------------------------------------------------------------
 applySkillEffects :
  List SkillEffect ->
- Player ->
- Player ->
+ (player : Player) ->
+ (opponent : Player) ->
+ (evokerId : Nat) ->
+ List Nat ->
  Env ->
- (Player,Player,List ClientUpdate)
+ (Player,Player,List Nat, List ClientUpdate)
 
-applySkillEffects [] player opponent env = (player, opponent, [])
+applySkillEffects [] player opponent evokerId deathQueue env = (player, opponent, deathQueue, [])
 
-applySkillEffects (effect::effects) player opponent env =
- let (player',opponent',updates) = applySkillEffect effect player opponent env in
- let (player'',opponent'',updates') = applySkillEffects effects player' opponent' env in
- (player'',opponent'',updates ++ updates')
+applySkillEffects (effect::effects) player opponent evokerId deathQueue env =
+ let (player',opponent',deathQueue', updates) = applySkillEffect effect player opponent evokerId deathQueue env in
+ let (player'',opponent'',deathQueue'',updates') = applySkillEffects effects player' opponent' evokerId deathQueue' env in
+ (player'',opponent'',deathQueue'', updates ++ updates')
 -------------------------------------------------------------------------------
 getValidBindings :
  String ->
@@ -302,25 +306,26 @@ getValidBindings argument condition player opponent env = ?hole
 -------------------------------------------------------------------------------
 step_interp :
  Automatic ->
- Player ->
- Player ->
+ (player : Player) ->
+ (opponent : Player) ->
+ List Nat ->
  Env ->
- (Player,Player, List ClientUpdate, Nonautomatic, Env)
+ (Player,Player, List Nat, List ClientUpdate, Nonautomatic)
 
-step_interp (MkAutomatic skillEffects nonautomatic cardId playerId) player opponent env =
- let (player',opponent', messages) = applySkillEffects skillEffects player opponent env in
+step_interp (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) player opponent deathQueue env =
+ let (player',opponent',deathQueue', messages) = applySkillEffects skillEffects player opponent evokerId deathQueue env in
  case nonautomatic of
   TerminatedSkill =>
-   (player',opponent',messages,TerminatedSkill,env)
-  Existential arguments condition selected failed cardId' playerId' =>
+   (player',opponent',deathQueue',messages,TerminatedSkill)
+  Existential arguments condition selected failed _ _ =>
    let (variables,sets) = unzip arguments in
    case satisfiableExistentialCondition variables condition player opponent env of
-    True => (player',opponent', messages, nonautomatic, env)
+    True => (player',opponent', deathQueue', messages, nonautomatic)
     False =>
-     let (player'',opponent'', messages', nonautomatic',env') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic cardId playerId) failed) player' opponent' env in
-     (player'',opponent'', messages ++ messages', nonautomatic',env')
+     let (player'',opponent'', deathQueue', messages', nonautomatic') = step_interp (assert_smaller (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) failed) player' opponent' deathQueue' env in
+     (player'',opponent'', deathQueue', messages ++ messages', nonautomatic')
 
-step_interp (Universal argument condition skillEffects next cardId playerId) player opponent env = ?hole
+step_interp (Universal argument condition skillEffects next evokerId whichPlayer) player opponent deathQueue env = ?hole
 -------------------------------------------------------------------------------
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}

@@ -136,9 +136,10 @@ transformGame' game actor serverUpdate =
                    let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
                     MkAutomatic skillEffects next evokerId whichPlayer =>
-                     let x = applySkillEffects skillEffects player' ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
-                     ?hole
-                    Universal var condition effects next evokerId playerId => ?hole
+                    -- let x = applySkillEffects skillEffects player' ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
+                     let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent evokerId (deathQueue game) (MkEnv []) in
+                     Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
+                    Universal var condition effects next evokerId whichPlayer => ?hole
 
                         
                         
@@ -148,43 +149,18 @@ transformGame' game actor serverUpdate =
                   $ stepGame (pushSkill automatic (mutator (record {thoughtsResource = thoughtsResource player - costValue} player) game), ?hole)
              
 -}
-
-
 {-
 
-data Automatic
-     = MkAutomatic (List SkillEffect) Nonautomatic Nat String 
-        | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat String
-
- List SkillEffect ->
-  Player ->
-   Player ->
-    Env ->
-     (Player,Player,List ClientUpdate) --- I also need the death queue to be updated, right!?!?
-     -}
+ applySkillEffects :
+   List SkillEffect ->
+     (player : Player) ->
+       (opponent : Player) ->
+         List Nat ->
+           Env ->
+             (Player,Player,List Nat, List ClientUpdate)
 
 
-                              --?deductCostFromThoughtsAndLoadSkill
-
-                 {-
-
-                 satisfiedExistentialCondition :
-                  Condition ->
-                   Player ->
-                    Player ->
-                     Env ->
-                      Maybe Bool
-
-                      -}
-             
-{-
-getValue :
- RInteger ->
-  Player ->
-   Player ->
-    Env ->
-     Maybe Integer-}
-
+-}
 
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
       Existential selection condition ifSelected ifUnable cardId whichPlayer =>
