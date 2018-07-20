@@ -195,6 +195,15 @@ namespace foo
   getStatefulPlayer PlayerA game = (playerA game, \player => \game => record {playerA = player} game)
   getStatefulPlayer PlayerB game = (playerB game, \player => \game => record {playerB = player} game)
 -------------------------------------------------------------------------------
+getPlayerMutator :
+ WhichPlayer ->
+ Player ->
+ Game ->
+ Game
+
+getPlayerMutator PlayerA player game = record {playerA = player} game
+getPlayerMutator PlayerB player game = record {playerB = player} game
+-------------------------------------------------------------------------------
 getPlayerTemporaryId :
  WhichPlayer ->
  FullGame ->

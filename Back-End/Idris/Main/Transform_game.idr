@@ -181,29 +181,28 @@ transformGame' game actor serverUpdate =
          of
           (Left whichPlayer, clientUpdates) => Center (whichPlayer, clientUpdates)
           (Right (skillHead', skillQueue', deathQueue', cardPlayer', cardOpponent'), clientUpdates) =>
-            case skillHead' of
-             Nothing =>
-              Right $
-              stepGame $
+           let cardPlayerMutator = getPlayerMutator whichPlayer cardPlayer' in
+           let cardOpponentMutator = getPlayerMutator whichPlayer cardOpponent' in
+           let game' = cardPlayerMutator $ cardOpponentMutator $ game in
+           case skillHead' of
+            Nothing =>
+             Right $
+             stepGame(
+              record
+               {skillHead = Nothing,
+                skillQueue = skillQueue',
+                deathQueue = deathQueue'}
+               game',
+              clientUpdates)
+            Just (Existential selection' condition' ifSelected' ifUnable') =>
+             Right $
               (record
-                {skillHead = Nothing,
+                {skillHead = Just (Existential selection' condition' ifSelected' ifUnable', evokerId, whichPlayer, env),
                  skillQueue = skillQueue',
-                 deathQueue = deathQueue',
-                 playerA = ?hole,
-                 playerB = ?hole}
-                game,
-               clientUpdates)
-             Just (Existential selection' condition' ifSelected' ifUnable') =>
-              Right $
-               (record
-                 {skillHead = Just (Existential selection' condition' ifSelected' ifUnable', evokerId, whichPlayer, env),
-                  skillQueue = skillQueue',
-                  deathQueue = deathQueue',
-                  playerA = ?hole,
-                  playerB = ?hole}
-                 game,
-                clientUpdates,
-                generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
+                 deathQueue = deathQueue'}
+                game',
+               clientUpdates,
+               generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
         _ => Left "Invalid move. Select targets for your current skill."
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player actor (deathQueue game) serverUpdate of
