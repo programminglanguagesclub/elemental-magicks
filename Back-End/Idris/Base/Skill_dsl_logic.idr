@@ -306,23 +306,25 @@ getValidBindings argument condition player opponent env = ?hole
 -------------------------------------------------------------------------------
 step_interp :
  Automatic ->
+ (evokerId : Nat) ->
  (player : Player) ->
  (opponent : Player) ->
+ (skillType : SkillType) ->
  List Nat ->
  Env ->
- (Player,Player, List Nat, List ClientUpdate, Nonautomatic)
+ (Player,Player, List Nat, List ClientUpdate, Maybe Nonautomatic)
 
 
 {- skillHead : Maybe (Nonautomatic, Nat, WhichPlayer) -- evokerId, whichPlayer
  skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
  -}
 
-step_interp (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) player opponent deathQueue env =
+step_interp (MkAutomatic skillEffects nonautomatic) evokerId player opponent skillType deathQueue env = -- should care about skill type...
  let (player',opponent',deathQueue', messages) = applySkillEffects skillEffects player opponent evokerId deathQueue env in
  case nonautomatic of
-  TerminatedSkill =>
-   (player',opponent',deathQueue',messages,TerminatedSkill)
-  Existential arguments condition selected failed _ _ =>
+  Nothing =>
+   (player',opponent',deathQueue',messages,Nothing)
+  Just (Existential arguments condition selected failed) =>
    let (variables,sets) = unzip arguments in
    case satisfiableExistentialCondition variables condition player opponent env of
     True => (player',opponent', deathQueue', messages, nonautomatic)
@@ -331,15 +333,17 @@ step_interp (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) player 
       (player'',opponent'', deathQueue', messages', nonautomatic') =
      
       step_interp
-       (assert_smaller (MkAutomatic skillEffects nonautomatic evokerId whichPlayer) failed)
+       (assert_smaller (MkAutomatic skillEffects nonautomatic) failed)
+       evokerId
        player'
        opponent'
+       skillType
        deathQueue'
        env
      in
      (player'',opponent'', deathQueue', messages ++ messages', nonautomatic')
 
-step_interp (Universal argument condition skillEffects next evokerId whichPlayer) player opponent deathQueue env = ?hole
+step_interp (Universal argument condition skillEffects next) evokerId player opponent skillType deathQueue env = ?hole
 -------------------------------------------------------------------------------
 
 {-note that selection isn't the positions; it's the temporary ids of the cards selected-}
@@ -372,8 +376,8 @@ move_interp :
  List Nat ->
  Player ->
  Player ->
- Env -> -- if game over, who won                                    which is which?
- (Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player), List ClientUpdate)
+ Env -> -- if game over, who won                                                                         which is which?
+ (Either (Either Player Player) (Maybe Nonautomatic, List (Skill, Nat, WhichPlayer, SkillType), List Nat, Player, Player), List ClientUpdate)
 
  -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 

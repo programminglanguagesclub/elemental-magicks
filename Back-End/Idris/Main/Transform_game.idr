@@ -84,7 +84,7 @@ transformGame' game actor serverUpdate =
     EngagementPhase (fieldedMonster, fieldedMonsterIndex) =>
      -- no proof in engagement phase this is correct.... should change player or game from record to data..
      case (skillHead game) of
-      TerminatedSkill =>
+      Nothing =>
        case serverUpdate of
         DirectAttack =>
          let opponent = getPlayer (getOpponent actor) (playerA game) (playerB game) in
@@ -120,7 +120,7 @@ transformGame' game actor serverUpdate =
             Nothing => Left "Invalid move. You appear to not have that action skill."
             -- skillType kind of pointless here....
 
-            Just (MkSkill automatic cost condition skillType) =>
+            Just (MkSkill automatic cost condition) =>
              let MkCost rInteger = cost in
              case getValue rInteger player opponent (MkEnv []) of
               Nothing => ?errorCase
@@ -135,12 +135,12 @@ transformGame' game actor serverUpdate =
                   Just True =>
                    let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
-                    MkAutomatic skillEffects next evokerId whichPlayer =>
-                     let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent evokerId (deathQueue game) (MkEnv []) in
+                    MkAutomatic skillEffects next =>
+                     let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent ?evokerId (deathQueue game) (MkEnv []) in
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
-                    Universal var condition effects next evokerId whichPlayer => ?hole
+                    Universal var condition effects next => ?hole
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
-      Existential selection condition ifSelected ifUnable cardId _ =>
+      Just (Existential selection condition ifSelected ifUnable, evokerId, whichPlayer) =>
        case serverUpdate of
         SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
          case move_interp
@@ -148,7 +148,7 @@ transformGame' game actor serverUpdate =
                condition
                ifSelected
                ifUnable
-               cardId
+               ?cardId
                actor
                friendlyFieldSelection
                enemyFieldSelection
@@ -167,21 +167,20 @@ transformGame' game actor serverUpdate =
           (Left (Right winningPlayerOtherBlarg), clientUpdates) => ?hole
           (Right (skillHead', skillQueue', deathQueue', somePlayer, someOtherPlayer), clientUpdates) =>
             case skillHead' of
-             TerminatedSkill =>
+             Nothing =>
               Right $
               stepGame $
               (record
-                {skillHead = skillHead',
+                {skillHead = Nothing,
                  skillQueue = skillQueue',
                  deathQueue = deathQueue',
                  playerA = ?hole,
                  playerB = ?hole}
                 game,
                clientUpdates)
-             Existential argsE conditionE selectedE failedE cardIdE playerIdE =>
-              let whichPlayer = ?hole in -- really want playerId to be a WhichPlayer, not an actually Id here...
+             Just (Existential argsE conditionE selectedE failedE) =>
               Right $
-               (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
+               (record {skillHead = Just (Existential argsE conditionE selectedE failedE, evokerId, whichPlayer) , skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
                 clientUpdates,
                 generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
         _ => Left "Invalid move. Select targets for your current skill."
