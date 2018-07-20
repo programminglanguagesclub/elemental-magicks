@@ -34,15 +34,15 @@ record Game where
  constructor MkGame
  --initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Nonautomatic
- skillQueue : List Skill
+ skillHead : Maybe (Nonautomatic, Nat) -- evokerId -- do I need whichPlayer here?
+ skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
  playerA : Player
  playerB : Player
  playerOnMove : WhichPlayer
 -------------------------------------------------------------------------------
-data MonsterLocation
+{-data MonsterLocation
  = HandLocation (Fin 25)
  | GraveyardLocation (Fin 25)
  | BanishLocation (Fin 25)
@@ -81,7 +81,7 @@ data MonsterDictionary =
 
 
 
-
+-}
 -------------------------------------------------------------------------------
 namespace fromNat
   getInitiative : Nat -> WhichPlayer

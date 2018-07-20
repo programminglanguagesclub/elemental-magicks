@@ -24,7 +24,7 @@ data SkillType
 -- some types of skills are automatically removed from the skill queue depending on how cards are moved to different regions of play.
 -------------------------------------------------------------------------------
 data CardId
- = MkCardId (Fin 60) --? -- unused for now...
+ = MkCardId (Fin 60) -- ? -- unused for now...
 -------------------------------------------------------------------------------
 data Cost =
  MkCost RInteger -- The compiler is probably currently expecting a natural number here. I will need to fix this.
@@ -39,7 +39,7 @@ data SkillUsedness
 -- equivalently, I need to check against whether a skill is used before putting it on the head.
 -------------------------------------------------------------------------------
 data Skill
- = MkSkill Automatic Cost Condition SkillType -- automatic has cardId
+ = MkSkill Automatic Cost Condition
 -- important to have condition and cost here as well, not just in automatic,
 -- because I do not count a skill as having been triggered
 -- if it does not meet its cost or condition.
@@ -52,7 +52,7 @@ instantiateSkill :
  Skill
 
 instantiateSkill cardId whichPlayer (MkSkillFactory automaticFactory cost condition) skillType =
- MkSkill (instantiateAutomatic automaticFactory cardId whichPlayer) cost condition skillType
+ MkSkill (instantiateAutomatic automaticFactory whichPlayer) cost condition cardId skillType
 -------------------------------------------------------------------------------
 record MonsterFactory where
  constructor MkMonsterFactory

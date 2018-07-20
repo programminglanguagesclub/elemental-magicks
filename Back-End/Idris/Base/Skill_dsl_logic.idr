@@ -356,8 +356,8 @@ move_interp :
  (ifUnable : Automatic) ->
  (cardId : Nat) -> 
  (whichPlayer : WhichPlayer) ->
- (friendlyFieldSelection : List Nat) ->
- (enemyFieldSelection : List Nat) ->
+ (friendlyFieldSelection : List (Fin 9)) ->
+ (enemyFieldSelection : List (Fin 9)) ->
  (friendlyHandSelection : List Nat) ->
  (enemyHandSelection : List Nat) ->
  (friendlyGraveyardSelection : List Nat) ->

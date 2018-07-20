@@ -140,7 +140,7 @@ transformGame' game actor serverUpdate =
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
                     Universal var condition effects next evokerId whichPlayer => ?hole
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
-      Existential selection condition ifSelected ifUnable cardId whichPlayer =>
+      Existential selection condition ifSelected ifUnable cardId _ =>
        case serverUpdate of
         SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
          case move_interp
@@ -149,18 +149,18 @@ transformGame' game actor serverUpdate =
                ifSelected
                ifUnable
                cardId
-               whichPlayer
-               ?friendlyFieldSelection
-               ?enemyFieldSelection
+               actor
+               friendlyFieldSelection
+               enemyFieldSelection
                friendlyHandSelection
                enemyHandSelection
                friendlyGraveyardSelection
                enemyGraveyardSelection
                ?friendlyBanishedSelection
                ?enemyBanishedSelection
-               ?deathQueue
-               ?playerHole
-               ?playerHole
+               (deathQueue game)
+               player
+               opponent
                ?envHole
          of
           (Left (Left winningPlayerBlarg), clientUpdates) => ?hole

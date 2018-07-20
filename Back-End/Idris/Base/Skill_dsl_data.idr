@@ -332,50 +332,16 @@ applyFixedStatEffect
 -------------------------------------------------------------------------------
 mutual
 -------------------------------------------------------------------------------
-  data NonautomaticFactory
-   = TerminatedSkillFactory 
-   | ExistentialFactory (Vect n (String,Set)) Condition AutomaticFactory AutomaticFactory
--------------------------------------------------------------------------------
-  data AutomaticFactory
-   = MkAutomaticFactory (List SkillEffect) NonautomaticFactory 
-   | UniversalFactory (String,Set) Condition (List SkillEffect) NonautomaticFactory
--------------------------------------------------------------------------------
-mutual
--------------------------------------------------------------------------------
   data Nonautomatic
-   = TerminatedSkill 
-   | Existential (Vect n (String,Set)) Condition Automatic Automatic Nat WhichPlayer
+   -- = TerminatedSkill  -- use option for this.
+   = Existential (Vect n (String,Set)) Condition Automatic Automatic
 -------------------------------------------------------------------------------
   data Automatic
-   = MkAutomatic (List SkillEffect) Nonautomatic Nat WhichPlayer 
-   | Universal (String,Set) Condition (List SkillEffect) Nonautomatic Nat WhichPlayer
+   = MkAutomatic (List SkillEffect) (Maybe Nonautomatic)
+   | Universal (String,Set) Condition (List SkillEffect) (Maybe Nonautomatic)
 {-haven't added all of the code for universal yet...-}
 {-universal also should take a vector of strings, not just a single string, at some point-}
 -------------------------------------------------------------------------------
-mutual
--------------------------------------------------------------------------------
-  instantiateNonautomatic : NonautomaticFactory -> Nat -> WhichPlayer -> Nonautomatic
--------------------------------------------------------------------------------
-  instantiateAutomatic : AutomaticFactory -> Nat -> WhichPlayer -> Automatic
--------------------------------------------------------------------------------
-  instantiateNonautomatic TerminatedSkillFactory cardId playerId = TerminatedSkill
-  instantiateNonautomatic (ExistentialFactory args cond succ fail) cId whichPlayer =
-   Existential
-    args
-    cond
-    (instantiateAutomatic succ cId whichPlayer)
-    (instantiateAutomatic fail cId whichPlayer)
-    cId
-    whichPlayer
--------------------------------------------------------------------------------
-  instantiateAutomatic (MkAutomaticFactory effects next) cardId whichPlayer =
-   MkAutomatic
-    effects
-    (instantiateNonautomatic next cardId whichPlayer)
-    cardId
-    whichPlayer
-  instantiateAutomatic (UniversalFactory arg cond effects next) cId whichPlayer =
-   Universal arg cond effects (instantiateNonautomatic next cId whichPlayer) cId whichPlayer
 {-I actually can just check to see if the card is still in a place where it can use its skill that is loaded onto the queue precisely at the moment the skill goes to the head!  --- nope: could have been taken off the field and then back on, for instance...-}
 -------------------------------------------------------------------------------
 
