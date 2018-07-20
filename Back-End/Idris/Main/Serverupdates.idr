@@ -15,7 +15,7 @@ data ServerUpdate = SpawnCard (Vect 6 (Bounded 0 9)) Nat
                   | DirectAttack
                   | Move (Fin 9)
                   | SkillInitiation Nat
-                  | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
+                  | SkillSelection (List (Fin 9)) (List (Fin 9)) (List Nat) (List Nat) (List Nat) (List Nat) (List Nat) (List Nat) {-no requirement of uniqueness at type level currently...-}
                   | Revive (Vect 9 Bool)
                   | DrawCardHand Nat
                   {-The natural number is the ID of the card in some representation. For now this should be stored in Idris, though Ur/Web could also participate eventually by storing a database.-}
@@ -175,7 +175,11 @@ generateServerUpdate marshalledServerUpdate with (type marshalledServerUpdate)
                           friendlyGraveyard <- parseListNat rawFriendlyGraveyard
                           rawEnemyGraveyard <- getField (info marshalledServerUpdate) "enemyGraveyard"
                           enemyGraveyard <- parseListNat rawEnemyGraveyard
-                          pure (ServerUpdateMessage (MkServerUpdateWrapper (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard) (player marshalledServerUpdate)))
+                          rawFriendlyBanished <- getField (info marshalledServerUpdate) "friendlyBanished"
+                          friendlyBanished <- parseListNat rawFriendlyBanished
+                          rawEnemyBanished <- getField (info marshalledServerUpdate) "enemyBanished"
+                          enemyBanished <- parseListNat rawEnemyBanished
+                          pure (ServerUpdateMessage (MkServerUpdateWrapper (SkillSelection friendlyBoard enemyBoard friendlyHand enemyHand friendlyGraveyard enemyGraveyard friendlyBanished enemyBanished) (player marshalledServerUpdate)))
   | "revive" = do rawPositions <- getField (info marshalledServerUpdate) "positions"
                   positions <- getRevivePositions rawPositions
                   pure (ServerUpdateMessage (MkServerUpdateWrapper (Revive positions) (player marshalledServerUpdate)))

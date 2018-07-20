@@ -142,13 +142,22 @@ transformGame' game actor serverUpdate =
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
       Just (Existential selection condition ifSelected ifUnable, evokerId, whichPlayer) =>
        case serverUpdate of
-        SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
+        SkillSelection
+         friendlyFieldSelection
+         enemyFieldSelection
+         friendlyHandSelection
+         enemyHandSelection
+         friendlyGraveyardSelection
+         enemyGraveyardSelection
+         friendlyBanishedSelection
+         enemyBanishedSelection
+         =>
          case move_interp
                selection
                condition
                ifSelected
                ifUnable
-               ?cardId
+               evokerId
                actor
                friendlyFieldSelection
                enemyFieldSelection
@@ -156,8 +165,8 @@ transformGame' game actor serverUpdate =
                enemyHandSelection
                friendlyGraveyardSelection
                enemyGraveyardSelection
-               ?friendlyBanishedSelection
-               ?enemyBanishedSelection
+               friendlyBanishedSelection
+               enemyBanishedSelection
                (deathQueue game)
                player
                opponent
@@ -206,7 +215,7 @@ transformGame' game actor serverUpdate =
          Right $ stepGame (mutator player' (record {phase = phase'} game), updates)
     _ =>
      case serverUpdate of
-      SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard => ?hole
+      SkillSelection friendlyField enemyField friendlyHand enemyHand friendlyGraveyard enemyGraveyard friendlyBanished enemyBanished => ?hole
       _ => Left "Invalid move. Select targets for your current skill."
    
    {-
