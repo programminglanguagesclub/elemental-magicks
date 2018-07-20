@@ -29,9 +29,6 @@ data CardId
 data Cost =
  MkCost RInteger -- The compiler is probably currently expecting a natural number here. I will need to fix this.
 -------------------------------------------------------------------------------
-data SkillFactory
- = MkSkillFactory AutomaticFactory Cost Condition
--------------------------------------------------------------------------------
 data SkillUsedness
  = Unused
  | Used
@@ -43,33 +40,6 @@ data Skill
 -- important to have condition and cost here as well, not just in automatic,
 -- because I do not count a skill as having been triggered
 -- if it does not meet its cost or condition.
--------------------------------------------------------------------------------
-instantiateSkill :
- Nat ->
- WhichPlayer ->
- SkillFactory ->
- SkillType ->
- Skill
-
-instantiateSkill cardId whichPlayer (MkSkillFactory automaticFactory cost condition) skillType =
- MkSkill (instantiateAutomatic automaticFactory whichPlayer) cost condition cardId skillType
--------------------------------------------------------------------------------
-record MonsterFactory where
- constructor MkMonsterFactory
- basic : BasicMonsterFactory
- startSkill : Maybe SkillFactory
- endSkill : Maybe SkillFactory
- counterSkill : Maybe SkillFactory
- spawnSkill : Maybe SkillFactory
- deathSkill : Maybe SkillFactory
- autoSkill : Maybe SkillFactory
- actionSkills : List SkillFactory
- soulSkill : SkillFactory
--------------------------------------------------------------------------------
-record SpellFactory where
- constructor MkSpellFactory
- basic : BasicSpellFactory
- spawnSkill : SkillFactory
 -------------------------------------------------------------------------------
 record Spell where
  constructor MkSpell
