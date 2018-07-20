@@ -314,11 +314,6 @@ step_interp :
  Env ->
  (Player,Player, List Nat, List ClientUpdate, Maybe Nonautomatic)
 
-
-{- skillHead : Maybe (Nonautomatic, Nat, WhichPlayer) -- evokerId, whichPlayer
- skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
- -}
-
 step_interp (MkAutomatic skillEffects nonautomatic) evokerId player opponent skillType deathQueue env = -- should care about skill type...
  let (player',opponent',deathQueue', messages) = applySkillEffects skillEffects player opponent evokerId deathQueue env in
  case nonautomatic of

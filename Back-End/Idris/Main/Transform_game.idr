@@ -145,7 +145,8 @@ transformGame' game actor serverUpdate =
                     MkAutomatic skillEffects next =>
                      let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent (id $ basic $ fieldedMonster)(deathQueue game) (MkEnv []) in
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
-                    Universal var condition effects next => ?hole
+                    Universal var condition effects next => ?hole -- execute univeral effects.. remember the game can end..
+                     
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
       Just (Existential selection condition ifSelected ifUnable, evokerId, whichPlayer, env) =>
        case serverUpdate of
