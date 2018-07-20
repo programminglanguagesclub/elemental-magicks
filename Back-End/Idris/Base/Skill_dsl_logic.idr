@@ -377,7 +377,7 @@ move_interp :
  Player ->
  Player ->
  Env -> -- if game over, who won                                                                         which is which?
- (Either (Either Player Player) (Maybe Nonautomatic, List (Skill, Nat, WhichPlayer, SkillType), List Nat, Player, Player), List ClientUpdate)
+ (Either WhichPlayer (Maybe Nonautomatic, List (Skill, Nat, WhichPlayer, SkillType), List Nat, Player, Player), List ClientUpdate)
 
  -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 

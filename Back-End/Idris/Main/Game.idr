@@ -8,6 +8,7 @@ import Base.Preliminaries
 import Base.BoundedList
 import Base.Objects_basic
 import Base.Skill_dsl_data
+import Base.Skill_dsl_logic
 import Base.Player
 import Base.Phase
 import Base.Card
@@ -34,7 +35,7 @@ record Game where
  constructor MkGame
  --initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Maybe (Nonautomatic, Nat, WhichPlayer) -- evokerId, whichPlayer
+ skillHead : Maybe (Nonautomatic, Nat, WhichPlayer, Env) -- evokerId, whichPlayer
  skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
@@ -117,7 +118,7 @@ data FullGame
 initialTurnNumber : Nat
 initialTurnNumber = S Z
 -------------------------------------------------------------------------------
-initialSkillHead : Maybe (Nonautomatic, Nat, WhichPlayer)
+initialSkillHead : Maybe (Nonautomatic, Nat, WhichPlayer, Env)
 initialSkillHead = Nothing
 -------------------------------------------------------------------------------
 initialSkillQueue : List (Skill, Nat, WhichPlayer, SkillType)

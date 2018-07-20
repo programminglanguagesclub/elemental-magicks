@@ -4,6 +4,7 @@ import Data.Vect
 import Base.Preliminaries
 import Base.Phase
 import Base.Skill_dsl_data
+import Base.Skill_dsl_logic
 import Base.Card
 import Base.Player
 import Main.Game

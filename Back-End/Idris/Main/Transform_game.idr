@@ -3,6 +3,7 @@ module Main.Transform_game
 import Data.So
 import Data.Vect
 import Data.Fin
+import Base.Hp
 import Base.BoundedList
 import Base.Bounded
 import Base.Phase
@@ -94,14 +95,20 @@ transformGame' game actor serverUpdate =
             False => Left "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost."
             True =>
              let player' = record {thoughtsResource $= \x => x - 1} player in
-             let player'' = record {board = unflattenBoard (Vect.replaceAt fieldedMonsterIndex (Just $ record {basic -> engagement = bind 1} fieldedMonster) (flattenBoard (board player))) {-engage unit that is direct attacking!!-}} player' in
+             let fieldedMonster' = Just $ record {basic -> engagement = bind 1} fieldedMonster in
+             let board' = unflattenBoard (Vect.replaceAt fieldedMonsterIndex fieldedMonster' (flattenBoard (board player))) in
+             let player'' = record {board = board'} player' in
              let x = 56 in
-             let opponent' = {-record {soulCards = soulCards opponent}-} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
+             let opponent' = record {soulCards $= id} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
 
                    -- ?hole -- actually damage enemy soul by 1 for a cost of 1 thought(and consume card turn)
           _ =>  Left "Invalid move. Direct attacks are only possible if there are no living units in the enemy field."
         AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
-        Rest => ?hole -- this is always valid
+        Rest =>
+         let fieldedMonster' = Just $ record {basic -> engagement = bind 1, basic -> hp $= rest} fieldedMonster in
+         let board' = unflattenBoard (Vect.replaceAt fieldedMonsterIndex fieldedMonster' (flattenBoard (board player))) in
+         let player' = record {board = board'} player in
+         Right $ stepGame (mutator player' game, ?hole) -- there is no rest update, so communicate change in stats. -- need function for marshalling stat changes.
         Move fieldIndex =>
          let playerBoard = flattenBoard (board player) in
          case Vect.index fieldIndex playerBoard of
@@ -136,11 +143,11 @@ transformGame' game actor serverUpdate =
                    let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
                     MkAutomatic skillEffects next =>
-                     let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent ?evokerId (deathQueue game) (MkEnv []) in
+                     let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent (id $ basic $ fieldedMonster)(deathQueue game) (MkEnv []) in
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
                     Universal var condition effects next => ?hole
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
-      Just (Existential selection condition ifSelected ifUnable, evokerId, whichPlayer) =>
+      Just (Existential selection condition ifSelected ifUnable, evokerId, whichPlayer, env) =>
        case serverUpdate of
         SkillSelection
          friendlyFieldSelection
@@ -170,11 +177,10 @@ transformGame' game actor serverUpdate =
                (deathQueue game)
                player
                opponent
-               ?envHole
+               env -- Where is env being updated?
          of
-          (Left (Left winningPlayerBlarg), clientUpdates) => ?hole
-          (Left (Right winningPlayerOtherBlarg), clientUpdates) => ?hole
-          (Right (skillHead', skillQueue', deathQueue', somePlayer, someOtherPlayer), clientUpdates) =>
+          (Left whichPlayer, clientUpdates) => Center (whichPlayer, clientUpdates)
+          (Right (skillHead', skillQueue', deathQueue', cardPlayer', cardOpponent'), clientUpdates) =>
             case skillHead' of
              Nothing =>
               Right $
@@ -187,9 +193,15 @@ transformGame' game actor serverUpdate =
                  playerB = ?hole}
                 game,
                clientUpdates)
-             Just (Existential argsE conditionE selectedE failedE) =>
+             Just (Existential selection' condition' ifSelected' ifUnable') =>
               Right $
-               (record {skillHead = Just (Existential argsE conditionE selectedE failedE, evokerId, whichPlayer) , skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
+               (record
+                 {skillHead = Just (Existential selection' condition' ifSelected' ifUnable', evokerId, whichPlayer, env),
+                  skillQueue = skillQueue',
+                  deathQueue = deathQueue',
+                  playerA = ?hole,
+                  playerB = ?hole}
+                 game,
                 clientUpdates,
                 generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
         _ => Left "Invalid move. Select targets for your current skill."
@@ -233,38 +245,6 @@ transformGame' game actor serverUpdate =
                                                               -- of these, spawn always requires a valid command from both players
                                                               -- and revival requires a valid command from each player who can revive...
 
-{- 
- | MkPhaseCycle SpellPhase playerA playerB =
-   case transformSpellPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
- 
- | MkPhaseCycle RemovalPhase playerA playerB =
-   case transformRemovalPhase actor playerA playerB (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue', updates) => ?hole
- 
- | MkPhaseCycle StartPhase playerA playerB =
-   case transformStartPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
- 
- | MkPhaseCycle EngagementPhase playerA playerB =
-   case transformEngagementPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
- 
- | MkPhaseCycle EndPhase playerA playerB =
-   case transformEndPhase actor playerA playerB (initiative game) (skillHead game) (skillQueue game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', skillHead', skillQueue', deathQueue',updates) => ?hole
- 
- | MkPhaseCycle RevivalPhase playerA playerB =
-   case transformRevivalPhase actor playerA playerB (initiative game) (deathQueue game) of
-    Left (errorMessage, playerId) => (Right game,[InvalidMove errorMessage playerId])
-    Right (playerA', playerB', deathQueue', updates) => ?hole
-
--}
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 -------------------------------------------------------------------------------
 transformGame :
@@ -276,7 +256,6 @@ transformGame = assert_total transformGame'
 
 {-with (phase game,serverUpdate)
  | (DrawPhase,DrawCard id)                = ?hole {-(game,[])-} {-Maybe-}
- | (DrawPhase,_)                          = (game, whichPlayer, [(InvalidMove (temporaryId player))])
  | (SpawnPhase,SetCard schools cardIndex) with (index' cardIndex (hand player))        {-Also have to make sure it's the player's turn!!-}
   | Nothing = (game, whichPlayer, [GameLogicError])                {-well, right now the user can input too large a number, but this will be a logic error once that is fixed-}
   | Just (MonsterCard card) = if schoolsHighEnoughToPlayCard player (MonsterCard card) {-THIS DOES NOT ACTUALLY CHECK IF THE SCHOOLS ARE HIGH ENOUGH AFTER REGISTERING THE RAISE SCHOOLS CHANGE-}
@@ -298,23 +277,11 @@ transformGame = assert_total transformGame'
 
 
 
-{-
-                let pu = \p => p in
-                                let game' = updatePlayer game player in
-
--}
 
 {-Also have to make sure it's the player's turn!!-}
  | (SpawnPhase,Skip schools)              = if (dominatesVect maxSchools schools) && (dominatesVect schools (knowledge player)) && (totalDifferenceVect schools (knowledge player) <= extractBounded (thoughts player))
                                              then (updateGame game player, [UpdateSchools schools (temporaryId player) (temporaryId opponent)])
                                              else (game, [InvalidMove (temporaryId player)])
- | (SpawnPhase,_)                         = (game, [InvalidMove (temporaryId player)])
- | (SpellPhase,SkillSelection s)          = handleSkillSelection game s
- | (SpellPhase,_)                         = (game, [InvalidMove (temporaryId player)])
- | (RemovalPhase,SkillSelection s)        = handleSkillSelection game s
- | (RemovalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
- | (StartPhase,SkillSelection s)          = handleSkillSelection game s
- | (StartPhase,_)                         = (game, [InvalidMove (temporaryId player)])
  | (EngagementPhase,AttackRow n) with (engagementOnMove game player opponent)
   | (False,_)                             = (game, [GameLogicError]) {-assume we already filter for whose turn it is in Ur/Web-}
   | (True,i) with (inRangeRow (board player) (board opponent) i n)
@@ -338,15 +305,6 @@ transformGame = assert_total transformGame'
     | PlayerA = ((record {player_A->board = moveUnit moveFrom moveTo (board player)} game), [MoveUnit moveFrom moveTo (temporaryId player) (temporaryId opponent)])
     | PlayerB = ((record {player_B->board = moveUnit moveFrom moveTo (board player)} game), [MoveUnit moveFrom moveTo (temporaryId player) (temporaryId opponent)])
    | Just monster                         = (game, [InvalidMove (temporaryId player)]) {-Can't move to a location with something-}
- | (EngagementPhase,SkillInitiation n)    = handleSkillInitiation game n
- | (EngagementPhase,SkillSelection s)     = handleSkillSelection game s
- | (EngagementPhase,_)                    = (game, [InvalidMove (temporaryId player)])
- | (EndPhase,SkillSelection s)            = handleSkillSelection game s {-In all of these handleSkillSelection and handleSkillInitiation have to make sure that the right player is moving, that there is/isn't a pending skill, etc.-}
- | (EndPhase,_)                           = (game, [InvalidMove (temporaryId player)])
- | (RevivalPhase,Revive b)                = ?g {-if canRevive player b
-                                             then ?g
-                                             else (game, [InvalidMove (temporaryId player)])-}
- | (RevivalPhase,_)                       = (game, [InvalidMove (temporaryId player)])
 -}
 
 -------------------------------------------------------------------------------
@@ -374,6 +332,4 @@ transformFullGame gameType whichPlayer serverUpdate with (gameType)
         
         -- if someone wins a round have to handle going to the next round? (Is this handled in main?)
 -------------------------------------------------------------------------------
---Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction)
-
 
