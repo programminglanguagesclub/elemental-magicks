@@ -122,70 +122,68 @@ transformGame' game actor serverUpdate =
 
             Just (MkSkill automatic cost condition skillType) =>
              let MkCost rInteger = cost in
-             case getValue rInteger ?player ?opponent ?env of
+             case getValue rInteger player opponent (MkEnv []) of
               Nothing => ?errorCase
               Just costValue =>
                if (extractBounded $ thoughtsResource player) < costValue
                 then
                  Left "Invalid move. You cannot afford the cost to activate this skill."
                 else
-                 case satisfiedExistentialCondition condition ?player ?opponent ?emptyEnv of
+                 case satisfiedExistentialCondition condition player opponent (MkEnv []) of
                   Nothing => ?errorCase
                   Just False => Left "Invalid move. The conditional for this skill is not satisfied."
                   Just True =>
                    let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
                     MkAutomatic skillEffects next evokerId whichPlayer =>
-                    -- let x = applySkillEffects skillEffects player' ?opponent ?env in -- what do I do with the evoker here? should also pass in right????
                      let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent evokerId (deathQueue game) (MkEnv []) in
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
                     Universal var condition effects next evokerId whichPlayer => ?hole
-
-                        
-                        
-                        ----?hole 
-                        {-
-                  
-                  $ stepGame (pushSkill automatic (mutator (record {thoughtsResource = thoughtsResource player - costValue} player) game), ?hole)
-             
--}
-{-
-
- applySkillEffects :
-   List SkillEffect ->
-     (player : Player) ->
-       (opponent : Player) ->
-         List Nat ->
-           Env ->
-             (Player,Player,List Nat, List ClientUpdate)
-
-
--}
-
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
       Existential selection condition ifSelected ifUnable cardId whichPlayer =>
        case serverUpdate of
-
-            -- THIS IS ONE BIG THING
-
         SkillSelection friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection =>
-         --  Either (Either Player Player) (Nonautomatic, List Skill, List Nat, Player, Player)
-         case move_interp selection condition ifSelected ifUnable cardId whichPlayer ?friendlyFieldSelection ?enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection ?friendlyBanishedSelection ?enemyBanishedSelection ?deathQueue ?playerHole ?playerHole ?envHole of
+         case move_interp
+               selection
+               condition
+               ifSelected
+               ifUnable
+               cardId
+               whichPlayer
+               ?friendlyFieldSelection
+               ?enemyFieldSelection
+               friendlyHandSelection
+               enemyHandSelection
+               friendlyGraveyardSelection
+               enemyGraveyardSelection
+               ?friendlyBanishedSelection
+               ?enemyBanishedSelection
+               ?deathQueue
+               ?playerHole
+               ?playerHole
+               ?envHole
+         of
           (Left (Left winningPlayerBlarg), clientUpdates) => ?hole
           (Left (Right winningPlayerOtherBlarg), clientUpdates) => ?hole
           (Right (skillHead', skillQueue', deathQueue', somePlayer, someOtherPlayer), clientUpdates) =>
             case skillHead' of
-             TerminatedSkill => Right $ stepGame (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game, clientUpdates)
+             TerminatedSkill =>
+              Right $
+              stepGame $
+              (record
+                {skillHead = skillHead',
+                 skillQueue = skillQueue',
+                 deathQueue = deathQueue',
+                 playerA = ?hole,
+                 playerB = ?hole}
+                game,
+               clientUpdates)
              Existential argsE conditionE selectedE failedE cardIdE playerIdE =>
               let whichPlayer = ?hole in -- really want playerId to be a WhichPlayer, not an actually Id here...
-              Right $ (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
-               clientUpdates,
-               generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
-
----- Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
-
-
-
+              Right $
+               (record {skillHead = skillHead', skillQueue = skillQueue', deathQueue = deathQueue', playerA = ?hole, playerB = ?hole} game,
+                clientUpdates,
+                generateClientInstruction whichPlayer "Select targets." "Wait for opponent to select targets.") -- horrible instruction... not matching on skill at all yet.
         _ => Left "Invalid move. Select targets for your current skill."
     RevivalPhase => -- I need to make sure when I enter the revive phase I skip over if nobody can revive.
      case transformRevivalPhase player actor (deathQueue game) serverUpdate of
