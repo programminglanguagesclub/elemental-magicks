@@ -11,7 +11,7 @@ import Base.Card_list_syntax
 
 %access public export
 %default total
-
+{-
 -------------------------------------------------------------------------------
 axeman : MonsterFactory
 axeman = ?hole
@@ -64,4 +64,4 @@ monsterList = [
 
 
 -}
-
+-}

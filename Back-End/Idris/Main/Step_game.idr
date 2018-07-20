@@ -97,11 +97,11 @@ mutual
        case stepSpawnPhase initiative playerA playerB of
         Nothing =>
          let playerOnMove' = initiative in
-         let (game', acc') = goToNextPhase (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB playerOnMove', acc) in   
+         let (game', acc') = goToNextPhase (MkGame turnNumber Nothing [] deathQueue SpawnPhase playerA playerB playerOnMove', acc) in   
          continueStep (game', acc', Nothing)
         Just clientInstruction =>
          let playerOnMove' = initiative in
-         (MkGame turnNumber TerminatedSkill [] deathQueue SpawnPhase playerA playerB playerOnMove', acc, clientInstruction)
+         (MkGame turnNumber Nothing [] deathQueue SpawnPhase playerA playerB playerOnMove', acc, clientInstruction)
    
    | SpellPhase = continueStep (stepSpellPhase initiative turnNumber deathQueue playerA playerB)
     
@@ -118,16 +118,16 @@ mutual
    | DeploymentPhase = continueStep (stepDeploymentPhase playerA playerB)
 -------------------------------------------------------------------------------     
   stepGame (g,acc) with (skillHead g, skillQueue g)
-   | (TerminatedSkill, []) =
+   | (Nothing, []) =
     assert_total $
     stepGameNoSkills (getInitiative g) (turnNumber g) (deathQueue g) (phase g) (playerA g) (playerB g) acc
    
-   | (TerminatedSkill, (pendingSkill::pendingSkills)) =
+   | (Nothing, (pendingSkill::pendingSkills)) =
     assert_total ?hole
 
 {-stepGame (record {skillHead = pendingSkill, skillQueue = pendingSkills} g,acc) -}{-wrong type... need to execute head first... -}
    
-   | (Existential arguments condition successBranch failureBranch cardId playerId, skillQueue) = ?hole
+   | (Just (Existential arguments condition successBranch failureBranch, cardId, whichPlayer), skillQueue) = ?hole
 -------------------------------------------------------------------------------    
 
 

@@ -3,8 +3,8 @@ import Base.Card
 import Base.Skill_dsl_data
 %access public export
 %default total
-
-
+{-
+{-
 namespace AutomaticFactory
   done : AutomaticFactory
   done = MkAutomaticFactory [] TerminatedSkillFactory
@@ -12,7 +12,7 @@ namespace AutomaticFactory
 namespace NonautomaticFactory
   done : NonautomaticFactory
   done = TerminatedSkillFactory
-
+  -}
 {-for now, in the DSL, I am not supporting syntax for unions. This will come later!-}
 
 
@@ -246,4 +246,4 @@ syntax every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next
 syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "do" [effects] [nextSkill] = UniversalFactory (var, getSet side relativeSet) if_cond effects nextSkill {-single effects might not be simple, so I might require brackets always..-} 
 syntax "if" [if_cond] every [var] "in" [side] [relativeSet] "where" [cond] "do" [effects] "next" [nextSkill] = UniversalFactory (var, getSet side relativeSet) (And cond if_cond)
 
-
+-}

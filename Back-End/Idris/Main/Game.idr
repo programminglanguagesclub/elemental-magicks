@@ -34,7 +34,7 @@ record Game where
  constructor MkGame
  --initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Maybe (Nonautomatic, Nat) -- evokerId -- do I need whichPlayer here?
+ skillHead : Maybe (Nonautomatic, Nat, WhichPlayer) -- evokerId, whichPlayer
  skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
  deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
  phase : Phase
@@ -94,10 +94,14 @@ namespace fromGame
   getInitiative : Game -> WhichPlayer
   getInitiative game = getInitiative $ turnNumber game
 -------------------------------------------------------------------------------
-pushSkill' : Skill -> List Skill -> List Skill
+pushSkill' :
+ (Skill, Nat, WhichPlayer, SkillType) ->
+ List (Skill, Nat, WhichPlayer, SkillType) ->
+ List (Skill, Nat, WhichPlayer, SkillType)
+
 pushSkill' skill skillQueue = skillQueue ++ [skill]
 -------------------------------------------------------------------------------
-pushSkill : Skill -> Game -> Game
+pushSkill : (Skill, Nat, WhichPlayer, SkillType) -> Game -> Game
 pushSkill skill game = record {skillQueue $= pushSkill' skill} game
 -------------------------------------------------------------------------------
 record DrawPhase where
@@ -113,10 +117,10 @@ data FullGame
 initialTurnNumber : Nat
 initialTurnNumber = S Z
 -------------------------------------------------------------------------------
-initialSkillHead : Nonautomatic
-initialSkillHead = TerminatedSkill
+initialSkillHead : Maybe (Nonautomatic, Nat, WhichPlayer)
+initialSkillHead = Nothing
 -------------------------------------------------------------------------------
-initialSkillQueue : List Skill
+initialSkillQueue : List (Skill, Nat, WhichPlayer, SkillType)
 initialSkillQueue = []
 -------------------------------------------------------------------------------
 initialDeathQueue : List Nat
@@ -157,9 +161,6 @@ newDrawPhase :
 
 newDrawPhase aId bId =
  MkDrawPhase (newDrawPlayer aId) (newDrawPlayer bId) initialCardsDrawn
--------------------------------------------------------------------------------
---playerOnMove : Game -> WhichPlayer
---playerOnMove = ?hole
 -------------------------------------------------------------------------------
 record Battle where
  constructor MkBattle

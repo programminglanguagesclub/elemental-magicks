@@ -157,15 +157,7 @@ odd that in the client update though, I have "cardId" rather than card name then
 
 -}
 
-
-
-
-
-instantiateCardFactory : Nat -> WhichPlayer -> CardFactory -> Card
-instantiateCardFactory cardId whichPlayer (SpellCardFactory SpellFactory) = SpellCard $ instantiateSpell cardId whichPlayer SpellFactory
-instantiateCardFactory cardId whichPlayer (MonsterCardFactory MonsterFactory) = MonsterCard $ instantiateMonster cardId whichPlayer MonsterFactory
-
-
+{-
 
 assignSoulSkill : Fin 5 -> Nat -> String -> MonsterFactory -> DrawPlayer -> (DrawPlayer, List ClientUpdate)
 {-assignSoulSkill soulIndex cardId playerId monsterFactory player =
@@ -187,6 +179,7 @@ drawHandCard cardId playerId cardFactory player = ?hole
 {-
 I also need to refactor all of my code to use Left for errors and Right for the nonfailing case
 
+-}
 -}
 
 getActor : WhichPlayer -> DrawPlayer -> DrawPlayer -> DrawPlayer
