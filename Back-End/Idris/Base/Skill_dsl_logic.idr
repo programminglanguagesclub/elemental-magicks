@@ -294,7 +294,7 @@ applySkillEffects (effect::effects) player opponent evokerId deathQueue env =
  let (player'',opponent'',deathQueue'',updates') = applySkillEffects effects player' opponent' evokerId deathQueue' env in
  (player'',opponent'',deathQueue'', updates ++ updates')
 -------------------------------------------------------------------------------
-getValidBindings :
+{-getValidBindings :
  String ->
  Condition ->
  Player ->
@@ -303,6 +303,7 @@ getValidBindings :
  List Nat
 
 getValidBindings argument condition player opponent env = ?hole
+-}
 -------------------------------------------------------------------------------
 step_interp :
  Automatic ->
@@ -368,7 +369,7 @@ move_interp :
  (enemyGraveyardSelection : List Nat) ->
  (friendlyBanishedSelection : List Nat) ->
  (enemyBanishedSelection : List Nat) ->
- List Nat ->
+ (deathQueue : List Nat) ->
  Player ->
  Player ->
  Env -> -- if game over, who won                                                                         which is which?
@@ -376,12 +377,28 @@ move_interp :
 
  -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 
-{-
-move_interp skill friendlyFieldSelection enemyFieldSelection friendlyHandSelection enemyHandSelection friendlyGraveyardSelection enemyGraveyardSelection friendlyBanishedSelection enemyBanishedSelection player opponent env with (skill)
- | TerminatedSkill cardId playerId = 
-    (player,opponent,[],TerminatedSkill cardId playerId,env) {-error case?-}
- | Existential args condition selected failed cardId playerId
-   with (alignVectors args selection)
+
+move_interp
+ selection
+ condition
+ ifSelected
+ ifUnable
+ cardId
+ whichPlayer
+ friendlyFieldSelection
+ enemyFieldSelection
+ friendlyHandSelection
+ enemyHandSelection
+ friendlyGraveyardSelection
+ enemyGraveyardSelection
+ friendlyBanishedSelection
+ enemyBanishedSelection
+ player
+ opponent
+ env
+ = ?hole
+ {-
+  with (alignVectors args selection)
   | Nothing = (player,opponent,[],skill, env)
   | Just (args', selection') =
      let (variables',sets') = unzip args' in

@@ -97,8 +97,8 @@ getValid :
  List Nat
 
 getValid player opponent (name, set) condition env with (set)
- | FriendlyBoard = getValidFriendlyBoard player opponent (flattenBoard $ board player) name  condition env
- | EnemyBoard = ?hole
+ | FriendlyBoard = getValidFriendlyBoard player opponent (flattenBoard $ board player) name condition env
+ | EnemyBoard = getValidOpponentBoard player opponent (flattenBoard $ board player) name condition env
  | FriendlySpawn = ?hole
  | EnemySpawn = ?hole
  | FriendlyHand = ?hole
@@ -107,7 +107,9 @@ getValid player opponent (name, set) condition env with (set)
  | EnemyGraveyard = ?hole
  | FriendlyBanished = ?hole
  | EnemyBanished = ?hole
- | Union set1 set2 = ?hole
+ | Union set1 set2 = -- assume disjoint sets
+  (getValid player opponent (name, set1) condition env) ++ -- need some assert smaller here
+  (getValid player opponent (name, set2) condition env) -- need some assert smaller here
 -------------------------------------------------------------------------------
 
 
