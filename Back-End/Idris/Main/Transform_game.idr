@@ -50,6 +50,60 @@ getSquareOnMove : Fin 9
 damageSoul : BoundedList 5 SoulCard -> (BoundedList 5 SoulCard, Maybe (Maybe Skill))
 
 
+{-
+
+data Set
+   = FriendlyBoard 
+    | EnemyBoard 
+     | FriendlySpawn 
+      | EnemySpawn 
+       | FriendlyHand 
+        | EnemyHand 
+         | FriendlyGraveyard 
+          | EnemyGraveyard 
+           | FriendlyBanished
+            | EnemyBanished
+             | Union Set Set
+
+
+             -}
+
+-------------------------------------------------------------------------------
+getValidBoard : Player -> Player -> Vect n (Maybe FieldedMonster) -> String -> Condition -> Env -> List Nat
+getValidBoard player opponent remainingBoard varName condition (MkEnv environment) with (remainingBoard)
+ | [] = []
+ | (x::xs) =                                                                         -- sometimes friendly sometimes enemy?
+  case satisfiedExistentialCondition condition player opponent (MkEnv (environment ++ [(varName, ?hole)])) of
+   Nothing => ?errorCase
+   Just True => (getValidBoard player opponent xs varName condition (MkEnv environment)) ++ [?theCurrentCardId]
+   Just False => getValidBoard player opponent xs varName condition (MkEnv environment)
+   
+
+
+{- satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool -}
+getValid :
+ (player : Player) ->
+ (opponent : Player) ->
+ (String, Set) ->
+ Condition ->
+ Env ->
+ List Nat
+
+getValid player opponent (name, set) condition env with (set)
+ | FriendlyBoard = ?hole
+ | EnemyBoard = ?hole
+ | FriendlySpawn = ?hole
+ | EnemySpawn = ?hole
+ | FriendlyHand = ?hole
+ | EnemyHand = ?hole
+ | FriendlyGraveyard = ?hole
+ | EnemyGraveyard = ?hole
+ | FriendlyBanished = ?hole
+ | EnemyBanished = ?hole
+ | Union set1 set2 = ?hole
+-------------------------------------------------------------------------------
+
+
 data Three error terminal continue
  = Left error
  | Center terminal
