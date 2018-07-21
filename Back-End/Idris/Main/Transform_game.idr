@@ -69,16 +69,23 @@ data Set
              -}
 
 -------------------------------------------------------------------------------
-getValidBoard : Player -> Player -> Vect n (Maybe FieldedMonster) -> String -> Condition -> Env -> List Nat
-getValidBoard player opponent remainingBoard varName condition (MkEnv environment) with (remainingBoard)
+getValidFriendlyBoard : Player -> Player -> Vect n (Maybe FieldedMonster) -> String -> Condition -> Env -> List Nat
+getValidFriendlyBoard player opponent remainingBoard varName condition (MkEnv environment) with (remainingBoard)
  | [] = []
- | (x::xs) =                                                                         -- sometimes friendly sometimes enemy?
-  case satisfiedExistentialCondition condition player opponent (MkEnv (environment ++ [(varName, ?hole)])) of
+ | (x::xs) =                                                                                      
+  case satisfiedExistentialCondition condition player opponent (MkEnv (environment ++ [(varName, ?theCurrentCardId)])) of
    Nothing => ?errorCase
-   Just True => (getValidBoard player opponent xs varName condition (MkEnv environment)) ++ [?theCurrentCardId]
-   Just False => getValidBoard player opponent xs varName condition (MkEnv environment)
+   Just True => (getValidFriendlyBoard player opponent xs varName condition (MkEnv environment)) ++ [?theCurrentCardId]
+   Just False => getValidFriendlyBoard player opponent xs varName condition (MkEnv environment)
    
-
+getValidOpponentBoard : Player -> Player -> Vect n (Maybe FieldedMonster) -> String -> Condition -> Env -> List Nat
+getValidOpponentBoard player opponent remainingBoard varName condition (MkEnv environment) with (remainingBoard)
+ | [] = []
+ | (x::xs) =
+  case satisfiedExistentialCondition condition player opponent (MkEnv (environment ++ [(varName, ?theCurrentCardId)])) of
+   Nothing => ?errorCase
+   Just True => (getValidOpponentBoard player opponent xs varName condition (MkEnv environment)) ++ [?theCurrentCardId]
+   Just False => getValidOpponentBoard player opponent xs varName condition (MkEnv environment)
 
 {- satisfiedExistentialCondition' : Condition -> Player -> Player -> Env -> Bool -}
 getValid :
@@ -90,7 +97,7 @@ getValid :
  List Nat
 
 getValid player opponent (name, set) condition env with (set)
- | FriendlyBoard = ?hole
+ | FriendlyBoard = getValidFriendlyBoard player opponent (flattenBoard $ board player) name  condition env
  | EnemyBoard = ?hole
  | FriendlySpawn = ?hole
  | EnemySpawn = ?hole
