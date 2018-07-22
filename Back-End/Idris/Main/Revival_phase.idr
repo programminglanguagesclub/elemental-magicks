@@ -146,6 +146,7 @@ removeMonsterFromHandByName ((MonsterCard unfieldedMonster)::hs) n =
     Just (card, hand') => Just (card, (MonsterCard unfieldedMonster)::hand')
 -------------------------------------------------------------------------------
 revive :
+ (whichPlayer : WhichPlayer) ->
  (positions : Vect n Bool) ->
  (board : Vect n (Maybe FieldedMonster)) ->
  (thoughts : Nat) ->
@@ -153,14 +154,14 @@ revive :
  (hand : List Card) ->
  Either String (Vect n (Maybe FieldedMonster), Nat, List (Fin 25, WhichPlayer), List Card, List Card) -- hand and then grave at the end.
 
-revive [] [] thoughts deathQueue hand = Right ([],thoughts, deathQueue, hand, [])
-revive (False::ps) (b::bs) thoughts deathQueue hand =
- case revive ps bs thoughts deathQueue hand of
+revive actor [] [] thoughts deathQueue hand = Right ([],thoughts, deathQueue, hand, [])
+revive actor (False::ps) (b::bs) thoughts deathQueue hand =
+ case revive actor ps bs thoughts deathQueue hand of
   Left error => Left error
   Right (board', thoughts', deathQueue', hand', graveyard') => Right (b::board', thoughts', deathQueue', hand', graveyard')
-revive (True::ps) (Nothing::bs) _ _ _ =
+revive actor (True::ps) (Nothing::bs) _ _ _ =
  Left "You cannot revive empty locations"
-revive (True::ps) ((Just fieldedMonster)::bs) thoughts deathQueue hand =
+revive actor (True::ps) ((Just fieldedMonster)::bs) thoughts deathQueue hand =
  let reviveCost = getNumberOfSchools $ basic fieldedMonster in
  if thoughts >= reviveCost
   then
@@ -168,7 +169,7 @@ revive (True::ps) ((Just fieldedMonster)::bs) thoughts deathQueue hand =
     Nothing =>
      Left "You do not have the replacement cards in your hand to afford this revival."
     Just (copy, hand') =>
-     case revive ps bs (minus thoughts reviveCost) (removeFromDeathQueue (id $ basic fieldedMonster) deathQueue) hand' of
+     case revive actor ps bs (minus thoughts reviveCost) (removeFromDeathQueue (id $ basic fieldedMonster, actor) deathQueue) hand' of
       Left error => Left error
       Right (board', thoughts', deathQueue', hand'', graveyard') =>
        Right ((Just (reviveMonster fieldedMonster))::board', thoughts', deathQueue', hand'', graveyard' ++ [copy])
@@ -211,7 +212,7 @@ transformRevivalPhase :
 transformRevivalPhase player actor deathQueue serverUpdate =
  case serverUpdate of
   Revive positions =>
-   case revive positions (flattenBoard $ board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
+   case revive actor positions (flattenBoard $ board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
     Left error => Left error
     Right (board', thoughts', deathQueue', hand', additionalGraveyard') =>
      Right
