@@ -98,20 +98,23 @@ getValid :
  Env ->
  List (Fin 25)
 
-getValid player opponent (name, set) condition env with (set)
- | FriendlyBoard = getValidFriendlyBoard player opponent (flattenBoard $ board player) name condition env
- | EnemyBoard = getValidOpponentBoard player opponent (flattenBoard $ board player) name condition env
- | FriendlySpawn = ?hole
- | EnemySpawn = ?hole
- | FriendlyHand = ?hole
- | EnemyHand = ?hole
- | FriendlyGraveyard = ?hole
- | EnemyGraveyard = ?hole
- | FriendlyBanished = ?hole
- | EnemyBanished = ?hole
- | Union set1 set2 = -- assume disjoint sets
-  (getValid player opponent (name, set1) condition env) ++ -- need some assert smaller here
-  (getValid player opponent (name, set2) condition env) -- need some assert smaller here
+getValid player opponent (name, set) condition env = case set of
+ FriendlyBoard => getValidFriendlyBoard player opponent (flattenBoard $ board player) name condition env
+ EnemyBoard => getValidOpponentBoard player opponent (flattenBoard $ board player) name condition env
+ FriendlySpawn => ?hole
+ EnemySpawn => ?hole
+ FriendlyHand => ?hole
+ EnemyHand => ?hole
+ FriendlyGraveyard => ?hole
+ EnemyGraveyard => ?hole
+ FriendlyBanished => ?hole
+ EnemyBanished => ?hole
+ Union set1 set2 => -- assume disjoint sets
+  (getValid player opponent (assert_smaller (name, set) (name, set1)) condition env) ++ -- need some assert smaller here
+  (getValid player opponent (assert_smaller (name, set) (name, set2)) condition env) -- need some assert smaller here
+
+-- These assert smaller statements seem to not work if I use a with statement instead of a case.
+-- I should make a minimum failing example and report.
 -------------------------------------------------------------------------------
 
 
