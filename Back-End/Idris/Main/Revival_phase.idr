@@ -118,13 +118,15 @@ _revive positions board thoughts hand graveyard =
   -}
 -------------------------------------------------------------------------------
 
-removeFromDeathQueue : Fin 25 -> List (Fin 25) -> List (Fin 25)
+removeFromDeathQueue : (Fin 25, WhichPlayer) -> List (Fin 25, WhichPlayer) -> List (Fin 25, WhichPlayer)
 removeFromDeathQueue _ [] = [] -- GAME LOGIC ERROR: card was revived but wasn't in the death queue
-removeFromDeathQueue n (x::xs) =
+removeFromDeathQueue n (x::xs) = ?hole
+
+ {-
  case x == n of
   True => xs
   False => x :: (removeFromDeathQueue n xs)
-
+  -}
 
 -------------------------------------------------------------------------------
 removeMonsterFromHandByName :
@@ -147,9 +149,9 @@ revive :
  (positions : Vect n Bool) ->
  (board : Vect n (Maybe FieldedMonster)) ->
  (thoughts : Nat) ->
- (deathQueue : List (Fin 25)) ->
+ (deathQueue : List (Fin 25, WhichPlayer)) ->
  (hand : List Card) ->
- Either String (Vect n (Maybe FieldedMonster), Nat, List (Fin 25), List Card, List Card) -- hand and then grave at the end.
+ Either String (Vect n (Maybe FieldedMonster), Nat, List (Fin 25, WhichPlayer), List Card, List Card) -- hand and then grave at the end.
 
 revive [] [] thoughts deathQueue hand = Right ([],thoughts, deathQueue, hand, [])
 revive (False::ps) (b::bs) thoughts deathQueue hand =
@@ -197,11 +199,11 @@ foo False = Unselected
 transformRevivalPhase :
  (playerToUpdate : Player) ->
  (whichPlayer : WhichPlayer) ->
- (deathQueue : List (Fin 25)) ->
+ (deathQueue : List (Fin 25, WhichPlayer)) ->
  (serverUpdate : ServerUpdate) ->
  Either
   String
-  (Player,List (Fin 25), List ClientUpdate) -- also return an updated deathQueue
+  (Player,List (Fin 25, WhichPlayer), List ClientUpdate) -- also return an updated deathQueue
  
 
 -- The Client is required to remove thoughts and move copies from hand to graveyard in the right order, etc.

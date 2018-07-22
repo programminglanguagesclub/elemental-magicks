@@ -271,10 +271,10 @@ applySkillEffect :
  SkillEffect ->
  (player : Player) ->
  (opponent : Player) ->
- (evokerId : Nat) -> -- eventually I may want another way of identifying cards to make them easier to look up. For now just use an id. It will work.
- List Nat ->
+ (evokerId : (Fin 25, WhichPlayer)) ->
+ List (Fin 25, WhichPlayer) ->
  Env ->
- (Player,Player,List Nat, List ClientUpdate)
+ (Player,Player,List (Fin 25, WhichPlayer), List ClientUpdate)
 
 applySkillEffect skillEffect player opponent deathQueue env = ?hole {-(player, opponent, [])-}
 -------------------------------------------------------------------------------
@@ -282,10 +282,10 @@ applySkillEffects :
  List SkillEffect ->
  (player : Player) ->
  (opponent : Player) ->
- (evokerId : Nat) ->
- List Nat ->
+ (evokerId : (Fin 25, WhichPlayer)) ->
+ List (Fin 25, WhichPlayer) ->
  Env ->
- (Player,Player,List Nat, List ClientUpdate)
+ (Player,Player,List (Fin 25, WhichPlayer), List ClientUpdate)
 
 applySkillEffects [] player opponent evokerId deathQueue env = (player, opponent, deathQueue, [])
 
@@ -307,13 +307,13 @@ getValidBindings argument condition player opponent env = ?hole
 -------------------------------------------------------------------------------
 step_interp :
  Automatic ->
- (evokerId : Nat) ->
+ (evokerId : (Fin 25, WhichPlayer)) ->
  (player : Player) ->
  (opponent : Player) ->
  (skillType : SkillType) ->
- List Nat ->
+ List (Fin 25, WhichPlayer) ->
  Env ->
- (Player,Player, List Nat, List ClientUpdate, Maybe Nonautomatic)
+ (Player,Player, List (Fin 25, WhichPlayer), List ClientUpdate, Maybe Nonautomatic)
 
 step_interp (MkAutomatic skillEffects nonautomatic) evokerId player opponent skillType deathQueue env = -- should care about skill type...
  let (player',opponent',deathQueue', messages) = applySkillEffects skillEffects player opponent evokerId deathQueue env in
@@ -359,8 +359,7 @@ move_interp :
  (condition : Condition) -> 
  (ifSelected : Automatic) ->
  (ifUnable : Automatic) ->
- (cardId : Nat) -> 
- (whichPlayer : WhichPlayer) ->
+ (cardId : (Fin 25, WhichPlayer)) -> 
  (friendlyFieldSelection : List (Fin 9)) ->
  (enemyFieldSelection : List (Fin 9)) ->
  (friendlyHandSelection : List Nat) ->
@@ -369,11 +368,11 @@ move_interp :
  (enemyGraveyardSelection : List Nat) ->
  (friendlyBanishedSelection : List Nat) ->
  (enemyBanishedSelection : List Nat) ->
- (deathQueue : List Nat) ->
+ (deathQueue : List (Fin 25, WhichPlayer)) ->
  Player ->
  Player ->
  Env -> -- if game over, who won                                                                         which is which?
- (Either WhichPlayer (Maybe Nonautomatic, List (Skill, Nat, WhichPlayer, SkillType), List Nat, Player, Player), List ClientUpdate)
+ (Either WhichPlayer (Maybe Nonautomatic, List (Skill, Fin 25, WhichPlayer, SkillType), List (Fin 25, WhichPlayer), Player, Player), List ClientUpdate)
 
  -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 

@@ -207,9 +207,10 @@ transformGame' game actor serverUpdate =
                   Just True =>
                    let player' = record {thoughtsResource = thoughtsResource player - costValue} player in
                    case automatic of
-                    MkAutomatic skillEffects next =>
+                    MkAutomatic skillEffects next => ?hole {-
                      let (player'', opponent', deathQueue', updates) = applySkillEffects skillEffects player' opponent (id $ basic $ fieldedMonster)(deathQueue game) (MkEnv []) in
                      Right $ stepGame (mutator player'' (opponentMutator opponent' (record {deathQueue = deathQueue'} game)), updates)
+                     -}
                     Universal var condition effects next => ?hole -- execute univeral effects.. remember the game can end..
                      
         _ => Left "Invalid move. It is currently the action phase of your card. Please select a valid action for it."
@@ -230,8 +231,7 @@ transformGame' game actor serverUpdate =
                condition
                ifSelected
                ifUnable
-               evokerId
-               actor
+               (evokerId, actor)
                friendlyFieldSelection
                enemyFieldSelection
                friendlyHandSelection
