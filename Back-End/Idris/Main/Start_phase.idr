@@ -1,4 +1,5 @@
 module Main.Start_phase
+import Data.Fin
 import Base.Preliminaries
 import Base.Player
 import Main.Game
@@ -12,7 +13,7 @@ import Base.Skill_dsl_data
 -------------------------------------------------------------------------------
 stepStartPhase :
  WhichPlayer ->
- List Nat ->
+ List (Fin 25, WhichPlayer) ->
  Player ->
  Player ->
  (Game, List ClientUpdate, Maybe ClientInstruction)
@@ -33,8 +34,8 @@ transformStartPhase : -- ALSO NEED server update to be passed in right!!?!??!?!?
  WhichPlayer ->
  Nonautomatic ->
  List Automatic ->
- List Nat ->
- Either (String,String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
+ List (Fin 25, WhichPlayer) ->
+ Either (String,String) (Player, Player, Nonautomatic, List Automatic, List (Fin 25, WhichPlayer), List ClientUpdate)
 
 transformStartPhase = ?hole
 -------------------------------------------------------------------------------

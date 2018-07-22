@@ -2,6 +2,7 @@ module Main.Spell_phase
 import Base.Preliminaries
 import Base.Player
 import Base.Skill_dsl_data
+import Data.Fin
 import Main.Game
 
 import Base.Clientupdates
@@ -16,7 +17,7 @@ import Base.Clientupdates
 -------------------------------------------------------------------------------
 
 -- should this exist?
-stepSpellPhase : WhichPlayer -> Nat -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
+stepSpellPhase : WhichPlayer -> Nat -> List (Fin 25, WhichPlayer) -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepSpellPhase initiative turnNumber deathQueue player opponent = ?hole
 -------------------------------------------------------------------------------
 {-
@@ -31,7 +32,7 @@ transformSpellPhase :
  (otherPlayer : Player) ->
  (skillHead : Nonautomatic) ->
  (skillQueue : List Automatic) ->
- (deathQueue : List Nat) ->
+ (deathQueue : List (Fin 25)) ->
  Either
   (String, String) -- errorMessage, playerId
   (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)

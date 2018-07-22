@@ -1,5 +1,6 @@
 module Main.Engagement_phase
 import Data.Vect
+import Data.Fin
 import Base.Preliminaries
 import Base.Objects_basic
 import Base.Card
@@ -28,7 +29,7 @@ allUnitsDead board = _allUnitsDead (toList board)
 -------------------------------------------------------------------------------
 stepEngagementPhase :
  WhichPlayer ->
- List Nat ->
+ List (Fin 25, WhichPlayer) ->
  Player ->
  Player ->
  (Game, List ClientUpdate, Maybe ClientInstruction)
@@ -52,5 +53,5 @@ transformEngagementPhase : -- NEED to also pass in the server update to this fun
  WhichPlayer ->
  Nonautomatic ->
  List Automatic ->
- List Nat ->
- Either (String, String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
+ List (Fin 25, WhichPlayer) ->
+ Either (String, String) (Player, Player, Nonautomatic, List Automatic, List (Fin 25, WhichPlayer), List ClientUpdate)

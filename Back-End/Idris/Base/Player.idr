@@ -74,7 +74,7 @@ emptySpawn = Nothing
 newPlayer :
  String ->
  Vect 5 SoulCard ->
- Vect 30 Card ->
+ Vect 25 Card ->
  Nat ->
  Player
 
@@ -218,7 +218,7 @@ unflattenBoard [p0,p1,p2,p3,p4,p5,p6,p7,p8] =
 
 namespace fielded
  idMatches :
-  Nat ->
+  Fin 25 ->
   Maybe FieldedMonster ->
   Bool
 
@@ -227,7 +227,7 @@ namespace fielded
 
 namespace unfielded
  idMatches :
-  Nat ->
+  Fin 25 ->
   Maybe UnfieldedMonster ->
   Bool
 
@@ -237,7 +237,7 @@ namespace unfielded
 
 -------------------------------------------------------------------------------
 findBoardMonsterIndex :
- Nat ->
+ Fin 25 ->
  Vect 3 (Vect 3 (Maybe FieldedMonster)) ->
  Maybe (Fin 9)
 
@@ -245,7 +245,7 @@ findBoardMonsterIndex monsterId board =
  ?hole --findIndex (idMatches monsterId) ?hole --(flattenBoard board)
 -------------------------------------------------------------------------------
 findBoardMonster :
- Nat ->
+ Fin 25 ->
  Vect 3 (Vect 3 (Maybe FieldedMonster)) ->
  Maybe FieldedMonster
 

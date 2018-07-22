@@ -18,7 +18,7 @@ I'm going to take out next for now. If I need it later I can deal with that...
 -}
 
 
-data Env = MkEnv (List (String,Nat))
+data Env = MkEnv (List (String,Fin 25))
 
 
 
@@ -58,11 +58,11 @@ lookupStat b HpR = extractBounded $ getCurrentHp $ hp $ b
 lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 {-I also need to be able to access the base stats....-}
 -------------------------------------------------------------------------------
-correctId : Nat -> Maybe FieldedMonster -> Bool -- and one for unfielded?
+correctId : Fin 25 -> Maybe FieldedMonster -> Bool -- and one for unfielded?
 correctId _ Nothing = False
 correctId id' (Just monster) = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
-lookupBasicCard : Nat -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
+lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
 lookupBasicCard temporaryId player opponent = ?hole
 
 
@@ -76,12 +76,12 @@ lookupBasicCard temporaryId player opponent = ?hole
                                                                    Nothing => Nothing -}
 
 -------------------------------------------------------------------------------
-lookupCardId' : String -> List (String,Nat) -> Maybe Nat
+lookupCardId' : String -> List (String,Fin 25) -> Maybe (Fin 25)
 lookupCardId' s [] = Nothing
 lookupCardId' s ((s',n)::xs) with (s==s')
   | False = lookupCardId' s xs
   | True = Just n
-lookupCardId : String -> Env -> Maybe Nat
+lookupCardId : String -> Env -> Maybe (Fin 25)
 lookupCardId s (MkEnv env) = lookupCardId' s env
 -------------------------------------------------------------------------------
 getValue :
@@ -208,7 +208,7 @@ satisfiedExistentialCondition' condition player opponent env =
 extend_env :
  Env ->
  Vect n String ->
- Vect n Nat ->
+ Vect n (Fin 25) ->
  Env
 
 extend_env (MkEnv env) arguments selection =

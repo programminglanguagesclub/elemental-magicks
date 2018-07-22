@@ -362,13 +362,13 @@ restUnit :
  (Game,List ClientUpdate)
 
 -------------------------------------------------------------------------------
-_getHandCards : (hand : List Card) -> (acc : MultiTree Nat) -> MultiTree Nat
+_getHandCards : (hand : List Card) -> (acc : MultiTree (Fin 25)) -> MultiTree (Fin 25)
 _getHandCards [] acc = acc
 _getHandCards (card::cards) acc with (card)
  |MonsterCard m      = _getHandCards cards (insert acc (id (basic m)))
  |SpellCard s        = _getHandCards cards acc
 -------------------------------------------------------------------------------
-getHandCards : (hand : List Card) -> MultiTree Nat
+getHandCards : (hand : List Card) -> MultiTree (Fin 25)
 getHandCards hand = _getHandCards hand Leaf
 -------------------------------------------------------------------------------
 

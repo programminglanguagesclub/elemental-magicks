@@ -1,4 +1,5 @@
 module Main.End_phase
+import Data.Fin
 import Base.Preliminaries
 import Base.Player
 import Main.Game
@@ -8,7 +9,7 @@ import Base.Skill_dsl_data
 %default total
 
 
-stepEndPhase : WhichPlayer -> List Nat -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
+stepEndPhase : WhichPlayer -> List (Fin 25, WhichPlayer) -> Player -> Player -> (Game, List ClientUpdate, Maybe ClientInstruction)
 stepEndPhase initiative deathQueue player opponent = ?hole
 
 
@@ -19,8 +20,8 @@ transformEndPhase :
  WhichPlayer ->
  Nonautomatic ->
  List Automatic ->
- List Nat ->
- Either (String, String) (Player, Player, Nonautomatic, List Automatic, List Nat, List ClientUpdate)
+ List (Fin 25, WhichPlayer) ->
+ Either (String, String) (Player, Player, Nonautomatic, List Automatic, List (Fin 25, WhichPlayer), List ClientUpdate)
 
 
 {-

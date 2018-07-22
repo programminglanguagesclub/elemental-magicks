@@ -35,9 +35,10 @@ record Game where
  constructor MkGame
  --initiative : WhichPlayer
  turnNumber : Nat
- skillHead : Maybe (Nonautomatic, Nat, WhichPlayer, Env) -- evokerId, whichPlayer
- skillQueue : List (Skill, Nat, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
- deathQueue : List Nat {-The temporary ids of the monster (maybe this should have its own type?)-}
+ skillHead : Maybe (Nonautomatic, Fin 25, WhichPlayer, Env) -- evokerId, whichPlayer
+ skillQueue : List (Skill, Fin 25, WhichPlayer, SkillType) -- skill, evokerId, whichPlayer, skillType
+ deathQueue : List (Fin 25, WhichPlayer)
+
  phase : Phase
  playerA : Player
  playerB : Player
@@ -96,13 +97,13 @@ namespace fromGame
   getInitiative game = getInitiative $ turnNumber game
 -------------------------------------------------------------------------------
 pushSkill' :
- (Skill, Nat, WhichPlayer, SkillType) ->
- List (Skill, Nat, WhichPlayer, SkillType) ->
- List (Skill, Nat, WhichPlayer, SkillType)
+ (Skill, Fin 25, WhichPlayer, SkillType) ->
+ List (Skill, Fin 25, WhichPlayer, SkillType) ->
+ List (Skill, Fin 25, WhichPlayer, SkillType)
 
 pushSkill' skill skillQueue = skillQueue ++ [skill]
 -------------------------------------------------------------------------------
-pushSkill : (Skill, Nat, WhichPlayer, SkillType) -> Game -> Game
+pushSkill : (Skill, Fin 25, WhichPlayer, SkillType) -> Game -> Game
 pushSkill skill game = record {skillQueue $= pushSkill' skill} game
 -------------------------------------------------------------------------------
 record DrawPhase where
@@ -118,13 +119,13 @@ data FullGame
 initialTurnNumber : Nat
 initialTurnNumber = S Z
 -------------------------------------------------------------------------------
-initialSkillHead : Maybe (Nonautomatic, Nat, WhichPlayer, Env)
+initialSkillHead : Maybe (Nonautomatic, Fin 25, WhichPlayer, Env)
 initialSkillHead = Nothing
 -------------------------------------------------------------------------------
-initialSkillQueue : List (Skill, Nat, WhichPlayer, SkillType)
+initialSkillQueue : List (Skill, Fin 25, WhichPlayer, SkillType)
 initialSkillQueue = []
 -------------------------------------------------------------------------------
-initialDeathQueue : List Nat
+initialDeathQueue : List (Fin 25, WhichPlayer)
 initialDeathQueue = []
 -------------------------------------------------------------------------------
 initialPhase : Phase
@@ -133,11 +134,11 @@ initialPhase = SpawnPhase
 newGame :
  String ->
  Vect 5 SoulCard ->
- Vect 30 Card ->
+ Vect 25 Card ->
  Nat ->
  String ->
  Vect 5 SoulCard ->
- Vect 30 Card ->
+ Vect 25 Card ->
  Nat ->
  Game
 

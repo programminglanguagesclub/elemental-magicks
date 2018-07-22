@@ -42,7 +42,7 @@ getReviveCost toRevive =
 _removeMonsterFromHandByPermanentId :
  (acc : List Card) ->
  (hand : List Card) ->
- (id : Nat) ->
+ (id : Fin 25) ->
  (Maybe UnfieldedMonster, List Card)
 
 _removeMonsterFromHandByPermanentId _ [] _ = (Nothing,[])
@@ -60,7 +60,7 @@ _removeMonsterFromHandByPermanentId acc ((MonsterCard m)::xs) permanentId =
 -------------------------------------------------------------------------------
 removeMonsterFromHandByPermanentId :
  (hand : List Card) ->
- (id : Nat) ->
+ (id : Fin 25) ->
  (Maybe UnfieldedMonster, List Card)
 
 removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
@@ -68,7 +68,7 @@ removeMonsterFromHandByPermanentId = _removeMonsterFromHandByPermanentId []
 moveMonsterFromHandToGraveyardByPermanentId :
  (hand : List Card) ->
  (graveyard : List Card) ->
- (id : Nat) ->
+ (id : Fin 25) ->
  Maybe (List Card, List Card)
 
 moveMonsterFromHandToGraveyardByPermanentId hand graveyard id =
@@ -118,7 +118,7 @@ _revive positions board thoughts hand graveyard =
   -}
 -------------------------------------------------------------------------------
 
-removeFromDeathQueue : Nat -> List Nat -> List Nat
+removeFromDeathQueue : Fin 25 -> List (Fin 25) -> List (Fin 25)
 removeFromDeathQueue _ [] = [] -- GAME LOGIC ERROR: card was revived but wasn't in the death queue
 removeFromDeathQueue n (x::xs) =
  case x == n of
@@ -147,9 +147,9 @@ revive :
  (positions : Vect n Bool) ->
  (board : Vect n (Maybe FieldedMonster)) ->
  (thoughts : Nat) ->
- (deathQueue : List Nat) ->
+ (deathQueue : List (Fin 25)) ->
  (hand : List Card) ->
- Either String (Vect n (Maybe FieldedMonster), Nat, List Nat, List Card, List Card) -- hand and then grave at the end.
+ Either String (Vect n (Maybe FieldedMonster), Nat, List (Fin 25), List Card, List Card) -- hand and then grave at the end.
 
 revive [] [] thoughts deathQueue hand = Right ([],thoughts, deathQueue, hand, [])
 revive (False::ps) (b::bs) thoughts deathQueue hand =
@@ -197,11 +197,11 @@ foo False = Unselected
 transformRevivalPhase :
  (playerToUpdate : Player) ->
  (whichPlayer : WhichPlayer) ->
- (deathQueue : List Nat) ->
+ (deathQueue : List (Fin 25)) ->
  (serverUpdate : ServerUpdate) ->
  Either
   String
-  (Player,List Nat, List ClientUpdate) -- also return an updated deathQueue
+  (Player,List (Fin 25), List ClientUpdate) -- also return an updated deathQueue
  
 
 -- The Client is required to remove thoughts and move copies from hand to graveyard in the right order, etc.

@@ -73,7 +73,7 @@ mutual
   stepGameNoSkills :
    WhichPlayer ->
    Nat ->
-   List Nat ->
+   List (Fin 25, WhichPlayer) ->
    Phase ->
    Player ->
    Player ->

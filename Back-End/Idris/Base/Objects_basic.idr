@@ -46,7 +46,7 @@ DecEq BasicMonsterFactory where
 record BasicUnfieldedMonster where
  constructor MkBasicUnfieldedMonster
  name : String
- id : Nat
+ id : Fin 25
  schools : MonsterSchools
  hp : Bounded 1 Preliminaries.absoluteUpperBound
  attack : Bounded 0 Preliminaries.absoluteUpperBound
@@ -65,7 +65,7 @@ DecEq BasicUnfieldedMonster where
 record BasicFieldedMonster where
  constructor MkBasicFieldedMonster
  name : String
- id : Nat
+ id : Fin 25
  schools : MonsterSchools
  hp : Hp
  attack : temporaryPermanentBase (Bounded 0 Preliminaries.absoluteUpperBound)
@@ -149,7 +149,7 @@ revive basic =
 triple : t -> (t,t,t)
 triple t = (t,t,t)
 -------------------------------------------------------------------------------
-instantiateBasicMonster : BasicMonsterFactory -> Nat -> BasicUnfieldedMonster
+instantiateBasicMonster : BasicMonsterFactory -> Fin 25 -> BasicUnfieldedMonster
 
 instantiateBasicMonster basicMonsterFactory cardId =
  MkBasicUnfieldedMonster
@@ -260,7 +260,7 @@ DecEq BasicSpellFactory where
 record BasicSpell where
  constructor MkBasicSpell
  name : String
- id : Nat
+ id : Fin 25
  school : Fin 6 {-Spells must have exactly one school-}
  level : Bounded 1 9
 
@@ -270,7 +270,7 @@ basicSpellDecEq : (x, y : BasicSpell) -> Dec (x = y)
 DecEq BasicSpell where
  decEq x y = basicSpellDecEq x y
 -------------------------------------------------------------------------------
-instantiateBasicSpell : BasicSpellFactory -> Nat -> BasicSpell
+instantiateBasicSpell : BasicSpellFactory -> Fin 25 -> BasicSpell
 instantiateBasicSpell basicSpellFactory id =
   MkBasicSpell
    (name basicSpellFactory)
