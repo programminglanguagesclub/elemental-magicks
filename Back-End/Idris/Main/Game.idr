@@ -44,6 +44,21 @@ record Game where
  playerB : Player
  playerOnMove : WhichPlayer
 -------------------------------------------------------------------------------
+correctGame : Game -> Bool
+
+correctGame game with (decUniqueList [])
+ | Yes prf = True
+ | No prf = False
+
+
+
+
+
+
+
+
+
+
 {-data MonsterLocation
  = HandLocation (Fin 25)
  | GraveyardLocation (Fin 25)

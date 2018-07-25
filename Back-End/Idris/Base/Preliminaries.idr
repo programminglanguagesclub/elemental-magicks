@@ -2,9 +2,12 @@ module Base.Preliminaries
 import Data.Vect
 import Data.So
 import Base.Bounded
+import Pruviloj.Derive.DecEq
 
 %access public export
 %default total
+
+%language ElabReflection
 
 {- this appears to not work, perhaps because lhs will not be the same lhs as in program. Oh well..
 syntax [lhs] ":=" [rhs] ";" [program] = let lhs = rhs in program
@@ -46,6 +49,21 @@ data UniqueVector : Nat -> Type -> Type where
 data WhichPlayer
  = PlayerA
  | PlayerB
+
+
+whichPlayerDecEq : (x , y : WhichPlayer) -> Dec (x = y)
+%runElab deriveDecEq `{whichPlayerDecEq}
+
+DecEq WhichPlayer where
+ decEq x y = whichPlayerDecEq x y
+
+data CardId = MkCardId WhichPlayer (Fin 25)
+
+cardIdDecEq : (x, y : CardId) -> Dec (x = y)
+%runElab deriveDecEq `{cardIdDecEq}
+
+DecEq CardId where
+ decEq x y = cardIdDecEq x y
 -------------------------------------------------------------------------------
 getOpponent : WhichPlayer -> WhichPlayer
 getOpponent PlayerA = PlayerB
@@ -136,3 +154,43 @@ replaceAt : Vect n a -> Fin n -> a -> Vect n a
 replaceAt (x::xs) FZ y = (y::xs)
 replaceAt (x::xs) (FS k) y = x :: (replaceAt xs k y)
 -------------------------------------------------------------------------------
+
+
+-- This uses an O(n^2) time algorithm for determining the uniqueness of lists.
+-- Do not use for extremely large lists, etc.
+-- The advantage of this algorithm is that the code and proofs are very simple,
+-- and are also polymorphic without reference to any ordering, which is required by sorting algorithms.
+
+
+
+
+{-
+-- TODO: CHANGE NAT TO ARBITRARY INSTANCE OF DECEQ
+uniqueList : List CardId -> Bool
+uniqueList [] = True
+uniqueList (x::xs) with (Prelude.List.find (==x) xs)
+  | Nothing = uniqueList xs
+  | Just _ = False
+  
+
+data UniqueList : List CardId -> Type where
+  UniqueEmpty : UniqueList []
+  UniqueConcat : UniqueList xs -> Prelude.List.find (==x) xs = Nothing -> UniqueList (x::xs)
+
+notUniqueHead : (x : CardId) -> (xs : List CardId) -> (find (==x) xs = Nothing -> Void) -> UniqueList (x::xs) -> Void
+notUniqueHead x xs inTail UniqueEmpty impossible
+notUniqueHead x xs inTail (UniqueConcat uniqueTail notInTail) = inTail notInTail
+
+notUniqueTail : (x : CardId) -> (xs : List CardId) -> (UniqueList xs -> Void) -> UniqueList (x::xs) -> Void
+notUniqueTail x xs tailNotUnique UniqueEmpty impossible
+notUniqueTail x xs tailNotUnique (UniqueConcat uniqueTail notInTail) = tailNotUnique uniqueTail
+
+
+decUniqueList : (l : List CardId) -> Dec (UniqueList l)
+decUniqueList [] = Yes UniqueEmpty
+decUniqueList (x::xs) with (decEq (find (==x) xs) Nothing)
+ | Yes headNotInTail with (decUniqueList xs)
+   | Yes uniqueTail = Yes (UniqueConcat uniqueTail headNotInTail)
+   | No tailNotUnique = No (notUniqueTail x xs tailNotUnique)
+ | No headInTail = No (notUniqueHead x xs headInTail)
+ -}
