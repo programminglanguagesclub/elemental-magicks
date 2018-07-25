@@ -44,13 +44,31 @@ record Game where
  playerB : Player
  playerOnMove : WhichPlayer
 -------------------------------------------------------------------------------
-correctGame : Game -> Bool
+--correctGame : Game -> Bool
+---
+--correctGame game with (turnNumber game = Z)
+-- | Yes prf = True
+-- | No prf = False
+-------------------------------------------------------------------------------
 
-correctGame game with (decUniqueList [])
- | Yes prf = True
- | No prf = False
+getNumberFielded : Player -> Nat
+getNumberSpawning : Player -> Nat -- either 0 or 1
 
+data CorrectPlayer : Player -> Type where
+ MkCorrectPlayer :
+  (player : Player) ->
+  (((length (hand player)) + (length (graveyard player)) + (length (discard player)) + (getNumberFielded player) + (getNumberSpawning player)) = 25) ->
+  ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
+  (UniqueList $ map Base.Card.getId $ hand player) ->
+  CorrectPlayer player
 
+data CorrectGame : Game -> Type where
+ MkCorrectGame :
+  (game : Game) ->
+  turnNumber game = Z ->
+  CorrectPlayer (playerA game) ->
+  CorrectPlayer (playerB game) ->
+  CorrectGame game
 
 
 
@@ -73,9 +91,9 @@ DecEq MonsterLocation where
   decEq x y = monsterLocationDecEq x y
 -------------------------------------------------------------------------------
 data SpellLocation
- = HandLocationSpell (Fin 30)
- | GraveyardLocationSpell (Fin 30)
- | BanishLocationSpell (Fin 30)
+ = HandLocationSpell (Fin 25)
+ | GraveyardLocationSpell (Fin 25)
+ | BanishLocationSpell (Fin 25)
  | SpawnLocationSpell
 
 spellLocationDecEq : (x , y : SpellLocation) -> Dec (x = y)

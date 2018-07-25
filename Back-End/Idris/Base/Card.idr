@@ -103,6 +103,8 @@ data Card
  = SpellCard Spell
  | MonsterCard UnfieldedMonster
 -------------------------------------------------------------------------------
+getId : Card -> Fin 25
+-------------------------------------------------------------------------------
 getLiving : Maybe FieldedMonster -> Bool
 
 getLiving Nothing = False

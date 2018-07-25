@@ -194,3 +194,34 @@ decUniqueList (x::xs) with (decEq (find (==x) xs) Nothing)
    | No tailNotUnique = No (notUniqueTail x xs tailNotUnique)
  | No headInTail = No (notUniqueHead x xs headInTail)
  -}
+
+
+uniqueList : List (Fin 25) -> Bool
+uniqueList [] = True
+uniqueList (x::xs) with (Prelude.List.find (==x) xs)
+   | Nothing = uniqueList xs
+   | Just _ = False
+   
+ 
+data UniqueList : List (Fin 25) -> Type where
+   UniqueEmpty : UniqueList []
+   UniqueConcat : UniqueList xs -> Prelude.List.find (==x) xs = Nothing -> UniqueList (x::xs)
+ 
+notUniqueHead : (x : (Fin 25)) -> (xs : List (Fin 25)) -> (find (==x) xs = Nothing -> Void) -> UniqueList (x::xs) -> Void
+notUniqueHead x xs inTail UniqueEmpty impossible
+notUniqueHead x xs inTail (UniqueConcat uniqueTail notInTail) = inTail notInTail
+ 
+notUniqueTail : (x : (Fin 25)) -> (xs : List (Fin 25)) -> (UniqueList xs -> Void) -> UniqueList (x::xs) -> Void
+notUniqueTail x xs tailNotUnique UniqueEmpty impossible
+notUniqueTail x xs tailNotUnique (UniqueConcat uniqueTail notInTail) = tailNotUnique uniqueTail
+ 
+ 
+decUniqueList : (l : List (Fin 25)) -> Dec (UniqueList l)
+decUniqueList [] = Yes UniqueEmpty
+decUniqueList (x::xs) with (decEq (find (==x) xs) Nothing)
+  | Yes headNotInTail with (decUniqueList xs)
+    | Yes uniqueTail = Yes (UniqueConcat uniqueTail headNotInTail)
+    | No tailNotUnique = No (notUniqueTail x xs tailNotUnique)
+  | No headInTail = No (notUniqueHead x xs headInTail)
+
+
