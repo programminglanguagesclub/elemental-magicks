@@ -78,7 +78,7 @@ data CorrectGame : Game -> Type where
 
 
 
-
+{-
 data MonsterLocation
  = HandLocation (Fin 25)
  | GraveyardLocation (Fin 25)
@@ -103,9 +103,20 @@ spellLocationDecEq : (x , y : SpellLocation) -> Dec (x = y)
    
 DecEq SpellLocation where
   decEq x y = spellLocationDecEq x y
--------------------------------------------------------------------------------
+  -}
 
-lookUpCardId : .....
+
+  
+-------------------------------------------------------------------------------
+data CardLocation
+ = HandLocation (Fin 25)
+ | GraveyardLocation (Fin 25)
+ | BanishLocation (Fin 25)
+ | BoardLocation (Fin 9)
+ | SpawnLocation
+
+
+lookUpCardId : CardLocation -> Fin 25
 
 
 {-
