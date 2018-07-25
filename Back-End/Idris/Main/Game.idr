@@ -60,6 +60,8 @@ data CorrectPlayer : Player -> Type where
   (((length (hand player)) + (length (graveyard player)) + (length (discard player)) + (getNumberFielded player) + (getNumberSpawning player)) = 25) ->
   ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
   (UniqueList $ map Base.Card.getId $ hand player) ->
+  (length $ hand player = 25) ->
+  ((x : Fin 25) -> find (==x) (map Base.Card.getId $ hand player) = Nothing -> Void) ->
   CorrectPlayer player
 
 data CorrectGame : Game -> Type where
@@ -77,7 +79,7 @@ data CorrectGame : Game -> Type where
 
 
 
-{-data MonsterLocation
+data MonsterLocation
  = HandLocation (Fin 25)
  | GraveyardLocation (Fin 25)
  | BanishLocation (Fin 25)
@@ -102,6 +104,12 @@ spellLocationDecEq : (x , y : SpellLocation) -> Dec (x = y)
 DecEq SpellLocation where
   decEq x y = spellLocationDecEq x y
 -------------------------------------------------------------------------------
+
+lookUpCardId : .....
+
+
+{-
+
 -- these are not all monsters potentially as there are also spell cards.
 data MonsterDictionary =
  MkMonsterDictionary
