@@ -53,21 +53,32 @@ record Game where
 
 getNumberFielded : Player -> Nat
 getNumberSpawning : Player -> Nat -- either 0 or 1
+getFieldedIds : Player -> List (Fin 25)
+getSpawningIds : Player -> List (Fin 25)
+
+getPlayerIdList : Player -> List (Fin 25)
+getPlayerIdList player = (map Base.Card.getId $ hand player) ++ (map Base.Card.getId $ graveyard player) ++ (map Base.Card.getId $ discard player) ++ (getFieldedIds player) ++ (getFieldedIds player)
+
+
+getAllEnvironmentVariables : Env -> List String
+getAllReferencedVariables : Nonautomatic -> List String
+
+
+-- encode the fact that all variables are bound to their environment
 
 data CorrectPlayer : Player -> Type where
  MkCorrectPlayer :
   (player : Player) ->
-  (((length (hand player)) + (length (graveyard player)) + (length (discard player)) + (getNumberFielded player) + (getNumberSpawning player)) = 25) ->
-  ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
-  (UniqueList $ map Base.Card.getId $ hand player) ->
-  (length $ hand player = 25) ->
-  ((x : Fin 25) -> find (==x) (map Base.Card.getId $ hand player) = Nothing -> Void) ->
+  (length $ getPlayerIdList player = 25) ->
+ -- ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
+  (UniqueList $ getPlayerIdList player) ->
+  ((x : Fin 25) -> find (==x) (getPlayerIdList player) = Nothing -> Void) ->
   CorrectPlayer player
 
 data CorrectGame : Game -> Type where
  MkCorrectGame :
   (game : Game) ->
-  turnNumber game = Z ->
+  --turnNumber game = Z ->
   CorrectPlayer (playerA game) ->
   CorrectPlayer (playerB game) ->
   CorrectGame game
@@ -165,7 +176,7 @@ record DrawPhase where
  cardsDrawn : Fin 60
 -------------------------------------------------------------------------------
 data FullGame
- = MkFullGameGame Game
+ = MkFullGameGame (game : Game ** CorrectGame game)
  | MkFullGameDrawPhase DrawPhase
 -------------------------------------------------------------------------------
 initialTurnNumber : Nat
@@ -262,7 +273,7 @@ getPlayerTemporaryId :
  FullGame ->
  String
 
-getPlayerTemporaryId whichPlayer (MkFullGameGame game) = temporaryId $ getPlayer whichPlayer game
+getPlayerTemporaryId whichPlayer (MkFullGameGame (game ** correctGame)) = temporaryId $ getPlayer whichPlayer game
 getPlayerTemporaryId whichPlayer (MkFullGameDrawPhase drawPhase) = temporaryId $ getPlayer whichPlayer drawPhase
 -------------------------------------------------------------------------------
 transformPlayer :

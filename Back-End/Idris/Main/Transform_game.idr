@@ -125,7 +125,7 @@ data Three error terminal continue
 
 partial
 transformGame' :
- Game ->
+ (game : Game ** CorrectGame game) ->
  WhichPlayer ->
  ServerUpdate ->
  Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction) -- user error, winning player or the game
@@ -133,7 +133,7 @@ transformGame' :
 
 -- NEED TO STEP GAME TOO?
 
-transformGame' game actor serverUpdate =
+transformGame' (game ** correctGame) actor serverUpdate =
  case (playerOnMove game == actor) of
   False => Left Clientupdates.notYourTurn
   True =>
@@ -316,7 +316,7 @@ transformGame' game actor serverUpdate =
 {- for now, because I have holes everywhere, just assert this is total so we can get the draw phase tested -}
 -------------------------------------------------------------------------------
 transformGame :
- Game ->
+ (game : Game ** CorrectGame game) ->
  WhichPlayer ->
  ServerUpdate ->
  Three String (WhichPlayer, List ClientUpdate) (Game, List ClientUpdate, ClientInstruction)
@@ -392,11 +392,11 @@ transformFullGame :
 
 transformFullGame gameType whichPlayer serverUpdate with (gameType)
  | MkFullGameDrawPhase drawPhase = transformDrawPhase drawPhase whichPlayer serverUpdate
- | MkFullGameGame game =
-   case transformGame game whichPlayer serverUpdate of
+ | MkFullGameGame (game ** correctGame) =
+   case transformGame (game ** correctGame) whichPlayer serverUpdate of
     Left errorMessage => Left errorMessage
     Center (winner, updates) => Center (winner, updates)
-    Right (game', updates, instruction) => Right (MkFullGameGame game', updates, instruction)
+    Right (game', updates, instruction) => Right (MkFullGameGame (game' ** ?hole), updates, instruction)
         
         -- if someone wins a round have to handle going to the next round? (Is this handled in main?)
 -------------------------------------------------------------------------------
