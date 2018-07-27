@@ -228,7 +228,14 @@ mutual
    | SkillEffectInFront Side String SkillEffect String
    | SkillEffectRightOf Side String SkillEffect String
    | SkillEffectLeftOf Side String SkillEffect String
-   | SkillEffectBoardPositions Side (List (Bounded 1 9)) SkillEffect String
+   | SkillEffectBoardPositions Side (List (Bounded 1 9)) SkillEffect String --?
+
+   | SendSquareToGraveyard Side (Fin 9)
+   | SendSelfToGraveyard
+   | SendVarToGraveyard -- okay, I think I will make var only be the field... not spawn.
+   | SendSpawnToGraveyard Side
+
+
 {- no requirement that elements be unique yet....; the last string binds the respective units for use in SkillEffect -}
 -------------------------------------------------------------------------------
   data RInteger

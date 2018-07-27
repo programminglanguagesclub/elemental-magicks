@@ -58,23 +58,19 @@ lookupStat b HpR = extractBounded $ getCurrentHp $ hp $ b
 lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 {-I also need to be able to access the base stats....-}
 -------------------------------------------------------------------------------
-correctId : Fin 25 -> Maybe FieldedMonster -> Bool -- and one for unfielded?
-correctId _ Nothing = False
-correctId id' (Just monster) = (id (basic monster)) == id'
+correctId : Fin 25 -> FieldedMonster -> Bool -- and one for unfielded?
+correctId id' monster = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
 lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
-lookupBasicCard temporaryId player opponent = ?hole
-
-
-
-{- case find (correctId temporaryId) (board player) of
-                                                   Just (Just monster) => Just (basic monster)
+lookupBasicCard temporaryId player opponent =  ?hole {-case Data.Vect.find (\maybeMonster => Just temporaryId == (id . basic) <$> maybeMonster) (flattenBoard $ board player) of
+                                                _ => ?hole
+                                                 {-  Just (Just monster) => Just (basic monster)
                                                    Just _ => Nothing {-THIS CASE SHOULD NEVER HAPPEN...-}
-                                                   Nothing => case find (correctId temporaryId) (board opponent) of
+                                                   Nothing => case find (correctId temporaryId) (flattenBoard $ board opponent) of
                                                                    Just (Just monster) => Just (basic monster)
                                                                    Just _ => Nothing {-This case should never happen-}
-                                                                   Nothing => Nothing -}
-
+                                                                   Nothing => Nothing 
+                                                                   -}-}
 -------------------------------------------------------------------------------
 lookupCardId' : String -> List (String,Fin 25) -> Maybe (Fin 25)
 lookupCardId' s [] = Nothing
