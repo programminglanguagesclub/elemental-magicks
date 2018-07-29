@@ -206,9 +206,10 @@ uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
    UniqueConcat uniqueLTail (gkj lh lt k headUnique)
 
 
+hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
 
 uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
-uniqueConcat3 l k q prf = ?hole
+uniqueConcat3 l k q prf = let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
 
 
 
