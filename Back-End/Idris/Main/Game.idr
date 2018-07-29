@@ -140,6 +140,20 @@ philipCast : {x : a} -> {y : a} -> (x = y) -> (f : a -> Type) -> f x -> f y
 philipCast e f b = replace e b {P = f}
 
 
+{-
+cast (_ : n = plus n 0) (\n -> Vect n a)
+is what you want
+it might be clearer to write 
+cast (_ : n = plus n 0) (\x -> Vect x a)
+
+
+
+
+cast (_ : x = y) (\t -> f t = f x) refl
+is your proof that f y = f x
+
+-}
+
 gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
 
 --gah : UniqueVect l = UniqueVect (l ++ [])
@@ -153,13 +167,46 @@ blara : Vect n (Fin 25) = Vect (plus n 0) (Fin 25)
 blara = philipCast q ges Refl
 
 -}
-uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
-{-uniqueConcat l (kh::kt) lkUnique with (lkUnique)
-  uniqueConcat {n=n} {k=Z} l (kh::kt) | UniqueEmpty impossible
-  uniqueConcat {n=n} {k=k} l (kh::kt) | UniqueConcat _ _ = ?hole
-  -}
 
+
+-- this worked... then just suddenly stopped working...!!
+{-
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
+                              -}
+
+
+
+--uniqueConcat l (kh::kt) lkUnique with (lkUnique)
+--  {-uniqueConcat {n=n} {m=Z} l (kh::kt)-}   | UniqueEmpty = ?hole --impossible
+{-uniqueConcat {n=n} {m=S m'} l (kh::kt) -} | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
+
+
+
+{-
+uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
+uniqueConcat l [] lkUnique = ?hole
+-}
+
+
+
+
+
+{-
+
+Type mismatch between
+        UniqueVect (x :: xs) (Type of UniqueConcat lktUnique lkhUnique)
+        and
+                UniqueVect (l ++ kh :: kt) (Expected type)
+
+                Specifically:
+                        Type mismatch between
+                                        x :: xs
+                                                and
+                                                                l ++ kh :: kt
+
+
+                                                                -}
 
 
 {-
