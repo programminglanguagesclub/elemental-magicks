@@ -184,7 +184,7 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 -- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
 
 
-
+gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect n (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
 
 uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
 uniqueConcat l [] klUnique = rewrite hg l in klUnique
@@ -198,14 +198,24 @@ notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
 
 
 uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat2 {n=n} {m=m} l k lkUnique with (decEq (plus n m) 0)
+uniqueConcat2 [] k _ = UniqueEmpty
+uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
+  | UniqueEmpty impossible
+  | UniqueConcat tailUnique headUnique =
+   let uniqueLTail = uniqueConcat2 lt k tailUnique in
+   UniqueConcat uniqueLTail (gkj lh lt k headUnique)
+
+
+
+{-
+with (decEq (plus n m) 0)
   | Yes prfYes with (lkUnique)
     | UniqueConcat tailUnique headUnique = believe_me ?hole -- cannot say impossible here either: this is a valid case.
     | UniqueEmpty = ?hole
   | No prfNo with (lkUnique)
     | _ = ?hole ---UniqueConcat _ _ = ?hole
 
-
+-}
 
 
 {-
