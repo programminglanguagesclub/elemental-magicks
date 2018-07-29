@@ -155,6 +155,8 @@ is your proof that f y = f x
 -}
 
 gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
+hg : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect ([] ++ l)
+hg l = Refl
 
 --gah : UniqueVect l = UniqueVect (l ++ [])
 --gah = philipCast f ?hole ?hole
@@ -178,15 +180,17 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 
 
 --uniqueConcat l (kh::kt) lkUnique with (lkUnique)
---  {-uniqueConcat {n=n} {m=Z} l (kh::kt)-}   | UniqueEmpty = ?hole --impossible
-{-uniqueConcat {n=n} {m=S m'} l (kh::kt) -} | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
+--  uniqueConcat {n=n} {m=Z} l (kh::kt)   | UniqueEmpty = ?hole --impossible
+-- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
 
 
 
-{-
+
 uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
-uniqueConcat l [] lkUnique = ?hole
--}
+uniqueConcat l [] klUnique = rewrite hg l in klUnique
+uniqueConcat l (kh::kt) klUnique with (klUnique)
+  | UniqueEmpty impossible
+  | UniqueConcat uniqueListT uniqueH = uniqueConcat l kt uniqueListT
 
 
 
