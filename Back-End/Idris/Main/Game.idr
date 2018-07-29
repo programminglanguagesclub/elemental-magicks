@@ -193,6 +193,8 @@ uniqueConcat l (kh::kt) klUnique with (klUnique)
   | UniqueConcat uniqueListT uniqueH = uniqueConcat l kt uniqueListT
 
 
+notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect l -> Void) -> UniqueVect (k++l) -> Void
+notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
 
 
 
