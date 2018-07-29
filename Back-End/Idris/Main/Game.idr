@@ -184,7 +184,7 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 -- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
 
 
-gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect n (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
+gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
 
 uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
 uniqueConcat l [] klUnique = rewrite hg l in klUnique
