@@ -197,6 +197,25 @@ notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect 
 notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
 
 
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat2 {n=n} {m=m} l k lkUnique with (decEq (plus n m) 0)
+  | Yes prfYes with (lkUnique)
+    | UniqueConcat tailUnique headUnique = believe_me ?hole -- cannot say impossible here either: this is a valid case.
+    | UniqueEmpty = ?hole
+  | No prfNo with (lkUnique)
+    | _ = ?hole ---UniqueConcat _ _ = ?hole
+
+
+
+
+{-
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat2 l k lkUnique with (lkUnique)
+  | UniqueEmpty with (decEq (l++k) [])
+   | Yes prfYes = ?hole
+   | No prfNo = ?hole
+  | UniqueConcat _ _ = ?hole
+  -}
 
 {-
 
