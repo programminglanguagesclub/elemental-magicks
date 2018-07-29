@@ -207,6 +207,11 @@ uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
 
 
 
+uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
+uniqueConcat3 l k q prf = ?hole
+
+
+
 {-
 with (decEq (plus n m) 0)
   | Yes prfYes with (lkUnique)
