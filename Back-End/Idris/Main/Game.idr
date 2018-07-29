@@ -85,13 +85,81 @@ data CorrectGame : Game -> Type where
 
 
 -- have to do appending on the other side, etc...
-
+{-
 errorPreserved : (l : List (Fin 25)) -> (m : List (Fin 25)) -> (UniqueList l -> Void) -> UniqueList (l ++ m) -> Void
 errorPreserved l m prfLNotUnique prfLMUnique with (l)
-  | [] with (decUniqueList [])
-   | Yes prfLUnique = prfLNotUnique prfLUnique
-   | No prfLNotUnique impossible -- apparently this is a valid case :/
-  | (lh::lt) = ?hole
+  | [] = prfLNotUnique UniqueEmpty
+  | (lh::lt) with (prfLNotUnique)
+   | 
+   -}
+
+g : a = b -> b = a
+
+
+   
+uniqueVect : Vect n (Fin 25) -> Bool
+uniqueVect [] = True
+uniqueVect (x::xs) with (find (==x) xs)
+ | Nothing = uniqueVect xs
+ | Just _ = False
+                   
+data UniqueVect : Vect n (Fin 25) -> Type where
+ UniqueEmpty : UniqueVect []
+ UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
+ 
+notUniqueHead : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (find (==x) xs = Nothing -> Void) -> UniqueVect (x::xs) -> Void
+notUniqueHead x xs inTail UniqueEmpty impossible
+notUniqueHead x xs inTail (UniqueConcat uniqueTail notInTail) = inTail notInTail
+ 
+notUniqueTail : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (UniqueVect xs -> Void) -> UniqueVect (x::xs) -> Void
+notUniqueTail x xs tailNotUnique UniqueEmpty impossible
+notUniqueTail x xs tailNotUnique (UniqueConcat uniqueTail notInTail) = tailNotUnique uniqueTail
+ 
+decUniqueVect : (l : Vect n (Fin 25)) -> Dec (UniqueVect l)
+decUniqueVect [] = Yes UniqueEmpty
+decUniqueVect (x::xs) with (decEq (find (==x) xs) Nothing)
+ | Yes headNotInTail with (decUniqueVect xs)
+  | Yes uniqueTail = Yes (UniqueConcat uniqueTail headNotInTail)
+  | No tailNotUnique = No (notUniqueTail x xs tailNotUnique)
+ | No headInTail = No (notUniqueHead x xs headInTail)
+ 
+q : plus n 0 = n
+
+
+appendNilRightNeutral : (l : Vect n a) -> l ++ [] = l
+appendNilRightNeutral [] = Refl
+appendNilRightNeutral (x::xs) =
+ let inductiveHypothesis = appendNilRightNeutral xs in
+ rewrite inductiveHypothesis in Refl
+
+
+
+--Philip!!!!
+
+philipCast : {x : a} -> {y : a} -> (x = y) -> (f : a -> Type) -> f x -> f y
+philipCast e f b = replace e b {P = f}
+
+
+gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
+
+--gah : UniqueVect l = UniqueVect (l ++ [])
+--gah = philipCast f ?hole ?hole
+{-
+ges : (n : Nat) -> Type
+ges n = Vect n (Fin 25)
+
+
+blara : Vect n (Fin 25) = Vect (plus n 0) (Fin 25)
+blara = philipCast q ges Refl
+
+-}
+uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
+{-uniqueConcat l (kh::kt) lkUnique with (lkUnique)
+  uniqueConcat {n=n} {k=Z} l (kh::kt) | UniqueEmpty impossible
+  uniqueConcat {n=n} {k=k} l (kh::kt) | UniqueConcat _ _ = ?hole
+  -}
+
 
 
 {-

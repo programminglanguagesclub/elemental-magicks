@@ -351,7 +351,7 @@ alignVectors {n=S n'} {m=S m'} (x::xs) (y::ys) with (decEq n' m')
 
 -------------------------------------------------------------------------------
 move_interp :
- (selection : Vect n (String,Set)) -> 
+ (arguments : Vect n (String,Set)) ->
  (condition : Condition) -> 
  (ifSelected : Automatic) ->
  (ifUnable : Automatic) ->
@@ -370,16 +370,30 @@ move_interp :
  Env -> -- if game over, who won                                                                         which is which?
  (Either WhichPlayer (Maybe Nonautomatic, List (Skill, Fin 25, WhichPlayer, SkillType), List (Fin 25, WhichPlayer), Player, Player), List ClientUpdate)
 
- -----(Player,Player, List ClientUpdate,Nonautomatic,Env)
 
+{-
+
+data Set
+   = FriendlyBoard 
+    | EnemyBoard 
+     | FriendlySpawn 
+      | EnemySpawn 
+       | FriendlyHand 
+        | EnemyHand 
+         | FriendlyGraveyard 
+          | EnemyGraveyard 
+           | FriendlyBanished
+            | EnemyBanished
+             | Union Set Set
+
+             -}
 
 move_interp
- selection
+ arguments
  condition
  ifSelected
  ifUnable
  cardId
- whichPlayer
  friendlyFieldSelection
  enemyFieldSelection
  friendlyHandSelection
@@ -388,10 +402,12 @@ move_interp
  enemyGraveyardSelection
  friendlyBanishedSelection
  enemyBanishedSelection
+ deathQueue
  player
  opponent
  env
  = ?hole
+ --with (alignVectors selection 
  {-
   with (alignVectors args selection)
   | Nothing = (player,opponent,[],skill, env)
