@@ -211,7 +211,8 @@ hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) ->
 uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
 uniqueConcat3 l k q prf = let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
 
-
+uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
+uniqueConcat4 l k q prf = let qlUnique = uniqueConcat2 (q++l) k in uniqueConcat l q qlUnique
 
 {-
 with (decEq (plus n m) 0)
