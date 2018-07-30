@@ -212,12 +212,12 @@ transformRevivalPhase :
 transformRevivalPhase player actor deathQueue serverUpdate =
  case serverUpdate of
   Revive positions =>
-   case revive actor positions (flattenBoard $ board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
+   case revive actor positions (board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
     Left error => Left error
     Right (board', thoughts', deathQueue', hand', additionalGraveyard') =>
      Right
       (record {
-        board = unflattenBoard board',
+        board = board',
         hand = hand',
         graveyard = (graveyard player) ++ additionalGraveyard'
        } player,

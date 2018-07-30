@@ -27,11 +27,12 @@ DecEq Ordering where
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
- board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+ --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+ board : Vect 9 (Maybe FieldedMonster)
  rowTarget : Vect 3 (Fin 3)
- hand : List Card
- graveyard : List Card
- discard : List Card
+ hand : (m ** Vect m Card)
+ graveyard : (n ** Vect n Card)
+ discard : (o ** Vect o Card)
  spawnCard : Maybe Card
  soulCards : BoundedList 5 SoulCard
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
@@ -46,6 +47,17 @@ record DrawPlayer where
  soulCards : Vect 5 (Maybe SoulCard)
  temporaryId : String
  timeRemainingMilliseconds : Nat
+{-
+hand : Player -> List Card
+hand player =
+  let (_ ** cards) = hand1 player in toList cards
+graveyard : Player -> List Card
+graveyard player =
+  let (_ ** cards) = graveyard1 player in toList cards
+discard : Player -> List Card
+discard player =
+  let (_ ** cards) = discard1 player in toList cards
+  -}
 -------------------------------------------------------------------------------
 initialRowTarget : Vect 3 (Fin 3)
 initialRowTarget = replicate 3 FZ
@@ -56,14 +68,16 @@ initialKnowledge = replicate 6 $ bind 0
 initialThoughts : Bounded 0 Preliminaries.absoluteUpperBound
 initialThoughts = bind 5
 -------------------------------------------------------------------------------
-emptyDiscard : List Card
-emptyDiscard = []
+emptyDiscard : (n ** Vect n Card)
+emptyDiscard = (0 ** [])
 -------------------------------------------------------------------------------
-emptyGraveyard : List Card
-emptyGraveyard = []
+emptyGraveyard : (n ** Vect n Card)
+emptyGraveyard = (0 ** [])
 -------------------------------------------------------------------------------
-emptyBoard : Vect 3 (Vect 3 (Maybe FieldedMonster))
-emptyBoard = replicate 3 $ replicate 3 Nothing
+--emptyBoard : Vect 3 (Vect 3 (Maybe FieldedMonster))
+--emptyBoard = replicate 3 $ replicate 3 Nothing
+emptyBoard : Vect 9 (Maybe FieldedMonster)
+emptyBoard = replicate 9 Nothing
 -------------------------------------------------------------------------------
 emptySoul : Vect 5 (Maybe SoulCard)
 emptySoul = replicate 5 Nothing
@@ -82,7 +96,7 @@ newPlayer playerId soul hand timeRemainingMilliseconds =
  MkPlayer
   emptyBoard
   initialRowTarget
-  (toList hand)
+  (25 ** hand)
   emptyGraveyard
   emptyDiscard
   emptySpawn

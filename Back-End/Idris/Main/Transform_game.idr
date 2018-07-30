@@ -99,8 +99,8 @@ getValid :
  List (Fin 25)
 
 getValid player opponent (name, set) condition env = case set of
- FriendlyBoard => getValidFriendlyBoard player opponent (flattenBoard $ board player) name condition env
- EnemyBoard => getValidOpponentBoard player opponent (flattenBoard $ board player) name condition env
+ FriendlyBoard => getValidFriendlyBoard player opponent (board player) name condition env
+ EnemyBoard => getValidOpponentBoard player opponent (board player) name condition env
  FriendlySpawn => ?hole
  EnemySpawn => ?hole
  FriendlyHand => ?hole
@@ -157,14 +157,14 @@ transformGame' (game ** correctGame) actor serverUpdate =
        case serverUpdate of
         DirectAttack =>
          let opponent = getPlayer (getOpponent actor) (playerA game) (playerB game) in
-         case Data.Vect.find (\x => actualAlive x) (flattenBoard $ board opponent) of
+         case Data.Vect.find (\x => actualAlive x) (board opponent) of
           Nothing =>
            case (thoughtsResource player > 0) of
             False => Left "Invalid move. Direct attacks consume 1 thought. You have 0 thoughts, and cannot afford this cost."
             True =>
              let player' = record {thoughtsResource $= \x => x - 1} player in
              let fieldedMonster' = Just $ record {basic -> engagement = bind 1} fieldedMonster in
-             let board' = unflattenBoard (Vect.replaceAt fieldedMonsterIndex fieldedMonster' (flattenBoard (board player))) in
+             let board' = Vect.replaceAt fieldedMonsterIndex fieldedMonster' (board player) in
              let player'' = record {board = board'} player' in
              let x = 56 in
              let opponent' = record {soulCards $= id} opponent {-decrease soul points-} in ?hole {-shoot. I also have to get whether or not to put a skill on the queue...-}
@@ -174,18 +174,18 @@ transformGame' (game ** correctGame) actor serverUpdate =
         AttackRow row => ?hole -- don't allow any attack actions if nothing is in range (cannot even waste turn attacking), so just check to see if row is in range
         Rest =>
          let fieldedMonster' = Just $ record {basic -> engagement = bind 1, basic -> hp $= rest} fieldedMonster in
-         let board' = unflattenBoard (Vect.replaceAt fieldedMonsterIndex fieldedMonster' (flattenBoard (board player))) in
+         let board' = Vect.replaceAt fieldedMonsterIndex fieldedMonster' (board player) in
          let player' = record {board = board'} player in
          Right $ stepGame (mutator player' game, ?hole) -- there is no rest update, so communicate change in stats. -- need function for marshalling stat changes.
         Move fieldIndex =>
-         let playerBoard = flattenBoard (board player) in
+         let playerBoard = board player in
          case Vect.index fieldIndex playerBoard of
           Nothing =>
 -- Don't need to keep track of the side of the board that the unit on move is on in engagement phase, since I already know whose turn it is in game!!!
            let engagedMonsterOnMove = record {basic -> engagement = bind 1} fieldedMonster in
            let movedToBoard = Vect.replaceAt fieldIndex (Just engagedMonsterOnMove) playerBoard in
            let movedFromBoard = Vect.replaceAt fieldedMonsterIndex Nothing movedToBoard in
-           Right $ stepGame (mutator (record {board = unflattenBoard movedFromBoard} player) game, [MoveUnit fieldedMonsterIndex fieldIndex actor])
+           Right $ stepGame (mutator (record {board = movedFromBoard} player) game, [MoveUnit fieldedMonsterIndex fieldIndex actor])
           Just _ => Left "Invalid move. You may not move your card to an occupied square."
         SkillInitiation skillIndex =>
          case (muted getMonsterOnMove) of
