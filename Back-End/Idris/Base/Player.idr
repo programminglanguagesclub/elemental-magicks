@@ -49,11 +49,16 @@ record Player where
 
 
 
-getBoardIds : Vect q (Maybe FieldedMonster) -> (n ** Vect n (Fin 25))
-getBoardIds [] = (0 ** [])
-getBoardIds (Nothing::xs) = getBoardIds xs
-getBoardIds ((Just fm) ::xs) = let (n ** v) = getBoardIds xs in (1+n ** (id $ basic fm) :: v)
+--getBoardIds : Vect q (Maybe FieldedMonster) -> (n ** Vect n (Fin 25))
+--getBoardIds [] = (0 ** [])
+--getBoardIds (Nothing::xs) = getBoardIds xs
+--getBoardIds ((Just fm) ::xs) = let (n ** v) = getBoardIds xs in (1+n ** (id $ basic fm) :: v)
 
+
+data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+  UniqueEmptyBoardIds : HasBoardIds [] ([] ** UniqueEmpty)
+  UniqueNothingBoardIds : HasBoardIds xs v -> HasBoardIds (Nothing::xs) v
+  UniqueConcatBoardIds : HasBoardIds xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasBoardIds ((Just x)::xs) (x::v ** UniqueConcat prf prf2)
 
 
 

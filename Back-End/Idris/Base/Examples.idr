@@ -1,17 +1,17 @@
 
 
-plus : Nat -> Nat -> Nat
-plus x y =
+mplus : Nat -> Nat -> Nat
+mplus x y =
  case x of
   Z => y
-  S x' => S (plus x' y)
+  S x' => S (mplus x' y)
 
 
-times : Nat -> Nat -> Nat
-times x y =
+mtimes : Nat -> Nat -> Nat
+mtimes x y =
   case x of
    Z => Z
-   S x' => plus (times x' y) y
+   S x' => mplus (mtimes x' y) y
 
 
 
