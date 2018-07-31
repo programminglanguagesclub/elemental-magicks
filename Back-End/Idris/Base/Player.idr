@@ -24,6 +24,12 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 DecEq Ordering where
    decEq x y = orderingDecEq x y
 
+
+
+data UniqueVect : Vect n (Fin 25) -> Type where
+  UniqueEmpty : UniqueVect []
+  UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
+
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
@@ -32,7 +38,7 @@ record Player where
  rowTarget : Vect 3 (Fin 3)
  hand : (m ** Vect m Card)
  graveyard : (n ** Vect n Card)
- discard : (o ** Vect o Card)
+ banished : (o ** Vect o Card)
  spawnCard : Maybe Card
  soulCards : BoundedList 5 SoulCard
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
@@ -40,6 +46,51 @@ record Player where
  temporaryId : String
 -- should add proof that the total number of cards controlled is 30.
  timeRemainingMilliseconds : Nat
+
+
+
+getBoardIds : Vect q (Maybe FieldedMonster) -> (n ** Vect n (Fin 25))
+getBoardIds [] = (0 ** [])
+getBoardIds (Nothing::xs) = getBoardIds xs
+getBoardIds ((Just fm) ::xs) = let (n ** v) = getBoardIds xs in (1+n ** (id $ basic fm) :: v)
+
+
+
+
+{-
+getBoardIds : Vect q (Maybe FieldedMonster) -> DPair Nat (\n => DPair (Vect n (Fin 25)) (\v => UniqueVect v))
+getBoardIds [] = MkDPair 0 (MkDPair [] UniqueEmpty)
+getBoardIds (Nothing::xs) = getBoardIds xs
+getBoardIds ((Just fm)::xs) = let MkDPair n (MkDPair l prf) = getBoardIds -- WRONG
+-}
+
+              ---UniqueVect (snd art))
+
+{-
+getBoardIds [] = ([] ** ?hole )--UniqueEmpty)
+getBoardIds (Nothing::xs) = ?hole
+getBoardIds ((Just fm)::xs) = ?hole
+-}
+data CorrectPlayer : Player -> Type where
+  MkCorrectPlayer :
+   (player : Player) -> 
+   ((length (snd $ hand player)) + (length (snd $ graveyard player)) + (length (snd $ banished player)) = 2354) ->
+   CorrectPlayer player                                                                                  
+
+{-
+
+
+data CorrectPlayer : Player -> Type where
+   MkCorrectPlayer :
+     (player : Player) ->
+       (length $ getPlayerIdList player = 25) ->
+                                           -- ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
+                                                                                                  (UniqueList $ getPlayerIdList player) ->
+                                                                                                    ((x : Fin 25) -> find (==x) (getPlayerIdList player) = Nothing -> Void) ->
+                                                                                                      CorrectPlayer player
+
+                                                                                                      -}
+
 
 record DrawPlayer where
  constructor MkDrawPlayer
