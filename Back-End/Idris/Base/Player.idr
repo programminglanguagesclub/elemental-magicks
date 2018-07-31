@@ -60,6 +60,9 @@ data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect
   UniqueNothingBoardIds : HasBoardIds xs v -> HasBoardIds (Nothing::xs) v
   UniqueConcatBoardIds : HasBoardIds xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasBoardIds ((Just x)::xs) (x::v ** UniqueConcat prf prf2)
 
+data HasSpawnId : Maybe (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+  UniqueEmptySpawnId : HasSpawnId Nothing ([] ** UniqueEmpty)
+  UniqueOccupiedSpawnId : HasSpawnId (Just x) ([x] ** UniqueConcat UniqueEmpty Refl)
 
 
 {-
