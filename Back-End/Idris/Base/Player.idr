@@ -70,7 +70,7 @@ data HasSpawnId : Maybe (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Typ
   UniqueEmptySpawnId : HasSpawnId Nothing ([] ** UniqueEmpty)
   UniqueOccupiedSpawnId : HasSpawnId (Just x) ([x] ** UniqueConcat UniqueEmpty Refl)
 
-data HasContainerId : List (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+data HasContainerId : Vect q (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptyContainer : HasContainerId [] ([] ** UniqueEmpty)
   UniqueConcatContainer : HasContainerId xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasContainerId (x::xs) (x::v ** UniqueConcat prf prf2)
 
@@ -86,6 +86,7 @@ data HasIds :
  where
   
   MkHasIds :
+   {hand : Vect q (Fin 25)} -> 
    (hasBoardIds : HasBoardIds board boardIds) ->
    (hasSpawnId : HasSpawnId spawn spawnId) ->
    (hasHandIds : HasContainerId hand handIds) ->
@@ -107,7 +108,8 @@ moveFromHandToGraveyard :
  HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds uniqueVect ->
  HasIds hasBoardIds hasSpawnId hasHandIds' hasGraveyardIds' hasBanishedIds uniqueVect'
 
-             
+moveFromHandToGraveyard (MkHasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds uniqueVect) =
+  ?hole
              
              -- HasSpawnId Nothing ([] ** UniqueEmpty) -> HasIds board boardIds
 
