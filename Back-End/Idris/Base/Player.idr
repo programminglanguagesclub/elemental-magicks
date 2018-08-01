@@ -69,30 +69,29 @@ data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect
 data HasSpawnId : Maybe (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptySpawnId : HasSpawnId Nothing ([] ** UniqueEmpty)
   UniqueOccupiedSpawnId : HasSpawnId (Just x) ([x] ** UniqueConcat UniqueEmpty Refl)
-
-data HasContainerId : Vect q (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+{-
+data HasContainerId : Vect n (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptyContainer : HasContainerId [] ([] ** UniqueEmpty)
   UniqueConcatContainer : HasContainerId xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasContainerId (x::xs) (x::v ** UniqueConcat prf prf2)
-
+  -}
 
 data HasIds :
  HasBoardIds board boardIds ->
  HasSpawnId spawn spawnId ->
- HasContainerId hand handIds ->
- HasContainerId graveyard graveyardIds ->
- HasContainerId banished banishedIds ->
+ UniqueVect hand ->
+ UniqueVect graveyard ->
+ UniqueVect banished ->
  (v : Vect n (Fin 25) ** UniqueVect v) ->
  Type
  where
   
   MkHasIds :
-   {hand : Vect q (Fin 25)} -> 
    (hasBoardIds : HasBoardIds board boardIds) ->
    (hasSpawnId : HasSpawnId spawn spawnId) ->
-   (hasHandIds : HasContainerId hand handIds) ->
-   (hasGraveyardIds : HasContainerId graveyard graveyardIds) ->
-   (hasBanishedIds : HasContainerId banished banishedIds) ->
-   UniqueVect ((fst boardIds) ++ (fst spawnId) ++ (fst handIds) ++ (fst graveyardIds) ++ (fst banishedIds)) ->
+   (hasHandIds : UniqueVect hand) ->
+   (hasGraveyardIds : UniqueVect graveyard) ->
+   (hasBanishedIds : UniqueVect banished) ->
+   UniqueVect ((fst boardIds) ++ (fst spawnId) ++ hand ++ graveyard ++ banished) ->
    HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds ([] ** UniqueEmpty)
           
 
@@ -105,12 +104,26 @@ data HasIds :
 
 
 moveFromHandToGraveyard :
- HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds uniqueVect ->
- HasIds hasBoardIds hasSpawnId hasHandIds' hasGraveyardIds' hasBanishedIds uniqueVect'
+ {board : HasBoardIds rawBoard boardIds} ->
+ {spawn : HasSpawnId rawSpawn spawnId} ->
+ {v : Vect n (Fin 25)} ->
+ {hand : UniqueVect v} ->
+ {w : Vect m (Fin 25)} ->
+ {graveyard : UniqueVect w} ->
+ {x : Vect l (Fin 25)} ->
+ {banished : UniqueVect x} ->
+ Fin n ->
+ HasIds board spawn hand graveyard banished uniqueVect ->
+ HasIds board spawn hand graveyard banished uniqueVect
 
-moveFromHandToGraveyard (MkHasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds uniqueVect) =
-  ?hole
-             
+moveFromHandToGraveyard FZ (MkHasIds board spawn hand graveyard banished uniqueVect) = (MkHasIds board spawn hand graveyard banished uniqueVect)
+moveFromHandToGraveyard (FS fk) (MkHasIds board spawn hand graveyard banished uniqueVect) = ?hole
+  
+  
+  
+  --(MkHasIds board spawn hand graveyard banished uniqueVect) =
+  -- ?hole
+              
              -- HasSpawnId Nothing ([] ** UniqueEmpty) -> HasIds board boardIds
 
 
