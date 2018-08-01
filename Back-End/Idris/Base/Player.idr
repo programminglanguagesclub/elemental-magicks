@@ -75,10 +75,38 @@ data HasContainerId : List (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> 
   UniqueConcatContainer : HasContainerId xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasContainerId (x::xs) (x::v ** UniqueConcat prf prf2)
 
 
-data HasIds : HasBoardIds board boardIds -> HasSpawnId spawn spawnId -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
-  MkHasIds : (hasBoardIds : HasBoardIds board boardIds) -> (hasSpawnId : HasSpawnId spawn spawnId) -> UniqueVect (combineVectors (fst boardIds) (fst spawnId)) -> HasIds hasBoardIds hasSpawnId ([] ** UniqueEmpty)
+data HasIds :
+ HasBoardIds board boardIds ->
+ HasSpawnId spawn spawnId ->
+ HasContainerId hand handIds ->
+ HasContainerId graveyard graveyardIds ->
+ HasContainerId banished banishedIds ->
+ (v : Vect n (Fin 25) ** UniqueVect v) ->
+ Type
+ where
+  
+  MkHasIds :
+   (hasBoardIds : HasBoardIds board boardIds) ->
+   (hasSpawnId : HasSpawnId spawn spawnId) ->
+   (hasHandIds : HasContainerId hand handIds) ->
+   (hasGraveyardIds : HasContainerId graveyard graveyardIds) ->
+   (hasBanishedIds : HasContainerId banished banishedIds) ->
+   UniqueVect ((fst boardIds) ++ (fst spawnId) ++ (fst handIds) ++ (fst graveyardIds) ++ (fst banishedIds)) ->
+   HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds ([] ** UniqueEmpty)
           
-             
+
+
+
+
+
+
+
+
+
+moveFromHandToGraveyard :
+ HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds uniqueVect ->
+ HasIds hasBoardIds hasSpawnId hasHandIds' hasGraveyardIds' hasBanishedIds uniqueVect'
+
              
              
              -- HasSpawnId Nothing ([] ** UniqueEmpty) -> HasIds board boardIds
