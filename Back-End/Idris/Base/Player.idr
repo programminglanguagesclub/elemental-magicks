@@ -55,6 +55,12 @@ record Player where
 --getBoardIds ((Just fm) ::xs) = let (n ** v) = getBoardIds xs in (1+n ** (id $ basic fm) :: v)
 
 
+--combineVectors : (n ** Vect n (Fin 25)) -> (m ** Vect m (Fin 25)) -> (n+m ** Vect (n+m) (Fin 25))
+--combineVectors : DPair Nat (\n => Vect n (Fin 25)) -> DPair Nat (\m => Vect m (Fin 25)) -> DPair Nat (\_
+
+
+combineVectors :  Vect n (Fin 25) -> Vect m (Fin 25) -> Vect (n+m) (Fin 25)
+
 data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptyBoardIds : HasBoardIds [] ([] ** UniqueEmpty)
   UniqueNothingBoardIds : HasBoardIds xs v -> HasBoardIds (Nothing::xs) v
@@ -63,6 +69,20 @@ data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect
 data HasSpawnId : Maybe (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptySpawnId : HasSpawnId Nothing ([] ** UniqueEmpty)
   UniqueOccupiedSpawnId : HasSpawnId (Just x) ([x] ** UniqueConcat UniqueEmpty Refl)
+
+data HasContainerId : List (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+  UniqueEmptyContainer : HasContainerId [] ([] ** UniqueEmpty)
+  UniqueConcatContainer : HasContainerId xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasContainerId (x::xs) (x::v ** UniqueConcat prf prf2)
+
+
+data HasIds : HasBoardIds board boardIds -> HasSpawnId spawn spawnId -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
+  MkHasIds : (hasBoardIds : HasBoardIds board boardIds) -> (hasSpawnId : HasSpawnId spawn spawnId) -> UniqueVect (combineVectors (fst boardIds) (fst spawnId)) -> HasIds hasBoardIds hasSpawnId ([] ** UniqueEmpty)
+          
+             
+             
+             
+             -- HasSpawnId Nothing ([] ** UniqueEmpty) -> HasIds board boardIds
+
 
 
 {-
