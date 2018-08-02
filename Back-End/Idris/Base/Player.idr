@@ -30,6 +30,92 @@ data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
 
+
+
+gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
+hg : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect ([] ++ l)
+hg l = Refl
+
+--gah : UniqueVect l = UniqueVect (l ++ [])
+--gah = philipCast f ?hole ?hole
+{-
+ges : (n : Nat) -> Type
+ges n = Vect n (Fin 25)
+
+
+blara : Vect n (Fin 25) = Vect (plus n 0) (Fin 25)
+blara = philipCast q ges Refl
+
+-}
+
+
+-- this worked... then just suddenly stopped working...!!
+{-
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
+                              -}
+
+
+
+--uniqueConcat l (kh::kt) lkUnique with (lkUnique)
+--  uniqueConcat {n=n} {m=Z} l (kh::kt)   | UniqueEmpty = ?hole --impossible
+-- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
+
+
+gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
+
+uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
+uniqueConcat l [] klUnique = rewrite hg l in klUnique
+uniqueConcat l (kh::kt) klUnique with (klUnique)
+  | UniqueEmpty impossible
+  | UniqueConcat uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+
+
+notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect l -> Void) -> UniqueVect (k++l) -> Void
+notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
+
+
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
+uniqueConcat2 [] k _ = UniqueEmpty
+uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
+  | UniqueEmpty impossible
+  | UniqueConcat tailUnique headUnique =
+   let uniqueLTail = uniqueConcat2 lt k tailUnique in
+   UniqueConcat uniqueLTail (gkj lh lt k headUnique)
+
+
+hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
+
+uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
+uniqueConcat3 l k q prf = let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
+
+uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
+uniqueConcat4 l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat l q qlUnique
+
+
+
+uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
+uniqueRemoveHead (x::xs) (UniqueConcat uniqueListT uniqueH) = uniqueListT
+
+
+{-
+      Type mismatch between
+                      tail l
+                              and
+                                              deleteAt FZ l
+                                              -}
+
+
+deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
+{-
+deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
+-}
+
+uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
+uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
+uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
+  let uniqueM = ({- rewrite deleteTailEquality x xs fk in -} uniqueRemove xs fk uniqueTail) in ?hole
+
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
@@ -58,7 +144,31 @@ record Player where
 --combineVectors : (n ** Vect n (Fin 25)) -> (m ** Vect m (Fin 25)) -> (n+m ** Vect (n+m) (Fin 25))
 --combineVectors : DPair Nat (\n => Vect n (Fin 25)) -> DPair Nat (\m => Vect m (Fin 25)) -> DPair Nat (\_
 
+----concatMaybe : 
+{-
+data BoardIds : (v : Vect n (Fin 25)) -> Type where
+  EmptyBoard : BoardIds []
+  ConcatBoardId : (raw : Vect m (Fin 25)) ->
+   (w : Vect n (Fin 25)) ->
+   case raw of
+    [] => BoardIds w
+    --_ => BoardIds w
 
+-}
+--catMaybes : Vect n (Maybe elem) -> (p ** Vect p elem)
+
+
+
+
+
+
+
+
+
+
+
+
+{-
 combineVectors :  Vect n (Fin 25) -> Vect m (Fin 25) -> Vect (n+m) (Fin 25)
 
 data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
@@ -69,19 +179,21 @@ data HasBoardIds : Vect q (Maybe (Fin 25)) -> (v : Vect n (Fin 25) ** UniqueVect
 data HasSpawnId : Maybe (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptySpawnId : HasSpawnId Nothing ([] ** UniqueEmpty)
   UniqueOccupiedSpawnId : HasSpawnId (Just x) ([x] ** UniqueConcat UniqueEmpty Refl)
+
+-}
+
 {-
 data HasContainerId : Vect n (Fin 25) -> (v : Vect n (Fin 25) ** UniqueVect v) -> Type where
   UniqueEmptyContainer : HasContainerId [] ([] ** UniqueEmpty)
   UniqueConcatContainer : HasContainerId xs (v**prf) -> (prf2 : find (==x) v = Nothing) -> HasContainerId (x::xs) (x::v ** UniqueConcat prf prf2)
   -}
-
+{-
 data HasIds :
- HasBoardIds board boardIds ->
+ Vect  ->
  HasSpawnId spawn spawnId ->
- UniqueVect hand ->
+  hand ->
  UniqueVect graveyard ->
  UniqueVect banished ->
- (v : Vect n (Fin 25) ** UniqueVect v) ->
  Type
  where
   
@@ -92,35 +204,62 @@ data HasIds :
    (hasGraveyardIds : UniqueVect graveyard) ->
    (hasBanishedIds : UniqueVect banished) ->
    UniqueVect ((fst boardIds) ++ (fst spawnId) ++ hand ++ graveyard ++ banished) ->
-   HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds ([] ** UniqueEmpty)
+   HasIds hasBoardIds hasSpawnId hasHandIds hasGraveyardIds hasBanishedIds
           
 
 
 
+-}
+foodth : (n : Nat) -> S n = plus n 1
+{-
 
 
+moveFromHandToGraveyard' :
+ {n : Nat} ->
+ (index : Fin (S n)) ->
+ (hand : Vect (S n) (Fin 25)) ->
+ (graveyard : Vect m (Fin 25)) ->
+ (Vect n (Fin 25), Vect (S m) (Fin 25))
+
+moveFromHandToGraveyard' {m=m} FZ (h::hs) graveyard = (hs, rewrite foodth m in graveyard ++ [h])
 
 
 
 
 moveFromHandToGraveyard :
- {board : HasBoardIds rawBoard boardIds} ->
- {spawn : HasSpawnId rawSpawn spawnId} ->
- {v : Vect n (Fin 25)} ->
- {hand : UniqueVect v} ->
- {w : Vect m (Fin 25)} ->
- {graveyard : UniqueVect w} ->
- {x : Vect l (Fin 25)} ->
- {banished : UniqueVect x} ->
- Fin n ->
- HasIds board spawn hand graveyard banished uniqueVect ->
- HasIds board spawn hand graveyard banished uniqueVect
+-- {board : HasBoardIds rawBoard boardIds} ->
+-- {spawn : HasSpawnId rawSpawn spawnId} ->
+-- {n : Nat} ->
+-- {v : Vect n (Fin 25)} ->
+-- {hand : UniqueVect v} ->
+-- {w : Vect m (Fin 25)} ->
+-- {graveyard : UniqueVect w} ->
+-- {x : Vect l (Fin 25)} ->
+-- {banished : UniqueVect x} ->
+ (index : Fin n) ->
+ HasIds board spawn hand graveyard banished ->
+ HasIds board spawn (UniqueVect $ fst $ moveFromHandToGraveyard' index ?hand ?graveyard) (UniqueVect $ snd $ moveFromHandToGraveyard index ?hand ?graveyard) banished
 
-moveFromHandToGraveyard FZ (MkHasIds board spawn hand graveyard banished uniqueVect) = (MkHasIds board spawn hand graveyard banished uniqueVect)
+moveFromHandToGraveyard FZ (MkHasIds board spawn hand graveyard banished uniqueVect) = ?hole --(MkHasIds board spawn hand graveyard banished uniqueVect)
 moveFromHandToGraveyard (FS fk) (MkHasIds board spawn hand graveyard banished uniqueVect) = ?hole
-  
-  
-  
+
+  -}
+ 
+
+moveFromHandToGraveyard' :
+  {n : Nat} ->
+  (index : Fin (S n)) ->
+  (hand : Vect (S n) (Fin 25)) ->
+  (graveyard : Vect m (Fin 25)) ->
+  (Vect n (Fin 25), Vect (S m) (Fin 25))
+            
+moveFromHandToGraveyard' {m=m} FZ (h::hs) graveyard = (hs, rewrite foodth m in graveyard ++ [h])
+
+
+
+
+
+
   --(MkHasIds board spawn hand graveyard banished uniqueVect) =
   -- ?hole
               
