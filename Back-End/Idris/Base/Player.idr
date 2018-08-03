@@ -25,12 +25,108 @@ DecEq Ordering where
    decEq x y = orderingDecEq x y
 
 
-
+{-
 data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
+  -}
+dog : a = b -> b = a
+
+data UniqueVect : Vect n (Fin 25) -> Type where
+  UniqueEmpty : UniqueVect []
+  UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
+
+uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
+uniqueRemoveHead (x::xs) (UniqueConcat uniqueH uniqueT) = uniqueT
+
+deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
+
+onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
+onlyOneEmpty [] = Refl
+onlyOneEmpty (x::xs) impossible
+
+{-
+deleteInward : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = (head v) :: (deleteAt fk (tail v))
+-}
+
+--undoDelete 
+
+deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
+deleteAtHead [] impossible
+deleteAtHead (x::xs) = Refl
 
 
+deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
+deleteInTail [] i impossible
+deleteInTail (x::xs) i = Refl
+
+
+deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
+
+uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
+uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
+--uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
+uniqueRemove {n = S Z} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
+  let uniqueM = uniqueRemove xs fk uniqueTail in
+    case deleteAt fk xs of
+     [] => UniqueConcat (rewrite onlyOneEmpty (deleteAt fk xs) in noEmptyElem) uniqueM
+     (y::ys) impossible
+
+
+
+uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (deleteAt (FS fk) (x::xs)) proof blah
+ | [] impossible
+ | (y::ys) =
+--  let uniqueM = uniqueRemove xs (FS fk) uniqueTail in
+  case isElem x (y::ys) of
+    No prf => UniqueConcat ?prf ?hole --(rewrite blah in uniqueM)
+    Yes Here => ?hole 
+    Yes There => ?hole
+
+
+
+{-
+uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (deleteAt fk xs) proof blah
+ | [] impossible
+ | (y::ys) =
+    let uniqueM = uniqueRemove xs fk uniqueTail in
+    case isElem x (y::ys) of
+     No prf => UniqueConcat prf (rewrite blah in uniqueM)
+     Yes Here => 
+     Yes There => ?hole
+     -}
+
+
+
+
+
+  --case (decEq (deleteAt fk xs) []) of
+    --Yes prf => ?hole -- UniqueConcat noEmptyElem uniqueM
+   -- No prf' => ?hole
+  --case (decEq (deleteAt fk xs) []) of
+    --Yes prf => ?hole -- UniqueConcat ?noEmptyElem uniqueM 
+    --No prf' {-(y::ys)-} => ?hole
+    {-
+  case isElem x (deleteAt fk xs) of
+    No prf => UniqueConcat prf uniqueM
+    Yes Here => ?hole
+    Yes There => ?hole
+    -}
+
+               {-
+     case uniqueM of
+      UniqueEmpty => ?hole -- possibility trap
+      UniqueConcat uniqueH uniqueT => ?hole
+      -}
+               
+               
+               ---?hole -- when we searched the deleted tail we don't get nothing. Show that if the element was not deleted we would also find something
+                                                                                                                               
+  
+  -- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
+
+
+{-
 
 gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
 hg : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect ([] ++ l)
@@ -114,8 +210,14 @@ deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S 
 uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
 uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
 uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
-  let uniqueM = ({- rewrite deleteTailEquality x xs fk in -} uniqueRemove xs fk uniqueTail) in ?hole
+  --let xs' = deleteAt fk xs in
+  let uniqueM = uniqueRemove xs fk uniqueTail in
+  case (decEq (find (==x) (deleteAt fk xs)) Nothing) of
+   Yes prf => UniqueConcat uniqueM prf
+   No prf' => ?hole -- when we searched the deleted tail we don't get nothing. Show that if the element was not deleted we would also find something
 
+-- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
+-}
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
@@ -245,7 +347,7 @@ moveFromHandToGraveyard (FS fk) (MkHasIds board spawn hand graveyard banished un
 
   -}
  
-
+{-
 moveFromHandToGraveyard' :
   {n : Nat} ->
   (index : Fin (S n)) ->
@@ -257,7 +359,7 @@ moveFromHandToGraveyard' {m=m} FZ (h::hs) graveyard = (hs, rewrite foodth m in g
 
 
 
-
+-}
 
 
   --(MkHasIds board spawn hand graveyard banished uniqueVect) =
