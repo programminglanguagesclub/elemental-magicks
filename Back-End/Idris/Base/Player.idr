@@ -69,20 +69,35 @@ agh : (i = j -> Void) -> (FS i = FS j -> Void)
 
 yoo : (x : a) -> (xs : Vect (S n) a) -> (i : Fin (S n)) -> (j : Fin (S n)) -> Vect.index i xs = Vect.index j xs -> Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
 
+-------------------------------------------------------------------------------
+aff :
+ (n : Nat) ->
+ (v : Vect (S n) (Fin 25)) ->
+ (UniqueVect v -> Void) ->
+ DPair
+  (Fin (S n), Fin (S n))
+  (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
 
-aff : (v : Vect (S n) (Fin 25)) -> (UniqueVect v -> Void) -> DPair (Fin (S n), Fin (S n)) (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
-
-aff [x] notUniqueV with (isElem x [])
+aff Z [x] notUniqueV with (isElem x [])
   | Yes prf impossible
   | No prf = void $ notUniqueV $ UniqueConcat prf UniqueEmpty
 
-aff (x::y::z) notUniqueV with (isElem x (y::z))
+aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
   | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
-  | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
+  | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
+-------------------------------------------------------------------------------
+afg : (i : Fin (S n)) -> (j : Fin (S n)) -> (i = j -> Void) -> (Vect.index i v = Vect.index j v) -> UniqueVect v -> Void
 
-
-
-
+afh :
+ (i : Fin (S n)) ->
+ (j : Fin (S n)) ->
+ (i = j -> Void) ->
+ (v : Vect (S (S n)) a) ->
+ (Vect.index i (deleteAt k v) = Vect.index j (deleteAt k v)) ->
+ DPair
+  (Fin (S (S n)), Fin (S (S n)))
+  (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
+-------------------------------------------------------------------------------
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
 uniqueRemoveHead (x::xs) (UniqueConcat uniqueH uniqueT) = uniqueT
 
@@ -92,25 +107,31 @@ onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
 onlyOneEmpty [] = Refl
 onlyOneEmpty (x::xs) impossible
 
-{-
-deleteInward : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = (head v) :: (deleteAt fk (tail v))
--}
-
---undoDelete 
-
 deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
 deleteAtHead [] impossible
 deleteAtHead (x::xs) = Refl
-
 
 deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
 deleteInTail [] i impossible
 deleteInTail (x::xs) i = Refl
 
-
 deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
 
 uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
+uniqueRemove {n=S n} l i uniqueL with (isUniqueVect $ deleteAt i l)
+  | Yes prf = prf
+  | No prf =
+     let v = deleteAt i l in
+     let ((k, j) ** (kNotJ, vKNotvJ)) = aff n v prf in
+     let gh = afh dkgaskjgskdgkg in
+     ?hole
+     
+    
+    ?hole --let uipo = aff ?hole ?hole {-(deleteAt i l)-} ?hole in ?hole
+
+
+
+{-
 uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
 --uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
 uniqueRemove {n = S Z} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
@@ -124,7 +145,7 @@ uniqueRemove {n = S Z} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
 
 
 -----with (deleteAt fk xs) proof blah
-
+-}
 
 {-
 --- goal type : UniqueVect (deleteAt (FS fk) (x::xs))
