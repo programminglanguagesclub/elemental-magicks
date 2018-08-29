@@ -36,6 +36,53 @@ data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
 
+
+----isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Dec (Elem x xs)
+
+isUniqueVect : (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
+isUniqueVect {n=Z} [] = Yes UniqueEmpty
+isUniqueVect {n = S k} (x::xs) with (isElem x xs)
+  | Yes prfy = ?hole
+  | No prfn = ?hole --with (UniqueVect xs)
+   -- | Yes prf'y = ?hole
+   -- | No prf'n = ?hole
+
+
+
+
+findWhere : DecEq a => (x : a) -> (xs : Vect n a) -> (Elem x xs) -> (i ** index i xs = x)
+findWhere x (x::xs) Here = (FZ ** Refl)
+findWhere x [] _ impossible
+findWhere x (y::xs) (There somewhere) = let foo = findWhere x xs somewhere in ?hole -- WHATEVER!!
+
+-- I want a notion of what it means to not be unique.
+-- If you are not unique, there should be two different indices with the same element!
+-- I assume for this contradiction only that the 
+
+aaa : (FZ = FS i) -> Void
+
+--aba : (\i1 => Data.Vect.index i1 (y :: z) = x) i -> x = Data.Vect.index i (y :: z)
+
+agas : (UniqueVect (x::xs) -> Void) -> (Elem x xs -> Void) -> UniqueVect xs -> Void
+
+agh : (i = j -> Void) -> (FS i = FS j -> Void)
+
+yoo : (x : a) -> (xs : Vect (S n) a) -> (i : Fin (S n)) -> (j : Fin (S n)) -> Vect.index i xs = Vect.index j xs -> Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
+
+
+aff : (v : Vect (S n) (Fin 25)) -> (UniqueVect v -> Void) -> DPair (Fin (S n), Fin (S n)) (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
+
+aff [x] notUniqueV with (isElem x [])
+  | Yes prf impossible
+  | No prf = void $ notUniqueV $ UniqueConcat prf UniqueEmpty
+
+aff (x::y::z) notUniqueV with (isElem x (y::z))
+  | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
+  | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
+
+
+
+
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
 uniqueRemoveHead (x::xs) (UniqueConcat uniqueH uniqueT) = uniqueT
 
@@ -72,30 +119,28 @@ uniqueRemove {n = S Z} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
      [] => UniqueConcat (rewrite onlyOneEmpty (deleteAt fk xs) in noEmptyElem) uniqueM
      (y::ys) impossible
 
+----uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (decEq
 
 
-uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (deleteAt (FS fk) (x::xs)) proof blah
- | [] impossible
- | (y::ys) =
---  let uniqueM = uniqueRemove xs (FS fk) uniqueTail in
-  case isElem x (y::ys) of
-    No prf => UniqueConcat ?prf ?hole --(rewrite blah in uniqueM)
-    Yes Here => ?hole 
-    Yes There => ?hole
 
+-----with (deleteAt fk xs) proof blah
 
 
 {-
-uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (deleteAt fk xs) proof blah
- | [] impossible
+--- goal type : UniqueVect (deleteAt (FS fk) (x::xs))
+-- need Not (elem )
+
+
+
+| [] impossible
  | (y::ys) =
     let uniqueM = uniqueRemove xs fk uniqueTail in
     case isElem x (y::ys) of
      No prf => UniqueConcat prf (rewrite blah in uniqueM)
-     Yes Here => 
+     Yes Here =>
+      let q = deleteLemma v fk in ?hole
      Yes There => ?hole
      -}
-
 
 
 
