@@ -69,6 +69,7 @@ agh : (i = j -> Void) -> (FS i = FS j -> Void)
 
 yoo : (x : a) -> (xs : Vect (S n) a) -> (i : Fin (S n)) -> (j : Fin (S n)) -> Vect.index i xs = Vect.index j xs -> Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
 
+
 -------------------------------------------------------------------------------
 aff :
  (n : Nat) ->
@@ -86,6 +87,13 @@ aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
   | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
   | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
 -------------------------------------------------------------------------------
+haff : e = Vect.index i v -> Elem e v
+arglehhh : (i = j -> Void) -> (j = i) -> Void
+gahaa : (FS i = FS j -> Void) -> i = j -> Void
+
+agagtt : (x : a) -> (xs : Vect (S n) a) -> (Vect.index (FS i) (x::xs)) = (Vect.index (FS j) (x::xs)) -> (Vect.index i xs = Vect.index j xs)
+agagtt x xs vFivFj = vFivFj
+
 afg :
  (i : Fin (S n)) ->
  (j : Fin (S n)) ->
@@ -94,6 +102,15 @@ afg :
  UniqueVect v ->
  Void
 
+afg FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
+afg (FS fi) FZ iNotJ vIvJ uniqueV = afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV
+afg (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
+afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat notElemXXS uniqueXS) = afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
+
+
+afg FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
+afg FZ (FS fj) iNotJ vIvJ (UniqueConcat notElemXXS uniqueXS) = notElemXXS (haff vIvJ)
+-------------------------------------------------------------------------------
 afh :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -132,6 +149,15 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
      let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
      let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
+
+
+
+
+
+
+
+
+
 
 
 
