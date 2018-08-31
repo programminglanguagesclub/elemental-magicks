@@ -86,9 +86,16 @@ aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
   | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
   | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
 -------------------------------------------------------------------------------
-afg : (i : Fin (S n)) -> (j : Fin (S n)) -> (i = j -> Void) -> (Vect.index i v = Vect.index j v) -> UniqueVect v -> Void
+afg :
+ (i : Fin (S n)) ->
+ (j : Fin (S n)) ->
+ (i = j -> Void) ->
+ (Vect.index i v = Vect.index j v) ->
+ UniqueVect v ->
+ Void
 
 afh :
+ (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
  (j : Fin (S n)) ->
  (i = j -> Void) ->
@@ -117,16 +124,17 @@ deleteInTail (x::xs) i = Refl
 
 deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
 
-uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
-uniqueRemove {n=S n} l i uniqueL with (isUniqueVect $ deleteAt i l)
+uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt k l)
+uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
   | Yes prf = prf
   | No prf =
-     let v = deleteAt i l in
-     let ((k, j) ** (kNotJ, vKNotvJ)) = aff n v prf in
-     let gh = afh dkgaskjgskdgkg in
-     ?hole
-     
-    
+     --let v = deleteAt k l in
+     let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
+     let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
+     void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
+
+
+
     ?hole --let uipo = aff ?hole ?hole {-(deleteAt i l)-} ?hole in ?hole
 
 
