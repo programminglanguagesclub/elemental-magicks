@@ -36,6 +36,27 @@ data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
 
+uniqueMove :
+ (n : Nat) ->
+ (l : Vect (S n) (Fin 25)) ->
+ (k : Fin (S n)) ->
+ (i : Fin (S n)) ->
+ UniqueVect l ->
+ UniqueVect (insertAt i (index k l) (deleteAt k l))
+             
+uniqueMove n l k i uniqueL = uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
+   | Yes prf = prf
+   | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
+
+
+
+
+{-
+data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
+  UniqueEmpty2 : UniqueVect2 Z []
+  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 n xs --UniqueVect2 (S n) (x :: xs)
+  -}       
+
 
 ----isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Dec (Elem x xs)
 
@@ -141,6 +162,20 @@ deleteInTail (x::xs) i = Refl
 
 deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
 
+
+----asfa : () -> UniqueVect This is for the not elem x xs thing.
+
+sdj :
+ (x : (Fin 25)) ->
+ (xs : Vect n (Fin 25)) ->
+ (i : Fin (S n)) ->
+-- Not (Elem x xs) ->
+ Nat ->
+ UniqueVect xs ->
+ UniqueVect (insertAt i x xs)
+
+
+
 uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt k l)
 uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
   | Yes prf = prf
@@ -149,11 +184,32 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
      let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
      let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
+     
 
+{-
+data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
+  UniqueEmpty2 : UniqueVect2 Z []
+  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 n xs --UniqueVect2 (S n) (x :: xs)
+  -}
 
+{-
+uniqueMove :
+ (n : Nat) ->
+ (l : Vect (S n) (Fin 25)) ->
+ (k : Fin (S n)) ->
+ (i : Fin (S n)) ->
+ UniqueVect l-- ->
+-- UniqueVect (insertAt i (index k l) (deleteAt k l))
 
-
-
+uniqueMove = uniqueMove
+-}
+{-
+--uniqueMove n l k i uniqueL = uniqueMove n l k i uniqueL --with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
+  | Yes prf = prf
+  | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
+  -}
+    
+    --the (UniqueVect (insertAt i (index k l) (deleteAt k l))) ?hole --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
 
 
 
