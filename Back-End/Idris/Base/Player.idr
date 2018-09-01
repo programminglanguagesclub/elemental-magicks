@@ -28,60 +28,6 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 DecEq Ordering where
    decEq x y = orderingDecEq x y
 
-data UniqueVect : Vect n (Fin 25) -> Type where
-  UniqueEmpty : UniqueVect []
-  UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
-{-
-uniqueMove :
- (n : Nat) ->
- (l : Vect (S n) (Fin 25)) ->
- (k : Fin (S n)) ->
- (i : Fin (S n)) ->
- UniqueVect l ->
- UniqueVect (insertAt i (index k l) (deleteAt k l))
-             
-uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
-   | Yes prf = prf
-   | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
-   -}
-
-
-
--- If you are not unique, there should be two different indices with the same element!
--- I assume for this contradiction only that the 
-
-
---aba : (\i1 => Data.Vect.index i1 (y :: z) = x) i -> x = Data.Vect.index i (y :: z)
-{-
-
-
-uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
-uniqueRemoveHead (x::xs) (UniqueConcat uniqueH uniqueT) = uniqueT
-
-deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
-
-onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
-onlyOneEmpty [] = Refl
-onlyOneEmpty (x::xs) impossible
-
-
-deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
-deleteAtHead [] impossible
-deleteAtHead (x::xs) = Refl
-
-
-deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
-deleteInTail [] i impossible
-deleteInTail (x::xs) i = Refl
-
-
-deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
--}
-
-
-
-
-
 {-
 
 Gotta move this!!

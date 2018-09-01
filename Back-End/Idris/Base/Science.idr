@@ -27,6 +27,31 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
 
 
+
+ uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect (S n) l -> UniqueVect n (tail l)
+ uniqueRemoveHead {n=S n} (x::xs) (UniqueConcat (S n) xs x uniqueH uniqueT) = uniqueT
+ 
+ deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
+ 
+ onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
+ onlyOneEmpty [] = Refl
+ onlyOneEmpty (x::xs) impossible
+ 
+ 
+ deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
+ deleteAtHead [] impossible
+ deleteAtHead (x::xs) = Refl
+ 
+ 
+ deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
+ deleteInTail [] i impossible
+ deleteInTail (x::xs) i = Refl
+ 
+ 
+ deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
+
+
+
 -----------------------------
 --RELIGION
 
