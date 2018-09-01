@@ -28,39 +28,6 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 DecEq Ordering where
    decEq x y = orderingDecEq x y
 
-{-
-
-Gotta move this!!
-uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt k l)
-uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
-  | Yes prf = prf
-  | No prf =
-     --let v = deleteAt k l in
-     let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
-     let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
-     void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
--}   
-
-
-
-
-{-
-
-gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
-hg : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect ([] ++ l)
-hg l = Refl
-
---gah : UniqueVect l = UniqueVect (l ++ [])
---gah = philipCast f ?hole ?hole
-ges : (n : Nat) -> Type
-ges n = Vect n (Fin 25)
-
-
-blara : Vect n (Fin 25) = Vect (plus n 0) (Fin 25)
-blara = philipCast q ges Refl
-
--}
-
 
 -- this worked... then just suddenly stopped working...!!
 {-
@@ -70,18 +37,18 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 
 
 
---uniqueConcat l (kh::kt) lkUnique with (lkUnique)
+-- uniqueConcat l (kh::kt) lkUnique with (lkUnique)
 --  uniqueConcat {n=n} {m=Z} l (kh::kt)   | UniqueEmpty = ?hole --impossible
 -- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
 
 
 gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
 
-uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
+uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (m+n) (k ++ l) -> UniqueVect n l
 uniqueConcat l [] klUnique = ?hole -- rewrite hg l in klUnique
 uniqueConcat l (kh::kt) klUnique with (klUnique)
   | UniqueEmpty impossible
-  | UniqueConcat uniqueListT uniqueH = ?hole --uniqueConcat l kt uniqueListT
+  | UniqueConcat n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
 
 
 notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect l -> Void) -> UniqueVect (k++l) -> Void
