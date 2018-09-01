@@ -27,3 +27,29 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
 
 
+-----------------------------
+--RELIGION
+
+
+ sdj :
+   (n : Nat) ->
+   (x : (Fin 25)) ->
+   (xs : Vect n (Fin 25)) ->
+   (i : Fin (S n)) ->
+     -- Not (Elem x xs) ->
+     Nat ->
+   UniqueVect n xs ->
+   UniqueVect (S n) (insertAt i x xs)
+ 
+ uniqueMove :
+   (n : Nat) ->
+   (l : Vect (S n) (Fin 25)) ->
+   (k : Fin (S n)) ->
+   (i : Fin (S n)) ->
+   UniqueVect (S n) l ->
+   UniqueVect (S n) (insertAt i (index k l) (deleteAt k l))
+ 
+ uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (deleteAt k l)))
+   | Yes prf = prf
+   | No prf = sdj n (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL)
+----------------------------------------------------------------

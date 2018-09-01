@@ -28,14 +28,6 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 DecEq Ordering where
    decEq x y = orderingDecEq x y
 
-
-{-
-data UniqueVect : Vect n (Fin 25) -> Type where
-  UniqueEmpty : UniqueVect []
-  UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
-  -}
-dog : a = b -> b = a
-
 data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
@@ -55,129 +47,12 @@ uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt 
 
 
 
-
-data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
-  UniqueEmpty2 : UniqueVect2 Z []
-  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 (S n) (x :: xs)       
-
-
-----isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Dec (Elem x xs)
-
-isUniqueVect : (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
-isUniqueVect {n=Z} [] = Yes UniqueEmpty
-isUniqueVect {n = S k} (x::xs) with (isElem x xs)
-  | Yes prfy = ?hole
-  | No prfn = ?hole --with (UniqueVect xs)
-   -- | Yes prf'y = ?hole
-   -- | No prf'n = ?hole
-
-isUniqueVect2 : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect2 n v)
-isUniqueVect2 Z [] = Yes UniqueEmpty2
-isUniqueVect2 (S k) (x::xs) with (isElem x xs)
-  | Yes prfy = ?hole
-  | No prfn = ?hole
-
-
-uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect2 (S n) l -> UniqueVect2 n (deleteAt k l)
-
-sdj :
- (n : Nat) ->
- (x : (Fin 25)) ->
- (xs : Vect n (Fin 25)) ->
- (i : Fin (S n)) ->
-   -- Not (Elem x xs) ->
-   Nat ->
- UniqueVect2 n xs ->
- UniqueVect2 (S n) (insertAt i x xs)
-
-uniqueMove :
- (n : Nat) ->
- (l : Vect (S n) (Fin 25)) ->
- (k : Fin (S n)) ->
- (i : Fin (S n)) ->
- UniqueVect2 (S n) l ->
- UniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l))
-              
-uniqueMove n l k i uniqueL with (isUniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l)))
-  | Yes prf = prf
-  | No prf = sdj n (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL)
-    
-    ----the (UniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l))) ?hole --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
-  
-
-
-findWhere : DecEq a => (x : a) -> (xs : Vect n a) -> (Elem x xs) -> (i ** index i xs = x)
-findWhere x (x::xs) Here = (FZ ** Refl)
-findWhere x [] _ impossible
-findWhere x (y::xs) (There somewhere) = let foo = findWhere x xs somewhere in ?hole -- WHATEVER!!
-
--- I want a notion of what it means to not be unique.
 -- If you are not unique, there should be two different indices with the same element!
 -- I assume for this contradiction only that the 
 
-aaa : (FZ = FS i) -> Void
 
 --aba : (\i1 => Data.Vect.index i1 (y :: z) = x) i -> x = Data.Vect.index i (y :: z)
 {-
-agas : (UniqueVect (x::xs) -> Void) -> (Elem x xs -> Void) -> UniqueVect xs -> Void
-
-agh : (i = j -> Void) -> (FS i = FS j -> Void)
-
-yoo : (x : a) -> (xs : Vect (S n) a) -> (i : Fin (S n)) -> (j : Fin (S n)) -> Vect.index i xs = Vect.index j xs -> Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
-
-
--------------------------------------------------------------------------------
-aff :
- (n : Nat) ->
- (v : Vect (S n) (Fin 25)) ->
- (UniqueVect v -> Void) ->
- DPair
-  (Fin (S n), Fin (S n))
-  (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
-
-aff Z [x] notUniqueV with (isElem x [])
-  | Yes prf impossible
-  | No prf = void $ notUniqueV $ UniqueConcat prf UniqueEmpty
-
-aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
-  | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
-  | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
--------------------------------------------------------------------------------
-haff : e = Vect.index i v -> Elem e v
-arglehhh : (i = j -> Void) -> (j = i) -> Void
-gahaa : (FS i = FS j -> Void) -> i = j -> Void
-
-agagtt : (x : a) -> (xs : Vect (S n) a) -> (Vect.index (FS i) (x::xs)) = (Vect.index (FS j) (x::xs)) -> (Vect.index i xs = Vect.index j xs)
-agagtt x xs vFivFj = vFivFj
-
-afg :
- (i : Fin (S n)) ->
- (j : Fin (S n)) ->
- (i = j -> Void) ->
- (Vect.index i v = Vect.index j v) ->
- UniqueVect v ->
- Void
-
-afg FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
-afg (FS fi) FZ iNotJ vIvJ uniqueV = afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV
-afg (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat notElemXXS uniqueXS) = afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
-
-
-afg FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg FZ (FS fj) iNotJ vIvJ (UniqueConcat notElemXXS uniqueXS) = notElemXXS (haff vIvJ)
--------------------------------------------------------------------------------
-afh :
- (k : Fin (S (S n))) ->
- (i : Fin (S n)) ->
- (j : Fin (S n)) ->
- (i = j -> Void) ->
- (v : Vect (S (S n)) a) ->
- (Vect.index i (deleteAt k v) = Vect.index j (deleteAt k v)) ->
- DPair
-  (Fin (S (S n)), Fin (S (S n)))
-  (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
--------------------------------------------------------------------------------
 
 
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
@@ -204,8 +79,6 @@ deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS 
 -}
 
 
-gha : Integer
-gha = 20
 
 
 

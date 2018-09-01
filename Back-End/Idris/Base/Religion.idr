@@ -82,3 +82,8 @@ afh :
  DPair
   (Fin (S (S n)), Fin (S (S n)))
   (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
+-------------------------------------------------------------------------------
+
+
+
+
