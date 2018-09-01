@@ -51,11 +51,10 @@ uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt 
 
 
 
-{-
+
 data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
   UniqueEmpty2 : UniqueVect2 Z []
-  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 n xs --UniqueVect2 (S n) (x :: xs)
-  -}       
+  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 (S n) (x :: xs)       
 
 
 ----isElem : DecEq a => (x : a) -> (xs : Vect n a) -> Dec (Elem x xs)
@@ -68,18 +67,39 @@ isUniqueVect {n = S k} (x::xs) with (isElem x xs)
    -- | Yes prf'y = ?hole
    -- | No prf'n = ?hole
 
- uniqueMove :
-  (n : Nat) ->
-  (l : Vect (S n) (Fin 25)) ->
-  (k : Fin (S n)) ->
-  (i : Fin (S n)) ->
-  UniqueVect l ->
-  UniqueVect (insertAt i (index k l) (deleteAt k l))
-              
-uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
-  | Yes prf = prf
-  | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
+isUniqueVect2 : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect2 n v)
+isUniqueVect2 Z [] = Yes UniqueEmpty2
+isUniqueVect2 (S k) (x::xs) with (isElem x xs)
+  | Yes prfy = ?hole
+  | No prfn = ?hole
 
+
+uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect2 (S n) l -> UniqueVect2 n (deleteAt k l)
+
+sdj :
+ (n : Nat) ->
+ (x : (Fin 25)) ->
+ (xs : Vect n (Fin 25)) ->
+ (i : Fin (S n)) ->
+   -- Not (Elem x xs) ->
+   Nat ->
+ UniqueVect2 n xs ->
+ UniqueVect2 (S n) (insertAt i x xs)
+
+uniqueMove :
+ (n : Nat) ->
+ (l : Vect (S n) (Fin 25)) ->
+ (k : Fin (S n)) ->
+ (i : Fin (S n)) ->
+ UniqueVect2 (S n) l ->
+ UniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l))
+              
+uniqueMove n l k i uniqueL with (isUniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l)))
+  | Yes prf = prf
+  | No prf = sdj n (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL)
+    
+    ----the (UniqueVect2 (S n) (insertAt i (index k l) (deleteAt k l))) ?hole --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
+  
 
 
 findWhere : DecEq a => (x : a) -> (xs : Vect n a) -> (Elem x xs) -> (i ** index i xs = x)
@@ -94,7 +114,7 @@ findWhere x (y::xs) (There somewhere) = let foo = findWhere x xs somewhere in ?h
 aaa : (FZ = FS i) -> Void
 
 --aba : (\i1 => Data.Vect.index i1 (y :: z) = x) i -> x = Data.Vect.index i (y :: z)
-
+{-
 agas : (UniqueVect (x::xs) -> Void) -> (Elem x xs -> Void) -> UniqueVect xs -> Void
 
 agh : (i = j -> Void) -> (FS i = FS j -> Void)
@@ -154,6 +174,8 @@ afh :
   (Fin (S (S n)), Fin (S (S n)))
   (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
 -------------------------------------------------------------------------------
+
+
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
 uniqueRemoveHead (x::xs) (UniqueConcat uniqueH uniqueT) = uniqueT
 
@@ -163,19 +185,27 @@ onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
 onlyOneEmpty [] = Refl
 onlyOneEmpty (x::xs) impossible
 
+
 deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
 deleteAtHead [] impossible
 deleteAtHead (x::xs) = Refl
+
 
 deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
 deleteInTail [] i impossible
 deleteInTail (x::xs) i = Refl
 
+
 deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
+-}
+
+
+gha : Integer
+gha = 20
 
 
 ----asfa : () -> UniqueVect This is for the not elem x xs thing.
-
+{-
 sdj :
  (x : (Fin 25)) ->
  (xs : Vect n (Fin 25)) ->
@@ -184,9 +214,11 @@ sdj :
  Nat ->
  UniqueVect xs ->
  UniqueVect (insertAt i x xs)
+-}
 
+{-
 
-
+Gotta move this!!
 uniqueRemove : (l : Vect (S n) (Fin 25)) -> (k : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt k l)
 uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
   | Yes prf = prf
@@ -195,13 +227,13 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
      let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
      let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
-     
+-}   
 
 {-
 data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
   UniqueEmpty2 : UniqueVect2 Z []
   UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 n xs --UniqueVect2 (S n) (x :: xs)
-  -}
+-}
 
 {-
 uniqueMove :
@@ -218,7 +250,7 @@ uniqueMove = uniqueMove
 --uniqueMove n l k i uniqueL = uniqueMove n l k i uniqueL --with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
   | Yes prf = prf
   | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
-  -}
+-}
     
     --the (UniqueVect (insertAt i (index k l) (deleteAt k l))) ?hole --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
 
