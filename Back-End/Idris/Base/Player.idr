@@ -9,8 +9,12 @@ import Base.Objects_basic
 import Base.Clientupdates
 import Base.Card
 import Base.Skill_dsl_data
+import Base.Biology
+import Base.Religion
+import Base.Science
 
 import Pruviloj.Derive.DecEq
+
 
 %access public export
 %default total
