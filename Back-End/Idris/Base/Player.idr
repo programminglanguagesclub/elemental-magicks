@@ -204,17 +204,6 @@ gha : Integer
 gha = 20
 
 
-----asfa : () -> UniqueVect This is for the not elem x xs thing.
-{-
-sdj :
- (x : (Fin 25)) ->
- (xs : Vect n (Fin 25)) ->
- (i : Fin (S n)) ->
--- Not (Elem x xs) ->
- Nat ->
- UniqueVect xs ->
- UniqueVect (insertAt i x xs)
--}
 
 {-
 
@@ -229,100 +218,7 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect $ deleteAt k l)
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
 -}   
 
-{-
-data UniqueVect2 : (n : Nat) -> Vect n (Fin 25) -> Type where
-  UniqueEmpty2 : UniqueVect2 Z []
-  UniqueConcat2 : (n : Nat) -> (xs : Vect n (Fin 25)) -> (x : Fin 25) -> Not (Elem x xs) -> UniqueVect2 n xs -> UniqueVect2 n xs --UniqueVect2 (S n) (x :: xs)
--}
 
-{-
-uniqueMove :
- (n : Nat) ->
- (l : Vect (S n) (Fin 25)) ->
- (k : Fin (S n)) ->
- (i : Fin (S n)) ->
- UniqueVect l-- ->
--- UniqueVect (insertAt i (index k l) (deleteAt k l))
-
-uniqueMove = uniqueMove
--}
-{-
---uniqueMove n l k i uniqueL = uniqueMove n l k i uniqueL --with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
-  | Yes prf = prf
-  | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
--}
-    
-    --the (UniqueVect (insertAt i (index k l) (deleteAt k l))) ?hole --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
-
-
-
-
-
-
-
-    ?hole --let uipo = aff ?hole ?hole {-(deleteAt i l)-} ?hole in ?hole
-
-
-
-{-
-uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
---uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
-uniqueRemove {n = S Z} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) =
-  let uniqueM = uniqueRemove xs fk uniqueTail in
-    case deleteAt fk xs of
-     [] => UniqueConcat (rewrite onlyOneEmpty (deleteAt fk xs) in noEmptyElem) uniqueM
-     (y::ys) impossible
-
-----uniqueRemove {n = S (S k)} (x::xs) (FS fk) (UniqueConcat uniqueHead uniqueTail) with (decEq
-
-
-
------with (deleteAt fk xs) proof blah
--}
-
-{-
---- goal type : UniqueVect (deleteAt (FS fk) (x::xs))
--- need Not (elem )
-
-
-
-| [] impossible
- | (y::ys) =
-    let uniqueM = uniqueRemove xs fk uniqueTail in
-    case isElem x (y::ys) of
-     No prf => UniqueConcat prf (rewrite blah in uniqueM)
-     Yes Here =>
-      let q = deleteLemma v fk in ?hole
-     Yes There => ?hole
-     -}
-
-
-
-
-  --case (decEq (deleteAt fk xs) []) of
-    --Yes prf => ?hole -- UniqueConcat noEmptyElem uniqueM
-   -- No prf' => ?hole
-  --case (decEq (deleteAt fk xs) []) of
-    --Yes prf => ?hole -- UniqueConcat ?noEmptyElem uniqueM 
-    --No prf' {-(y::ys)-} => ?hole
-    {-
-  case isElem x (deleteAt fk xs) of
-    No prf => UniqueConcat prf uniqueM
-    Yes Here => ?hole
-    Yes There => ?hole
-    -}
-
-               {-
-     case uniqueM of
-      UniqueEmpty => ?hole -- possibility trap
-      UniqueConcat uniqueH uniqueT => ?hole
-      -}
-               
-               
-               ---?hole -- when we searched the deleted tail we don't get nothing. Show that if the element was not deleted we would also find something
-                                                                                                                               
-  
-  -- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
 
 
 {-
@@ -333,7 +229,6 @@ hg l = Refl
 
 --gah : UniqueVect l = UniqueVect (l ++ [])
 --gah = philipCast f ?hole ?hole
-{-
 ges : (n : Nat) -> Type
 ges n = Vect n (Fin 25)
 
@@ -348,7 +243,7 @@ blara = philipCast q ges Refl
 {-
 uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
 uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
-                              -}
+-}
 
 
 
@@ -360,16 +255,16 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
 
 uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (k ++ l) -> UniqueVect l
-uniqueConcat l [] klUnique = rewrite hg l in klUnique
+uniqueConcat l [] klUnique = ?hole -- rewrite hg l in klUnique
 uniqueConcat l (kh::kt) klUnique with (klUnique)
   | UniqueEmpty impossible
-  | UniqueConcat uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+  | UniqueConcat uniqueListT uniqueH = ?hole --uniqueConcat l kt uniqueListT
 
 
 notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect l -> Void) -> UniqueVect (k++l) -> Void
 notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
 
-
+{-
 uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
 uniqueConcat2 [] k _ = UniqueEmpty
 uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
@@ -393,19 +288,14 @@ uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail
 uniqueRemoveHead (x::xs) (UniqueConcat uniqueListT uniqueH) = uniqueListT
 
 
-{-
-      Type mismatch between
-                      tail l
-                              and
-                                              deleteAt FZ l
-                                              -}
-
+-}
 
 deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
 {-
 deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
 -}
 
+{-
 uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
 uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
 uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
@@ -417,6 +307,7 @@ uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
 
 -- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
 -}
+
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
