@@ -35,7 +35,7 @@ dog : a = b -> b = a
 data UniqueVect : Vect n (Fin 25) -> Type where
   UniqueEmpty : UniqueVect []
   UniqueConcat : Not (Elem x xs) -> UniqueVect xs -> UniqueVect (x :: xs)
-
+{-
 uniqueMove :
  (n : Nat) ->
  (l : Vect (S n) (Fin 25)) ->
@@ -44,10 +44,10 @@ uniqueMove :
  UniqueVect l ->
  UniqueVect (insertAt i (index k l) (deleteAt k l))
              
-uniqueMove n l k i uniqueL = uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
+uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
    | Yes prf = prf
    | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
-
+   -}
 
 
 
@@ -68,6 +68,17 @@ isUniqueVect {n = S k} (x::xs) with (isElem x xs)
    -- | Yes prf'y = ?hole
    -- | No prf'n = ?hole
 
+ uniqueMove :
+  (n : Nat) ->
+  (l : Vect (S n) (Fin 25)) ->
+  (k : Fin (S n)) ->
+  (i : Fin (S n)) ->
+  UniqueVect l ->
+  UniqueVect (insertAt i (index k l) (deleteAt k l))
+              
+uniqueMove n l k i uniqueL with (isUniqueVect (insertAt i (index k l) (deleteAt k l)))
+  | Yes prf = prf
+  | No prf = uniqueMove l k i uniqueL --(sdj (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL))
 
 
 
