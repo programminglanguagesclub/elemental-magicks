@@ -81,6 +81,11 @@ transformSpawnPhase : -- assumes the player is on move.
   (Player,List ClientUpdate)
 
 transformSpawnPhase playerToUpdate update =
+
+ ?hole
+
+{-
+
  case update of
   
   SpawnCard knowledge' handIndex =>
@@ -106,6 +111,8 @@ transformSpawnPhase playerToUpdate update =
     False => Left "You cannot lower your knowledge in the spawn phase!"
   
   _ => Left "You can only play cards or skip in the spawn phase"
+
+-}
 -------------------------------------------------------------------------------
 
 

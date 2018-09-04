@@ -1,4 +1,4 @@
-module Base.Religion
+module Base.Science
 import Data.So
 import Data.Vect
 import Base.Utility
@@ -18,45 +18,48 @@ uniqueRemove :
  (k : Fin (S n)) ->
  UniqueVect (S n) l ->
  UniqueVect n (deleteAt k l)
--- change to explicit arguments...
 uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
   | Yes prf = prf
   | No prf =
      let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
      let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
      void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
+uniqueRemove {n= Z} l k uniqueL = ?hole
+
+-------------------------------------------------------------------------------
+uniqueRemoveHead :
+ (l : Vect (S n) (Fin 25)) ->
+ UniqueVect (S n) l ->
+ UniqueVect n (tail l)
+uniqueRemoveHead {n=S n} (x::xs) (UniqueConcat (S n) xs x uniqueH uniqueT) = uniqueT
+uniqueRemoveHead {n=Z} (x::xs) _ = ?hole
+uniqueRemoveHead [] _ impossible
+-------------------------------------------------------------------------------
 
 
+deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
+ 
+onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
+onlyOneEmpty [] = Refl
+onlyOneEmpty (x::xs) impossible
+ 
+ 
+deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
+deleteAtHead [] impossible
+deleteAtHead (x::xs) = Refl
+ 
+ 
+deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
+deleteInTail [] i impossible
+deleteInTail (x::xs) i = Refl
+ 
+-------------------------------------------------------------------------- 
+deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
 
- uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect (S n) l -> UniqueVect n (tail l)
- uniqueRemoveHead {n=S n} (x::xs) (UniqueConcat (S n) xs x uniqueH uniqueT) = uniqueT
- 
- deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
- 
- onlyOneEmpty : (v : Vect 0 (Fin 25)) -> v = []
- onlyOneEmpty [] = Refl
- onlyOneEmpty (x::xs) impossible
- 
- 
- deleteAtHead : (v : Vect (S n) (Fin 25)) -> deleteAt FZ v = tail v
- deleteAtHead [] impossible
- deleteAtHead (x::xs) = Refl
- 
- 
- deleteInTail : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> head (deleteAt (FS fk) v) = head v
- deleteInTail [] i impossible
- deleteInTail (x::xs) i = Refl
- 
- 
- deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
-
-
-
------------------------------
 --RELIGION
 
 
- sdj :
+sdj :
    (n : Nat) ->
    (x : (Fin 25)) ->
    (xs : Vect n (Fin 25)) ->
@@ -66,7 +69,7 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
    UniqueVect n xs ->
    UniqueVect (S n) (insertAt i x xs)
  
- uniqueMove :
+uniqueMove :
    (n : Nat) ->
    (l : Vect (S n) (Fin 25)) ->
    (k : Fin (S n)) ->
@@ -74,7 +77,7 @@ uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
    UniqueVect (S n) l ->
    UniqueVect (S n) (insertAt i (index k l) (deleteAt k l))
  
- uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (deleteAt k l)))
+uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (deleteAt k l)))
    | Yes prf = prf
    | No prf = sdj n (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL)
 ----------------------------------------------------------------

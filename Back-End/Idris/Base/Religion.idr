@@ -20,20 +20,70 @@ isUniqueVect (S k) (x::xs) with (isElem x xs)
   | Yes prfy = ?hole
   | No prfn = ?hole
 -------------------------------------------------------------------------------
+
+-- SCIENCE
 dog : x = y -> y = x
+dog Refl = Refl
 
+------
+-- SCIENCE
 aaa : (FZ = FS i) -> Void
-agas : (n : Nat) -> (UniqueVect (S n) (x::xs) -> Void) -> (Elem x xs -> Void) -> UniqueVect n xs -> Void
-agh : (i = j -> Void) -> (FS i = FS j -> Void)
-yoo : (x : a) -> (xs : Vect (S n) a) -> (i : Fin (S n)) -> (j : Fin (S n)) -> Vect.index i xs = Vect.index j xs -> Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
+aaa Refl impossible
+---
+-----------------
+
+-------------------------------------------------------------------------------
+agas :
+ (n : Nat) ->
+ (UniqueVect (S n) (x::xs) -> Void) ->
+ (Elem x xs -> Void) ->
+ UniqueVect n xs ->
+ Void
+
+agas {xs=xs} {x=x} n notUniqueV notElemX uniqueT =
+ notUniqueV (UniqueConcat n xs x notElemX uniqueT)
+ 
+-------------------------------------------------------------------------------
+agh : (i = j -> Void) -> (FS i = FS j) -> Void
+agh {i=i} {j=j} iNotJ fsIfsJ = iNotJ (FSInjective i j fsIfsJ)
 
 
 
-findWhere : DecEq a => (x : a) -> (xs : Vect n a) -> (Elem x xs) -> (i ** index i xs = x)
+-------------------------------------------------------------------------------
+yoo :
+ (x : a) ->
+ (xs : Vect (S n) a) ->
+ (i : Fin (S n)) ->
+ (j : Fin (S n)) ->
+ Vect.index i xs = Vect.index j xs ->
+ Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
+
+yoo x xs i j vIvJ = vIvJ
+-------------------------------------------------------------------------------
+littleFindWhere :
+ DecEq a =>
+ (x : a) ->
+ (y : a) ->
+ (xs : Vect n a) ->
+ (i : Fin n) ->
+ (index i xs = x) ->
+ (index (FS i) (y::xs) = x)
+
+littleFindWhere x y xs i prf = prf
+-------------------------------------------------------------------------------
+findWhere :
+ DecEq a =>
+ (x : a) ->
+ (xs : Vect n a) ->
+ (Elem x xs) ->
+ (i ** index i xs = x)
+
 findWhere x (x::xs) Here = (FZ ** Refl)
 findWhere x [] _ impossible
-findWhere x (y::xs) (There somewhere) = let foo = findWhere x xs somewhere in ?hole -- WHATEVER!!
-
+findWhere x (y::xs) (There somewhere) =
+ let (i ** prf) = findWhere x xs somewhere in
+ ((FS i) ** littleFindWhere x y xs i prf)
+-------------------------------------------------------------------------------
 aff :
  (n : Nat) ->
  (v : Vect (S n) (Fin 25)) ->
@@ -49,7 +99,10 @@ aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
   | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
   | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas (S n) notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
 -------------------------------------------------------------------------------
-haff : e = Vect.index i v -> Elem e v
+haff : {-DecEq a => {e : a} ->-} e = Vect.index i v -> Elem e v
+-- strictly speaking I should not need the decEq typeclass witness.
+haff {i=FZ} {v=x::xs} prf = rewrite prf in Here
+haff {i=FS fk} {v=x::xs} prf = There $ haff prf {i=fk} {v=xs} 
 -------------------------------------------------------------------------------
 arglehhh : (i = j -> Void) -> (j = i) -> Void
 -------------------------------------------------------------------------------
@@ -66,11 +119,13 @@ afg :
  UniqueVect (S n) v ->
  Void
 afg FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
-afg (FS fi) FZ iNotJ vIvJ uniqueV = afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV
+afg (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV)
 afg (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) = afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
+afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) =
+ afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
 afg FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat n xs x notElemXXS uniqueXS) = notElemXXS (haff vIvJ)
+afg {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat n xs x notElemXXS uniqueXS) =
+ notElemXXS (haff vIvJ)
 -------------------------------------------------------------------------------
 afh :
  (k : Fin (S (S n))) ->

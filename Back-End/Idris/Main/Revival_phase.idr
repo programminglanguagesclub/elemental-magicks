@@ -210,6 +210,9 @@ transformRevivalPhase :
 -- The Client is required to remove thoughts and move copies from hand to graveyard in the right order, etc.
 -- I am only telling the client to perform the revival.
 transformRevivalPhase player actor deathQueue serverUpdate =
+
+ ?hole
+{-
  case serverUpdate of
   Revive positions =>
    case revive actor positions (board player) (fromIntegerNat $ extractBounded $ thoughtsResource player) deathQueue (hand player) of
@@ -224,7 +227,7 @@ transformRevivalPhase player actor deathQueue serverUpdate =
        deathQueue',
        [Revive (map foo positions) actor])
   _ => Left "You can only revive cards in the revival phase"
-
+-}
 -------------------------------------------------------------------------------
 -- this is useful to know if we should wait for player revival input or not.
 

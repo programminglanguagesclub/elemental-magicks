@@ -57,7 +57,11 @@ getFieldedIds : Player -> List (Fin 25)
 getSpawningIds : Player -> List (Fin 25)
 
 getPlayerIdList : Player -> List (Fin 25)
+
+{-
 getPlayerIdList player = (map Base.Card.getId $ hand player) ++ (map Base.Card.getId $ graveyard player) ++ (map Base.Card.getId $ discard player) ++ (getFieldedIds player) ++ (getFieldedIds player)
+
+-}
 
 
 getAllEnvironmentVariables : Env -> List String
@@ -73,14 +77,14 @@ data CorrectPlayer : Player -> Type where
  -- ((Base.Card.getId <$> (index' 0 $ hand player)) = Just FZ) ->
   (UniqueList $ getPlayerIdList player) ->
   ((x : Fin 25) -> find (==x) (getPlayerIdList player) = Nothing -> Void) ->
-  CorrectPlayer player
+  Main.Game.CorrectPlayer player
 
 data CorrectGame : Game -> Type where
  MkCorrectGame :
   (game : Game) ->
   --turnNumber game = Z ->
-  CorrectPlayer (playerA game) ->
-  CorrectPlayer (playerB game) ->
+  Main.Game.CorrectPlayer (playerA game) ->
+  Main.Game.CorrectPlayer (playerB game) ->
   CorrectGame game
 
 
@@ -93,20 +97,7 @@ errorPreserved l m prfLNotUnique prfLMUnique with (l)
    | 
    -}
 
-g : a = b -> b = a
-
-
-   
-uniqueVect : Vect n (Fin 25) -> Bool
-uniqueVect [] = True
-uniqueVect (x::xs) with (find (==x) xs)
- | Nothing = uniqueVect xs
- | Just _ = False
-                   
-data UniqueVect : Vect n (Fin 25) -> Type where
- UniqueEmpty : UniqueVect []
- UniqueConcat : UniqueVect xs -> find (==x) xs = Nothing -> UniqueVect (x::xs)
- 
+{- 
 notUniqueHead : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (find (==x) xs = Nothing -> Void) -> UniqueVect (x::xs) -> Void
 notUniqueHead x xs inTail UniqueEmpty impossible
 notUniqueHead x xs inTail (UniqueConcat uniqueTail notInTail) = inTail notInTail
@@ -285,7 +276,7 @@ uniqueList (x::xs) with (Prelude.List.find (==x) xs)
 
 -}
 
-
+-}
 
 {-
 data MonsterLocation

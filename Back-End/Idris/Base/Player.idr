@@ -44,16 +44,32 @@ uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendN
 
 gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
 
-uniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (m+n) (k ++ l) -> UniqueVect n l
-uniqueConcat l [] klUnique = ?hole -- rewrite hg l in klUnique
-uniqueConcat l (kh::kt) klUnique with (klUnique)
+
+-------------------------------------------------------------------------------
+uniqueConcat :
+ (n : Nat) ->
+ (m : Nat) ->
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ UniqueVect (m+n) (k ++ l) ->
+ UniqueVect n l
+
+uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
+uniqueConcat n (S m) l (kh::kt) klUnique with (klUnique)
   | UniqueEmpty impossible
-  | UniqueConcat n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+  | UniqueConcat (m + n) (kt ++ l) kh uniqueListT uniqueListH =
+     ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+-------------------------------------------------------------------------------
+notUniqueConcat :
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ (UniqueVect n l -> Void) ->
+ UniqueVect (m+n) (k++l) ->
+ Void
 
-
-notUniqueConcat : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (UniqueVect l -> Void) -> UniqueVect (k++l) -> Void
-notUniqueConcat l k notUniqueL uniqueKL = notUniqueL $ uniqueConcat l k uniqueKL
-
+notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
+ notUniqueL $ uniqueConcat n m l k uniqueKL
+-------------------------------------------------------------------------------
 {-
 uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
 uniqueConcat2 [] k _ = UniqueEmpty
