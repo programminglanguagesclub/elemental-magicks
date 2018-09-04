@@ -104,11 +104,29 @@ haff : {-DecEq a => {e : a} ->-} e = Vect.index i v -> Elem e v
 haff {i=FZ} {v=x::xs} prf = rewrite prf in Here
 haff {i=FS fk} {v=x::xs} prf = There $ haff prf {i=fk} {v=xs} 
 -------------------------------------------------------------------------------
-arglehhh : (i = j -> Void) -> (j = i) -> Void
+arglehhh :
+ (i = j -> Void) ->
+ (j = i) ->
+ Void
+
+arglehhh prfNot prf = prfNot $ dog prf
 -------------------------------------------------------------------------------
-gahaa : (FS i = FS j -> Void) -> i = j -> Void
+jjjj : i = j -> FS i = FS j
+jjjj Refl = Refl
 -------------------------------------------------------------------------------
-agagtt : (x : a) -> (xs : Vect (S n) a) -> (Vect.index (FS i) (x::xs)) = (Vect.index (FS j) (x::xs)) -> (Vect.index i xs = Vect.index j xs)
+gahaa :
+ (FS i = FS j -> Void) ->
+ i = j ->
+ Void
+
+gahaa prfNot prf = prfNot $ jjjj prf
+-------------------------------------------------------------------------------
+agagtt :
+ (x : a) ->
+ (xs : Vect (S n) a) ->
+ (Vect.index (FS i) (x::xs)) = (Vect.index (FS j) (x::xs)) ->
+ (Vect.index i xs = Vect.index j xs)
+
 agagtt x xs vFivFj = vFivFj
 -------------------------------------------------------------------------------
 afg :
@@ -118,8 +136,11 @@ afg :
  (Vect.index i v = Vect.index j v) ->
  UniqueVect (S n) v ->
  Void
+
 afg FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
+
 afg (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV)
+
 afg (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
 afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) =
  afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
@@ -137,6 +158,9 @@ afh :
  DPair
   (Fin (S (S n)), Fin (S (S n)))
   (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
+
+afh k i j iNotJ v prf = ?hole
+ 
 -------------------------------------------------------------------------------
 
 
