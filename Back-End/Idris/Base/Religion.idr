@@ -159,7 +159,12 @@ afh :
   (Fin (S (S n)), Fin (S (S n)))
   (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
 
-afh k i j iNotJ v prf = ?hole
+afh {n=n} FZ i j iNotJ (x1::x2::xs) prf = ((FS i,FS j) ** (agh iNotJ, prf))
+afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
+afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf = ?hole
+afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
+afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
+ let ((i',j')**(prf1,prf2)) = afh fk i j ?hole (x2::xs) ?hole in ?hole
  
 -------------------------------------------------------------------------------
 
