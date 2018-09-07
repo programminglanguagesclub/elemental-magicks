@@ -28,6 +28,14 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 DecEq Ordering where
    decEq x y = orderingDecEq x y
 -------------------------------------------------------------------------------
+
+{-
+getContainerCardIds : Vect n Card -> Vect n (Fin 25)
+getBoardMonsterIds : Vect 9 (Maybe FieldedMonster) -> Vect n (Fin 25)
+getBoardMonsterIds _ = []
+getSpawnCardId : Maybe Card -> Vect n (Fin 25)
+-}
+
 record Player where
  constructor MkPlayer
  --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
@@ -41,7 +49,10 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
+
 -- should add proof that the total number of cards controlled is 25.
+ 
+
  timeRemainingMilliseconds : Nat
 
 
@@ -192,11 +203,80 @@ getBoardIds [] = ([] ** ?hole )--UniqueEmpty)
 getBoardIds (Nothing::xs) = ?hole
 getBoardIds ((Just fm)::xs) = ?hole
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
-   ((length (snd $ hand player)) + (length (snd $ graveyard player)) + (length (snd $ banished player)) = 2354) ->
-   CorrectPlayer player                                                                                  
+   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+   UniqueVect ((fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player))) (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+  CorrectPlayer player                                                                                  
+
+
+
+{-
+ moveFromHandToGraveyard' :
+    {n : Nat} ->
+       (index : Fin (S n)) ->
+          (hand : Vect (S n) (Fin 25)) ->
+             (graveyard : Vect m (Fin 25)) ->
+                (Vect n (Fin 25), Vect (S m) (Fin 25))
+                -}
+
+moveCardFromHandToGraveyard :
+ CorrectPlayer player ->
+ (m : Nat) ->
+ (i : Fin (S m)) ->
+ ((fst $ hand player) = S m) ->
+ (player' ** CorrectPlayer player')
+moveCardFromHandToGraveyard
+ (MkCorrectPlayer
+  player
+  length25
+  uniqueVect)
+ m i prf =
+ let (playerHandLength ** playerHand) = hand player in
+ let (playerGraveyardLength ** playerGraveyard) = graveyard player in
+ case playerHandLength of
+  Z => ?hole -- impossible
+  S k =>
+   let player' =
+     (record
+           {hand = (k ** tail playerHand),
+                  graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))}
+                         player)
+   in
+
+
+   (record
+     {hand = (k ** tail playerHand),
+      graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))}
+      player 
+    ** ?hole )
+
+
+
+
+
+
+
+
+
+
+
+
 
 {-
 
