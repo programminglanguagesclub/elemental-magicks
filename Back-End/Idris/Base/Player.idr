@@ -253,18 +253,12 @@ moveCardFromHandToGraveyard
   Z => ?hole -- impossible
   S k =>
    let player' =
-     (record
-           {hand = (k ** tail playerHand),
-                  graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))}
-                         player)
+     (record {
+       hand = (k ** tail playerHand),
+       graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))
+      } player)
    in
-
-
-   (record
-     {hand = (k ** tail playerHand),
-      graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))}
-      player 
-    ** ?hole )
+   (player' ** (MkCorrectPlayer player' Refl ?hole))
 
 
 
