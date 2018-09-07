@@ -27,93 +27,6 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 
 DecEq Ordering where
    decEq x y = orderingDecEq x y
-
-
--- this worked... then just suddenly stopped working...!!
-{-
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
--}
-
-
-
--- uniqueConcat l (kh::kt) lkUnique with (lkUnique)
---  uniqueConcat {n=n} {m=Z} l (kh::kt)   | UniqueEmpty = ?hole --impossible
--- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
-
-
-gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
-
-
--------------------------------------------------------------------------------
-uniqueConcat :
- (n : Nat) ->
- (m : Nat) ->
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- UniqueVect (m+n) (k ++ l) ->
- UniqueVect n l
-
-uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
-uniqueConcat n (S m) l (kh::kt) klUnique with (klUnique)
-  | UniqueEmpty impossible
-  | UniqueConcat (m + n) (kt ++ l) kh uniqueListT uniqueListH =
-     ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
--------------------------------------------------------------------------------
-notUniqueConcat :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- (UniqueVect n l -> Void) ->
- UniqueVect (m+n) (k++l) ->
- Void
-
-notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
- notUniqueL $ uniqueConcat n m l k uniqueKL
--------------------------------------------------------------------------------
-{-
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat2 [] k _ = UniqueEmpty
-uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
-  | UniqueEmpty impossible
-  | UniqueConcat tailUnique headUnique =
-   let uniqueLTail = uniqueConcat2 lt k tailUnique in
-   UniqueConcat uniqueLTail (gkj lh lt k headUnique)
-
-
-hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
-
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
-uniqueConcat3 l k q prf = let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
-
-uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
-uniqueConcat4 l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat l q qlUnique
-
-
-
-uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
-uniqueRemoveHead (x::xs) (UniqueConcat uniqueListT uniqueH) = uniqueListT
-
-
--}
-
-deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
-{-
-deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
--}
-
-{-
-uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
-uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
-uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
-  --let xs' = deleteAt fk xs in
-  let uniqueM = uniqueRemove xs fk uniqueTail in
-  case (decEq (find (==x) (deleteAt fk xs)) Nothing) of
-   Yes prf => UniqueConcat uniqueM prf
-   No prf' => ?hole -- when we searched the deleted tail we don't get nothing. Show that if the element was not deleted we would also find something
-
--- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
--}
-
 -------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
@@ -128,7 +41,7 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
--- should add proof that the total number of cards controlled is 30.
+-- should add proof that the total number of cards controlled is 25.
  timeRemainingMilliseconds : Nat
 
 
