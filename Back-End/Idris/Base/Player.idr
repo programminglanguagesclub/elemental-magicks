@@ -209,31 +209,12 @@ getBoardIds ((Just fm)::xs) = ?hole
 
 
 
-
-
-
-
-
-
-
-
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
    (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
    UniqueVect ((fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player))) (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
   CorrectPlayer player                                                                                  
-
-
-
-{-
- moveFromHandToGraveyard' :
-    {n : Nat} ->
-       (index : Fin (S n)) ->
-          (hand : Vect (S n) (Fin 25)) ->
-             (graveyard : Vect m (Fin 25)) ->
-                (Vect n (Fin 25), Vect (S m) (Fin 25))
-                -}
 
 moveCardFromHandToGraveyard :
  CorrectPlayer player ->
@@ -243,22 +224,32 @@ moveCardFromHandToGraveyard :
  (player' ** CorrectPlayer player')
 moveCardFromHandToGraveyard
  (MkCorrectPlayer
-  player
+  (MkPlayer
+    board
+    rowTarget
+    hand
+    graveyard
+    banished
+    spawnCard
+    soulCards
+    thoughtsResource
+    knowledge
+    temporaryId
+    timeRemainingMilliseconds)
   length25
   uniqueVect)
  m i prf =
- let (playerHandLength ** playerHand) = hand player in
- let (playerGraveyardLength ** playerGraveyard) = graveyard player in
+ let (playerHandLength ** playerHand) = hand in
+ let (playerGraveyardLength ** playerGraveyard) = graveyard in
  case playerHandLength of
   Z => ?hole -- impossible
   S k =>
-   let player' =
-     (record {
-       hand = (k ** tail playerHand),
-       graveyard = ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand]))
-      } player)
+   let player' = MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) banished spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds
    in
-   (player' ** (MkCorrectPlayer player' Refl ?hole))
+   --let r = the q Refl in
+   --let p = ((fst $ hand player') + ((fst $ graveyard player') + (fst $ banished player')) = 25) in
+   --let p1 = the p ?hole in
+   ?hole --(player' ** (MkCorrectPlayer player' p1 ?hole))
 
 
 
