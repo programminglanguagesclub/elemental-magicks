@@ -227,9 +227,9 @@ moveCardFromHandToGraveyard
   (MkPlayer
     board
     rowTarget
-    hand
-    graveyard
-    banished
+    (playerHandLength ** playerHand)
+    (playerGraveyardLength ** playerGraveyard)
+    (playerBanishedLength ** playerBanished)
     spawnCard
     soulCards
     thoughtsResource
@@ -239,17 +239,17 @@ moveCardFromHandToGraveyard
   length25
   uniqueVect)
  m i prf =
- let (playerHandLength ** playerHand) = hand in
- let (playerGraveyardLength ** playerGraveyard) = graveyard in
  case playerHandLength of
   Z => ?hole -- impossible
   S k =>
-   let player' = MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) banished spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds
+   let player' =
+     (MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
    in
+   let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} ?hole in
    --let r = the q Refl in
    --let p = ((fst $ hand player') + ((fst $ graveyard player') + (fst $ banished player')) = 25) in
    --let p1 = the p ?hole in
-   ?hole --(player' ** (MkCorrectPlayer player' p1 ?hole))
+         (player' ** (MkCorrectPlayer player' ?hole {-(rewrite q in Refl)-} ?hole))
 
 
 
