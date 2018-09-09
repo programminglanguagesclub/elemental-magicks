@@ -601,10 +601,24 @@ foo :
  find p v = Nothing
 -------------------------------------------------------------------------------
 terrible : False = True -> a
-terrible = ?unproven
+terrible Refl impossible
 -------------------------------------------------------------------------------
-helper : (p : a -> Bool) -> (x : a) -> ((p x = True) -> Void) -> ((if p x then Just x else Nothing) = Nothing)
-helper = ?hole
+apaap : {-((b = True) -> Void)-} if False then t else f = f
+apaap = Refl
+
+agaag : (b : Bool) -> (q : a) -> (r : a) -> ((b = True) -> Void) -> (if b then q else r) = r
+agaag b q r prf =
+  case b of
+    False => Refl
+    True => void (prf Refl)
+-------------------------------------------------------------------------------
+helper :
+ (p : a -> Bool) ->
+ (x : a) ->
+ ((p x = True) -> Void) ->
+ ((if p x then Just x else Nothing) = Nothing)
+
+helper p x pNotX = agaag (p x) (Just x) Nothing pNotX
 -------------------------------------------------------------------------------
 findWithIndexPreferentiallyFromProof1 :
  DecEq a =>
