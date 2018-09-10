@@ -22,35 +22,24 @@ isUniqueVect (S k) (x::xs) with (isElem x xs)
 -------------------------------------------------------------------------------
 
 -- SCIENCE
-dog : x = y -> y = x
-dog Refl = Refl
-
-------
--- SCIENCE
-aaa : (FZ = FS i) -> Void
-aaa Refl impossible
----
------------------
-
+equalityCommutative : x = y -> y = x
+equalityCommutative Refl = Refl
 -------------------------------------------------------------------------------
-agas :
+headOkayThenTailNotOkay :
  (n : Nat) ->
  (UniqueVect (S n) (x::xs) -> Void) ->
  (Elem x xs -> Void) ->
  UniqueVect n xs ->
  Void
 
-agas {xs=xs} {x=x} n notUniqueV notElemX uniqueT =
+headOkayThenTailNotOkay {xs=xs} {x=x} n notUniqueV notElemX uniqueT =
  notUniqueV (UniqueConcat n xs x notElemX uniqueT)
  
 -------------------------------------------------------------------------------
-agh : (i = j -> Void) -> (FS i = FS j) -> Void
-agh {i=i} {j=j} iNotJ fsIfsJ = iNotJ (FSInjective i j fsIfsJ)
-
-
-
+FSInequality : (i = j -> Void) -> (FS i = FS j) -> Void
+FSInequality {i=i} {j=j} iNotJ fsIfsJ = iNotJ (FSInjective i j fsIfsJ)
 -------------------------------------------------------------------------------
-yoo :
+reindexAppend :
  (x : a) ->
  (xs : Vect (S n) a) ->
  (i : Fin (S n)) ->
@@ -58,7 +47,7 @@ yoo :
  Vect.index i xs = Vect.index j xs ->
  Vect.index (FS i) (x::xs) = Vect.index (FS j) (x::xs)
 
-yoo x xs i j vIvJ = vIvJ
+reindexAppend x xs i j vIvJ = vIvJ
 -------------------------------------------------------------------------------
 littleFindWhere :
  DecEq a =>
@@ -84,7 +73,7 @@ findWhere x (y::xs) (There somewhere) =
  let (i ** prf) = findWhere x xs somewhere in
  ((FS i) ** littleFindWhere x y xs i prf)
 -------------------------------------------------------------------------------
-aff :
+findRepeatWitness :
  (n : Nat) ->
  (v : Vect (S n) (Fin 25)) ->
  (UniqueVect (S n) v -> Void) ->
@@ -92,44 +81,45 @@ aff :
   (Fin (S n), Fin (S n))
   (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
 
-aff Z [x] notUniqueV with (isElem x [])
+findRepeatWitness Z [x] notUniqueV with (isElem x [])
   | Yes prf impossible
   | No prf = void $ notUniqueV $ UniqueConcat Z [] x prf UniqueEmpty
-aff (S n) (x::y::z) notUniqueV with (isElem x (y::z))
-  | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (aaa, dog p))
-  | No prf = let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = aff n (y::z) (agas (S n) notUniqueV prf) in ((FS i1,FS i2) ** (agh littleAffProof1, yoo x (y::z) i1 i2 littleAffProof2))
+findRepeatWitness (S n) (x::y::z) notUniqueV with (isElem x (y::z))
+  | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (FZNotFS, equalityCommutative p))
+  | No prf =
+   let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = findRepeatWitness n (y::z) (headOkayThenTailNotOkay (S n) notUniqueV prf) in
+   ((FS i1,FS i2) ** (FSInequality littleAffProof1, reindexAppend x (y::z) i1 i2 littleAffProof2))
 -------------------------------------------------------------------------------
-haff : {-DecEq a => {e : a} ->-} e = Vect.index i v -> Elem e v
--- strictly speaking I should not need the decEq typeclass witness.
-haff {i=FZ} {v=x::xs} prf = rewrite prf in Here
-haff {i=FS fk} {v=x::xs} prf = There $ haff prf {i=fk} {v=xs} 
+elemFromFound : e = Vect.index i v -> Elem e v
+elemFromFound {i=FZ} {v=x::xs} prf = rewrite prf in Here
+elemFromFound {i=FS fk} {v=x::xs} prf = There $ elemFromFound prf {i=fk} {v=xs} 
 -------------------------------------------------------------------------------
-arglehhh :
+inequalityCommutative :
  (i = j -> Void) ->
  (j = i) ->
  Void
 
-arglehhh prfNot prf = prfNot $ dog prf
+inequalityCommutative prfNot prf = prfNot $ equalityCommutative prf
 -------------------------------------------------------------------------------
-jjjj : i = j -> FS i = FS j
-jjjj Refl = Refl
+fSEq : i = j -> FS i = FS j
+fSEq Refl = Refl
 -------------------------------------------------------------------------------
-gahaa :
+fSNotEq :
  (FS i = FS j -> Void) ->
  i = j ->
  Void
 
-gahaa prfNot prf = prfNot $ jjjj prf
+fSNotEq prfNot prf = prfNot $ fSEq prf
 -------------------------------------------------------------------------------
-agagtt :
+reindexUnappend :
  (x : a) ->
  (xs : Vect (S n) a) ->
  (Vect.index (FS i) (x::xs)) = (Vect.index (FS j) (x::xs)) ->
  (Vect.index i xs = Vect.index j xs)
 
-agagtt x xs vFivFj = vFivFj
+reindexUnappend x xs vFivFj = vFivFj
 -------------------------------------------------------------------------------
-afg :
+notUniqueFromEqualAnywhere :
  (i : Fin (S n)) ->
  (j : Fin (S n)) ->
  (i = j -> Void) ->
@@ -137,16 +127,16 @@ afg :
  UniqueVect (S n) v ->
  Void
 
-afg FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
+notUniqueFromEqualAnywhere FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
 
-afg (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (afg FZ (FS fi) (arglehhh iNotJ) (dog vIvJ) uniqueV)
+notUniqueFromEqualAnywhere (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (notUniqueFromEqualAnywhere FZ (FS fi) (inequalityCommutative iNotJ) (equalityCommutative vIvJ) uniqueV)
 
-afg (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) =
- afg fi fj (gahaa iNotJ) (agagtt x xs vIvJ) uniqueXS
-afg FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
-afg {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat n xs x notElemXXS uniqueXS) =
- notElemXXS (haff vIvJ)
+notUniqueFromEqualAnywhere (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
+notUniqueFromEqualAnywhere {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) =
+ notUniqueFromEqualAnywhere fi fj (fSNotEq iNotJ) (reindexUnappend x xs vIvJ) uniqueXS
+notUniqueFromEqualAnywhere FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
+notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat n xs x notElemXXS uniqueXS) =
+ notElemXXS (elemFromFound vIvJ)
 -------------------------------------------------------------------------------
 afh :
  (k : Fin (S (S n))) ->
@@ -159,7 +149,7 @@ afh :
   (Fin (S (S n)), Fin (S (S n)))
   (\i' => (fst i' = snd i' -> Void, Vect.index (fst i') v = Vect.index (snd i') v))
 
-afh {n=n} FZ i j iNotJ (x1::x2::xs) prf = ((FS i,FS j) ** (agh iNotJ, prf))
+afh {n=n} FZ i j iNotJ (x1::x2::xs) prf = ((FS i,FS j) ** (FSInequality iNotJ, prf))
 afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
 afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf = ?hole
 afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
@@ -212,19 +202,25 @@ uniqueConcat2 {n=S n} {m=m} (lh::lt) k lkUnique with (lkUnique)
    let uniqueLTail = uniqueConcat2 lt k tailUnique in
    UniqueConcat n lt lh ?hole {-(gkj lh lt k headUnique)-} uniqueLTail
 
+booo : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (ys : Vect n (Fin 25)) -> xs = ys -> (x::xs) = (x::ys)
 
 hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
+hak [] l k = Refl
+hak (x::xs) l k = ?hole --booo _ _ _ (hak xs l k)
 
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (o + (n + m)) (q ++ l ++ k) -> UniqueVect n l
-uniqueConcat3 l k q prf = ?hole --let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
+plusAssociative' : (o : Nat) -> (n : Nat) -> (m : Nat) -> plus (plus o n) m = plus o (plus n m)
+
+
+uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (o + (n + m)) (q ++ (l ++ k)) -> UniqueVect n l
+uniqueConcat3 {n=n} {o=o} {m=m} l k q prf = ?hole --let qlUnique = uniqueConcat2 (q++l) k (rewrite (rewrite plusAssociative' o n m in hak q l k) in prf) in uniqueConcat n o l q qlUnique
 
 uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((o + n) + m) ((q ++ l) ++ k) -> UniqueVect n l
-uniqueConcat4 l k q prf = ?hole -- let qlUnique = [] in uniqueConcat2 (q++l) k prf in uniqueConcat l q qlUnique
+uniqueConcat4 {n=n} {m=m} {o=o} l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat n o l q qlUnique
 
 
 
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect (S n) l -> UniqueVect n (tail l)
---uniqueRemoveHead (x::xs) (UniqueConcat uniqueListT uniqueH) = uniqueListT
+uniqueRemoveHead (x::xs) (UniqueConcat _ _ _ _ uniqueListT) = uniqueListT
 
 
 

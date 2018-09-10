@@ -21,9 +21,9 @@ uniqueRemove :
 uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
   | Yes prf = prf
   | No prf =
-     let ((i, j) ** (iNotJ, vINotvJ)) = aff n (deleteAt k l) prf in
+     let ((i, j) ** (iNotJ, vINotvJ)) = findRepeatWitness n (deleteAt k l) prf in
      let ((i', j') ** (i'NotJ',vI'NotvJ')) = afh k i j iNotJ l vINotvJ in
-     void (afg i' j' i'NotJ' vI'NotvJ' uniqueL)
+     void (notUniqueFromEqualAnywhere i' j' i'NotJ' vI'NotvJ' uniqueL)
 uniqueRemove {n= Z} l k uniqueL = ?hole
 
 -------------------------------------------------------------------------------
@@ -55,6 +55,7 @@ deleteInTail (x::xs) i = Refl
  
 -------------------------------------------------------------------------- 
 deleteLemma : (v : Vect (S (S n)) (Fin 25)) -> (fk : Fin (S n)) -> deleteAt (FS fk) v = head v :: (deleteAt fk (tail v))
+deleteLemma v fk = ?hole
 
 --RELIGION
 
@@ -64,11 +65,13 @@ sdj :
    (x : (Fin 25)) ->
    (xs : Vect n (Fin 25)) ->
    (i : Fin (S n)) ->
-     -- Not (Elem x xs) ->
-     Nat ->
+   Not (Elem x xs) ->
    UniqueVect n xs ->
    UniqueVect (S n) (insertAt i x xs)
- 
+
+sdj n x xs i prf uniqueXS = ?hole
+
+
 uniqueMove :
    (n : Nat) ->
    (l : Vect (S n) (Fin 25)) ->
@@ -79,5 +82,5 @@ uniqueMove :
  
 uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (deleteAt k l)))
    | Yes prf = prf
-   | No prf = sdj n (index k l) (deleteAt k l) i Z (uniqueRemove l k uniqueL)
+   | No prf = sdj n (index k l) (deleteAt k l) i ?hole (uniqueRemove l k uniqueL)
 ----------------------------------------------------------------
