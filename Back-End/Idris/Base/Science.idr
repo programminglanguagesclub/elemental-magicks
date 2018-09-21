@@ -16,8 +16,8 @@ import Base.Religion
 uniqueRemove :
  (l : Vect (S n) (Fin 25)) ->
  (k : Fin (S n)) ->
- UniqueVect (S n) l ->
- UniqueVect n (deleteAt k l)
+ UniqueVect l ->
+ UniqueVect (deleteAt k l)
 uniqueRemove {n=S n} l k uniqueL with (isUniqueVect (S n) $ deleteAt k l)
   | Yes prf = prf
   | No prf =
@@ -29,9 +29,9 @@ uniqueRemove {n= Z} l k uniqueL = ?hole
 -------------------------------------------------------------------------------
 uniqueRemoveHead :
  (l : Vect (S n) (Fin 25)) ->
- UniqueVect (S n) l ->
- UniqueVect n (tail l)
-uniqueRemoveHead {n=S n} (x::xs) (UniqueConcat (S n) xs x uniqueH uniqueT) = uniqueT
+ UniqueVect l ->
+ UniqueVect (tail l)
+uniqueRemoveHead {n=S n} (x::xs) (UniqueConcat xs x uniqueH uniqueT) = uniqueT
 uniqueRemoveHead {n=Z} (x::xs) _ = ?hole
 uniqueRemoveHead [] _ impossible
 -------------------------------------------------------------------------------
@@ -66,8 +66,8 @@ sdj :
    (xs : Vect n (Fin 25)) ->
    (i : Fin (S n)) ->
    Not (Elem x xs) ->
-   UniqueVect n xs ->
-   UniqueVect (S n) (insertAt i x xs)
+   UniqueVect xs ->
+   UniqueVect (insertAt i x xs)
 
 sdj n x xs i prf uniqueXS = ?hole
 
@@ -77,8 +77,8 @@ uniqueMove :
    (l : Vect (S n) (Fin 25)) ->
    (k : Fin (S n)) ->
    (i : Fin (S n)) ->
-   UniqueVect (S n) l ->
-   UniqueVect (S n) (insertAt i (index k l) (deleteAt k l))
+   UniqueVect l ->
+   UniqueVect (insertAt i (index k l) (deleteAt k l))
  
 uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (deleteAt k l)))
    | Yes prf = prf

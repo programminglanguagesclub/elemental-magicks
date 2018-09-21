@@ -213,7 +213,7 @@ data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
    (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
-   UniqueVect ((fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player))) (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+   UniqueVect (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
   CorrectPlayer player                                                                                  
 
 moveCardFromHandToGraveyard :

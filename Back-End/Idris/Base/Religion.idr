@@ -14,7 +14,7 @@ import Base.Biology
 -- If a theorem consumes approximately a week of work without a solution,
 -- it is to be assigned to its own verse from the bible.
 -------------------------------------------------------------------------------
-isUniqueVect : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect n v)
+isUniqueVect : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
 isUniqueVect Z [] = Yes UniqueEmpty
 isUniqueVect (S k) (x::xs) with (isElem x xs)
   | Yes prfy = ?hole
@@ -26,14 +26,13 @@ equalityCommutative : x = y -> y = x
 equalityCommutative Refl = Refl
 -------------------------------------------------------------------------------
 headOkayThenTailNotOkay :
- (n : Nat) ->
- (UniqueVect (S n) (x::xs) -> Void) ->
+ (UniqueVect (x::xs) -> Void) ->
  (Elem x xs -> Void) ->
- UniqueVect n xs ->
+ UniqueVect xs ->
  Void
 
-headOkayThenTailNotOkay {xs=xs} {x=x} n notUniqueV notElemX uniqueT =
- notUniqueV (UniqueConcat n xs x notElemX uniqueT)
+headOkayThenTailNotOkay {xs=xs} {x=x} notUniqueV notElemX uniqueT =
+ notUniqueV (UniqueConcat xs x notElemX uniqueT)
  
 -------------------------------------------------------------------------------
 FSInequality : (i = j -> Void) -> (FS i = FS j) -> Void
@@ -76,18 +75,18 @@ findWhere x (y::xs) (There somewhere) =
 findRepeatWitness :
  (n : Nat) ->
  (v : Vect (S n) (Fin 25)) ->
- (UniqueVect (S n) v -> Void) ->
+ (UniqueVect v -> Void) ->
  DPair
   (Fin (S n), Fin (S n))
   (\i => (fst i = snd i -> Void, index (fst i) v = index (snd i) v))
 
 findRepeatWitness Z [x] notUniqueV with (isElem x [])
   | Yes prf impossible
-  | No prf = void $ notUniqueV $ UniqueConcat Z [] x prf UniqueEmpty
+  | No prf = void $ notUniqueV $ UniqueConcat [] x prf UniqueEmpty
 findRepeatWitness (S n) (x::y::z) notUniqueV with (isElem x (y::z))
   | Yes prf = let (i** p) = findWhere x (y::z) prf in ((FZ, FS i) ** (FZNotFS, equalityCommutative p))
   | No prf =
-   let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = findRepeatWitness n (y::z) (headOkayThenTailNotOkay (S n) notUniqueV prf) in
+   let ((i1,i2) ** (littleAffProof1, littleAffProof2)) = findRepeatWitness n (y::z) (headOkayThenTailNotOkay notUniqueV prf) in
    ((FS i1,FS i2) ** (FSInequality littleAffProof1, reindexAppend x (y::z) i1 i2 littleAffProof2))
 -------------------------------------------------------------------------------
 elemFromFound : e = Vect.index i v -> Elem e v
@@ -123,8 +122,9 @@ notUniqueFromEqualAnywhere :
  (i : Fin (S n)) ->
  (j : Fin (S n)) ->
  (i = j -> Void) ->
+ {v : Vect (S n) (Fin 25)} -> -- (not S $ S n???)
  (Vect.index i v = Vect.index j v) ->
- UniqueVect (S n) v ->
+ UniqueVect v ->
  Void
 
 notUniqueFromEqualAnywhere FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
@@ -132,10 +132,10 @@ notUniqueFromEqualAnywhere FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
 notUniqueFromEqualAnywhere (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (notUniqueFromEqualAnywhere FZ (FS fi) (inequalityCommutative iNotJ) (equalityCommutative vIvJ) uniqueV)
 
 notUniqueFromEqualAnywhere (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
-notUniqueFromEqualAnywhere {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat (S n) xs x notElemXXS uniqueXS) =
+notUniqueFromEqualAnywhere {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) =
  notUniqueFromEqualAnywhere fi fj (fSNotEq iNotJ) (reindexUnappend x xs vIvJ) uniqueXS
 notUniqueFromEqualAnywhere FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
-notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat n xs x notElemXXS uniqueXS) =
+notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) =
  notElemXXS (elemFromFound vIvJ)
 -------------------------------------------------------------------------------
 afh :
@@ -174,33 +174,33 @@ uniqueConcat :
  (m : Nat) ->
  (l : Vect n (Fin 25)) ->
  (k : Vect m (Fin 25)) ->
- UniqueVect (m+n) (k ++ l) ->
- UniqueVect n l
+ UniqueVect (k ++ l) ->
+ UniqueVect l
 
 uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
 uniqueConcat n (S m) l (kh::kt) klUnique with (klUnique)
-  | UniqueEmpty impossible
-  | UniqueConcat (m + n) (kt ++ l) kh uniqueListT uniqueListH =
-     ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+  | Base.Biology.UniqueEmpty = ?hole
+  | UniqueConcat (kt ++ l) kh uniqueListT uniqueListH =
+    ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
 -------------------------------------------------------------------------------
 notUniqueConcat :
  (l : Vect n (Fin 25)) ->
  (k : Vect m (Fin 25)) ->
- (UniqueVect n l -> Void) ->
- UniqueVect (m+n) (k++l) ->
+ (UniqueVect l -> Void) ->
+ UniqueVect (k++l) ->
  Void
 
 notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
  notUniqueL $ uniqueConcat n m l k uniqueKL
 -------------------------------------------------------------------------------
 
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (n+m) (l ++ k) -> UniqueVect n l
+uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
 uniqueConcat2 [] k _ = UniqueEmpty
 uniqueConcat2 {n=S n} {m=m} (lh::lt) k lkUnique with (lkUnique)
   | UniqueEmpty impossible
-  | UniqueConcat (n+m) (lt ++ k) lh headUnique tailUnique =
+  | UniqueConcat (lt ++ k) lh headUnique tailUnique =
    let uniqueLTail = uniqueConcat2 lt k tailUnique in
-   UniqueConcat n lt lh ?hole {-(gkj lh lt k headUnique)-} uniqueLTail
+   UniqueConcat lt lh ?hole {-(gkj lh lt k headUnique)-} uniqueLTail
 
 booo : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (ys : Vect n (Fin 25)) -> xs = ys -> (x::xs) = (x::ys)
 
@@ -227,7 +227,7 @@ le x y i j p1 p2 gyj = rewrite p1 in rewrite p2 in gyj
 lem : {g : a -> b -> Type} -> (x : g i j) -> (i = i') -> (j = j') -> g i' j'
 lem x p1 p2 = ?hole --rewrite p2 in rewrite p1 in x
 
-
+{-
 lemm :
  (o : Nat) ->
  (n : Nat) ->
@@ -235,24 +235,25 @@ lemm :
  (q : Vect o (Fin 25)) ->
  (l : Vect n (Fin 25)) ->
  (k : Vect m (Fin 25)) ->
- UniqueVect (o + (n + m)) (q ++ (l ++ k)) ->
- UniqueVect ((o + n) + m) ((q ++ l) ++ k)
+ UniqueVect (q ++ (l ++ k)) ->
+ UniqueVect ((q ++ l) ++ k)
 
 lemm o n m q l k x = le ((o + n) + m) (o + (n + m)) ((q ++ l) ++k) (believe_me (q ++ (l ++ k))) ?hole ?hole {-(UniqueVect (o + (n + m)) (q ++ (l ++ k)))-} (believe_me x)
+-}
 
-uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((o + n) + m) ((q ++ l) ++ k) -> UniqueVect n l
+uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
 uniqueConcat4 {n=n} {m=m} {o=o} l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat n o l q qlUnique
 
 
 
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (o + (n + m)) (q ++ (l ++ k)) -> UniqueVect n l
-uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = uniqueConcat4 l k q (lemm o n m q l k prf)
+uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ (l ++ k)) -> UniqueVect l
+uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = uniqueConcat4 l k q ?hole --(lemm o n m q l k prf)
 
 
 
 
-uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect (S n) l -> UniqueVect n (tail l)
-uniqueRemoveHead _ (UniqueConcat _ _ _ _ uniqueListT) = uniqueListT
+uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
+uniqueRemoveHead _ (UniqueConcat _ _ _ uniqueListT) = uniqueListT
 
 
 
