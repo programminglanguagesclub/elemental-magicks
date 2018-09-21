@@ -10,14 +10,13 @@ import Base.Preliminaries
 -- This module is to contain the various datatypes
 -- that are used by the Science and Religion modules.
 -------------------------------------------------------------------------------
-data UniqueVect : (n : Nat) -> Vect n (Fin 25) -> Type where
- UniqueEmpty : UniqueVect Z []
+data UniqueVect : Vect n (Fin 25) -> Type where
+ UniqueEmpty : UniqueVect []
  UniqueConcat :
-  (n : Nat) ->
   (xs : Vect n (Fin 25)) ->
   (x : Fin 25) ->
   Not (Elem x xs) ->
-  UniqueVect n xs ->
-  UniqueVect (S n) (x :: xs)
+  UniqueVect xs ->
+  UniqueVect (x :: xs)
 
 

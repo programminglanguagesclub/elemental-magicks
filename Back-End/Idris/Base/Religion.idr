@@ -211,16 +211,48 @@ hak (x::xs) l k = ?hole --booo _ _ _ (hak xs l k)
 plusAssociative' : (o : Nat) -> (n : Nat) -> (m : Nat) -> plus (plus o n) m = plus o (plus n m)
 
 
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (o + (n + m)) (q ++ (l ++ k)) -> UniqueVect n l
-uniqueConcat3 {n=n} {o=o} {m=m} l k q prf = ?hole --let qlUnique = uniqueConcat2 (q++l) k (rewrite (rewrite plusAssociative' o n m in hak q l k) in prf) in uniqueConcat n o l q qlUnique
+le :
+ (x : a) ->
+ (y : a) ->
+ (i : b) ->
+ (j : b) ->
+ {g : a -> b -> Type} ->
+ x = y ->
+ i = j ->
+ g y j ->
+ g x i
+
+le x y i j p1 p2 gyj = rewrite p1 in rewrite p2 in gyj
+
+lem : {g : a -> b -> Type} -> (x : g i j) -> (i = i') -> (j = j') -> g i' j'
+lem x p1 p2 = ?hole --rewrite p2 in rewrite p1 in x
+
+
+lemm :
+ (o : Nat) ->
+ (n : Nat) ->
+ (m : Nat) ->
+ (q : Vect o (Fin 25)) ->
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ UniqueVect (o + (n + m)) (q ++ (l ++ k)) ->
+ UniqueVect ((o + n) + m) ((q ++ l) ++ k)
+
+lemm o n m q l k x = le ((o + n) + m) (o + (n + m)) ((q ++ l) ++k) (believe_me (q ++ (l ++ k))) ?hole ?hole {-(UniqueVect (o + (n + m)) (q ++ (l ++ k)))-} (believe_me x)
 
 uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((o + n) + m) ((q ++ l) ++ k) -> UniqueVect n l
 uniqueConcat4 {n=n} {m=m} {o=o} l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat n o l q qlUnique
 
 
 
+uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (o + (n + m)) (q ++ (l ++ k)) -> UniqueVect n l
+uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = uniqueConcat4 l k q (lemm o n m q l k prf)
+
+
+
+
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect (S n) l -> UniqueVect n (tail l)
-uniqueRemoveHead (x::xs) (UniqueConcat _ _ _ _ uniqueListT) = uniqueListT
+uniqueRemoveHead _ (UniqueConcat _ _ _ _ uniqueListT) = uniqueListT
 
 
 
