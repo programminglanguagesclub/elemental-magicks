@@ -178,10 +178,16 @@ uniqueConcat :
  UniqueVect l
 
 uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
-uniqueConcat n (S m) l (kh::kt) klUnique with (klUnique)
-  | Base.Biology.UniqueEmpty = ?hole
-  | UniqueConcat (kt ++ l) kh uniqueListT uniqueListH =
-    ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+uniqueConcat n (S m) l (kh::kt) klUnique with (toIndexed (S (plus m n)) ((kh::kt)++l) klUnique)
+ | IndexedUniqueEmpty impossible
+ | IndexedUniqueConcat (m+n) (kt ++ l) kh uniqueListH uniqueListT =
+    uniqueConcat n m l kt (fromIndexed (m+n) (kt ++ l) uniqueListT)
+    
+    --uniqueConcat ?hole ?hole ?hole ?hole ?hole
+  
+  
+  --  ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
+  
 -------------------------------------------------------------------------------
 notUniqueConcat :
  (l : Vect n (Fin 25)) ->
