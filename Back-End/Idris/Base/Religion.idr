@@ -169,6 +169,12 @@ uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l 
 uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
 -}
 -------------------------------------------------------------------------------
+vectNilLeftNeutral :
+ (l : Vect n (Fin 25)) ->
+ UniqueVect l = UniqueVect ([] ++ l)
+
+vectNilLeftNeutral l = Refl
+-------------------------------------------------------------------------------
 uniqueConcat :
  (n : Nat) ->
  (m : Nat) ->
@@ -177,17 +183,11 @@ uniqueConcat :
  UniqueVect (k ++ l) ->
  UniqueVect l
 
-uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
+uniqueConcat n Z l [] klUnique = rewrite vectNilLeftNeutral l in klUnique
 uniqueConcat n (S m) l (kh::kt) klUnique with (toIndexed (S (plus m n)) ((kh::kt)++l) klUnique)
  | IndexedUniqueEmpty impossible
  | IndexedUniqueConcat (m+n) (kt ++ l) kh uniqueListH uniqueListT =
     uniqueConcat n m l kt (fromIndexed (m+n) (kt ++ l) uniqueListT)
-    
-    --uniqueConcat ?hole ?hole ?hole ?hole ?hole
-  
-  
-  --  ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
-  
 -------------------------------------------------------------------------------
 notUniqueConcat :
  (l : Vect n (Fin 25)) ->
