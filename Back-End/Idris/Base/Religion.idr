@@ -14,6 +14,21 @@ import Base.Biology
 -- If a theorem consumes approximately a week of work without a solution,
 -- it is to be assigned to its own verse from the bible.
 -------------------------------------------------------------------------------
+{-
+
+
+data UniqueVect : {n : Nat} -> Vect n (Fin 25) -> Type where
+   UniqueEmpty : UniqueVect []
+    UniqueConcat :
+      (xs : Vect n (Fin 25)) ->
+        (x : Fin 25) ->
+          Not (Elem x xs) ->
+            UniqueVect xs ->
+              UniqueVect (x :: xs)
+
+              -}
+
+
 isUniqueVect : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
 isUniqueVect Z [] = Yes UniqueEmpty
 isUniqueVect (S k) (x::xs) with (isElem x xs)
@@ -138,6 +153,8 @@ notUniqueFromEqualAnywhere FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
 notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) =
  notElemXXS (elemFromFound vIvJ)
 -------------------------------------------------------------------------------
+aagf : (i = j -> Void) -> FS i = FS j -> Void
+
 afh :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -154,14 +171,12 @@ afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
 afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf = ?hole
 afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
 afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
- let ((i',j')**(prf1,prf2)) = afh fk i j ?hole (x2::xs) ?hole in ?hole
+ let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
+ ((FS i',FS j')**(aagf prf1,reindexAppend x1 (x2::xs) i' j' prf2))
  
 -------------------------------------------------------------------------------
 gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
  
-
-
-
 
 -- this worked... then just suddenly stopped working...!!
 {-
@@ -218,10 +233,7 @@ aaaat :
  (zLen : Nat) ->
  plus xLen (plus yLen zLen) = plus (plus xLen yLen) zLen
 
-
-
-
-
+-------------------------------------------------------------------------------
 vectAppendAssociative' :
  {xLen : Nat} ->
  {yLen : Nat} ->
@@ -234,32 +246,49 @@ vectAppendAssociative' :
 vectAppendAssociative' {xLen=xLen} {yLen=yLen} {zLen=zLen} xs ys zs = ?hole
 --(rewrite aaaat xLen yLen zLen in equalityCommutative (vectAppendAssociative'' xs ys zs))
 
-
+-------------------------------------------------------------------------------
 plusAssociative' : (left : Nat) -> (centre : Nat) -> (right : Nat) ->
                     (left + centre) + right = left + (centre + right)
-
+-------------------------------------------------------------------------------
 hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++(l++k)
 hak [] l k = Refl
 hak {a=S a} {b=b} {c=c} (x::xs) l k = ?hole --booo x (rewrite plusAssociative a b c in ((xs++l)++k)) (xs++(l++k))  --(hak xs l k)
+-------------------------------------------------------------------------------
+uniqueConcat4 :
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ (q : Vect o (Fin 25)) ->
+ UniqueVect ((q ++ l) ++ k) ->
+ UniqueVect l
 
-
-
-uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
-uniqueConcat4 {n=n} {m=m} {o=o} l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat n o l q qlUnique
-
+uniqueConcat4 {n=n} {m=m} {o=o} l k q prf =
+ let qlUnique = uniqueConcat2 (q++l) k prf in
+ uniqueConcat n o l q qlUnique
+-------------------------------------------------------------------------------
+-- 1.17.1
+-- And when Abram was ninety years old and nine, the LORD appeared to Abram,
+-- and said unto him, I am the Almighty God; walk before me, and be thou perfect.
 uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ (l ++ k)) -> UniqueVect l
 uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = ?hole -- uniqueConcat4 l k q (rewrite hak q l k in prf)
+-------------------------------------------------------------------------------
+uniqueRemoveHead :
+ (l : Vect (S n) (Fin 25)) ->
+ UniqueVect l ->
+ UniqueVect (tail l)
 
-
-uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
 uniqueRemoveHead _ (UniqueConcat _ _ _ uniqueListT) = uniqueListT
+-------------------------------------------------------------------------------
+deleteAtHeadRemovesHead :
+ (l : Vect (S n) (Fin 25)) ->
+ deleteAt FZ l = tail l
 
-
-deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
 deleteAtHeadRemovesHead (x::xs) = Refl
+-------------------------------------------------------------------------------
+deleteTailEquality :
+ (y : Fin 25) ->
+ (xs : Vect (S n) (Fin 25)) ->
+ (fk : Fin (S n)) ->
+ x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
 
-deleteTailEquality : (y : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
 deleteTailEquality y (x::xs) fk = Refl
-
-
-
+-------------------------------------------------------------------------------
