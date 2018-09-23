@@ -211,15 +211,44 @@ uniqueConcat2 {n=S n} {m=m} (lh::lt) k lkUnique with (lkUnique)
 booo : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (ys : Vect n (Fin 25)) -> xs = ys -> (x::xs) = (x::ys)
 booo _ _ _ Refl = Refl
 
-hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
+
+aaaat :
+ (xLen : Nat) ->
+ (yLen : Nat) ->
+ (zLen : Nat) ->
+ plus xLen (plus yLen zLen) = plus (plus xLen yLen) zLen
+
+
+
+
+
+vectAppendAssociative' :
+ {xLen : Nat} ->
+ {yLen : Nat} ->
+ {zLen : Nat} ->
+ (xs : Vect xLen elem) ->
+ (ys : Vect yLen elem) ->
+ (zs : Vect zLen elem) ->
+ (xs ++ ys) ++ zs = xs ++ (ys ++ zs)
+
+vectAppendAssociative' {xLen=xLen} {yLen=yLen} {zLen=zLen} xs ys zs = ?hole
+--(rewrite aaaat xLen yLen zLen in equalityCommutative (vectAppendAssociative'' xs ys zs))
+
+
+plusAssociative' : (left : Nat) -> (centre : Nat) -> (right : Nat) ->
+                    (left + centre) + right = left + (centre + right)
+
+hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++(l++k)
 hak [] l k = Refl
-hak (x::xs) l k = ?hole --booo _ _ _ (hak xs l k)
+hak {a=S a} {b=b} {c=c} (x::xs) l k = ?hole --booo x (rewrite plusAssociative a b c in ((xs++l)++k)) (xs++(l++k))  --(hak xs l k)
+
+
 
 uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
 uniqueConcat4 {n=n} {m=m} {o=o} l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat n o l q qlUnique
 
 uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ (l ++ k)) -> UniqueVect l
-uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = uniqueConcat4 l k q (rewrite hak q l k in prf)
+uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = ?hole -- uniqueConcat4 l k q (rewrite hak q l k in prf)
 
 
 uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
@@ -229,9 +258,8 @@ uniqueRemoveHead _ (UniqueConcat _ _ _ uniqueListT) = uniqueListT
 deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
 deleteAtHeadRemovesHead (x::xs) = Refl
 
-{-
-deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
--}
+deleteTailEquality : (y : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
+deleteTailEquality y (x::xs) fk = Refl
 
 
 
