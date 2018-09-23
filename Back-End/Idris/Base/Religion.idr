@@ -155,6 +155,16 @@ notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat x
 -------------------------------------------------------------------------------
 aagf : (i = j -> Void) -> FS i = FS j -> Void
 
+yuwa :
+ (k : Fin (S (S n))) ->
+ (i : Fin n) ->
+ (v : Vect (S (S n)) a) ->
+ (x : a) ->
+ (Vect.index (FS i) (deleteAt k v) = x) ->
+ DPair
+  (Fin (S (S n)))
+  (\i' => Vect.index i' v = x)
+
 afh :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
