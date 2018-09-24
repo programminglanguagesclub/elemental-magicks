@@ -196,8 +196,21 @@ afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
  let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
  ((FS i',FS j')**(aagf prf1,reindexAppend x1 (x2::xs) i' j' prf2))
 -------------------------------------------------------------------------------
-gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
- 
+jill : (Just x = Nothing) -> Void
+jill Refl impossible
+
+
+gkj :
+ (x : Fin 25) ->
+ (v : Vect n (Fin 25)) ->
+ (w : Vect m (Fin 25)) ->
+ find (==x) (v++w) = Nothing ->
+ find (==x) v = Nothing
+
+gkj x [] w prf = Refl
+gkj x (v1::vs) w prf with ((==x) v1)
+ | True = void $ jill prf
+ | False = gkj x vs w prf
 
 -- this worked... then just suddenly stopped working...!!
 {-
