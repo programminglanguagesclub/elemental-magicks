@@ -14,28 +14,22 @@ import Base.Biology
 -- If a theorem consumes approximately a week of work without a solution,
 -- it is to be assigned to its own verse from the bible.
 -------------------------------------------------------------------------------
-{-
-
-
-data UniqueVect : {n : Nat} -> Vect n (Fin 25) -> Type where
-   UniqueEmpty : UniqueVect []
-    UniqueConcat :
-      (xs : Vect n (Fin 25)) ->
-        (x : Fin 25) ->
-          Not (Elem x xs) ->
-            UniqueVect xs ->
-              UniqueVect (x :: xs)
-
-              -}
-
-
 isUniqueVect : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
 isUniqueVect Z [] = Yes UniqueEmpty
 isUniqueVect (S k) (x::xs) with (isElem x xs)
-  | Yes prfy = ?hole
-  | No prfn = ?hole
+  | Yes prfy = No $
+     \uniqueVect =>
+      case uniqueVect of
+        UniqueEmpty impossible
+        UniqueConcat _ _ notElem _ => void $ notElem prfy
+  | No prfn with (isUniqueVect k xs)
+    | Yes prf = Yes $ UniqueConcat xs x prfn prf
+    | No prf = No $
+       \uniqueVect =>
+        case uniqueVect of
+          UniqueEmpty impossible
+          UniqueConcat _ _ _ uniqueXS => void $ prf uniqueXS
 -------------------------------------------------------------------------------
-
 -- SCIENCE
 equalityCommutative : x = y -> y = x
 equalityCommutative Refl = Refl
