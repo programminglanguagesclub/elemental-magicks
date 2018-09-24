@@ -157,13 +157,22 @@ aagf : (i = j -> Void) -> FS i = FS j -> Void
 
 yuwa :
  (k : Fin (S (S n))) ->
- (i : Fin n) ->
+ (i : Fin (S n)) ->
  (v : Vect (S (S n)) a) ->
- (x : a) ->
- (Vect.index (FS i) (deleteAt k v) = x) ->
+ (x : a) -> -- implicit?
+ (Vect.index i (deleteAt k v) = x) ->
  DPair
   (Fin (S (S n)))
   (\i' => Vect.index i' v = x)
+
+yuwa FZ FZ (x1::x2::xs) x prf = (FS FZ ** prf)
+yuwa (FS k) FZ (x1::x2::xs) x prf = (FZ ** prf)
+yuwa FZ (FS i) (x1::x2::xs) x prf = (FS (FS i) ** prf)
+yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf =
+ let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
+ (FS i' ** prf')
+yuwa (FS FZ) (FS FZ) (x1::x2::[]) x prf impossible
+
 
 afh :
  (k : Fin (S (S n))) ->
