@@ -153,8 +153,12 @@ notUniqueFromEqualAnywhere FZ (FS fj) iNotJ vIvJ UniqueEmpty impossible
 notUniqueFromEqualAnywhere {n=n} {v=x::xs} FZ (FS fj) iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) =
  notElemXXS (elemFromFound vIvJ)
 -------------------------------------------------------------------------------
+hgl : FS i = FS j -> i = j
+hgl Refl = Refl
+-------------------------------------------------------------------------------
 aagf : (i = j -> Void) -> FS i = FS j -> Void
-
+aagf p1 p2 = void $ p1 $ hgl p2
+-------------------------------------------------------------------------------
 yuwa :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -172,8 +176,7 @@ yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf =
  let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
  (FS i' ** prf')
 yuwa (FS FZ) (FS FZ) (x1::x2::[]) x prf impossible
-
-
+-------------------------------------------------------------------------------
 afh :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -192,7 +195,6 @@ afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
 afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
  let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
  ((FS i',FS j')**(aagf prf1,reindexAppend x1 (x2::xs) i' j' prf2))
- 
 -------------------------------------------------------------------------------
 gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
  
