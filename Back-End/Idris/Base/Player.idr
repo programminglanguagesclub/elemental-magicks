@@ -208,20 +208,21 @@ getBoardIds ((Just fm)::xs) = ?hole
 
 
 
-
+-------------------------------------------------------------------------------
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
    (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
    UniqueVect (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
   CorrectPlayer player                                                                                  
-
+-------------------------------------------------------------------------------
 moveCardFromHandToGraveyard :
  CorrectPlayer player ->
  (m : Nat) ->
  (i : Fin (S m)) ->
  ((fst $ hand player) = S m) ->
  (player' ** CorrectPlayer player')
+
 moveCardFromHandToGraveyard
  (MkCorrectPlayer
   (MkPlayer
@@ -238,19 +239,18 @@ moveCardFromHandToGraveyard
     timeRemainingMilliseconds)
   length25
   uniqueVect)
- m i prf =
- case playerHandLength of
-  Z => ?hole -- impossible
-  S k =>
-   let player' =
-     (MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
-   in
-   let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} ?hole in
+ m i prf with (playerHandLength) proof p
+  | Z impossible
+  | S k =
+     let player' =
+      (MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
+     in
+     let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} ?hole in
    --let r = the q Refl in
    --let p = ((fst $ hand player') + ((fst $ graveyard player') + (fst $ banished player')) = 25) in
    --let p1 = the p ?hole in
          (player' ** (MkCorrectPlayer player' ?hole {-(rewrite q in Refl)-} ?hole))
-
+-------------------------------------------------------------------------------
 
 
 

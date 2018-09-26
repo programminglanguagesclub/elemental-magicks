@@ -42,7 +42,6 @@ headOkayThenTailNotOkay :
 
 headOkayThenTailNotOkay {xs=xs} {x=x} notUniqueV notElemX uniqueT =
  notUniqueV (UniqueConcat xs x notElemX uniqueT)
- 
 -------------------------------------------------------------------------------
 FSInequality : (i = j -> Void) -> (FS i = FS j) -> Void
 FSInequality {i=i} {j=j} iNotJ fsIfsJ = iNotJ (FSInjective i j fsIfsJ)
@@ -100,7 +99,7 @@ findRepeatWitness (S n) (x::y::z) notUniqueV with (isElem x (y::z))
 -------------------------------------------------------------------------------
 elemFromFound : e = Vect.index i v -> Elem e v
 elemFromFound {i=FZ} {v=x::xs} prf = rewrite prf in Here
-elemFromFound {i=FS fk} {v=x::xs} prf = There $ elemFromFound prf {i=fk} {v=xs} 
+elemFromFound {i=FS fk} {v=x::xs} prf = There $ elemFromFound prf {i=fk} {v=xs}
 -------------------------------------------------------------------------------
 inequalityCommutative :
  (i = j -> Void) ->
@@ -185,6 +184,7 @@ afh :
 afh {n=n} FZ i j iNotJ (x1::x2::xs) prf = ((FS i,FS j) ** (FSInequality iNotJ, prf))
 afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
 afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf = ?hole
+-- let (i' ** prf') = yuwa (FS fk) (FS i) (x1::x2::xs) prf in ?hole
 afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
 afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
  let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
@@ -194,6 +194,43 @@ jill : (Just x = Nothing) -> Void
 jill Refl impossible
 
 
+hjs :
+ (x : Fin 25) ->
+ (v : Vect n (Fin 25)) ->
+ (w : Vect m (Fin 25)) ->
+ (Elem x v) ->
+ (Elem x (v++w))
+
+hjs x [] w elem = void $ noEmptyElem elem
+hjs x (x::vs) w Here = Here
+hjs x (_::vs) w (There elem') = There $ hjs x vs w elem'
+
+hjw :
+ (x : Fin 25) ->
+ (v : Vect n (Fin 25)) ->
+ (w : Vect m (Fin 25)) ->
+ (Not (Elem x (v++w))) ->
+ (Elem x v) ->
+ Void
+
+hjw x v w prf prf2 = prf $ hjs x v w prf2
+
+
+
+
+{-
+whu :
+ (x : Fin 25) ->
+ (v : Vect n (Fin 25)) ->
+ find (==x) v = Nothing ->
+ Not (Elem x v)
+
+whu x [] prf = \elem => void $ noEmptyElem elem
+whu x (v1::vs) prf = ?hole {-with ((==x) v1)
+ | True = ?hole
+ | False = ?hole
+ -}
+ -}
 gkj :
  (x : Fin 25) ->
  (v : Vect n (Fin 25)) ->
@@ -242,45 +279,48 @@ notUniqueConcat :
 notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
  notUniqueL $ uniqueConcat n m l k uniqueKL
 -------------------------------------------------------------------------------
+uniqueConcat2 :
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ UniqueVect (l ++ k) ->
+ UniqueVect l
 
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
 uniqueConcat2 [] k _ = UniqueEmpty
 uniqueConcat2 {n=S n} {m=m} (lh::lt) k lkUnique with (lkUnique)
   | UniqueEmpty impossible
   | UniqueConcat (lt ++ k) lh headUnique tailUnique =
    let uniqueLTail = uniqueConcat2 lt k tailUnique in
-   UniqueConcat lt lh ?hole {-(gkj lh lt k headUnique)-} uniqueLTail
+   UniqueConcat lt lh (hjw lh lt k headUnique) uniqueLTail
+{-
+ whu :
+   (x : Fin 25) ->
+     (v : Vect n (Fin 25)) ->
+       find (==x) v = Nothing ->
+                 Not (Elem x v)
+                 -}
 
-booo : (x : (Fin 25)) -> (xs : Vect n (Fin 25)) -> (ys : Vect n (Fin 25)) -> xs = ys -> (x::xs) = (x::ys)
+-------------------------------------------------------------------------------
+booo :
+ (x : (Fin 25)) ->
+ (xs : Vect n (Fin 25)) ->
+ (ys : Vect n (Fin 25)) ->
+ xs = ys ->
+ (x::xs) = (x::ys)
+
 booo _ _ _ Refl = Refl
-
-
+-------------------------------------------------------------------------------
 aaaat :
  (xLen : Nat) ->
  (yLen : Nat) ->
  (zLen : Nat) ->
  plus xLen (plus yLen zLen) = plus (plus xLen yLen) zLen
-
 -------------------------------------------------------------------------------
 vectAppendAssociative' :
- {xLen : Nat} ->
- {yLen : Nat} ->
- {zLen : Nat} ->
  (xs : Vect xLen elem) ->
  (ys : Vect yLen elem) ->
  (zs : Vect zLen elem) ->
  (xs ++ ys) ++ zs = xs ++ (ys ++ zs)
-
-vectAppendAssociative' {xLen=xLen} {yLen=yLen} {zLen=zLen} xs ys zs = ?hole
---(rewrite aaaat xLen yLen zLen in equalityCommutative (vectAppendAssociative'' xs ys zs))
-
--------------------------------------------------------------------------------
-plusAssociative' : (left : Nat) -> (centre : Nat) -> (right : Nat) ->
-                    (left + centre) + right = left + (centre + right)
--------------------------------------------------------------------------------
-hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++(l++k)
-hak [] l k = Refl
-hak {a=S a} {b=b} {c=c} (x::xs) l k = ?hole --booo x (rewrite plusAssociative a b c in ((xs++l)++k)) (xs++(l++k))  --(hak xs l k)
+vectAppendAssociative' xs ys zs = sym (vectAppendAssociative xs ys zs)
 -------------------------------------------------------------------------------
 uniqueConcat4 :
  (l : Vect n (Fin 25)) ->
@@ -293,11 +333,15 @@ uniqueConcat4 {n=n} {m=m} {o=o} l k q prf =
  let qlUnique = uniqueConcat2 (q++l) k prf in
  uniqueConcat n o l q qlUnique
 -------------------------------------------------------------------------------
--- 1.17.1
--- And when Abram was ninety years old and nine, the LORD appeared to Abram,
--- and said unto him, I am the Almighty God; walk before me, and be thou perfect.
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ (l ++ k)) -> UniqueVect l
-uniqueConcat3 {n=n} {m=m} {o=o} l k q prf = ?hole -- uniqueConcat4 l k q (rewrite hak q l k in prf)
+uniqueConcat3 :
+ (l : Vect n (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ (q : Vect o (Fin 25)) ->
+ UniqueVect (q ++ (l ++ k)) ->
+ UniqueVect l
+
+uniqueConcat3 {n=n} {m=m} {o=o} l k q prf =
+ uniqueConcat4 l k q (rewrite vectAppendAssociative' q l k in prf)
 -------------------------------------------------------------------------------
 uniqueRemoveHead :
  (l : Vect (S n) (Fin 25)) ->
