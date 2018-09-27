@@ -160,16 +160,31 @@ yuwa :
  (Vect.index i (deleteAt k v) = x) ->
  DPair
   (Fin (S (S n)))
-  (\i' => Vect.index i' v = x)
+  (\i' => (Vect.index i' v = x, compare i' (weaken i) = LT -> Void))
 
-yuwa FZ FZ (x1::x2::xs) x prf = (FS FZ ** prf)
-yuwa (FS k) FZ (x1::x2::xs) x prf = (FZ ** prf)
-yuwa FZ (FS i) (x1::x2::xs) x prf = (FS (FS i) ** prf)
-yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf =
- let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
- (FS i' ** prf')
+yuwa FZ FZ (x1::x2::xs) x prf = (FS FZ ** (prf,?hole))
+yuwa (FS k) FZ (x1::x2::xs) x prf = (FZ ** (prf, ?hole))
+yuwa FZ (FS i) (x1::x2::xs) x prf = (FS (FS i) ** (prf, ?hole))
+yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf = ?hole
+-- let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
+-- (FS i' ** prf')
 yuwa (FS FZ) (FS FZ) (x1::x2::[]) x prf impossible
 -------------------------------------------------------------------------------
+implementation Uninhabited (EQ = LT) where
+  uninhabited Refl impossible
+
+implementation Uninhabited (Prelude.Interfaces.GT = LT) where
+  uninhabited Refl impossible
+
+asgf : (i' : Fin (S n)) -> (i : Fin n) -> (compare i' (FS i) = LT -> Void) -> i' = FZ -> Void
+asgf FZ i p1 p2 with (compare FZ (FS i)) proof p
+ | LT = p1 p
+ | EQ = absurd p
+ | GT = absurd p
+asgf (FS fi') i p1 p2 = ?hole
+
+
+
 afh :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -183,8 +198,9 @@ afh :
 
 afh {n=n} FZ i j iNotJ (x1::x2::xs) prf = ((FS i,FS j) ** (FSInequality iNotJ, prf))
 afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
-afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf = ?hole
--- let (i' ** prf') = yuwa (FS fk) (FS i) (x1::x2::xs) prf in ?hole
+afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf =
+ let (i' ** (prf', p2)) = yuwa (FS fk) (FS i) (x1::x2::xs) (Vect.index FZ (deleteAt (FS fk) (x1::x2::xs))) prf in
+  ((i', FZ) ** (asgf i' (weaken i) p2, prf'))
 afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
 afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
  let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
