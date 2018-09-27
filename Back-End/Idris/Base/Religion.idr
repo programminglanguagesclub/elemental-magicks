@@ -182,6 +182,19 @@ yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf =
  let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
  (FS i' ** prf')
 yuwa (FS FZ) (FS FZ) (x1::x2::[]) x prf impossible
+
+
+
+yuwos :
+ (k : Fin (S (S n))) ->
+ (j : Fin (S n)) ->
+ (v : Vect (S (S n)) a) ->
+ (x : a) -> -- implicit?
+ (x = Vect.index j (deleteAt k v)) ->
+ DPair
+  (Fin (S (S n)))
+  (\j' => (Vect.index j' v = x, compare j' (weaken j) = LT -> Void))
+
 -------------------------------------------------------------------------------
 
 asgf : (i' : Fin (S n)) -> (i : Fin n) -> (compare i' (FS i) = LT -> Void) -> i' = FZ -> Void
@@ -209,7 +222,11 @@ afh {n=n} (FS fk) FZ FZ iNotJ (x1::x2::xs) prf = void $ iNotJ Refl
 afh {n=n} (FS fk) (FS i) FZ iNotJ (x1::x2::xs) prf =
  let (i' ** (prf', p2)) = yuwa (FS fk) (FS i) (x1::x2::xs) (Vect.index FZ (deleteAt (FS fk) (x1::x2::xs))) prf in
   ((i', FZ) ** (asgf i' (weaken i) p2, prf'))
-afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf = ?hole
+afh {n=n} (FS fk) FZ (FS j) iNotJ (x1::x2::xs) prf =
+ let (j' ** (prf', p2)) = yuwos (FS fk) (FS j) (x1::x2::xs) (Vect.index FZ (deleteAt (FS fk) (x1::x2::xs))) prf in
+     ((j', FZ) ** (asgf j' (weaken j) p2, prf'))
+
+
 afh {n=S n} (FS fk) (FS i) (FS j) iNotJ (x1::x2::xs) prf =
  let ((i',j')**(prf1,prf2)) = afh fk i j (fSNotEq iNotJ) (x2::xs) prf in
  ((FS i',FS j')**(aagf prf1,reindexAppend x1 (x2::xs) i' j' prf2))
