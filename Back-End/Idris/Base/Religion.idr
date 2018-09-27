@@ -152,6 +152,19 @@ hgl Refl = Refl
 aagf : (i = j -> Void) -> FS i = FS j -> Void
 aagf p1 p2 = void $ p1 $ hgl p2
 -------------------------------------------------------------------------------
+implementation Uninhabited (EQ = LT) where
+  uninhabited Refl impossible    
+
+implementation Uninhabited (Prelude.Interfaces.GT = LT) where
+  uninhabited Refl impossible
+
+implementation Uninhabited (FS i = FZ) where
+  uninhabited Refl impossible
+
+gyy : (i : Fin n) -> (compare (FS i) (weaken i) = GT)
+gyy FZ = Refl
+gyy (FS i) = gyy i
+
 yuwa :
  (k : Fin (S (S n))) ->
  (i : Fin (S n)) ->
@@ -162,26 +175,21 @@ yuwa :
   (Fin (S (S n)))
   (\i' => (Vect.index i' v = x, compare i' (weaken i) = LT -> Void))
 
-yuwa FZ FZ (x1::x2::xs) x prf = (FS FZ ** (prf,?hole))
-yuwa (FS k) FZ (x1::x2::xs) x prf = (FZ ** (prf, ?hole))
-yuwa FZ (FS i) (x1::x2::xs) x prf = (FS (FS i) ** (prf, ?hole))
-yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf = ?hole
--- let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
--- (FS i' ** prf')
+yuwa FZ FZ (x1::x2::xs) x prf = (FS FZ ** (prf, absurd))
+yuwa (FS k) FZ (x1::x2::xs) x prf = (FZ ** (prf, absurd))
+yuwa FZ (FS i) (x1::x2::xs) x prf = (FS (FS i) ** (prf, rewrite gyy i in absurd))
+yuwa (FS k) (FS i) (x1::x2::x3::xs) x prf =
+ let (i' ** prf') = yuwa k i (x2::x3::xs) x prf in
+ (FS i' ** prf')
 yuwa (FS FZ) (FS FZ) (x1::x2::[]) x prf impossible
 -------------------------------------------------------------------------------
-implementation Uninhabited (EQ = LT) where
-  uninhabited Refl impossible
-
-implementation Uninhabited (Prelude.Interfaces.GT = LT) where
-  uninhabited Refl impossible
 
 asgf : (i' : Fin (S n)) -> (i : Fin n) -> (compare i' (FS i) = LT -> Void) -> i' = FZ -> Void
 asgf FZ i p1 p2 with (compare FZ (FS i)) proof p
  | LT = p1 p
  | EQ = absurd p
  | GT = absurd p
-asgf (FS fi') i p1 p2 = ?hole
+asgf (FS fi') i p1 p2 = absurd p2
 
 
 
