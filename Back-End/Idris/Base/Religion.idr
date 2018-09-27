@@ -137,8 +137,8 @@ notUniqueFromEqualAnywhere :
 
 notUniqueFromEqualAnywhere FZ FZ iNotJ vIvJ uniqueV = void (iNotJ Refl)
 
-notUniqueFromEqualAnywhere (FS fi) FZ iNotJ vIvJ uniqueV = assert_total (notUniqueFromEqualAnywhere FZ (FS fi) (inequalityCommutative iNotJ) (equalityCommutative vIvJ) uniqueV)
-
+notUniqueFromEqualAnywhere (FS fi) FZ iNotJ vIvJ UniqueEmpty impossible
+notUniqueFromEqualAnywhere {n=n} {v=x::xs} (FS i) FZ iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) = notElemXXS (elemFromFound $ sym vIvJ)
 notUniqueFromEqualAnywhere (FS fi) (FS fj) iNotJ vIvJ UniqueEmpty impossible
 notUniqueFromEqualAnywhere {n=S n} {v=x::xs} (FS fi) (FS fj) iNotJ vIvJ (UniqueConcat xs x notElemXXS uniqueXS) =
  notUniqueFromEqualAnywhere fi fj (fSNotEq iNotJ) (reindexUnappend x xs vIvJ) uniqueXS
