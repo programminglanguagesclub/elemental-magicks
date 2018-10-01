@@ -57,6 +57,11 @@ record Player where
 
 
 
+getThem : Vect n (Maybe a) -> (m ** Vect m a)
+getIt : Maybe a -> (m ** Vect m a)
+
+
+
 --getBoardIds : Vect q (Maybe FieldedMonster) -> (n ** Vect n (Fin 25))
 --getBoardIds [] = (0 ** [])
 --getBoardIds (Nothing::xs) = getBoardIds xs
@@ -208,6 +213,80 @@ getBoardIds ((Just fm)::xs) = ?hole
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- I NEED TO DEFINE UNIQUENESS OF CARDS GIVEN BY EQ, DECEQ or something is given by ID!!!!!!!!!!!!!
+-- (OR NOT USE DECEQ)
+
+
+
+{- 
+ getThem : Vect n (Maybe a) -> (m ** Vect m a)
+  getIt : Maybe a -> (m ** Vect m a)
+  -}
+
+
+
+data CorrectPlayer : Player -> Type where
+  MkCorrectPlayer :
+   (player : Player) -> 
+   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) + (fst $ getThem $ board player) + (fst $ getIt $ spawnCard player) = 25) ->
+   UniqueVect ((map Base.Card.getId $ snd $ hand player) ++ (map Base.Card.getId $ snd $ graveyard player) ++ (map Base.Card.getId $ snd $ banished player) ++ (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board player) ++ (map Base.Card.getId $ snd $ getIt $ spawnCard player)) ->
+   CorrectPlayer player 
+
+
+
+
+
+
+
+
+
+{-
+
+
 -------------------------------------------------------------------------------
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
@@ -292,6 +371,103 @@ moveCardFromHandToGraveyard
 
      (player' ** (MkCorrectPlayer player' (rewrite how k playerGraveyardLength playerBanishedLength in faf playerGraveyardLength playerBanishedLength (hoh k playerGraveyardLength playerBanishedLength length25)) uniqueTransplant))
 -------------------------------------------------------------------------------
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
