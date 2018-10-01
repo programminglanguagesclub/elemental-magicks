@@ -213,9 +213,39 @@ data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
    (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
-   UniqueVect (map Base.Card.getId $ (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+   UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
   CorrectPlayer player                                                                                  
 -------------------------------------------------------------------------------
+hgg : x = S n -> x = Z -> Void
+--hgg {x=Z} _ _ impossible
+--hgg {x=S n} _ _ impossible
+
+
+faf : (x : Nat) -> (y : Nat) -> plus (S k) (plus x y) = 25 -> plus k (S (plus x y)) = 25
+faf x y prf = ?hole
+
+
+transplantStartToEnd :
+ (l : Vect (S n) Card) ->
+ (k : Vect m Card) ->
+ (q : Vect o Card) ->
+ UniqueVect (l ++ k ++ q) ->
+ UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]) ++ q)
+
+how : 
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ plus k (plus (plus playerGraveyardLength 1) playerBanishedLength) = plus k (S (plus playerGraveyardLength playerBanishedLength))
+
+hoh :
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ S (plus k (plus playerGraveyardLength playerBanishedLength)) = 25 ->
+ --plus k (plus (plus playerGraveyardLength 1) playerBanishedLength) = 25
+ plus (S k) (plus playerGraveyardLength playerBanishedLength) = 25
+
 moveCardFromHandToGraveyard :
  CorrectPlayer player ->
  (m : Nat) ->
@@ -239,24 +269,64 @@ moveCardFromHandToGraveyard
     timeRemainingMilliseconds)
   length25
   uniqueVect)
- m i prf with (playerHandLength) proof p
-  | Z impossible
+ m i prf with (playerHandLength) --proof p
+  | Z = void $ hgg prf Refl
   | S k =
      let player' =
-      (MkPlayer board rowTarget (k ** tail playerHand) ((S playerGraveyardLength) ** (rewrite plusCommutative 1 playerGraveyardLength in (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
+       (MkPlayer board rowTarget (k ** tail playerHand) ((playerGraveyardLength + 1) ** ({-rewrite plusCommutative 1 playerGraveyardLength in-} (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
      in
-     let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} ?hole in
-   --let r = the q Refl in
+     --let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} Refl in
+     --let r = the q Refl in
    --let p = ((fst $ hand player') + ((fst $ graveyard player') + (fst $ banished player')) = 25) in
    --let p1 = the p ?hole in
-         (player' ** (MkCorrectPlayer player' ?hole {-(rewrite q in Refl)-} ?hole))
+  
+  
+     --let playerHand'Unique = ?hole in
+    -- let playerGraveyard'Unique = ?hole in
+    -- let playerBanished'Unique = ?hole in
+    -- let allUnique = uniqueConcat playerHand'Unique playerGraveyard'Unique playerBanished'Unique 
+
+ --    let p1 = the ((rewrite plusCommutative 1 playerGraveyardLength in playerGraveyard ++ [head playerHand]) = snd (graveyard player'))
+   --               Refl in
+     let uniqueTransplant = transplantStartToEnd playerHand playerGraveyard playerBanished uniqueVect in
+
+     (player' ** (MkCorrectPlayer player' (rewrite how k playerGraveyardLength playerBanishedLength in faf playerGraveyardLength playerBanishedLength (hoh k playerGraveyardLength playerBanishedLength length25)) ?hole {-uniqueTransplant-}))
 -------------------------------------------------------------------------------
 
 
 
+{-
+
+                UniqueVect (tail playerHand ++ (playerGraveyard ++ [head playerHand]) ++ playerBanished) (Type of uniqueTransplant)
+                        and
+                                        UniqueVect (snd (hand player') ++ snd (graveyard player') ++ snd (banished player')) (Expected type)
 
 
 
+ transplantStartToEnd :
+   (l : Vect (S n) (Fin 25)) ->
+     (k : Vect m (Fin 25)) ->
+       UniqueVect (l ++ k) ->
+         UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]))
+
+
+
+uniqueConcat4 :
+ (l : Vect n (Fin 25)) ->
+  (k : Vect m (Fin 25)) ->
+   (q : Vect o (Fin 25)) ->
+    UniqueVect ((q ++ l) ++ k) ->
+     UniqueVect l
+
+
+              Type mismatch between
+                                      25
+                                                      and
+                                                                              plus k (S (plus playerGraveyardLength playerBanishedLength))
+
+
+
+-}
 
 
 
@@ -275,7 +345,7 @@ data CorrectPlayer : Player -> Type where
                                                                                                     ((x : Fin 25) -> find (==x) (getPlayerIdList player) = Nothing -> Void) ->
                                                                                                       CorrectPlayer player
 
-                                                                                                      -}
+-}
 
 
 record DrawPlayer where

@@ -14,7 +14,7 @@ import Base.Biology
 -- If a theorem consumes approximately a week of work without a solution,
 -- it is to be assigned to its own verse from the bible.
 -------------------------------------------------------------------------------
-isUniqueVect : (n : Nat) -> (v : Vect n (Fin 25)) -> Dec (UniqueVect v)
+isUniqueVect : DecEq a => (n : Nat) -> (v : Vect n a) -> Dec (UniqueVect v)
 isUniqueVect Z [] = Yes UniqueEmpty
 isUniqueVect (S k) (x::xs) with (isElem x xs)
   | Yes prfy = No $
@@ -81,8 +81,9 @@ findWhere x (y::xs) (There somewhere) =
  ((FS i) ** littleFindWhere x y xs i prf)
 -------------------------------------------------------------------------------
 findRepeatWitness :
+ DecEq a =>
  (n : Nat) ->
- (v : Vect (S n) (Fin 25)) ->
+ (v : Vect (S n) a) ->
  (UniqueVect v -> Void) ->
  DPair
   (Fin (S n), Fin (S n))
@@ -130,7 +131,7 @@ notUniqueFromEqualAnywhere :
  (i : Fin (S n)) ->
  (j : Fin (S n)) ->
  (i = j -> Void) ->
- {v : Vect (S n) (Fin 25)} -> -- (not S $ S n???)
+ {v : Vect (S n) a} -> -- (not S $ S n???)
  (Vect.index i v = Vect.index j v) ->
  UniqueVect v ->
  Void
@@ -236,9 +237,9 @@ jill Refl impossible
 
 
 hjs :
- (x : Fin 25) ->
- (v : Vect n (Fin 25)) ->
- (w : Vect m (Fin 25)) ->
+ (x : a) ->
+ (v : Vect n a) ->
+ (w : Vect m a) ->
  (Elem x v) ->
  (Elem x (v++w))
 
@@ -247,9 +248,9 @@ hjs x (x::vs) w Here = Here
 hjs x (_::vs) w (There elem') = There $ hjs x vs w elem'
 
 hjw :
- (x : Fin 25) ->
- (v : Vect n (Fin 25)) ->
- (w : Vect m (Fin 25)) ->
+ (x : a) ->
+ (v : Vect n a) ->
+ (w : Vect m a) ->
  (Not (Elem x (v++w))) ->
  (Elem x v) ->
  Void
@@ -257,11 +258,12 @@ hjw :
 hjw x v w prf prf2 = prf $ hjs x v w prf2
 
 gkj :
- (x : Fin 25) ->
- (v : Vect n (Fin 25)) ->
- (w : Vect m (Fin 25)) ->
- find (==x) (v++w) = Nothing ->
- find (==x) v = Nothing
+ Eq a =>
+ (x : a) ->
+ (v : Vect n a) ->
+ (w : Vect m a) ->
+ Vect.find (==x) (v++w) = Nothing ->
+ Vect.find (==x) v = Nothing
 
 gkj x [] w prf = Refl
 gkj x (v1::vs) w prf with ((==x) v1)
@@ -269,7 +271,7 @@ gkj x (v1::vs) w prf with ((==x) v1)
  | False = gkj x vs w prf
 -------------------------------------------------------------------------------
 vectNilLeftNeutral :
- (l : Vect n (Fin 25)) ->
+ (l : Vect n a) ->
  UniqueVect l = UniqueVect ([] ++ l)
 
 vectNilLeftNeutral l = Refl
@@ -277,8 +279,8 @@ vectNilLeftNeutral l = Refl
 uniqueConcat :
  (n : Nat) ->
  (m : Nat) ->
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
+ (l : Vect n a) ->
+ (k : Vect m a) ->
  UniqueVect (k ++ l) ->
  UniqueVect l
 
@@ -289,8 +291,8 @@ uniqueConcat n (S m) l (kh::kt) klUnique with (toIndexed (S (plus m n)) ((kh::kt
     uniqueConcat n m l kt (fromIndexed (m+n) (kt ++ l) uniqueListT)
 -------------------------------------------------------------------------------
 notUniqueConcat :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
+ (l : Vect n a) ->
+ (k : Vect m a) ->
  (UniqueVect l -> Void) ->
  UniqueVect (k++l) ->
  Void
@@ -299,8 +301,8 @@ notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
  notUniqueL $ uniqueConcat n m l k uniqueKL
 -------------------------------------------------------------------------------
 uniqueConcat2 :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
+ (l : Vect n a) ->
+ (k : Vect m a) ->
  UniqueVect (l ++ k) ->
  UniqueVect l
 
@@ -312,9 +314,9 @@ uniqueConcat2 {n=S n} {m=m} (lh::lt) k lkUnique with (lkUnique)
    UniqueConcat lt lh (hjw lh lt k headUnique) uniqueLTail
 -------------------------------------------------------------------------------
 booo :
- (x : (Fin 25)) ->
- (xs : Vect n (Fin 25)) ->
- (ys : Vect n (Fin 25)) ->
+ (x : a) ->
+ (xs : Vect n a) ->
+ (ys : Vect n a) ->
  xs = ys ->
  (x::xs) = (x::ys)
 
@@ -334,9 +336,9 @@ vectAppendAssociative' :
 vectAppendAssociative' xs ys zs = sym (vectAppendAssociative xs ys zs)
 -------------------------------------------------------------------------------
 uniqueConcat4 :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- (q : Vect o (Fin 25)) ->
+ (l : Vect n a) ->
+ (k : Vect m a) ->
+ (q : Vect o a) ->
  UniqueVect ((q ++ l) ++ k) ->
  UniqueVect l
 
@@ -345,9 +347,9 @@ uniqueConcat4 {n=n} {m=m} {o=o} l k q prf =
  uniqueConcat n o l q qlUnique
 -------------------------------------------------------------------------------
 uniqueConcat3 :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- (q : Vect o (Fin 25)) ->
+ (l : Vect n a) ->
+ (k : Vect m a) ->
+ (q : Vect o a) ->
  UniqueVect (q ++ (l ++ k)) ->
  UniqueVect l
 
@@ -355,21 +357,21 @@ uniqueConcat3 {n=n} {m=m} {o=o} l k q prf =
  uniqueConcat4 l k q (rewrite vectAppendAssociative' q l k in prf)
 -------------------------------------------------------------------------------
 uniqueRemoveHead :
- (l : Vect (S n) (Fin 25)) ->
+ (l : Vect (S n) a) ->
  UniqueVect l ->
  UniqueVect (tail l)
 
 uniqueRemoveHead _ (UniqueConcat _ _ _ uniqueListT) = uniqueListT
 -------------------------------------------------------------------------------
 deleteAtHeadRemovesHead :
- (l : Vect (S n) (Fin 25)) ->
+ (l : Vect (S n) a) ->
  deleteAt FZ l = tail l
 
 deleteAtHeadRemovesHead (x::xs) = Refl
 -------------------------------------------------------------------------------
 deleteTailEquality :
- (y : Fin 25) ->
- (xs : Vect (S n) (Fin 25)) ->
+ (y : a) ->
+ (xs : Vect (S n) a) ->
  (fk : Fin (S n)) ->
  x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
 

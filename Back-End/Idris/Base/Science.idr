@@ -107,3 +107,20 @@ uniqueMove n l k i uniqueL with (isUniqueVect (S n) (insertAt i (index k l) (del
    | Yes prf = prf
    | No prf = sdj n (index k l) (deleteAt k l) i ?hole (uniqueRemove l k uniqueL)
 ----------------------------------------------------------------
+
+{-
+-- if the concatenation of two vectors is unique then we can move between them and maintain uniqueness.
+-- for now require the transplant to be first thing in the first vector to last position in the last vector.
+
+transplantStartToEnd :
+ (l : Vect (S n) Card) ->
+ (k : Vect m Card) ->
+ (q : Vect o Card) ->
+ UniqueVect (l ++ k ++ q) ->
+ UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]) ++ q)
+ -}
+
+
+
+
+
