@@ -290,7 +290,7 @@ moveCardFromHandToGraveyard
    --               Refl in
      let uniqueTransplant = transplantStartToEnd playerHand playerGraveyard playerBanished uniqueVect in
 
-     (player' ** (MkCorrectPlayer player' (rewrite how k playerGraveyardLength playerBanishedLength in faf playerGraveyardLength playerBanishedLength (hoh k playerGraveyardLength playerBanishedLength length25)) ?hole {-uniqueTransplant-}))
+     (player' ** (MkCorrectPlayer player' (rewrite how k playerGraveyardLength playerBanishedLength in faf playerGraveyardLength playerBanishedLength (hoh k playerGraveyardLength playerBanishedLength length25)) uniqueTransplant))
 -------------------------------------------------------------------------------
 
 
