@@ -266,23 +266,156 @@ getBoardIds ((Just fm)::xs) = ?hole
  getThem : Vect n (Maybe a) -> (m ** Vect m a)
   getIt : Maybe a -> (m ** Vect m a)
   -}
+hgg : x = S n -> x = Z -> Void
 
 
 
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
-   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) + (fst $ getThem $ board player) + (fst $ getIt $ spawnCard player) = 25) ->
-   UniqueVect ((map Base.Card.getId $ snd $ hand player) ++ (map Base.Card.getId $ snd $ graveyard player) ++ (map Base.Card.getId $ snd $ banished player) ++ (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board player) ++ (map Base.Card.getId $ snd $ getIt $ spawnCard player)) ->
+   (length25 :
+    (fst $ hand player) +
+    (fst $ graveyard player) +
+    (fst $ banished player) +
+    (fst $ getThem $ board player) +
+    (fst $ getIt $ spawnCard player) = 25) ->
+   UniqueVect
+    ((map Base.Card.getId $ snd $ hand player) ++
+     (map Base.Card.getId $ snd $ graveyard player) ++
+     (map Base.Card.getId $ snd $ banished player) ++
+     (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board player) ++
+     (map Base.Card.getId $ snd $ getIt $ spawnCard player)) ->
    CorrectPlayer player 
 
 
 
+transplantStartToEnd :
+ (l : Vect (S n) (Fin 25)) ->
+ (k : Vect m (Fin 25)) ->
+ (q : Vect o (Fin 25)) ->
+ (r : Vect a (Fin 25)) ->
+ (s : Vect b (Fin 25)) ->
+ UniqueVect (l ++ k ++ q ++ r ++ s) ->
+ UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]) ++ q ++ r ++ s)
+
+
+
+bhoo :
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ (boardLength : Nat) ->
+ (spawnLength : Nat) ->
+ plus (plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) boardLength) spawnLength =
+ S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) boardLength) spawnLength)
+
+{-
+(plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)) = S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+
+                       S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+                                       and
+                                                               plus (plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard))
+
+
+-}
 
 
 
 
 
+{-
+
+ tail (map getId playerHand) ++
+ (map getId playerGraveyard ++ [head (map getId playerHand)]) ++
+ map getId playerBanished ++ map (id . basic) (snd (getThem board)) ++ map getId (snd (getIt spawnCard))
+
+ 
+ tail (Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId playerHand) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId (playerGraveyard ++ [head playerHand]) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId playerBanished ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map (\x => id (basic x)) (snd (getThem board)) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId (snd (getIt spawnCard))
+
+
+
+                                                                                                                                                                                                                                                                                             -}
+
+yyl : (f : a -> b) -> (l : Vect (S n) a) -> map f (tail l) = tail (map f l)
+yyl2 : (f : a -> b) -> (grave : Vect n a) -> (hand : Vect (S m) a) -> map f (grave ++ [head hand]) = (map f grave) ++ (map f [head hand])
+yyl3 : {a : Type} -> {b : Type} -> {m : Nat} -> (f : a -> b) -> (hand : Vect (S m) a) -> f (head hand) = head (map f hand)
+
+--(map getId playerGraveyard ++ [head (map getId playerHand)]) 
+--(map getId playerGraveyard ++ [getId (head playerHand)])
+
+
+moveCardFromHandToGraveyard :
+ CorrectPlayer player ->
+ (m : Nat) ->
+ (i : Fin (S m)) ->
+ ((fst $ hand player) = S m) ->
+ (player' ** CorrectPlayer player')
+
+
+moveCardFromHandToGraveyard
+ (MkCorrectPlayer
+  (MkPlayer
+    board
+    rowTarget
+    (playerHandLength ** playerHand)
+    (playerGraveyardLength ** playerGraveyard)
+    (playerBanishedLength ** playerBanished)
+    spawnCard
+    soulCards
+    thoughtsResource
+    knowledge
+    temporaryId
+    timeRemainingMilliseconds)
+  length25
+  uniqueVect)
+ m i prf with (playerHandLength)
+  | Z = void $ hgg prf Refl
+  | S k =
+   let player' = (MkPlayer
+                   board
+                   rowTarget
+                   (k ** tail playerHand)
+                   ((playerGraveyardLength + 1) ** ((playerGraveyard) ++ [Data.Vect.head playerHand]))
+                   (playerBanishedLength ** playerBanished)
+                   spawnCard
+                   soulCards
+                   thoughtsResource
+                   knowledge
+                   temporaryId
+                   timeRemainingMilliseconds) in
+   let uniqueTransplant = transplantStartToEnd
+                           (map Base.Card.getId $ playerHand) --playerHand playerGraveyard playerBanished uniqueVect in
+                           (map Base.Card.getId $ playerGraveyard)
+                           (map Base.Card.getId $ playerBanished)
+                           (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                           (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                           uniqueVect in
+   (player' ** (MkCorrectPlayer
+                 player'
+                 (rewrite bhoo k playerGraveyardLength playerBanishedLength (fst (getThem board)) (fst (getIt spawnCard)) in length25)
+                 (rewrite yyl getId playerHand in rewrite yyl2 getId playerGraveyard playerHand in rewrite yyl3 getId playerHand in
+                  transplantStartToEnd
+                  (map Base.Card.getId $ playerHand)
+                  (map Base.Card.getId $ playerGraveyard)
+                  (map Base.Card.getId $ playerBanished)
+                  (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                  (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                  uniqueVect)))
+
+{-
+(map getId playerGraveyard ++ [head (map getId playerHand)]) 
+(Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId playerGraveyard ++ [getId (head playerHand)]) ++
+
+
+
+(map getId playerGraveyard ++ [head (map getId playerHand)]) 
+(map getId playerGraveyard ++ [getId (head playerHand)])
+
+-}
 
 {-
 
