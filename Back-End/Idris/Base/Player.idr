@@ -300,9 +300,12 @@ transplantIndexToEnd :
  UniqueVect ((Vect.deleteAt i l) ++ (k ++ [Vect.index i l]) ++ q ++ r ++ s)
 
 
+{-
+ S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+                 and
+                                         plus (plus (plus (plus m (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard))
 
-
-
+-}
 bhoo :
  (k : Nat) ->
  (playerGraveyardLength : Nat) ->
@@ -356,6 +359,8 @@ yyl2 : (f : a -> b) -> (i : Fin (S m)) -> (grave : Vect n a) -> (hand : Vect (S 
 yyl3 : {a : Type} -> {b : Type} -> {m : Nat} -> (f : a -> b) -> (i : Fin (S m)) -> (hand : Vect (S m) a) -> f (Vect.index i hand) = Vect.index i (map f hand)
 
 hu : S k = S m -> k = m
+wrong : (i : Nat) -> (j : Nat) -> i = j
+
 
 moveCardFromHandToGraveyard :
  CorrectPlayer player ->
@@ -404,23 +409,22 @@ moveCardFromHandToGraveyard
                            (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
                            (map Base.Card.getId $ snd $ getIt $ spawnCard)
                            uniqueVect in
-   ?hole
-                   {-        
    (player' ** (MkCorrectPlayer
                  player'
-                 (rewrite bhoo k playerGraveyardLength playerBanishedLength (fst (getThem board)) (fst (getIt spawnCard)) in length25)
-                 
-                 
+                 (rewrite bhoo m playerGraveyardLength playerBanishedLength (fst (getThem board)) (fst (getIt spawnCard)) in rewrite (the (m=k) ?hole) in length25)
                  ({-rewrite yyl getId i playerHand in-} {-rewrite yyl2 getId i playerGraveyard playerHand in-} {-rewrite yyl3 getId i playerHand in-}
                   transplantIndexToEnd
                    (map Base.Card.getId $ playerHand)
-                   (rewrite hu prf in i)
+                   -- ?hole
+                   --  (rewrite hu prf in i)
+                   ---(rewrite the (k=m) ?hole in i)
+                   (rewrite wrong k m in i)
                    (map Base.Card.getId $ playerGraveyard)
                    (map Base.Card.getId $ playerBanished)
                    (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
                    (map Base.Card.getId $ snd $ getIt $ spawnCard)
                    uniqueVect)))
-                   -}
+                   
 
 
 

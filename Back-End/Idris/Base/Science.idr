@@ -121,6 +121,102 @@ transplantStartToEnd :
  -}
 
 
+-- given (n : Nat), return the last index in a Vect of size (S n)
+lastIndex : (n : Nat) -> (Fin (S n))
+lastIndex Z = FZ
+lastIndex (S k) = FS (lastIndex k)
+
+
+
+
+
+{-findWhere :
+ DecEq a =>
+            (x : a) ->
+             (xs : Vect n a) ->
+              (Elem x xs) ->
+               (i ** index i xs = x)
+               -}
+
+
+-------------------------------------------------------------------------------
+insertDeleteInverses :
+ (i : Fin (S n)) ->
+ (v : Vect (S n) a) ->
+ (Data.Vect.insertAt i (Data.Vect.index i v) (Data.Vect.deleteAt i v)) = v
+
+insertDeleteInverses i v = ?hole
+-------------------------------------------------------------------------------
+insertLemma :
+ DecEq a =>
+ (v : Vect n a) ->
+ (UniqueVect v) ->
+ (i : Fin (S n)) ->
+ (x : a) ->
+ Elem x v ->
+ UniqueVect (insertAt i x v) ->
+ Void
+
+ insertLemma v uniqueV i x xElem uniqueV' = 
+-------------------------------------------------------------------------------
+removeLemma :
+ DecEq a =>
+ (v : Vect (S n) a) ->
+ UniqueVect v ->
+ (i : Fin (S n)) ->
+ Elem (index i v) (deleteAt i v) ->
+ Void
+
+removeLemma v uniqueV i appearsAgain =
+ ---let (i' ** p) = findWhere (index i v) (deleteAt i v) appearsAgain in
+ insertLemma
+  (deleteAt i v)
+  ?deletionPreservesUniqueness
+  i
+  (index i v)
+  appearsAgain
+  (rewrite insertDeleteInverses i v in uniqueV)
+-------------------------------------------------------------------------------
+
+------getHelper3 : (i : Fin (S n)) -> (v : Vect (S n) (Fin (S n))) -> (UniqueVect v) -> Not (Elem i v) -> Void
+
+
+{-
+getHelper3 : (v : Vect (S n) (Fin (S n))) -> (UniqueVect v) -> Not (Elem (lastIndex n) v) -> (Vect ()
+-}
+
+
+getHelper2 : (v : Vect (S n) (Fin (S n))) -> (UniqueVect v) -> Not (Elem (lastIndex n) v) -> Void
+getHelper2 {n=Z} [FZ] _ notElem = notElem Here
+getHelper2 {n=S k} _ _ _ = ?hole
+
+
+getHelper : (v : Vect (S n) (Fin (S n))) -> (UniqueVect v) -> Elem (lastIndex n) v
+getHelper {n=n} v uniqueV with (isElem (lastIndex n) v)
+ | Yes prf = prf
+ | No prf = void $ getHelper2 v uniqueV prf
+
+
+
+get : (x : Fin (S n)) -> (v : Vect (S n) (Fin (S n))) -> (UniqueVect v) -> Elem x v
+get x v uniqueV = ?hole
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
