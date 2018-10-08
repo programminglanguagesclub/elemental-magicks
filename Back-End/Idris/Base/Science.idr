@@ -65,7 +65,16 @@ deleteLemma (x::xs) fk = Refl
 --RELIGION
 
 huh : (x : (Fin 25)) -> (x1 : (Fin 25)) -> (xs : Vect n (Fin 25)) -> Not (Elem x (x1::xs)) -> Not (Elem x xs)
-hhhl : (x : Fin 25) -> (xs : Vect n (Fin 25)) -> (x1 : Fin 25) -> (i : Fin (S n)) -> (insertAt (FS i) x (x1::xs)) = x1 :: (insertAt i x xs)
+
+-------------------------------------------------------------------------------
+hhhl :
+ (x : a) ->
+ (xs : Vect n a) ->
+ (x1 : a) ->
+ (i : Fin (S n)) ->
+ (insertAt (FS i) x (x1::xs)) = x1 :: (insertAt i x xs)
+-------------------------------------------------------------------------------
+
 
 sdj :
    (n : Nat) ->
@@ -147,6 +156,32 @@ insertDeleteInverses :
 
 insertDeleteInverses i v = ?hole
 -------------------------------------------------------------------------------
+appendLemma :
+ DecEq a =>
+ (v : Vect n a) ->
+ (UniqueVect v) ->
+ (x : a) ->
+ Elem x v ->
+ UniqueVect (x::v) ->
+ Void
+
+appendLemma = ?hole
+-------------------------------------------------------------------------------
+
+{-
+
+hhhl : (x : Fin 25) -> (xs : Vect n (Fin 25)) -> (x1 : Fin 25) -> (i : Fin (S n)) -> (insertAt (FS i) x (x1::xs)) = x1 :: (insertAt i x xs)
+
+ hhhl :
+   (x : a) ->
+     (xs : Vect n a) ->
+       (x1 : a) ->
+         (i : Fin (S n)) ->
+           (insertAt (FS i) x (x1::xs)) = x1 :: (insertAt i x xs)
+
+
+-}
+
 insertLemma :
  DecEq a =>
  (v : Vect n a) ->
@@ -157,7 +192,15 @@ insertLemma :
  UniqueVect (insertAt i x v) ->
  Void
 
- insertLemma v uniqueV i x xElem uniqueV' = 
+insertLemma [] _ FZ x xElem _ = noEmptyElem xElem
+insertLemma (v1::vs) uniqueV FZ x xElem uniqueV' = appendLemma (v1::vs) uniqueV x xElem uniqueV'
+insertLemma (v1::vs) (UniqueConcat vs v1 v1NotElem uniqueVS) (FS fk) x xElem (UniqueConcat _ _ headNotElem uniqueVS') =
+  let q = insertLemma vs uniqueVS fk x ?hole ?hole in ?hole
+
+
+{-insertLemma (v1::vs) (UniqueConcat vs v1 v1NotElem uniqueVS) (FS fk) x xElem (UniqueConcat _ _ headNotElem uniqueVS') with (decEq v1 x)
+  | Yes prf = v1NotElem Here
+  | No prf = {-rewrite hhhl x vs v1 fk in -} insertLemma vs uniqueVS fk x ?hole uniqueVS'-}
 -------------------------------------------------------------------------------
 removeLemma :
  DecEq a =>

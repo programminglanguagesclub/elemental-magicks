@@ -387,7 +387,7 @@ moveCardFromHandToGraveyard
   uniqueVect)
  m i prf with (playerHandLength) proof p
   | Z = void $ hgg prf Refl
-  | S k =
+  | S k = ?hole {-
    let player' = (MkPlayer
                    board
                    rowTarget
@@ -426,7 +426,7 @@ moveCardFromHandToGraveyard
                    uniqueVect)))
                    
 
-
+-}
 
 {-
 yyl : (f : a -> b) -> (l : Vect (S n) a) -> map f (tail l) = tail (map f l)
@@ -1262,3 +1262,140 @@ transformMonster mutator row column player =
    record {board = updatedBoard} player
 -------------------------------------------------------------------------------
    -}
+
+moveCardFromGraveyardToHand :
+  CorrectPlayer player ->
+  (m : Nat) ->
+  (i : Fin (S m)) ->
+  ((fst $ graveyard player) = S m) ->
+  (player' ** CorrectPlayer player')
+
+
+
+
+
+-- cool idea:
+
+
+
+{- record Player where
+  constructor MkPlayer
+    --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+                board : Vect 9 (Maybe FieldedMonster)
+                  rowTarget : Vect 3 (Fin 3)
+                    hand : (m ** Vect m Card)
+                      graveyard : (n ** Vect n Card)
+                        banished : (o ** Vect o Card)
+                          spawnCard : Maybe Card
+                            soulCards : BoundedList 5 SoulCard
+                              thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+                                knowledge : Vect 6 (Bounded 0 9)
+                                  temporaryId : String
+                                  
+                                  
+
+
+record SizedClass (size : Nat) where
+      constructor SizedClassInfo
+          students : Vect size Person
+              className : String
+
+
+ data CorrectPlayer : Player -> Type where
+      MkCorrectPlayer :
+          (player : Player) -> 
+              (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+                  UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+                     CorrectPlayer player 
+
+
+                                  
+                                  -}
+
+
+
+-------------------------------------------------------------------------------
+{-record IndexedCorrectPlayer (boardSize : Nat) (spawnSize : Nat) (handSize : Nat) (graveyardSize : Nat) (banishedSize : Nat) where
+  MkIndexedCorrectPlayer :
+   (player : Player) ->
+   (length25 : 
+   -}  
+
+
+
+{-
+
+ record Player where
+     constructor MkPlayer
+       --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+                   board : Vect 9 (Maybe FieldedMonster)
+                     rowTarget : Vect 3 (Fin 3)
+                       hand : (m ** Vect m Card)
+                         graveyard : (n ** Vect n Card)
+                           banished : (o ** Vect o Card)
+                             spawnCard : Maybe Card
+                               soulCards : BoundedList 5 SoulCard
+                                 thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+                                   knowledge : Vect 6 (Bounded 0 9)
+                                     temporaryId : String
+                                      
+                                       -- should add proof that the total number of cards controlled is 25.
+                                        
+                                         
+                                           timeRemainingMilliseconds : Nat
+
+
+
+-}
+
+
+data FiveOptions a b c d e
+  = BoardLocation a
+  | HandLocation b
+  | GraveyardLocation c
+  | BanishedLocation d
+  | SpawnLocation e
+
+getCard :
+ {player : Player} ->
+ (correctPlayer : CorrectPlayer player) ->
+ Fin 25 ->
+ FiveOptions
+  (DPair
+   (FieldedMonster, Fin 9)
+   (\(m,i) => index i (board player) = Just m))
+  (DPair
+   (Card, Fin (fst (hand player)))
+   (\(c,i) => index i (snd (hand player)) = c))
+  (DPair
+   (Card, Fin (fst (graveyard player)))
+   (\(c,i) => index i (snd (graveyard player)) = c))
+  (DPair
+   (Card, Fin (fst (banished player)))
+   (\(c,i) => index i (snd (banished player)) = c))
+  (DPair
+   Card
+   (\c => spawnCard player = Just c))
+
+
+
+
+
+{-
+
+data CorrectPlayer : Player -> Type where
+         MkCorrectPlayer :
+                    (player : Player) ->
+                                   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+                                                      UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+                                                                            CorrectPlayer player
+
+
+                                                                            -}
+
+
+
+
+
+
+

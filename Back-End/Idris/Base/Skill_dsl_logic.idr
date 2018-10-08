@@ -58,6 +58,26 @@ lookupStat b HpR = extractBounded $ getCurrentHp $ hp $ b
 lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 {-I also need to be able to access the base stats....-}
 -------------------------------------------------------------------------------
+{-
+
+
+ data FiveOptions a b c d e
+    = BoardLocation a
+       | HandLocation b
+          | GraveyardLocation c
+             | BanishedLocation d
+                | SpawnLocation e
+                 
+                  getCard :
+                    {player : Player} ->
+                      (correctPlayer : CorrectPlayer player) ->
+                        Fin 25 ->
+                          FiveOptions
+
+                          -}
+
+
+
 correctId : Fin 25 -> FieldedMonster -> Bool -- and one for unfielded?
 correctId id' monster = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
