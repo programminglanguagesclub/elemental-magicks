@@ -81,7 +81,7 @@ lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 correctId : Fin 25 -> FieldedMonster -> Bool -- and one for unfielded?
 correctId id' monster = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
-lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
+{-lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
 lookupBasicCard temporaryId player opponent =  ?hole {-case Data.Vect.find (\maybeMonster => Just temporaryId == (id . basic) <$> maybeMonster) (flattenBoard $ board player) of
                                                 _ => ?hole
                                                  {-  Just (Just monster) => Just (basic monster)
@@ -91,6 +91,9 @@ lookupBasicCard temporaryId player opponent =  ?hole {-case Data.Vect.find (\may
                                                                    Just _ => Nothing {-This case should never happen-}
                                                                    Nothing => Nothing 
                                                                    -}-}
+                                                                   -}
+
+lookupBasicCard : Fin 25 -> Player -> Player -> Either BasicFieldedMonster
 -------------------------------------------------------------------------------
 lookupCardId' : String -> List (String,Fin 25) -> Maybe (Fin 25)
 lookupCardId' s [] = Nothing
