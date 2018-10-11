@@ -123,8 +123,10 @@ data Skill = AutomaticSkill (Maybe (CarryingSource Expr)) (Maybe (CarryingSource
 data VariableBindings = VariableBindings Lexer.SurfaceData [([String], Set)]
 -------------------------------------------------------------------------------
 data Side
- = Friendly Lexer.SurfaceData
- | Enemy Lexer.SurfaceData
+ = Friendly Lexer.SurfaceData -- friendly relative to evoker
+ | Enemy Lexer.SurfaceData -- enemy relative to evoker
+ | FriendlyVar Lexer.SurfaceData -- friendly relative to variable
+ | EnemyVar Lexer.SurfaceData -- enemy relative to varaible
  deriving Show
 -------------------------------------------------------------------------------
 data RelativeSet
