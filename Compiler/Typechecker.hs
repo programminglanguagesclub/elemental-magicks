@@ -168,8 +168,10 @@ typeCheckSkillEffect context skillEffect =
   ParseTree.SendSelfToGraveyard surfaceData -> pure $ SendSelfToGraveyard surfaceData
   ParseTree.DamageSquare surfaceData fieldLocation damage ->
    joinTC $ pure $ DamageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -} <$> typeCheckRInt context damage
-  ParseTree.DamageRowVar surfaceData var damage -> undefined
-  ParseTree.DamageColumnVar surfaceData var damage -> undefined
+  ParseTree.DamageRowVar surfaceData var side damage ->
+   joinTC $ pure $ DamageRowVar surfaceData undefined side <$> typeCheckRInt context damage
+  ParseTree.DamageColumnVar surfaceData var side damage ->
+   joinTC $ pure $ DamageColumnVar surfaceData undefined side <$> typeCheckRInt context damage
   ParseTree.DamageRowSelf surfaceData damage -> undefined
   ParseTree.DamageColumnSelf surfaceData damage -> undefined
   ParseTree.DamageAllLeftVarExclusive surfaceData var damage -> undefined
@@ -194,6 +196,9 @@ typeCheckSkillEffect context skillEffect =
   ParseTree.DamageColumnOne side surfaceData damage -> undefined
   ParseTree.DamageColumnTwo side surfaceData damage -> undefined
   ParseTree.DamageColumnThree side surfaceData damage -> undefined
+
+
+
 
 {-
 SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
@@ -492,8 +497,8 @@ If certain things cause skills to stop, such as targets not existing, I need to 
  | SendVarToGraveyard Lexer.SurfaceData String
  | SendSelfToGraveyard Lexer.SurfaceData
  | DamageSquare Lexer.SurfaceData FieldLocation RInt -- This string is teh square... should really have its own type
- | DamageRowVar Lexer.SurfaceData String RInt
- | DamageColumnVar Lexer.SurfaceData String RInt
+ | DamageRowVar Lexer.SurfaceData String ParseTree.Side RInt
+ | DamageColumnVar Lexer.SurfaceData String ParseTree.Side RInt
  | DamageRowSelf Lexer.SurfaceData RInt
  | DamageColumnSelf Lexer.SurfaceData RInt
  | DamageAllLeftVarExclusive Lexer.SurfaceData String RInt
@@ -552,6 +557,29 @@ data FieldLocation
  deriving Show
 
  
+typecheckFieldLocation ::  Context -> FieldLocation -> TC FieldLocation
+typecheckFieldLocation context fieldLocation =
+ case fieldLocation of
+   OneFL side -> undefined
+   TwoFL side -> undefined
+   ThreeFL side -> undefined
+   FourFL side -> undefined
+   FiveFL side -> undefined
+   SixFL side -> undefined
+   SevenFL side -> undefined
+   EightFL side -> undefined
+   NineFL side -> undefined
+   OnSameSquare var -> undefined -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+   ToTheLeftOf side var -> undefined
+   ToTheRightOf side var -> undefined
+   InFrontOf side var -> undefined
+   Behind side var -> undefined
+   OnSameSquareSelf -> undefined -- refers to enemy of course
+   ToTheLeftOfSelf side -> undefined
+   ToTheRightOfSelf side -> undefined
+   InFrontOfSelf side -> undefined
+   BehindSelf side -> undefined
+
 -- Stuff for affecting entire rows or columns to be dealt with elsewhere.
 -- This just indexes a particular square.
 -------------------------------------------------------------------------------

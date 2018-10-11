@@ -185,8 +185,8 @@ data SkillEffect
  | SendVarToGraveyard Lexer.SurfaceData String
  | SendSelfToGraveyard Lexer.SurfaceData
  | DamageSquare Lexer.SurfaceData FieldLocation (CarryingSource Expr)
- | DamageRowVar Lexer.SurfaceData String (CarryingSource Expr)
- | DamageColumnVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageRowVar Lexer.SurfaceData String Side (CarryingSource Expr)
+ | DamageColumnVar Lexer.SurfaceData String Side (CarryingSource Expr)
  | DamageRowSelf Lexer.SurfaceData (CarryingSource Expr)
  | DamageColumnSelf Lexer.SurfaceData (CarryingSource Expr)
  | DamageAllLeftVarExclusive Lexer.SurfaceData String (CarryingSource Expr)
