@@ -138,66 +138,96 @@ import Text.EditDistance
 
 
 %%
-
+-------------------------------------------------------------------------------
 File : Units Spells {File $1 $2}
+-------------------------------------------------------------------------------
 Units : {[]}
       | Unit Units {$1 : $2}
+-------------------------------------------------------------------------------
 Spells : {[]}
        | Spell Spells {$1 : $2}
-Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource (Lexer.SurfaceData 1 1 "dummy") $3) $4 $5 $6 $7 $8 $9 $10 $11 {-Should make sure in the type checker that the list of LValues is nonempty-}}
+-------------------------------------------------------------------------------
+Unit : unit name Stats Start End Counter Spawn Death Auto Actions Soul {Unit $2 (CarryingSource (Lexer.SurfaceData 1 1 "dummy") $3) $4 $5 $6 $7 $8 $9 $10 $11}
+         -----Should make sure in the type checker that the list of LValues is nonempty
+-------------------------------------------------------------------------------
 Spell : spell name School level colon number spawn colon Skill {Spell dummySurfaceData $2 $3 $6 $9}
+-------------------------------------------------------------------------------
 Stats : Schools level colon number hp colon number attack colon number defense colon number speed colon number range colon number soulPoints colon number {Stats dummySurfaceData $1 $4 $7 $10 $13 $16 $19 $22}
+-------------------------------------------------------------------------------
 School : word {Knowledge $1}
+-------------------------------------------------------------------------------
 Schools : {NoSchools}
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
+-------------------------------------------------------------------------------
 Start : {Nothing}
       | start colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Start $3}
+-------------------------------------------------------------------------------
 End : {Nothing}
     | end colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ End $3}
+-------------------------------------------------------------------------------
 Counter : {Nothing}
         | counter colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Counter $3}
+-------------------------------------------------------------------------------
 Spawn : {Nothing}
       | spawn colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Spawn $3}
+-------------------------------------------------------------------------------
 Death : {Nothing}
       | death colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Death $3}
+-------------------------------------------------------------------------------
 Auto : {Nothing}
      | auto colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Auto $3}
+-------------------------------------------------------------------------------
 Actions : {[]}
         | Action Actions {$1 : $2}
+-------------------------------------------------------------------------------
 Action : action colon Skill {CarryingSource (getSurfaceData' $3) $ Action $3}
+-------------------------------------------------------------------------------
 Soul : soul colon Skill {CarryingSource dummySurfaceData $ Soul $3}
+-------------------------------------------------------------------------------
 Skill : OptionalCost OptionalCondition Automatic {CarryingSource dummySurfaceData $ AutomaticSkill $1 $2 $3}
+-------------------------------------------------------------------------------
 OptionalCost : {Nothing} -- OPTIONAL COSTS SHOULD ALLOW ANY EXPRESSION FOR THE COST NOT JUST A NUMBER (right now it's just a number)
              | cost colon number {Just $ CarryingSource dummySurfaceData $ Constant (getSurfaceContents $3)}
+-------------------------------------------------------------------------------
 OptionalCondition : {Nothing}
                   | condition colon Expr {Just $3}
+-------------------------------------------------------------------------------
 OptionalFilter : {CarryingSource dummySurfaceData Always}
                | where Expr {$2}
+-------------------------------------------------------------------------------
 Nonautomatic : {TerminatedSkillComponent} -- the nullableexpr needs to be changed to be prefixed by where syntax.
              | select SelectionStatement NullableExpr ThenCase IfUnableCase NextAutomatic {Nonautomatic dummySurfaceData $2 $3 $4 $5 $6}
              | comma Automatic {Next $2}
+-------------------------------------------------------------------------------
 Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 }
           | for each var in Set OptionalFilter comma SkillEffects Nonautomatic {Universal dummySurfaceData ($3,$5) $6 $8 $9 {-Only allow one universally quantified variable at once. No pairs -}}
-
-
-
+-------------------------------------------------------------------------------
 ThenCase : then lbracket Automatic rbracket {$3}
+-------------------------------------------------------------------------------
 IfUnableCase : {Automatic dummySurfaceData [] (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}
+-------------------------------------------------------------------------------
 NextAutomatic : {Automatic dummySurfaceData [] (TerminatedSkillComponent)}
               | lbracket Automatic rbracket {$2}
+-------------------------------------------------------------------------------
 SelectionStatement : Variables in Set RestSelectionStatement {(getFoo $1 $3) ++ $4}
+-------------------------------------------------------------------------------
 Set : Side RelativeSet {SimpleSet dummySurfaceData $1 $2}
     | Set union Set {UnionSet dummySurfaceData $1 $3}
+-------------------------------------------------------------------------------
 RestSelectionStatement : {[]}
                        | comma Variables in Set RestSelectionStatement { (getFoo $2 $4) ++ $5}
+-------------------------------------------------------------------------------
 Variables : var RestVariable {$1 : $2}
+-------------------------------------------------------------------------------
 RestVariable : {[]}
              | comma var RestVariable {$2 : $3}
+-------------------------------------------------------------------------------
 SkillEffects : {[]}
              | SkillEffect semicolon SkillEffects {$1 : $3}
              | if condition then SkillEffect semicolon SkillEffects {undefined}
+-------------------------------------------------------------------------------
 -- skill effect needs to be able to include conditionals. This is because
 -- I am executing lists of skill effects, and conditions can change between skill effects in the list.
 -- I also want to be able to do universal quantification of the form
@@ -208,8 +238,11 @@ SkillEffect : Assignment {$1}
             | SendVarToGraveyard {$1}
             | SendSelfToGraveyard {$1}
             | SendSquareToGraveyard {$1}
+-------------------------------------------------------------------------------
 Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2 $4 $5}
+-------------------------------------------------------------------------------
 Revive : revive var {Revive (extractSurfaceData $1) $2}
+-------------------------------------------------------------------------------
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage self Expr {DamageSelf dummySurfaceData $3 }
        | damage Side unit on position number word Expr {{-DamageSquare dummySurfaceData undefined (getSurfaceContents $7) $8-} undefined}
@@ -223,7 +256,7 @@ Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage unit to the right of this unit Expr {undefined}
        | damage unit in front of this unit Expr {undefined}
        | damage unit behind this unit Expr {undefined}
-
+-------------------------------------------------------------------------------
 
 {-mageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -} <$> typeCheckRInt context damag-}
 
@@ -249,9 +282,11 @@ Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
 
 
 
-
+-------------------------------------------------------------------------------
 SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
+-------------------------------------------------------------------------------
 SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
+-------------------------------------------------------------------------------
 SendSquareToGraveyard : send Side unit on position number to graveyard {undefined}
                       | send to graveyard unit on the same square as var {undefined}
                       | send to graveyard unit to the left of var {undefined}
@@ -263,7 +298,7 @@ SendSquareToGraveyard : send Side unit on position number to graveyard {undefine
                       | send to graveyard unit to the right of this unit {undefined}
                       | send to graveyard unit in front of this unit {undefined}
                       | send to graveyard unit behind this unit {undefined}
-
+-------------------------------------------------------------------------------
 
 
 {-
@@ -294,19 +329,24 @@ data FieldLocation
  | DamageVar Lexer.SurfaceData String
 
 -}
+-------------------------------------------------------------------------------
 Mutator : assign {Set $ extractSurfaceData $1}
         | increment {Increment $ extractSurfaceData $1}
         | decrement {Decrement $ extractSurfaceData $1}
         | stretch {Stretch $ extractSurfaceData $1}
         | crush {Crush $ extractSurfaceData $1}
         | contort {Contort $ extractSurfaceData $1}
+-------------------------------------------------------------------------------
 ListExpr : {[]}
          | Expr {[$1]}
          | Expr comma ListExprCommas {$1 : $3}
+-------------------------------------------------------------------------------
 ListExprCommas : Expr {[$1]}
                | Expr comma ListExprCommas {$1 : $3}
+-------------------------------------------------------------------------------
 NullableExpr : {Nothing}
              | Expr {Just ($1)}
+-------------------------------------------------------------------------------
 Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Field self {CarryingSource (extractSurfaceData $2) $ Self $1}
      | Field var {CarryingSource dummySurfaceData $ Var $1 $2}
@@ -345,7 +385,7 @@ Expr : number {CarryingSource $1 $ Constant (getSurfaceSyntax $1)}
      | Field unit in front of this unit {undefined}
      | Field unit behind this unit {undefined}
      | lparen Expr rparen {$2}
-
+-------------------------------------------------------------------------------
 {-
 use this for field above, and also for damage in effects
 data FieldLocation
@@ -388,28 +428,34 @@ data LExpr
 --| RCardinality SurfaceData RBool ParseTree.Set
 --| Cardinality String Set Expr
      {- x in range y means that y can target x -}
+-------------------------------------------------------------------------------
 Field : Temporality Stat {StatField dummySurfaceData $2 $1}
       | HpStat {HpStatField dummySurfaceData $1}
-      | engagement {EngagementField dummySurfaceData}  
+      | engagement {EngagementField dummySurfaceData}
+-------------------------------------------------------------------------------
 Temporality : current {Temporary (extractSurfaceData $1)}
             | permanent {Permanent (extractSurfaceData $1)}
             | base {Base (extractSurfaceData $1)}
+-------------------------------------------------------------------------------
 HpStat : hp {CarryingSource dummySurfaceData CurrentHp}
        | max hp {CarryingSource dummySurfaceData MaxHp}
        | base hp {CarryingSource dummySurfaceData BaseHp}
+-------------------------------------------------------------------------------
 Stat : attack {CarryingSource $1 Attack}
      | defense {CarryingSource $1 Defense}
      | speed {CarryingSource $1 Speed}
      | range {CarryingSource $1 Range}
      | level {CarryingSource (extractSurfaceData $1) Level}
+-------------------------------------------------------------------------------
 Side : friendly {Friendly (extractSurfaceData $1)}
      | enemy {Enemy (extractSurfaceData $1)}
+-------------------------------------------------------------------------------
 RelativeSet : field {Field (extractSurfaceData $1)}
             | hand {Hand (extractSurfaceData $1)}
             | graveyard {Graveyard (extractSurfaceData $1)}
             | banished {Banished (extractSurfaceData $1)}
             | spawn {SpawnLocation (extractSurfaceData $1)}
-
+-------------------------------------------------------------------------------
 
 {
 
