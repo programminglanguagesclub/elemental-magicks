@@ -152,25 +152,66 @@ Don't need both condition and nullable expression.
 Either skill effects, or automatic should be allowed to have conditions and/or ifs.
 
 -}
+
+
+data FieldLocation
+ = OneFL ParseTree.Side
+ | TwoFL ParseTree.Side
+ | ThreeFL ParseTree.Side
+ | FourFL ParseTree.Side
+ | FiveFL ParseTree.Side
+ | SixFL ParseTree.Side
+ | SevenFL ParseTree.Side
+ | EightFL ParseTree.Side
+ | NineFL ParseTree.Side
+ | OnSameSquare String -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf ParseTree.Side String
+ | ToTheRightOf ParseTree.Side String
+ | InFrontOf ParseTree.Side String
+ | Behind ParseTree.Side String 
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf ParseTree.Side
+ | ToTheRightOfSelf ParseTree.Side
+ | InFrontOfSelf ParseTree.Side
+ | BehindSelf ParseTree.Side
+ deriving Show
 -------------------------------------------------------------------------------
 data SkillEffect
  = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
  | Revive Lexer.SurfaceData String
+ | SimultaneousSkillEffect Lexer.SurfaceData [SkillEffect]
  | DamageSelf Lexer.SurfaceData (CarryingSource Expr)
  | DamageVar Lexer.SurfaceData String (CarryingSource Expr)
  | SendVarToGraveyard Lexer.SurfaceData String
  | SendSelfToGraveyard Lexer.SurfaceData
- | DamageSquare Lexer.SurfaceData Side String (CarryingSource Expr)
- | DamageSameSquareSelf Lexer.SurfaceData (CarryingSource Expr)
- | DamageSameSquareVar Lexer.SurfaceData String (CarryingSource Expr)
- | DamageLeftSelf Lexer.SurfaceData (CarryingSource Expr)
- | DamageRightSelf Lexer.SurfaceData (CarryingSource Expr)
- | DamageBehindSelf Lexer.SurfaceData (CarryingSource Expr)
- | DamageInFrontOfSelf Lexer.SurfaceData (CarryingSource Expr)
- | DamageLeftVar Lexer.SurfaceData String (CarryingSource Expr)
- | DamageRightVar Lexer.SurfaceData String (CarryingSource Expr)
- | DamageBehindVar Lexer.SurfaceData String (CarryingSource Expr)
- | DamageInFrontOfVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageSquare Lexer.SurfaceData FieldLocation (CarryingSource Expr)
+ | DamageRowVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageColumnVar Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageRowSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageColumnSelf Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllLeftVarExclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllRightVarExclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllBehindVarExclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllInFrontVarExclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllLeftVarInclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllRightVarInclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllBehindVarInclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllInFrontOfVarInclusive Lexer.SurfaceData String (CarryingSource Expr)
+ | DamageAllLeftSelfExclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllRightSelfExclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllBehindSelfExclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllInFrontSelfExclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllLeftSelfInclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllRightSelfInclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllBehindSelfInclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageAllInFrontOfSelfInclusive Lexer.SurfaceData (CarryingSource Expr)
+ | DamageRowOne Side Lexer.SurfaceData (CarryingSource Expr)
+ | DamageRowTwo Side Lexer.SurfaceData (CarryingSource Expr)
+ | DamageRowThree Side Lexer.SurfaceData (CarryingSource Expr)
+ | DamageColumnOne Side Lexer.SurfaceData (CarryingSource Expr)
+ | DamageColumnTwo Side Lexer.SurfaceData (CarryingSource Expr)
+ | DamageColumnThree Side Lexer.SurfaceData (CarryingSource Expr)
+
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic

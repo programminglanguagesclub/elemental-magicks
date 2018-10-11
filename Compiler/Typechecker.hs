@@ -166,11 +166,35 @@ typeCheckSkillEffect context skillEffect =
    <$> typeCheckRInt context damage
   ParseTree.SendVarToGraveyard surfaceData var -> pure $ SendVarToGraveyard surfaceData var -- not typechecking var currently
   ParseTree.SendSelfToGraveyard surfaceData -> pure $ SendSelfToGraveyard surfaceData
-  ParseTree.DamageSameSquareVar surfaceData var damage ->
-   joinTC $ pure $ DamageSameSquareVar surfaceData var <$> typeCheckRInt context damage -- not type checking var currently
+  ParseTree.DamageSquare surfaceData fieldLocation damage ->
+   joinTC $ pure $ DamageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -} <$> typeCheckRInt context damage
+  ParseTree.DamageRowVar surfaceData var damage -> undefined
+  ParseTree.DamageColumnVar surfaceData var damage -> undefined
+  ParseTree.DamageRowSelf surfaceData damage -> undefined
+  ParseTree.DamageColumnSelf surfaceData damage -> undefined
+  ParseTree.DamageAllLeftVarExclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllRightVarExclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllBehindVarExclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllInFrontVarExclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllLeftVarInclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllRightVarInclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllBehindVarInclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllInFrontOfVarInclusive surfaceData var damage -> undefined
+  ParseTree.DamageAllLeftSelfExclusive surfaceData damage -> undefined
+  ParseTree.DamageAllRightSelfExclusive surfaceData damage -> undefined
+  ParseTree.DamageAllBehindSelfExclusive surfaceData damage -> undefined
+  ParseTree.DamageAllInFrontSelfExclusive surfaceData damage -> undefined
+  ParseTree.DamageAllLeftSelfInclusive surfaceData damage -> undefined
+  ParseTree.DamageAllRightSelfInclusive surfaceData damage -> undefined
+  ParseTree.DamageAllBehindSelfInclusive surfaceData damage -> undefined
+  ParseTree.DamageAllInFrontOfSelfInclusive surfaceData damage -> undefined
+  ParseTree.DamageRowOne side surfaceData damage -> undefined
+  ParseTree.DamageRowTwo side surfaceData damage -> undefined
+  ParseTree.DamageRowThree side surfaceData damage -> undefined
+  ParseTree.DamageColumnOne side surfaceData damage -> undefined
+  ParseTree.DamageColumnTwo side surfaceData damage -> undefined
+  ParseTree.DamageColumnThree side surfaceData damage -> undefined
 
--- | SkillEffectDamageSelf Lexer.Surface RInt
--- | SkillEffectDamageVar Lexer.SurfaceData String RInt
 {-
 SendVarToGraveyard : send var to graveyard {SendVarToGraveyard dummySurfaceData $2}
 SendSelfToGraveyard : send self to graveyard {SendSelfToGraveyard dummySurfaceData}
@@ -425,23 +449,8 @@ typeCheckRStatVar field =
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
 
 -------------------------------------------------------------------------------
-data SkillEffect
- = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
- | SkillEffectRevive Lexer.SurfaceData String
- | SkillEffectDamageSelf Lexer.SurfaceData RInt
- | SkillEffectDamageVar Lexer.SurfaceData String RInt
- | SendVarToGraveyard Lexer.SurfaceData String
- | SendSelfToGraveyard Lexer.SurfaceData
- | DamageSameSquareVar Lexer.SurfaceData String RInt
+{-
 
-
- deriving Show
--------------------------------------------------------------------------------
-data Assignment -- why does this exist as a separate datatype rather than just being part of skilleffect?
- = Assignment [LExpr] ParseTree.Mutator RInt
- deriving Show
--------------------------------------------------------------------------------
-data FieldLocation
  = OneFL
  | TwoFL
  | ThreeFL
@@ -461,6 +470,85 @@ data FieldLocation
  | ToTheRightOfSelf
  | InFrontOfSelf
  | BehindSelf
+-}
+
+data SkillEffect
+ = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
+ | SimultaneousSkillEffect Lexer.SurfaceData [SkillEffect] {- This is mostly to make the interface better: Instead of showing the effects happening one after another, they happen at the same time. Note that death, deathskills, counterskills, etc, then happen according to field position, initiative-}
+
+ -- There are huge restrictions on simultaneous effects: In particular, none of the skill effects can depend on any of the other skill effects (order performed cannon possibly change outcome)
+
+
+{-
+
+If certain things cause skills to stop, such as targets not existing, I need to make sure this does not stop a simultaneous effect from executing mid-way through.
+
+-}
+
+
+ | SkillEffectRevive Lexer.SurfaceData String
+ | SkillEffectDamageSelf Lexer.SurfaceData RInt
+ | SkillEffectDamageVar Lexer.SurfaceData String RInt
+ | SendVarToGraveyard Lexer.SurfaceData String
+ | SendSelfToGraveyard Lexer.SurfaceData
+ | DamageSquare Lexer.SurfaceData FieldLocation RInt -- This string is teh square... should really have its own type
+ | DamageRowVar Lexer.SurfaceData String RInt
+ | DamageColumnVar Lexer.SurfaceData String RInt
+ | DamageRowSelf Lexer.SurfaceData RInt
+ | DamageColumnSelf Lexer.SurfaceData RInt
+ | DamageAllLeftVarExclusive Lexer.SurfaceData String RInt
+ | DamageAllRightVarExclusive Lexer.SurfaceData String RInt
+ | DamageAllBehindVarExclusive Lexer.SurfaceData String RInt
+ | DamageAllInFrontVarExclusive Lexer.SurfaceData String RInt
+ | DamageAllLeftVarInclusive Lexer.SurfaceData String RInt
+ | DamageAllRightVarInclusive Lexer.SurfaceData String RInt
+ | DamageAllBehindVarInclusive Lexer.SurfaceData String RInt
+ | DamageAllInFrontOfVarInclusive Lexer.SurfaceData String RInt
+ | DamageAllLeftSelfExclusive Lexer.SurfaceData RInt
+ | DamageAllRightSelfExclusive Lexer.SurfaceData RInt
+ | DamageAllBehindSelfExclusive Lexer.SurfaceData RInt
+ | DamageAllInFrontSelfExclusive Lexer.SurfaceData RInt
+ | DamageAllLeftSelfInclusive Lexer.SurfaceData RInt
+ | DamageAllRightSelfInclusive Lexer.SurfaceData RInt
+ | DamageAllBehindSelfInclusive Lexer.SurfaceData RInt
+ | DamageAllInFrontOfSelfInclusive Lexer.SurfaceData RInt
+ {-| DamageRowOne ParseTree.Side Lexer.SurfaceData RInt
+ | DamageRowTwo ParseTree.Side Lexer.SurfaceData RInt
+ | DamageRowThree ParseTree.Side Lexer.SurfaceData RInt
+ | DamageColumnOne ParseTree.Side Lexer.SurfaceData RInt
+ | DamageColumnTwo ParseTree.Side Lexer.SurfaceData RInt
+ | DamageColumnThree ParseTree.Side Lexer.SurfaceData RInt
+-} -- these can be included as simultaneous effects
+
+
+
+
+ deriving Show
+-------------------------------------------------------------------------------
+data Assignment -- why does this exist as a separate datatype rather than just being part of skilleffect?
+ = Assignment [LExpr] ParseTree.Mutator RInt
+ deriving Show
+-------------------------------------------------------------------------------
+data FieldLocation
+ = OneFL ParseTree.Side
+ | TwoFL ParseTree.Side
+ | ThreeFL ParseTree.Side
+ | FourFL ParseTree.Side
+ | FiveFL ParseTree.Side
+ | SixFL ParseTree.Side
+ | SevenFL ParseTree.Side
+ | EightFL ParseTree.Side
+ | NineFL ParseTree.Side
+ | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf ParseTree.Side Variable
+ | ToTheRightOf ParseTree.Side Variable
+ | InFrontOf ParseTree.Side Variable
+ | Behind ParseTree.Side Variable 
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf ParseTree.Side
+ | ToTheRightOfSelf ParseTree.Side
+ | InFrontOfSelf ParseTree.Side
+ | BehindSelf ParseTree.Side
  deriving Show
 
  
@@ -565,39 +653,39 @@ getSurface knowledge =
   Spirit surfaceData -> surfaceData
   Void surfaceData -> surfaceData
 -------------------------------------------------------------------------------
-schoolsFromKnowledge :: Knowledge -> Knowledge -> TC Schools
-schoolsFromKnowledge school1 school2 =
+schoolsFromKnowledge :: Lexer.SurfaceData -> Knowledge -> Knowledge -> TC Schools
+schoolsFromKnowledge surfaceData school1 school2 =
  case (school1,school2) of
   (Earth surfaceData1, Fire surfaceData2) ->
-   pure . EarthFire $ error "earthfire not implemented"
+   pure . EarthFire $ surfaceData
   (Earth surfaceData1, Water surfaceData2) ->
-   pure . EarthWater $ error "earthwater not implemented"
+   pure . EarthWater $ surfaceData
   (Earth surfaceData1, Air surfaceData2) ->
-   pure . EarthAir $ error "earthair not implemented"
+   pure . EarthAir $ surfaceData
   (Earth surfaceData1, Spirit surfaceData2) ->
-   pure . EarthSpirit $ error "earthspirit not implemented"
+   pure . EarthSpirit $ surfaceData
   (Earth surfaceData1, Void surfaceData2) ->
-   pure . EarthVoid $ error "earthvoid not implemented"
+   pure . EarthVoid $ surfaceData
   (Fire surfaceData1, Water surfaceData2) ->
-   pure . FireWater $ error "firewater not implemented"
+   pure . FireWater $ surfaceData
   (Fire surfaceData1, Air surfaceData2) ->
-   pure . FireAir $ error "fireair not implemented"
+   pure . FireAir $ surfaceData
   (Fire surfaceData1, Spirit surfaceData2) ->
-   pure . FireSpirit $ error "firespirit not implemented"
+   pure . FireSpirit $ surfaceData
   (Fire surfaceData1, Void surfaceData2) ->
-   pure . FireVoid $ error "firevoid not implemented"
+   pure . FireVoid $ surfaceData
   (Water surfaceData1, Air surfaceData2) ->
-   pure . WaterAir $ error "waterair not implemented"
+   pure . WaterAir $ surfaceData
   (Water surfaceData1, Spirit surfaceData2) ->
-   pure . WaterSpirit $ error "waterspirit not implemented"
+   pure . WaterSpirit $ surfaceData
   (Water surfaceData1, Void surfaceData2) ->
-   pure . WaterVoid $ error "watervoid not implemented"
+   pure . WaterVoid $ surfaceData
   (Air surfaceData1, Spirit surfaceData2) ->
-   pure . AirSpirit $ error "airspirit not implemented"
+   pure . AirSpirit $ surfaceData
   (Air surfaceData1, Void surfaceData2) ->
-   pure . AirVoid $ error "airvoid not implemented"
+   pure . AirVoid $ surfaceData
   (Spirit surfaceData1, Void surfaceData2) ->
-   pure . SpiritVoid $ error "spiritvoid not implemented"
+   pure . SpiritVoid $ surfaceData
   (k1,k2) ->
    let ((Lexer.SurfaceData line1 column1 surface1),(Lexer.SurfaceData line2 column2 surface2)) = (getSurface k1, getSurface k2) in
    let prefix = errorPrefix line1 column1 in
@@ -832,6 +920,7 @@ typeCheckSchools (ParseTree.OneSchool surfaceData s) =
 typeCheckSchools (ParseTree.TwoSchools surfaceData s1 s2) =
  joinTC $
  schoolsFromKnowledge
+ surfaceData
  <$> typeCheckSchool s1
  <*> typeCheckSchool s2
 -------------------------------------------------------------------------------
@@ -840,9 +929,6 @@ getLocationMessage (Lexer.SurfaceData lineNumber columnNumber _) =
  "on line " ++ (show lineNumber) ++ ", column " ++ (show columnNumber) ++ "\n"
 getSurfaceSyntax :: Lexer.SurfaceData -> String
 getSurfaceSyntax (Lexer.SurfaceData _ _ surfaceSyntax) = surfaceSyntax ++ "\n"
--------------------------------------------------------------------------------
-typeCheckNumber :: ParseTree.Expr -> TC RInt {-called typecheckrint below...-}
-typeCheckNumber = error "do not use this function"
 -------------------------------------------------------------------------------
 {-should add isDead to conditions?-}
 typeCheckRBool :: Context -> ParseTree.CarryingSource ParseTree.Expr -> TC RBool {-call typeCheckRBool?-}

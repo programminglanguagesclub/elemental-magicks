@@ -212,8 +212,8 @@ Assignment : lparen ListExpr rparen Mutator Expr {Assignment dummySurfaceData $2
 Revive : revive var {Revive (extractSurfaceData $1) $2}
 Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage self Expr {DamageSelf dummySurfaceData $3 }
-       | damage Side unit on position number word Expr {DamageSquare dummySurfaceData undefined (getSurfaceContents $7) $8}
-       | damage unit on the same square as var Expr {DamageSameSquareVar dummySurfaceData $8 $9}
+       | damage Side unit on position number word Expr {{-DamageSquare dummySurfaceData undefined (getSurfaceContents $7) $8-} undefined}
+       | damage unit on the same square as var Expr {{-DamageSameSquareVar dummySurfaceData $8 $9-} {-change to using fieldLocation-} DamageSquare dummySurfaceData (OnSameSquare $8) $9}
        | damage unit to the left of var Expr {undefined}
        | damage unit to the right of var Expr {undefined}
        | damage unit in front of var Expr {undefined}
@@ -223,6 +223,9 @@ Damage : damage var Expr {DamageVar dummySurfaceData $2 $3 }
        | damage unit to the right of this unit Expr {undefined}
        | damage unit in front of this unit Expr {undefined}
        | damage unit behind this unit Expr {undefined}
+
+
+{-mageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -} <$> typeCheckRInt context damag-}
 
 {-
  = Assignment Lexer.SurfaceData [CarryingSource Expr] Mutator (CarryingSource Expr)
