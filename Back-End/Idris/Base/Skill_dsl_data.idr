@@ -232,7 +232,7 @@ mutual
 
    | SendSquareToGraveyard Side (Fin 9)
    | SendSelfToGraveyard
-   | SendVarToGraveyard -- okay, I think I will make var only be the field... not spawn.
+   | SendVarToGraveyard String -- okay, I think I will make var only be the field... not spawn.
    | SendSpawnToGraveyard Side
 
 

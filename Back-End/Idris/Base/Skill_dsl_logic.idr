@@ -81,8 +81,8 @@ lookupStat b MaxHpR = extractBounded $ getMaxHp $ hp $ b
 correctId : Fin 25 -> FieldedMonster -> Bool -- and one for unfielded?
 correctId id' monster = (id (basic monster)) == id'
 -------------------------------------------------------------------------------
-{-lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
-lookupBasicCard temporaryId player opponent =  ?hole {-case Data.Vect.find (\maybeMonster => Just temporaryId == (id . basic) <$> maybeMonster) (flattenBoard $ board player) of
+lookupBasicCard : Fin 25 -> Player -> Player -> Maybe BasicFieldedMonster {-no targetting spell cards for now!-}  -- and one for unfielded?
+lookupBasicCard temporaryId player opponent = ?hole {-case Data.Vect.find (\maybeMonster => Just temporaryId == (id . basic) <$> maybeMonster) (flattenBoard $ board player) of
                                                 _ => ?hole
                                                  {-  Just (Just monster) => Just (basic monster)
                                                    Just _ => Nothing {-THIS CASE SHOULD NEVER HAPPEN...-}
@@ -91,9 +91,9 @@ lookupBasicCard temporaryId player opponent =  ?hole {-case Data.Vect.find (\may
                                                                    Just _ => Nothing {-This case should never happen-}
                                                                    Nothing => Nothing 
                                                                    -}-}
-                                                                   -}
+                                                                   
 
-lookupBasicCard : Fin 25 -> Player -> Player -> Either BasicFieldedMonster
+--lookupBasicCard : Fin 25 -> Player -> Player -> 
 -------------------------------------------------------------------------------
 lookupCardId' : String -> List (String,Fin 25) -> Maybe (Fin 25)
 lookupCardId' s [] = Nothing
@@ -286,16 +286,86 @@ updateMonster :
 
 updateMonster basicMonster player opponent = ?hole
 -------------------------------------------------------------------------------
+removeEvokerSkillsFromQueue :
+ (Fin 25, WhichPlayer) ->
+ (skillQueue : List (Skill, Fin 25, WhichPlayer, SkillType)) ->
+ List (Skill, Fin 25, WhichPlayer, SkillType)
+
+removeEvokerSkillsFromQueue _ [] = []
+removeEvokerSkillsFromQueue (cardId, evokerPlayer) ((skill,queuedId,queuedPlayer,skillType)::skillTail) with (cardId == queuedId, evokerPlayer == queuedPlayer)
+  | (True, True) = removeEvokerSkillsFromQueue (cardId, evokerPlayer) skillTail
+  | _ = ((skill,queuedId,queuedPlayer,skillType)::(removeEvokerSkillsFromQueue (cardId, evokerPlayer) skillTail))
+
+
+{-
+
+   = EvokerSkillEffectStatEffect StatEffect 
+      | SkillEffectStatEffect StatEffect String 
+         | SkillEffectResourceEffect ResourceEffect 
+            | SkillEffectPositionEffect PositionEffect 
+               | SkillEffectConditional Condition SkillEffect SkillEffect 
+                  | SkillEffectRowEffect Side String SkillEffect String
+                       --does effect to all units in row of unit bound to string;
+                            --the last string binds the respective units in the row for use in SkillEffect
+                               | SkillEffectColumnEffect Side String SkillEffect String
+                                    --does effect to all units in column of unit bound to string;
+                                         --the last string binds the respective units in the column for use in SkillEffect
+                                            | SkillEffectBehind Side String SkillEffect String
+                                               | SkillEffectInFront Side String SkillEffect String
+                                                  | SkillEffectRightOf Side String SkillEffect String
+                                                     | SkillEffectLeftOf Side String SkillEffect String
+                                                        | SkillEffectBoardPositions Side (List (Bounded 1 9)) SkillEffect String --?
+                                                           | SendSquareToGraveyard Side (Fin 9)
+                                                              | SendSelfToGraveyard
+                                                                 | SendVarToGraveyard -- okay, I think I will make var only be the field... not spawn.
+                                                                    | SendSpawnToGraveyard Side
+                                                                    -}
+-- skillHead : Maybe (Nonautomatic, Fin 25, WhichPlayer, Env) -- evokerId, whichPlayer
 applySkillEffect :
  SkillEffect ->
  (player : Player) ->
  (opponent : Player) ->
  (evokerId : (Fin 25, WhichPlayer)) ->
- List (Fin 25, WhichPlayer) ->
- Env ->
- (Player,Player,List (Fin 25, WhichPlayer), List ClientUpdate)
+ (deathQueue : List (Fin 25, WhichPlayer)) ->
+ (env : Env) ->
+ (next : Nonautomatic) ->
+ (skillQueue : List (Skill, Fin 25, WhichPlayer, SkillType)) -> -- skill, evokerId, whichPlayer, skillType
+ (Player,Player,List (Fin 25, WhichPlayer), List (Skill, Fin 25, WhichPlayer, SkillType), List ClientUpdate)
 
-applySkillEffect skillEffect player opponent deathQueue env = ?hole {-(player, opponent, [])-}
+--applySkillEffect skillEffect player opponent deathQueue env = ?hole {-(player, opponent, [])-}
+applySkillEffect (EvokerSkillEffectStatEffect statEffect) player opponent evokerId deathQueue env next skillQueue = -- what do I do about "next" here. I am not manipulating the head...
+
+applySkillEffect (SkillEffectStatEffect statEffect string) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectResourceEffect resourceEffect) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectPositionEffect positionEffect) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectConditional condition skillEffectTrue skillEffectFalse) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectRowEffect side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectColumnEffect side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectBehind side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectInFront side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectRightOf side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectLeftOf side string1 skillEffect string2) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SkillEffectBoardPositions side positions skillEffect string) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SendSquareToGraveyard side position) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect SendSelfToGraveyard player opponent evokerId deathQueue env next skillQueue =
+  -- need to remove every pending skill which has this card as the evoker.
+  -- also actually move card to graveyard.
+  let skillQueue' = removeEvokerSkillsFromQueue evokerId skillQueue in ?hole
+  --let player' = ?hole in ?hole
+
+applySkillEffect (SendVarToGraveyard string) player opponent evokerId deathQueue env next skillQueue = ?hole
+applySkillEffect (SendSpawnToGraveyard side) player opponent evokerId deathQueue env next skillQueue = ?hole
+
+-- More effects will be added.
+
+
+{-
+
+ removeEvokerSkillsFromQueue :
+       dhdshdsfh (skillQueue : List (Skill, Fin 25, WhichPlayer, SkillType)) ->
+         List (Skill, Fin 25, WhichPlayer, SkillType)
+         -}
+
 -------------------------------------------------------------------------------
 applySkillEffects :
  List SkillEffect ->
@@ -306,12 +376,13 @@ applySkillEffects :
  Env ->
  (Player,Player,List (Fin 25, WhichPlayer), List ClientUpdate)
 
-applySkillEffects [] player opponent evokerId deathQueue env = (player, opponent, deathQueue, [])
+applySkillEffects [] player opponent evokerId deathQueue env = ?hole --(player, opponent, deathQueue, [])
 
-applySkillEffects (effect::effects) player opponent evokerId deathQueue env =
+applySkillEffects (effect::effects) player opponent evokerId deathQueue env = ?hole
+{-
  let (player',opponent',deathQueue', updates) = applySkillEffect effect player opponent evokerId deathQueue env in
  let (player'',opponent'',deathQueue'',updates') = applySkillEffects effects player' opponent' evokerId deathQueue' env in
- (player'',opponent'',deathQueue'', updates ++ updates')
+     (player'',opponent'',deathQueue'', updates ++ updates') -}
 -------------------------------------------------------------------------------
 {-getValidBindings :
  String ->
