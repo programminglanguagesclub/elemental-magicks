@@ -3,6 +3,7 @@ module Base.Card
 import Data.Vect
 import Base.Preliminaries
 import Base.Bounded
+import Base.Hp
 import Base.Objects_basic
 import Base.Skill_dsl_data
 
@@ -166,5 +167,54 @@ setCanUseStartSkill = setCanUseSkill startSkill
 setCanUseEndSkill : Bool -> FieldedMonster -> FieldedMonster
 setCanUseEndSkill = setCanUseSkill endSkill
 -------------------------------------------------------------------------------
+
+interface HasBaseStat a where
+ schools : a -> MonsterSchools
+ hp : a -> Bounded 1 Preliminaries.absoluteUpperBound
+ attack : a -> Bounded 0 Preliminaries.absoluteUpperBound
+ defense : a -> Bounded 0 Preliminaries.absoluteUpperBound
+ speed : a -> Bounded 1 5
+ range : a -> Bounded 1 5
+ level : a -> Bounded 1 9
+
+
+HasBaseStat BasicUnfieldedMonster where
+  schools basicUnfieldedMonster = BasicUnfieldedMonster.schools basicUnfieldedMonster
+  hp basicUnfieldedMonster = BasicUnfieldedMonster.hp basicUnfieldedMonster
+  attack basicUnfieldedMonster = BasicUnfieldedMonster.attack basicUnfieldedMonster
+  defense basicUnfieldedMonster = BasicUnfieldedMonster.defense basicUnfieldedMonster
+  speed basicUnfieldedMonster = BasicUnfieldedMonster.speed basicUnfieldedMonster
+  range basicUnfieldedMonster = BasicUnfieldedMonster.range basicUnfieldedMonster
+  level basicUnfieldedMonster = BasicUnfieldedMonster.level basicUnfieldedMonster
+
+HasBaseStat BasicFieldedMonster where
+  schools basicFieldedMonster = BasicFieldedMonster.schools basicFieldedMonster
+  hp basicFieldedMonster = getBaseHp $ BasicFieldedMonster.hp basicFieldedMonster
+  attack basicFieldedMonster = getBase $ BasicFieldedMonster.attack basicFieldedMonster
+  defense basicFieldedMonster = getBase $ BasicFieldedMonster.defense basicFieldedMonster
+  speed basicFieldedMonster = getBase $ BasicFieldedMonster.speed basicFieldedMonster
+  range basicFieldedMonster = getBase $ BasicFieldedMonster.range basicFieldedMonster
+  level basicFieldedMonster = getBase $ BasicFieldedMonster.level basicFieldedMonster
+
+HasBaseStat UnfieldedMonster where
+  schools unfieldedMonster = BasicUnfieldedMonster.schools $ basic unfieldedMonster
+  hp unfieldedMonster = BasicUnfieldedMonster.hp $ basic unfieldedMonster
+  attack unfieldedMonster = BasicUnfieldedMonster.attack $ basic unfieldedMonster
+  defense unfieldedMonster = BasicUnfieldedMonster.defense $ basic unfieldedMonster
+  speed unfieldedMonster = BasicUnfieldedMonster.speed $ basic unfieldedMonster
+  range unfieldedMonster = BasicUnfieldedMonster.range $ basic unfieldedMonster
+  level unfieldedMonster = BasicUnfieldedMonster.level $ basic unfieldedMonster
+
+HasBaseStat FieldedMonster where
+  schools fieldedMonster = BasicFieldedMonster.schools $ basic fieldedMonster
+  hp fieldedMonster = getBaseHp $ BasicFieldedMonster.hp $ basic fieldedMonster
+  attack fieldedMonster = getBase $ BasicFieldedMonster.attack $ basic fieldedMonster
+  defense fieldedMonster = getBase $ BasicFieldedMonster.defense $ basic fieldedMonster
+  speed fieldedMonster = getBase $ BasicFieldedMonster.speed $ basic fieldedMonster
+  range fieldedMonster = getBase $ BasicFieldedMonster.range $ basic fieldedMonster
+  level fieldedMonster = getBase $ BasicFieldedMonster.level $ basic fieldedMonster
+
+
+
 
 

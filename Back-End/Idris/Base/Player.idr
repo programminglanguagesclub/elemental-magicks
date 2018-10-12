@@ -27,94 +27,15 @@ orderingDecEq : (x , y : Ordering) -> Dec (x = y)
 
 DecEq Ordering where
    decEq x y = orderingDecEq x y
-
-
--- this worked... then just suddenly stopped working...!!
-{-
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat2 l [] lkUnique = rewrite gh l in lkUnique -----rewrite (g $ appendNilRightNeutral l) in (rewrite (gh l) in lkUnique) -- put {n=n}{m=m} into scope?
--}
-
-
-
--- uniqueConcat l (kh::kt) lkUnique with (lkUnique)
---  uniqueConcat {n=n} {m=Z} l (kh::kt)   | UniqueEmpty = ?hole --impossible
--- uniqueConcat {n=n} {m=S m'} l (kh::kt) | UniqueConcat lktUnique lkhUnique = ?hole --uniqueConcat l kh lktUnique
-
-
-gkj : (x : Fin 25) -> (v : Vect n (Fin 25)) -> (w : Vect m (Fin 25)) -> find (==x) (v++w) = Nothing -> find (==x) v = Nothing
-
-
 -------------------------------------------------------------------------------
-uniqueConcat :
- (n : Nat) ->
- (m : Nat) ->
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- UniqueVect (m+n) (k ++ l) ->
- UniqueVect n l
-
-uniqueConcat n Z l [] klUnique = ?hole -- rewrite hg l in klUnique
-uniqueConcat n (S m) l (kh::kt) klUnique with (klUnique)
-  | UniqueEmpty impossible
-  | UniqueConcat (m + n) (kt ++ l) kh uniqueListT uniqueListH =
-     ?hole  ----n t h uniqueListT uniqueH = uniqueConcat l kt uniqueListT
--------------------------------------------------------------------------------
-notUniqueConcat :
- (l : Vect n (Fin 25)) ->
- (k : Vect m (Fin 25)) ->
- (UniqueVect n l -> Void) ->
- UniqueVect (m+n) (k++l) ->
- Void
-
-notUniqueConcat {n=n} {m=m} l k notUniqueL uniqueKL =
- notUniqueL $ uniqueConcat n m l k uniqueKL
--------------------------------------------------------------------------------
-{-
-uniqueConcat2 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> UniqueVect (l ++ k) -> UniqueVect l
-uniqueConcat2 [] k _ = UniqueEmpty
-uniqueConcat2 {n=S n'} {m=m} (lh::lt) k lkUnique with (lkUnique)
-  | UniqueEmpty impossible
-  | UniqueConcat tailUnique headUnique =
-   let uniqueLTail = uniqueConcat2 lt k tailUnique in
-   UniqueConcat uniqueLTail (gkj lh lt k headUnique)
-
-
-hak : (q : Vect a (Fin 25)) -> (l : Vect b (Fin 25)) -> (k : Vect c (Fin 25)) -> (q++l)++k = q++l++k
-
-uniqueConcat3 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect (q ++ l ++ k) -> UniqueVect l
-uniqueConcat3 l k q prf = let qlUnique = uniqueConcat2 (q++l) k (rewrite hak q l k in prf) in uniqueConcat l q qlUnique
-
-uniqueConcat4 : (l : Vect n (Fin 25)) -> (k : Vect m (Fin 25)) -> (q : Vect o (Fin 25)) -> UniqueVect ((q ++ l) ++ k) -> UniqueVect l
-uniqueConcat4 l k q prf = let qlUnique = uniqueConcat2 (q++l) k prf in uniqueConcat l q qlUnique
-
-
-
-uniqueRemoveHead : (l : Vect (S n) (Fin 25)) -> UniqueVect l -> UniqueVect (tail l)
-uniqueRemoveHead (x::xs) (UniqueConcat uniqueListT uniqueH) = uniqueListT
-
-
--}
-
-deleteAtHeadRemovesHead : (l : Vect (S n) (Fin 25)) -> deleteAt FZ l = tail l
-{-
-deleteTailEquality : (x : Fin 25) -> (xs : Vect (S n) (Fin 25)) -> (fk : Fin (S n)) -> x :: (deleteAt fk xs) = deleteAt (FS fk) (x :: xs)
--}
 
 {-
-uniqueRemove : (l : Vect (S n) (Fin 25)) -> (i : Fin (S n)) -> UniqueVect l -> UniqueVect (deleteAt i l)
-uniqueRemove l FZ uniqueL = rewrite deleteAtHeadRemovesHead l in uniqueRemoveHead l uniqueL
-uniqueRemove {n = S k} (x::xs) (FS fk) (UniqueConcat uniqueTail uniqueHead) =
-  --let xs' = deleteAt fk xs in
-  let uniqueM = uniqueRemove xs fk uniqueTail in
-  case (decEq (find (==x) (deleteAt fk xs)) Nothing) of
-   Yes prf => UniqueConcat uniqueM prf
-   No prf' => ?hole -- when we searched the deleted tail we don't get nothing. Show that if the element was not deleted we would also find something
-
--- prf' : (find (==x) (deleteAt fk xs) = Nothing) -> Void
+getContainerCardIds : Vect n Card -> Vect n (Fin 25)
+getBoardMonsterIds : Vect 9 (Maybe FieldedMonster) -> Vect n (Fin 25)
+getBoardMonsterIds _ = []
+getSpawnCardId : Maybe Card -> Vect n (Fin 25)
 -}
 
--------------------------------------------------------------------------------
 record Player where
  constructor MkPlayer
  --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
@@ -128,8 +49,16 @@ record Player where
  thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
  knowledge : Vect 6 (Bounded 0 9)
  temporaryId : String
--- should add proof that the total number of cards controlled is 30.
+
+-- should add proof that the total number of cards controlled is 25.
+ 
+
  timeRemainingMilliseconds : Nat
+
+
+
+getThem : Vect n (Maybe a) -> (m ** Vect m a)
+getIt : Maybe a -> (m ** Vect m a)
 
 
 
@@ -279,11 +208,548 @@ getBoardIds [] = ([] ** ?hole )--UniqueEmpty)
 getBoardIds (Nothing::xs) = ?hole
 getBoardIds ((Just fm)::xs) = ?hole
 -}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- I NEED TO DEFINE UNIQUENESS OF CARDS GIVEN BY EQ, DECEQ or something is given by ID!!!!!!!!!!!!!
+-- (OR NOT USE DECEQ)
+
+
+
+{- 
+ getThem : Vect n (Maybe a) -> (m ** Vect m a)
+  getIt : Maybe a -> (m ** Vect m a)
+  -}
+hgg : x = S n -> x = Z -> Void
+
+
+
 data CorrectPlayer : Player -> Type where
   MkCorrectPlayer :
    (player : Player) -> 
-   ((length (snd $ hand player)) + (length (snd $ graveyard player)) + (length (snd $ banished player)) = 2354) ->
-   CorrectPlayer player                                                                                  
+   (length25 :
+    (fst $ hand player) +
+    (fst $ graveyard player) +
+    (fst $ banished player) +
+    (fst $ getThem $ board player) +
+    (fst $ getIt $ spawnCard player) = 25) ->
+   UniqueVect
+    ((map Base.Card.getId $ snd $ hand player) ++
+     (map Base.Card.getId $ snd $ graveyard player) ++
+     (map Base.Card.getId $ snd $ banished player) ++
+     (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board player) ++
+     (map Base.Card.getId $ snd $ getIt $ spawnCard player)) ->
+   CorrectPlayer player 
+
+
+
+transplantIndexToEnd :
+ (l : Vect (S n) (Fin 25)) ->
+ (i : Fin (S n)) ->
+ (k : Vect m (Fin 25)) ->
+ (q : Vect o (Fin 25)) ->
+ (r : Vect a (Fin 25)) ->
+ (s : Vect b (Fin 25)) ->
+ UniqueVect (l ++ k ++ q ++ r ++ s) ->
+ UniqueVect ((Vect.deleteAt i l) ++ (k ++ [Vect.index i l]) ++ q ++ r ++ s)
+
+
+{-
+ S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+                 and
+                                         plus (plus (plus (plus m (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard))
+
+-}
+bhoo :
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ (boardLength : Nat) ->
+ (spawnLength : Nat) ->
+ plus (plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) boardLength) spawnLength =
+ S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) boardLength) spawnLength)
+
+{-
+(plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)) = S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+
+                       S (plus (plus (plus (plus k playerGraveyardLength) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard)))
+                                       and
+                                                               plus (plus (plus (plus k (plus playerGraveyardLength 1)) playerBanishedLength) (fst (getThem board))) (fst (getIt spawnCard))
+
+
+-}
+
+
+
+
+
+{-
+
+ tail (map getId playerHand) ++
+ (map getId playerGraveyard ++ [head (map getId playerHand)]) ++
+ map getId playerBanished ++ map (id . basic) (snd (getThem board)) ++ map getId (snd (getIt spawnCard))
+
+ 
+ tail (Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId playerHand) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId (playerGraveyard ++ [head playerHand]) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId playerBanished ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map (\x => id (basic x)) (snd (getThem board)) ++
+ Data.Vect.Vect n implementation of Prelude.Functor.Functor, method map getId (snd (getIt spawnCard))
+
+
+
+                                                                                                                                                                                                                                                                                             -}
+
+
+
+
+
+
+
+
+
+yyl : (f : a -> b) -> (i : Fin (S n)) -> (l : Vect (S n) a) -> map f (Vect.deleteAt i l) = Vect.deleteAt i (map f l)
+yyl2 : (f : a -> b) -> (i : Fin (S m)) -> (grave : Vect n a) -> (hand : Vect (S m) a) -> map f (grave ++ [Vect.index i hand]) = (map f grave) ++ (map f [Vect.index i hand])
+yyl3 : {a : Type} -> {b : Type} -> {m : Nat} -> (f : a -> b) -> (i : Fin (S m)) -> (hand : Vect (S m) a) -> f (Vect.index i hand) = Vect.index i (map f hand)
+
+hu : S k = S m -> k = m
+wrong : (i : Nat) -> (j : Nat) -> i = j
+
+
+moveCardFromHandToGraveyard :
+ CorrectPlayer player ->
+ (m : Nat) ->
+ (i : Fin (S m)) ->
+ ((fst $ hand player) = S m) ->
+ (player' ** CorrectPlayer player')
+
+moveCardFromHandToGraveyard
+ (MkCorrectPlayer
+  (MkPlayer
+    board
+    rowTarget
+    (playerHandLength ** playerHand)
+    (playerGraveyardLength ** playerGraveyard)
+    (playerBanishedLength ** playerBanished)
+    spawnCard
+    soulCards
+    thoughtsResource
+    knowledge
+    temporaryId
+    timeRemainingMilliseconds)
+  length25
+  uniqueVect)
+ m i prf with (playerHandLength) proof p
+  | Z = void $ hgg prf Refl
+  | S k = ?hole {-
+   let player' = (MkPlayer
+                   board
+                   rowTarget
+       --            (k ** deleteAt (let x = the (k=m) (hu prf) in rewrite x in i) playerHand)a
+                   (m ** (deleteAt i (believe_me playerHand)))
+                   ((playerGraveyardLength + 1) ** ((playerGraveyard) ++ [Data.Vect.index i (let x = the (m=k) (hu $ sym prf) in rewrite x in playerHand)]))
+                   (playerBanishedLength ** playerBanished)
+                   spawnCard
+                   soulCards
+                   thoughtsResource
+                   knowledge
+                   temporaryId
+                   timeRemainingMilliseconds) in
+   let uniqueTransplant = transplantIndexToEnd
+                           (map Base.Card.getId $ playerHand)
+                           (rewrite hu prf in i)
+                           (map Base.Card.getId $ playerGraveyard)
+                           (map Base.Card.getId $ playerBanished)
+                           (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                           (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                           uniqueVect in
+   (player' ** (MkCorrectPlayer
+                 player'
+                 (rewrite bhoo m playerGraveyardLength playerBanishedLength (fst (getThem board)) (fst (getIt spawnCard)) in rewrite (the (m=k) ?hole) in length25)
+                 ({-rewrite yyl getId i playerHand in-} {-rewrite yyl2 getId i playerGraveyard playerHand in-} {-rewrite yyl3 getId i playerHand in-}
+                  transplantIndexToEnd
+                   (map Base.Card.getId $ playerHand)
+                   -- ?hole
+                   --  (rewrite hu prf in i)
+                   ---(rewrite the (k=m) ?hole in i)
+                   (rewrite wrong k m in i)
+                   (map Base.Card.getId $ playerGraveyard)
+                   (map Base.Card.getId $ playerBanished)
+                   (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                   (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                   uniqueVect)))
+                   
+
+-}
+
+{-
+yyl : (f : a -> b) -> (l : Vect (S n) a) -> map f (tail l) = tail (map f l)
+yyl2 : (f : a -> b) -> (grave : Vect n a) -> (hand : Vect (S m) a) -> map f (grave ++ [head hand]) = (map f grave) ++ (map f [head hand])
+yyl3 : {a : Type} -> {b : Type} -> {m : Nat} -> (f : a -> b) -> (hand : Vect (S m) a) -> f (head hand) = head (map f hand)
+
+moveCardFromHandToGraveyard :
+ CorrectPlayer player ->
+ (m : Nat) ->
+ (i : Fin (S m)) ->
+ ((fst $ hand player) = S m) ->
+ (player' ** CorrectPlayer player')
+
+moveCardFromHandToGraveyard
+ (MkCorrectPlayer
+  (MkPlayer
+    board
+    rowTarget
+    (playerHandLength ** playerHand)
+    (playerGraveyardLength ** playerGraveyard)
+    (playerBanishedLength ** playerBanished)
+    spawnCard
+    soulCards
+    thoughtsResource
+    knowledge
+    temporaryId
+    timeRemainingMilliseconds)
+  length25
+  uniqueVect)
+ m i prf with (playerHandLength)
+  | Z = void $ hgg prf Refl
+  | S k =
+   let player' = (MkPlayer
+                   board
+                   rowTarget
+                   (k ** tail playerHand)
+                   ((playerGraveyardLength + 1) ** ((playerGraveyard) ++ [Data.Vect.head playerHand]))
+                   (playerBanishedLength ** playerBanished)
+                   spawnCard
+                   soulCards
+                   thoughtsResource
+                   knowledge
+                   temporaryId
+                   timeRemainingMilliseconds) in
+   let uniqueTransplant = transplantStartToEnd
+                           (map Base.Card.getId $ playerHand) --playerHand playerGraveyard playerBanished uniqueVect in
+                           (map Base.Card.getId $ playerGraveyard)
+                           (map Base.Card.getId $ playerBanished)
+                           (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                           (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                           uniqueVect in
+   (player' ** (MkCorrectPlayer
+                 player'
+                 (rewrite bhoo k playerGraveyardLength playerBanishedLength (fst (getThem board)) (fst (getIt spawnCard)) in length25)
+                 (rewrite yyl getId playerHand in rewrite yyl2 getId playerGraveyard playerHand in rewrite yyl3 getId playerHand in
+                  transplantStartToEnd
+                  (map Base.Card.getId $ playerHand)
+                  (map Base.Card.getId $ playerGraveyard)
+                  (map Base.Card.getId $ playerBanished)
+                  (map (Base.Objects_basic.BasicFieldedMonster.id . Base.Card.FieldedMonster.basic) $ snd $ getThem $ board)
+                  (map Base.Card.getId $ snd $ getIt $ spawnCard)
+                  uniqueVect)))
+
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+
+-------------------------------------------------------------------------------
+data CorrectPlayer : Player -> Type where
+  MkCorrectPlayer :
+   (player : Player) -> 
+   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+   UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+  CorrectPlayer player                                                                                  
+-------------------------------------------------------------------------------
+hgg : x = S n -> x = Z -> Void
+--hgg {x=Z} _ _ impossible
+--hgg {x=S n} _ _ impossible
+
+
+faf : (x : Nat) -> (y : Nat) -> plus (S k) (plus x y) = 25 -> plus k (S (plus x y)) = 25
+faf x y prf = ?hole
+
+
+transplantStartToEnd :
+ (l : Vect (S n) Card) ->
+ (k : Vect m Card) ->
+ (q : Vect o Card) ->
+ UniqueVect (l ++ k ++ q) ->
+ UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]) ++ q)
+
+how : 
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ plus k (plus (plus playerGraveyardLength 1) playerBanishedLength) = plus k (S (plus playerGraveyardLength playerBanishedLength))
+
+hoh :
+ (k : Nat) ->
+ (playerGraveyardLength : Nat) ->
+ (playerBanishedLength : Nat) ->
+ S (plus k (plus playerGraveyardLength playerBanishedLength)) = 25 ->
+ --plus k (plus (plus playerGraveyardLength 1) playerBanishedLength) = 25
+ plus (S k) (plus playerGraveyardLength playerBanishedLength) = 25
+
+moveCardFromHandToGraveyard :
+ CorrectPlayer player ->
+ (m : Nat) ->
+ (i : Fin (S m)) ->
+ ((fst $ hand player) = S m) ->
+ (player' ** CorrectPlayer player')
+
+moveCardFromHandToGraveyard
+ (MkCorrectPlayer
+  (MkPlayer
+    board
+    rowTarget
+    (playerHandLength ** playerHand)
+    (playerGraveyardLength ** playerGraveyard)
+    (playerBanishedLength ** playerBanished)
+    spawnCard
+    soulCards
+    thoughtsResource
+    knowledge
+    temporaryId
+    timeRemainingMilliseconds)
+  length25
+  uniqueVect)
+ m i prf with (playerHandLength) --proof p
+  | Z = void $ hgg prf Refl
+  | S k =
+     let player' =
+       (MkPlayer board rowTarget (k ** tail playerHand) ((playerGraveyardLength + 1) ** ({-rewrite plusCommutative 1 playerGraveyardLength in-} (playerGraveyard) ++ [Data.Vect.head playerHand])) (playerBanishedLength ** playerBanished) spawnCard soulCards thoughtsResource knowledge temporaryId timeRemainingMilliseconds)
+     in
+     --let q = the (playerHandLength + (playerGraveyardLength + playerBanishedLength) = 25) {-(rewrite plusCommutative k 1 in length25)-} Refl in
+     --let r = the q Refl in
+   --let p = ((fst $ hand player') + ((fst $ graveyard player') + (fst $ banished player')) = 25) in
+   --let p1 = the p ?hole in
+  
+  
+     --let playerHand'Unique = ?hole in
+    -- let playerGraveyard'Unique = ?hole in
+    -- let playerBanished'Unique = ?hole in
+    -- let allUnique = uniqueConcat playerHand'Unique playerGraveyard'Unique playerBanished'Unique 
+
+ --    let p1 = the ((rewrite plusCommutative 1 playerGraveyardLength in playerGraveyard ++ [head playerHand]) = snd (graveyard player'))
+   --               Refl in
+     let uniqueTransplant = transplantStartToEnd playerHand playerGraveyard playerBanished uniqueVect in
+
+     (player' ** (MkCorrectPlayer player' (rewrite how k playerGraveyardLength playerBanishedLength in faf playerGraveyardLength playerBanishedLength (hoh k playerGraveyardLength playerBanishedLength length25)) uniqueTransplant))
+-------------------------------------------------------------------------------
+
+
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+
+                UniqueVect (tail playerHand ++ (playerGraveyard ++ [head playerHand]) ++ playerBanished) (Type of uniqueTransplant)
+                        and
+                                        UniqueVect (snd (hand player') ++ snd (graveyard player') ++ snd (banished player')) (Expected type)
+
+
+
+ transplantStartToEnd :
+   (l : Vect (S n) (Fin 25)) ->
+     (k : Vect m (Fin 25)) ->
+       UniqueVect (l ++ k) ->
+         UniqueVect ((Vect.tail l) ++ (k ++ [Vect.head l]))
+
+
+
+uniqueConcat4 :
+ (l : Vect n (Fin 25)) ->
+  (k : Vect m (Fin 25)) ->
+   (q : Vect o (Fin 25)) ->
+    UniqueVect ((q ++ l) ++ k) ->
+     UniqueVect l
+
+
+              Type mismatch between
+                                      25
+                                                      and
+                                                                              plus k (S (plus playerGraveyardLength playerBanishedLength))
+
+
+
+-}
+
+
+
+
+
 
 {-
 
@@ -297,7 +763,7 @@ data CorrectPlayer : Player -> Type where
                                                                                                     ((x : Fin 25) -> find (==x) (getPlayerIdList player) = Nothing -> Void) ->
                                                                                                       CorrectPlayer player
 
-                                                                                                      -}
+-}
 
 
 record DrawPlayer where
@@ -623,10 +1089,24 @@ foo :
  find p v = Nothing
 -------------------------------------------------------------------------------
 terrible : False = True -> a
-terrible = ?unproven
+terrible Refl impossible
 -------------------------------------------------------------------------------
-helper : (p : a -> Bool) -> (x : a) -> ((p x = True) -> Void) -> ((if p x then Just x else Nothing) = Nothing)
-helper = ?hole
+apaap : {-((b = True) -> Void)-} if False then t else f = f
+apaap = Refl
+
+agaag : (b : Bool) -> (q : a) -> (r : a) -> ((b = True) -> Void) -> (if b then q else r) = r
+agaag b q r prf =
+  case b of
+    False => Refl
+    True => void (prf Refl)
+-------------------------------------------------------------------------------
+helper :
+ (p : a -> Bool) ->
+ (x : a) ->
+ ((p x = True) -> Void) ->
+ ((if p x then Just x else Nothing) = Nothing)
+
+helper p x pNotX = agaag (p x) (Just x) Nothing pNotX
 -------------------------------------------------------------------------------
 findWithIndexPreferentiallyFromProof1 :
  DecEq a =>
@@ -782,3 +1262,140 @@ transformMonster mutator row column player =
    record {board = updatedBoard} player
 -------------------------------------------------------------------------------
    -}
+
+moveCardFromGraveyardToHand :
+  CorrectPlayer player ->
+  (m : Nat) ->
+  (i : Fin (S m)) ->
+  ((fst $ graveyard player) = S m) ->
+  (player' ** CorrectPlayer player')
+
+
+
+
+
+-- cool idea:
+
+
+
+{- record Player where
+  constructor MkPlayer
+    --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+                board : Vect 9 (Maybe FieldedMonster)
+                  rowTarget : Vect 3 (Fin 3)
+                    hand : (m ** Vect m Card)
+                      graveyard : (n ** Vect n Card)
+                        banished : (o ** Vect o Card)
+                          spawnCard : Maybe Card
+                            soulCards : BoundedList 5 SoulCard
+                              thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+                                knowledge : Vect 6 (Bounded 0 9)
+                                  temporaryId : String
+                                  
+                                  
+
+
+record SizedClass (size : Nat) where
+      constructor SizedClassInfo
+          students : Vect size Person
+              className : String
+
+
+ data CorrectPlayer : Player -> Type where
+      MkCorrectPlayer :
+          (player : Player) -> 
+              (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+                  UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+                     CorrectPlayer player 
+
+
+                                  
+                                  -}
+
+
+
+-------------------------------------------------------------------------------
+{-record IndexedCorrectPlayer (boardSize : Nat) (spawnSize : Nat) (handSize : Nat) (graveyardSize : Nat) (banishedSize : Nat) where
+  MkIndexedCorrectPlayer :
+   (player : Player) ->
+   (length25 : 
+   -}  
+
+
+
+{-
+
+ record Player where
+     constructor MkPlayer
+       --board : Vect 3 (Vect 3 (Maybe FieldedMonster)) -- should wrap this in a datatype, and/or use matrix..
+                   board : Vect 9 (Maybe FieldedMonster)
+                     rowTarget : Vect 3 (Fin 3)
+                       hand : (m ** Vect m Card)
+                         graveyard : (n ** Vect n Card)
+                           banished : (o ** Vect o Card)
+                             spawnCard : Maybe Card
+                               soulCards : BoundedList 5 SoulCard
+                                 thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+                                   knowledge : Vect 6 (Bounded 0 9)
+                                     temporaryId : String
+                                      
+                                       -- should add proof that the total number of cards controlled is 25.
+                                        
+                                         
+                                           timeRemainingMilliseconds : Nat
+
+
+
+-}
+
+
+data FiveOptions a b c d e
+  = BoardLocation a
+  | HandLocation b
+  | GraveyardLocation c
+  | BanishedLocation d
+  | SpawnLocation e
+
+getCard :
+ {player : Player} ->
+ (correctPlayer : CorrectPlayer player) ->
+ Fin 25 ->
+ FiveOptions
+  (DPair
+   (FieldedMonster, Fin 9)
+   (\(m,i) => index i (board player) = Just m))
+  (DPair
+   (Card, Fin (fst (hand player)))
+   (\(c,i) => index i (snd (hand player)) = c))
+  (DPair
+   (Card, Fin (fst (graveyard player)))
+   (\(c,i) => index i (snd (graveyard player)) = c))
+  (DPair
+   (Card, Fin (fst (banished player)))
+   (\(c,i) => index i (snd (banished player)) = c))
+  (DPair
+   Card
+   (\c => spawnCard player = Just c))
+
+
+
+
+
+{-
+
+data CorrectPlayer : Player -> Type where
+         MkCorrectPlayer :
+                    (player : Player) ->
+                                   (length25 : (fst $ hand player) + ((fst $ graveyard player) + (fst $ banished player)) = 25) ->
+                                                      UniqueVect ({-map Base.Card.getId $-} (snd $ hand player) ++ (snd $ graveyard player) ++ (snd $ banished player)) ->
+                                                                            CorrectPlayer player
+
+
+                                                                            -}
+
+
+
+
+
+
+

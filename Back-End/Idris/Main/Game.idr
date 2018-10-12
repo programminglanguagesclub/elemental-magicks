@@ -146,8 +146,6 @@ is your proof that f y = f x
 -}
 
 gh : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect (l ++ []) 
-hg : (l : Vect n (Fin 25)) -> UniqueVect l = UniqueVect ([] ++ l)
-hg l = Refl
 
 --gah : UniqueVect l = UniqueVect (l ++ [])
 --gah = philipCast f ?hole ?hole
