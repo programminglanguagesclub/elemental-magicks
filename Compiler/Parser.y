@@ -160,11 +160,21 @@ Schools : {NoSchools}
         | word {OneSchool $1 $1}
         | word word {TwoSchools (unionSurfaceData $1 $2) $1 $2}
 -------------------------------------------------------------------------------
+--Token ActionSkill $ SurfaceData (lineNumber s) (columnNumber s) "action")}
+
 Start : {Nothing}
-      | start colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Start $3}
+      | start colon Skill
+         {Just $ CarryingSource (
+          let (Lexer.Token _ (Lexer.SurfaceData line column skillName)) = $1 in
+          let (Lexer.SurfaceData _ _ skillSourceCode) = getSurfaceData' $3 in
+          Lexer.SurfaceData line column (skillName ++ " : " ++ skillSourceCode)) $ Start $3}
 -------------------------------------------------------------------------------
 End : {Nothing}
-    | end colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ End $3}
+    | end colon Skill
+       {Just $ CarryingSource (
+        let (Lexer.Token _ (Lexer.SurfaceData line column skillName)) = $1 in
+        let (Lexer.SurfaceData _ _ skillSourceCode) = getSurfaceData' $3 in
+        Lexer.SurfaceData line column (skillName ++ " : " ++ skillSourceCode)) $ End $3}
 -------------------------------------------------------------------------------
 Counter : {Nothing}
         | counter colon Skill {Just $ CarryingSource (getSurfaceData' $3) $ Counter $3}
