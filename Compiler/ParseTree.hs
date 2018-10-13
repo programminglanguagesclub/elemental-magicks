@@ -125,8 +125,8 @@ data VariableBindings = VariableBindings Lexer.SurfaceData [([String], Set)]
 data Side
  = Friendly Lexer.SurfaceData -- friendly relative to evoker
  | Enemy Lexer.SurfaceData -- enemy relative to evoker
- | FriendlyVar Lexer.SurfaceData -- friendly relative to variable
- | EnemyVar Lexer.SurfaceData -- enemy relative to varaible
+ | FriendlyVar String Lexer.SurfaceData -- friendly relative to variable
+ | EnemyVar String Lexer.SurfaceData -- enemy relative to varaible
  deriving Show
 -------------------------------------------------------------------------------
 data RelativeSet
@@ -222,10 +222,16 @@ data Nonautomatic
  | Next Automatic
  deriving Show
 -------------------------------------------------------------------------------
+data SkillEffects
+ = SkillEffectList [SkillEffect]
+ | SkillEffectConditional Expr SkillEffects SkillEffects -- First list executed if Expr is true. Second executed after.
+ | SkillEffectConditionalBranch Expr SkillEffects SkillEffects SkillEffects  -- First list executed if Expr is true, otherwise second is executed. Third is executed after.
+ deriving Show
+-------------------------------------------------------------------------------
 data Automatic
- = Automatic Lexer.SurfaceData [SkillEffect] Nonautomatic
+ = Automatic Lexer.SurfaceData SkillEffects Nonautomatic
 --                              var     set    optional condition      
- | Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) [SkillEffect] Nonautomatic
+ | Universal Lexer.SurfaceData (String, Set) (CarryingSource Expr) SkillEffects Nonautomatic
  deriving Show
 -------------------------------------------------------------------------------
 data Stats

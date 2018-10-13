@@ -2,22 +2,16 @@
 module Parser where    
 import qualified Lexer
 import ParseTree
-
 import qualified Data.Map.Strict as HashMap
 import Text.Read
-
 import Text.EditDistance
-
 }
-
-
+-------------------------------------------------------------------------------
 %name calc
 %tokentype {Lexer.Token}
 %error {parseError}
 %monad {P} {thenP} {returnP}
 %lexer {lexer} {(Lexer.Token Lexer.EOFToken (_))}
-
-
 %token
  action {Lexer.Token Lexer.ActionSkill (_)}
  and {Lexer.Token Lexer.And (_)}
@@ -74,6 +68,7 @@ import Text.EditDistance
  of {Lexer.Token Lexer.LexerOf (_)}
  on {Lexer.Token Lexer.LexerOn (_)}
  or {Lexer.Token Lexer.Or (_)}
+ otherwise {Lexer.Token Lexer.Otherwise (_)}
  permanent {Lexer.Token Lexer.Permanent (_)}
  position {Lexer.Token Lexer.LexerPosition (_)}
  product {Lexer.Token Lexer.Product (_)}
@@ -113,30 +108,16 @@ import Text.EditDistance
  {-lex_error {Lexer.Token (Lexer.Error $$) (_)} {- WAIT A MINUTE... I DON'T WANT THIS!!! -}-}
  {-string {Lexer.Token (Lexer.TargetString $$) (_)}-}
 {- eof {Lexer.Token Lexer.EOFToken (_)} {- NO NO NO I do not want this either!!!!! -}-}
-   
-   
-   
-
-
+-------------------------------------------------------------------------------   
 %nonassoc gt lt eq leq geq
-
 %left equals
-
-
 %left sum difference mod
 %left product quotient
 %left union
-
 %right not
 %left or
 %left and
-
-
-
 %left dot
-
-
-
 %%
 -------------------------------------------------------------------------------
 File : Units Spells {File $1 $2}
@@ -215,10 +196,10 @@ Automatic : SkillEffects Nonautomatic {Automatic dummySurfaceData $1 $2 }
 -------------------------------------------------------------------------------
 ThenCase : then lbracket Automatic rbracket {$3}
 -------------------------------------------------------------------------------
-IfUnableCase : {Automatic dummySurfaceData [] (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
+IfUnableCase : {Automatic dummySurfaceData (SkillEffectList []) (TerminatedSkillComponent {-NOT PART OF SURFACE SYNTAX... maybe terminated should never be part of surface...-})}
              | if unable lbracket Automatic rbracket {$4}
 -------------------------------------------------------------------------------
-NextAutomatic : {Automatic dummySurfaceData [] (TerminatedSkillComponent)}
+NextAutomatic : {Automatic dummySurfaceData (SkillEffectList []) (TerminatedSkillComponent)}
               | lbracket Automatic rbracket {$2}
 -------------------------------------------------------------------------------
 SelectionStatement : Variables in Set RestSelectionStatement {(getFoo $1 $3) ++ $4}
@@ -234,9 +215,20 @@ Variables : var RestVariable {$1 : $2}
 RestVariable : {[]}
              | comma var RestVariable {$2 : $3}
 -------------------------------------------------------------------------------
-SkillEffects : {[]}
-             | SkillEffect semicolon SkillEffects {$1 : $3}
-             | if condition then SkillEffect semicolon SkillEffects {undefined}
+{-
+data SkillEffects
+ = SkillEffectList [SkillEffect]
+  | SkillEffectConditional Expr SkillEffects SkillEffects -- First list executed if Expr is true. Second executed after.
+   | SkillEffectConditionalBranch Expr SkillEffects SkillEffects SkillEffects  -- First list executed if Expr is true, otherwise second is executed. Third is executed after.
+-}
+
+SkillEffects : SkillEffectList {{-SkillEffectList $1-} undefined}
+{-             | if condition then lparen SkillEffects rparen semicolon SkillEffects {SkillEffectConditional $2 $5 $8}
+             | if condition then lparen SkillEffects rparen otherwise lparen SkillEffects rparen semicolon SkillEffects {SkillEffectConditionalBranch $2 $5 $9 $12}
+-}
+-------------------------------------------------------------------------------
+SkillEffectList : {[]}
+                | SkillEffect semicolon SkillEffectList {$1 : $3}
 -------------------------------------------------------------------------------
 -- skill effect needs to be able to include conditionals. This is because
 -- I am executing lists of skill effects, and conditions can change between skill effects in the list.

@@ -454,29 +454,6 @@ typeCheckRStatVar field =
 {-NONE OF THESE CURRENTLY ACCOUNT FOR CARDS NOT BEING ON THE FIELD. E.G., WE SHOULD NOT TARGET THE MODIFIED STATS OF CARDS IN SPAWN-}
 
 -------------------------------------------------------------------------------
-{-
-
- = OneFL
- | TwoFL
- | ThreeFL
- | FourFL
- | FiveFL
- | SixFL
- | SevenFL
- | EightFL
- | NineFL
- | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
- | ToTheLeftOf Variable
- | ToTheRightOf Variable
- | InFrontOf Variable
- | Behind Variable 
- | OnSameSquareSelf -- refers to enemy of course
- | ToTheLeftOfSelf -- this refers to friendly...
- | ToTheRightOfSelf
- | InFrontOfSelf
- | BehindSelf
--}
-
 data SkillEffect
  = SkillEffectAssignment Assignment {-I need more skill effects, of course-}
  | SimultaneousSkillEffect Lexer.SurfaceData [SkillEffect] {- This is mostly to make the interface better: Instead of showing the effects happening one after another, they happen at the same time. Note that death, deathskills, counterskills, etc, then happen according to field position, initiative-}
@@ -534,51 +511,77 @@ data Assignment -- why does this exist as a separate datatype rather than just b
  = Assignment [LExpr] ParseTree.Mutator RInt
  deriving Show
 -------------------------------------------------------------------------------
-data FieldLocation
- = OneFL ParseTree.Side
- | TwoFL ParseTree.Side
- | ThreeFL ParseTree.Side
- | FourFL ParseTree.Side
- | FiveFL ParseTree.Side
- | SixFL ParseTree.Side
- | SevenFL ParseTree.Side
- | EightFL ParseTree.Side
- | NineFL ParseTree.Side
- | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
- | ToTheLeftOf ParseTree.Side Variable
- | ToTheRightOf ParseTree.Side Variable
- | InFrontOf ParseTree.Side Variable
- | Behind ParseTree.Side Variable 
- | OnSameSquareSelf -- refers to enemy of course
- | ToTheLeftOfSelf ParseTree.Side
- | ToTheRightOfSelf ParseTree.Side
- | InFrontOfSelf ParseTree.Side
- | BehindSelf ParseTree.Side
+
+{-
+ - data Side
+ -  = Friendly Lexer.SurfaceData -- friendly relative to evoker
+ -   | Enemy Lexer.SurfaceData -- enemy relative to evoker
+ -    | FriendlyVar Lexer.SurfaceData -- friendly relative to variable
+ -     | EnemyVar Lexer.SurfaceData -- enemy relative to varaible
+ -      deriving Show
+ -      -}
+
+data Side
+ = Friendly Lexer.SurfaceData -- friendly relative to evoker
+ | Enemy Lexer.SurfaceData -- enemy relative to evoker
+ | FriendlyVar Variable Lexer.SurfaceData -- friendly relative to variable
+ | EnemyVar Variable Lexer.SurfaceData -- enemy relative to varaible
  deriving Show
 
- 
-typecheckFieldLocation ::  Context -> FieldLocation -> TC FieldLocation
+
+data FieldLocation
+ = OneFL Side
+ | TwoFL Side
+ | ThreeFL Side
+ | FourFL Side
+ | FiveFL Side
+ | SixFL Side
+ | SevenFL Side
+ | EightFL Side
+ | NineFL Side
+ | OnSameSquare Variable -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
+ | ToTheLeftOf Side Variable
+ | ToTheRightOf Side Variable
+ | InFrontOf Side Variable
+ | Behind Side Variable 
+ | OnSameSquareSelf -- refers to enemy of course
+ | ToTheLeftOfSelf Side
+ | ToTheRightOfSelf Side
+ | InFrontOfSelf Side
+ | BehindSelf Side
+ deriving Show
+
+
+typecheckSide :: Context -> ParseTree.Side -> TC Side
+typecheckSide context side =
+ case side of
+  ParseTree.Friendly surfaceData -> pure $ Friendly surfaceData
+  ParseTree.Enemy surfaceData -> pure $ Enemy surfaceData
+  ParseTree.FriendlyVar var surfaceData -> joinTC $ pure $ FriendlyVar <$> typeCheckVariable context (Variable undefined var) <*> pure surfaceData
+  ParseTree.EnemyVar var surfaceData -> undefined
+
+typecheckFieldLocation ::  Context -> ParseTree.FieldLocation -> TC FieldLocation
 typecheckFieldLocation context fieldLocation =
  case fieldLocation of
-   OneFL side -> undefined
-   TwoFL side -> undefined
-   ThreeFL side -> undefined
-   FourFL side -> undefined
-   FiveFL side -> undefined
-   SixFL side -> undefined
-   SevenFL side -> undefined
-   EightFL side -> undefined
-   NineFL side -> undefined
-   OnSameSquare var -> undefined -- originally given side; typechecker will make sure variable is the opposite side as the side data listed here.
-   ToTheLeftOf side var -> undefined
-   ToTheRightOf side var -> undefined
-   InFrontOf side var -> undefined
-   Behind side var -> undefined
-   OnSameSquareSelf -> undefined -- refers to enemy of course
-   ToTheLeftOfSelf side -> undefined
-   ToTheRightOfSelf side -> undefined
-   InFrontOfSelf side -> undefined
-   BehindSelf side -> undefined
+   ParseTree.OneFL side -> joinTC $ pure $ OneFL <$> typecheckSide context side
+   ParseTree.TwoFL side -> joinTC $ pure $ TwoFL <$> typecheckSide context side
+   ParseTree.ThreeFL side -> joinTC $ pure $ ThreeFL <$> typecheckSide context side
+   ParseTree.FourFL side -> joinTC $ pure $ FourFL <$> typecheckSide context side
+   ParseTree.FiveFL side -> joinTC $ pure $ FiveFL <$> typecheckSide context side
+   ParseTree.SixFL side -> joinTC $ pure $ SixFL <$> typecheckSide context side
+   ParseTree.SevenFL side -> joinTC $ pure $ SevenFL <$> typecheckSide context side
+   ParseTree.EightFL side -> joinTC $ pure $ EightFL <$> typecheckSide context side
+   ParseTree.NineFL side -> joinTC $ pure $ NineFL <$> typecheckSide context side
+   ParseTree.OnSameSquare var -> joinTC $ pure $ OnSameSquare <$> typeCheckVariable context (Variable undefined var)
+   ParseTree.ToTheLeftOf side var -> joinTC $ pure $ ToTheLeftOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.ToTheRightOf side var -> joinTC $ pure $ ToTheRightOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.InFrontOf side var -> joinTC $ pure $ InFrontOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.Behind side var -> joinTC $ pure $ Behind <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.OnSameSquareSelf -> pure OnSameSquareSelf -- refers to enemy of course
+   ParseTree.ToTheLeftOfSelf side -> joinTC $ pure $ ToTheLeftOfSelf <$> typecheckSide context side
+   ParseTree.ToTheRightOfSelf side -> joinTC $ pure $ ToTheRightOfSelf <$> typecheckSide context side
+   ParseTree.InFrontOfSelf side -> joinTC $ pure $ InFrontOfSelf <$> typecheckSide context side
+   ParseTree.BehindSelf side -> joinTC $ pure $ BehindSelf <$> typecheckSide context side
 
 -- Stuff for affecting entire rows or columns to be dealt with elsewhere.
 -- This just indexes a particular square.
@@ -722,9 +725,6 @@ schoolsFromKnowledge surfaceData school1 school2 =
      putErr $
      prefix ++
      "Units cannot belong to two identical schools"
-
-{-I should keep the line,column numbers along with the type checker AST, so I can output errors better there...-}
-
     else
      putErr $
      prefix ++
@@ -738,11 +738,7 @@ schoolsFromKnowledge surfaceData school1 school2 =
       (showKnowledge school1))
 -------------------------------------------------------------------------------
 
-
-
-
 {-Need to wrap variable, and not just have String...-}
-
 
 
 {-
@@ -750,15 +746,11 @@ getSet :: Context -> Variable ->
 -}
 
 
-
-
-
 {-
  -
  -I HAVE WHERE, BUT I DO NOT HAVE IF STATEMENTS YET IN MY SKILLS BEYOND THIS... I SHOULD.
  - 
  - -}
-
 
 
 -------------------------------------------------------------------------------
@@ -1091,14 +1083,6 @@ typeCheckCondition :: Maybe (ParseTree.CarryingSource ParseTree.Expr) -> Context
 
 typeCheckCondition Nothing _ = pure Nothing
 typeCheckCondition (Just expr) context = Just <$> typeCheckRBool context expr
--------------------------------------------------------------------------------
-
-{-
-checkAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
-data Skill = Skill SurfaceData RInt RBool Automatic {-Currently no check against this cost being negative. Also doesn't have to be a constant (design decision)-}
- 
-
--}
 -------------------------------------------------------------------------------
 typeCheckStart :: Maybe (ParseTree.CarryingSource ParseTree.Start) -> TC (Maybe Start)
 typeCheckStart Nothing = pure Nothing

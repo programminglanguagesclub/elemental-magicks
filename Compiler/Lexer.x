@@ -21,7 +21,7 @@ tokens :-
 <0> death { \s i -> return (Token DeathSkill $ SurfaceData (lineNumber s) (columnNumber s) "death")}
 <0> auto { \s i -> return (Token AutoSkill $ SurfaceData (lineNumber s) (columnNumber s) "auto")}
 <0> action { \s i -> return (Token ActionSkill $ SurfaceData (lineNumber s) (columnNumber s) "action")}
-
+<0> otherwise { \s i -> return (Token Otherwise $ SurfaceData (lineNumber s) (columnNumber s) "otherwise")}
 
 <0> cardinality { \s i -> return (Token Cardinality $ SurfaceData (lineNumber s) (columnNumber s) "cardinality")}
 <0> damage { \s i -> return (Token Damage $ SurfaceData (lineNumber s) (columnNumber s) "damage")}
@@ -151,6 +151,7 @@ data TokenInner =
   | LexerBehind
   | LexerThis
   | Else
+  | Otherwise
   | If
   | Identifier String
   | Colon
