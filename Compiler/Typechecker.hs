@@ -133,6 +133,12 @@ data Knowledge
  | Void SurfaceData
  deriving Show
 -------------------------------------------------------------------------------
+data SkillEffects
+ = SkillEffectList [SkillEffect]
+ | SkillEffectConditional RBool SkillEffects SkillEffects -- First list executed if Expr is true. Second executed after.
+ | SkillEffectConditionalBranch RBool SkillEffects SkillEffects SkillEffects  -- First list executed if Expr is true, otherwise second is executed. Third is executed after.
+ deriving Show
+-------------------------------------------------------------------------------
 instance Eq Knowledge where
  Earth _ == Earth _ = True
  Fire _ == Fire _ = True
@@ -153,28 +159,39 @@ typeCheckSkillEffect context skillEffect =
    SkillEffectAssignment
    <$> typeCheckAssignment context lExprs mutator rExpr
   ParseTree.Revive surfaceData variableName ->
-   pure $ SkillEffectRevive surfaceData variableName -- does not check variable name length currently, although maybe this caught earlier
-  ParseTree.DamageSelf surfaceData damage ->
-   joinTC $
    pure $
+   SkillEffectRevive surfaceData variableName -- does not check variable name length currently, although maybe this caught earlier
+  ParseTree.DamageSelf surfaceData damage ->
    SkillEffectDamageSelf surfaceData
    <$> typeCheckRInt context damage
   ParseTree.DamageVar surfaceData var damage -> -- again not typechecking var
-   joinTC $
-   pure $
    SkillEffectDamageVar surfaceData var
    <$> typeCheckRInt context damage
-  ParseTree.SendVarToGraveyard surfaceData var -> pure $ SendVarToGraveyard surfaceData var -- not typechecking var currently
-  ParseTree.SendSelfToGraveyard surfaceData -> pure $ SendSelfToGraveyard surfaceData
+  ParseTree.SendVarToGraveyard surfaceData var ->
+   pure $
+   SendVarToGraveyard surfaceData var -- not typechecking var currently
+  ParseTree.SendSelfToGraveyard surfaceData ->
+   pure $
+   SendSelfToGraveyard surfaceData
   ParseTree.DamageSquare surfaceData fieldLocation damage ->
-   joinTC $ pure $ DamageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -} <$> typeCheckRInt context damage
+   DamageSquare surfaceData {-fieldLocation-} undefined {- should typecheck square value -}
+   <$> typeCheckRInt context damage
   ParseTree.DamageRowVar surfaceData var side damage ->
-   joinTC $ pure $ DamageRowVar surfaceData undefined side <$> typeCheckRInt context damage
+   DamageRowVar surfaceData undefined side
+   <$> typeCheckRInt context damage
   ParseTree.DamageColumnVar surfaceData var side damage ->
-   joinTC $ pure $ DamageColumnVar surfaceData undefined side <$> typeCheckRInt context damage
-  ParseTree.DamageRowSelf surfaceData damage -> undefined
-  ParseTree.DamageColumnSelf surfaceData damage -> undefined
-  ParseTree.DamageAllLeftVarExclusive surfaceData var damage -> undefined
+   DamageColumnVar surfaceData undefined side
+   <$> typeCheckRInt context damage
+  ParseTree.DamageRowSelf surfaceData damage ->
+   DamageRowSelf surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageColumnSelf surfaceData damage ->
+   DamageColumnSelf surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllLeftVarExclusive surfaceData var damage ->
+   DamageAllLeftVarExclusive surfaceData
+   <$> undefined -- typeCheckVariable context (undefined{-Variable undefined var-})
+   <*> typeCheckRInt context damage
   ParseTree.DamageAllRightVarExclusive surfaceData var damage -> undefined
   ParseTree.DamageAllBehindVarExclusive surfaceData var damage -> undefined
   ParseTree.DamageAllInFrontVarExclusive surfaceData var damage -> undefined
@@ -182,14 +199,30 @@ typeCheckSkillEffect context skillEffect =
   ParseTree.DamageAllRightVarInclusive surfaceData var damage -> undefined
   ParseTree.DamageAllBehindVarInclusive surfaceData var damage -> undefined
   ParseTree.DamageAllInFrontOfVarInclusive surfaceData var damage -> undefined
-  ParseTree.DamageAllLeftSelfExclusive surfaceData damage -> undefined
-  ParseTree.DamageAllRightSelfExclusive surfaceData damage -> undefined
-  ParseTree.DamageAllBehindSelfExclusive surfaceData damage -> undefined
-  ParseTree.DamageAllInFrontSelfExclusive surfaceData damage -> undefined
-  ParseTree.DamageAllLeftSelfInclusive surfaceData damage -> undefined
-  ParseTree.DamageAllRightSelfInclusive surfaceData damage -> undefined
-  ParseTree.DamageAllBehindSelfInclusive surfaceData damage -> undefined
-  ParseTree.DamageAllInFrontOfSelfInclusive surfaceData damage -> undefined
+  ParseTree.DamageAllLeftSelfExclusive surfaceData damage ->
+   DamageAllLeftSelfExclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllRightSelfExclusive surfaceData damage ->
+   DamageAllRightSelfExclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllBehindSelfExclusive surfaceData damage ->
+   DamageAllBehindSelfExclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllInFrontSelfExclusive surfaceData damage ->
+   DamageAllInFrontSelfExclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllLeftSelfInclusive surfaceData damage ->
+   DamageAllLeftSelfInclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllRightSelfInclusive surfaceData damage ->
+   DamageAllRightSelfInclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllBehindSelfInclusive surfaceData damage ->
+   DamageAllBehindSelfInclusive surfaceData
+   <$> typeCheckRInt context damage
+  ParseTree.DamageAllInFrontOfSelfInclusive surfaceData damage ->
+   DamageAllInFrontOfSelfInclusive surfaceData
+   <$> typeCheckRInt context damage
   ParseTree.DamageRowOne side surfaceData damage -> undefined
   ParseTree.DamageRowTwo side surfaceData damage -> undefined
   ParseTree.DamageRowThree side surfaceData damage -> undefined
@@ -559,29 +592,70 @@ typecheckSide context side =
   ParseTree.Enemy surfaceData -> pure $ Enemy surfaceData
   ParseTree.FriendlyVar var surfaceData -> joinTC $ pure $ FriendlyVar <$> typeCheckVariable context (Variable undefined var) <*> pure surfaceData
   ParseTree.EnemyVar var surfaceData -> undefined
-
-typecheckFieldLocation ::  Context -> ParseTree.FieldLocation -> TC FieldLocation
+-------------------------------------------------------------------------------
+typecheckFieldLocation :: Context -> ParseTree.FieldLocation -> TC FieldLocation
 typecheckFieldLocation context fieldLocation =
  case fieldLocation of
-   ParseTree.OneFL side -> joinTC $ pure $ OneFL <$> typecheckSide context side
-   ParseTree.TwoFL side -> joinTC $ pure $ TwoFL <$> typecheckSide context side
-   ParseTree.ThreeFL side -> joinTC $ pure $ ThreeFL <$> typecheckSide context side
-   ParseTree.FourFL side -> joinTC $ pure $ FourFL <$> typecheckSide context side
-   ParseTree.FiveFL side -> joinTC $ pure $ FiveFL <$> typecheckSide context side
-   ParseTree.SixFL side -> joinTC $ pure $ SixFL <$> typecheckSide context side
-   ParseTree.SevenFL side -> joinTC $ pure $ SevenFL <$> typecheckSide context side
-   ParseTree.EightFL side -> joinTC $ pure $ EightFL <$> typecheckSide context side
-   ParseTree.NineFL side -> joinTC $ pure $ NineFL <$> typecheckSide context side
-   ParseTree.OnSameSquare var -> joinTC $ pure $ OnSameSquare <$> typeCheckVariable context (Variable undefined var)
-   ParseTree.ToTheLeftOf side var -> joinTC $ pure $ ToTheLeftOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
-   ParseTree.ToTheRightOf side var -> joinTC $ pure $ ToTheRightOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
-   ParseTree.InFrontOf side var -> joinTC $ pure $ InFrontOf <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
-   ParseTree.Behind side var -> joinTC $ pure $ Behind <$> typecheckSide context side <*> typeCheckVariable context (Variable undefined var)
-   ParseTree.OnSameSquareSelf -> pure OnSameSquareSelf -- refers to enemy of course
-   ParseTree.ToTheLeftOfSelf side -> joinTC $ pure $ ToTheLeftOfSelf <$> typecheckSide context side
-   ParseTree.ToTheRightOfSelf side -> joinTC $ pure $ ToTheRightOfSelf <$> typecheckSide context side
-   ParseTree.InFrontOfSelf side -> joinTC $ pure $ InFrontOfSelf <$> typecheckSide context side
-   ParseTree.BehindSelf side -> joinTC $ pure $ BehindSelf <$> typecheckSide context side
+   ParseTree.OneFL side ->
+    OneFL
+    <$> typecheckSide context side
+   ParseTree.TwoFL side ->
+    TwoFL
+    <$> typecheckSide context side
+   ParseTree.ThreeFL side ->
+    ThreeFL
+    <$> typecheckSide context side
+   ParseTree.FourFL side ->
+    FourFL
+    <$> typecheckSide context side
+   ParseTree.FiveFL side ->
+    FiveFL
+    <$> typecheckSide context side
+   ParseTree.SixFL side ->
+    SixFL
+    <$> typecheckSide context side
+   ParseTree.SevenFL side ->
+    SevenFL
+    <$> typecheckSide context side
+   ParseTree.EightFL side ->
+    EightFL
+    <$> typecheckSide context side
+   ParseTree.NineFL side ->
+    NineFL
+    <$> typecheckSide context side
+   ParseTree.OnSameSquare var ->
+    OnSameSquare
+    <$> typeCheckVariable context (Variable undefined var)
+   ParseTree.ToTheLeftOf side var ->
+    ToTheLeftOf
+    <$> typecheckSide context side
+    <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.ToTheRightOf side var ->
+    ToTheRightOf
+    <$> typecheckSide context side
+    <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.InFrontOf side var ->
+    InFrontOf
+    <$> typecheckSide context side
+    <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.Behind side var ->
+    Behind
+    <$> typecheckSide context side
+    <*> typeCheckVariable context (Variable undefined var)
+   ParseTree.OnSameSquareSelf ->
+    pure OnSameSquareSelf -- refers to enemy of course
+   ParseTree.ToTheLeftOfSelf side ->
+    ToTheLeftOfSelf
+    <$> typecheckSide context side
+   ParseTree.ToTheRightOfSelf side ->
+    ToTheRightOfSelf
+    <$> typecheckSide context side
+   ParseTree.InFrontOfSelf side ->
+    InFrontOfSelf
+    <$> typecheckSide context side
+   ParseTree.BehindSelf side ->
+    BehindSelf
+    <$> typecheckSide context side
 
 -- Stuff for affecting entire rows or columns to be dealt with elsewhere.
 -- This just indexes a particular square.
@@ -754,22 +828,32 @@ getSet :: Context -> Variable ->
 
 
 
-
+{-
 data SkillEffects
  = SkillEffectList [SkillEffect]
  | SkillEffectConditional RBool SkillEffects SkillEffects -- First list executed if Expr is true. Second executed after.
  | SkillEffectConditionalBranch RBool SkillEffects SkillEffects SkillEffects  -- First list executed if Expr is true, otherwise second is executed. Third is executed after.
  deriving Show
+-}
 
-
-
+-------------------------------------------------------------------------------
 typecheckSkillEffects :: Context -> ParseTree.SkillEffects -> TC SkillEffects
 typecheckSkillEffects context skillEffects =
  case skillEffects of
-  ParseTree.SkillEffectList skillEffectList -> SkillEffectList <$> traverse (typeCheckSkillEffect context) skillEffectList
-  ParseTree.SkillEffectConditional condition trueSkillEffects nextSkillEffects -> undefined
-  ParseTree.SkillEffectConditionalBranch condition trueSkillEffects falseSkillEffects nextSkillEffects -> undefined
-
+  ParseTree.SkillEffectList skillEffectList ->
+   SkillEffectList
+   <$> traverse (typeCheckSkillEffect context) skillEffectList
+  ParseTree.SkillEffectConditional condition trueSkillEffects nextSkillEffects ->
+   SkillEffectConditional
+   <$> undefined --typeCheckRBool context condition
+   <*> typecheckSkillEffects context trueSkillEffects
+   <*> typecheckSkillEffects context nextSkillEffects
+  ParseTree.SkillEffectConditionalBranch condition trueSkillEffects falseSkillEffects nextSkillEffects ->
+   SkillEffectConditionalBranch
+   <$> undefined -- typeCheckRBool context condition
+   <*> typecheckSkillEffects context trueSkillEffects
+   <*> typecheckSkillEffects context falseSkillEffects
+   <*> typecheckSkillEffects context nextSkillEffects
 -------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 typeCheckAutomatic context (ParseTree.Automatic surfaceData skillEffects nonautomatic) =
