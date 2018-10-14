@@ -220,8 +220,8 @@ typeCheckAssignment context lExprs mutator rExpr =
  <*> typeCheckRInt context rExpr
 -------------------------------------------------------------------------------
 data Automatic
- = Automatic SurfaceData [SkillEffect] Nonautomatic
- | Universal SurfaceData Judgment RBool [SkillEffect] Nonautomatic
+ = Automatic SurfaceData SkillEffects Nonautomatic
+ | Universal SurfaceData Judgment RBool SkillEffects Nonautomatic
  deriving Show
 -------------------------------------------------------------------------------
 data Nonautomatic
@@ -753,9 +753,44 @@ getSet :: Context -> Variable ->
  - -}
 
 
+
+
+data SkillEffects
+ = SkillEffectList [SkillEffect]
+ | SkillEffectConditional RBool SkillEffects SkillEffects -- First list executed if Expr is true. Second executed after.
+ | SkillEffectConditionalBranch RBool SkillEffects SkillEffects SkillEffects  -- First list executed if Expr is true, otherwise second is executed. Third is executed after.
+ deriving Show
+
+
+
+typecheckSkillEffects :: Context -> ParseTree.SkillEffects -> TC SkillEffects
+typecheckSkillEffects context skillEffects =
+ case skillEffects of
+  ParseTree.SkillEffectList skillEffectList -> SkillEffectList <$> traverse (typeCheckSkillEffect context) skillEffectList
+  ParseTree.SkillEffectConditional condition trueSkillEffects nextSkillEffects -> undefined
+  ParseTree.SkillEffectConditionalBranch condition trueSkillEffects falseSkillEffects nextSkillEffects -> undefined
+
 -------------------------------------------------------------------------------
 typeCheckAutomatic :: Context -> ParseTree.Automatic -> TC Automatic
 typeCheckAutomatic context (ParseTree.Automatic surfaceData skillEffects nonautomatic) =
+ Automatic surfaceData
+   <$> typecheckSkillEffects context skillEffects
+   <*> typeCheckNonautomatic context nonautomatic
+typeCheckAutomatic context (ParseTree.Universal surfaceData binding condition skillEffects nonautomatic) =
+ Universal surfaceData
+ <$> (pure judgment)
+ <*>
+  (joinTC $
+   typeCheckRBool
+   <$> context'
+   <*> pure condition)
+ <*> typecheckSkillEffects context skillEffects
+ <*> typeCheckNonautomatic context nonautomatic
+ where judgment = mkJudgment binding
+       context' = tryExtendContext context judgment
+
+
+{-
  Automatic surfaceData
  <$> traverse (typeCheckSkillEffect context) skillEffects
  <*> typeCheckNonautomatic context nonautomatic
@@ -775,6 +810,7 @@ typeCheckAutomatic context (ParseTree.Universal surfaceData binding condition sk
  <*> typeCheckNonautomatic context nonautomatic
  where judgment = mkJudgment binding
        context' = tryExtendContext context judgment
+-}
 -------------------------------------------------------------------------------
 
 {-need to make sure that I check the new bindings somewhere to make sure that variable names are no more than 1 character long-}
@@ -1342,14 +1378,14 @@ noSelfReferencesAutomatic (Automatic surfaceData skillEffects nonAutomatic) =
  joinTC $
  pure $
  Automatic surfaceData
- <$> noSelfReferencesSkillEffects skillEffects
+ <$> {-noSelfReferencesSkillEffects skillEffects-} undefined
  <*> noSelfReferencesNonautomatic nonAutomatic
 noSelfReferencesAutomatic (Universal surfaceData judgment condition skillEffects nonautomatic) =
  joinTC $
  pure $
  Universal surfaceData judgment
  <$> noSelfReferencesRBool condition
- <*> traverse noSelfReferencesSkillEffect skillEffects
+ <*> {-traverse noSelfReferencesSkillEffect skillEffects-} undefined
  <*> noSelfReferencesNonautomatic nonautomatic
 -------------------------------------------------------------------------------
 noSelfReferencesNonautomatic :: Nonautomatic -> TC Nonautomatic
