@@ -156,9 +156,21 @@ data Set
  | EnemyBanished
  | Union Set Set
 -------------------------------------------------------------------------------
+
+{-
+
+ = Friendly Lexer.SurfaceData -- friendly relative to evoker
+  | Enemy Lexer.SurfaceData -- enemy relative to evoker
+   | FriendlyVar String Lexer.SurfaceData -- friendly relative to variable
+    | EnemyVar String Lexer.SurfaceData -- enemy relative to varaible
+
+    -}
+
 data Side
  = Friendly 
  | Enemy
+ | FriendlyVar String
+ | EnemyVar String
 -------------------------------------------------------------------------------
 data RelativeSet
  = RelativeBoard 
@@ -215,7 +227,7 @@ mutual
   data SkillEffect
    = EvokerSkillEffectStatEffect StatEffect 
    | SkillEffectStatEffect StatEffect String 
-   | SkillEffectResourceEffect ResourceEffect 
+   | SkillEffectResourceEffect Side ResourceEffect 
    | SkillEffectPositionEffect PositionEffect 
    | SkillEffectConditional Condition SkillEffect SkillEffect 
    | SkillEffectRowEffect Side String SkillEffect String

@@ -39,6 +39,53 @@ with surface data also filled out correctly....
 -}
 
 
+
+{-
+ -
+ -  data Unit =
+ -    Unit
+ -       String
+ -          (CarryingSource Stats)
+ -             (Maybe (CarryingSource Start))
+ -                (Maybe (CarryingSource End))
+ -                   (Maybe (CarryingSource Counter))
+ -                      (Maybe (CarryingSource Spawn))
+ -                         (Maybe (CarryingSource Death))
+ -                            (Maybe (CarryingSource Auto))
+ -                               [CarryingSource Action]
+ -                                  (CarryingSource Soul)
+ -                                 
+ 
+ -}
+
+
+buildSurfaceData' :: Sourced a => Int -> Int -> String -> [a] -> Lexer.SurfaceData
+buildSurfaceData' line column source [] = Lexer.SurfaceData line column source
+buildSurfaceData' line column source (x:xs) =
+ let Lexer.SurfaceData _ _ nextSource = getSurface x in
+ buildSurfaceData' line column (source ++ " " ++ nextSource) xs
+
+buildSurfaceData :: Sourced a => a -> [a] -> Lexer.SurfaceData
+buildSurfaceData x xs =
+ let Lexer.SurfaceData line column source = getSurface x in
+ buildSurfaceData' line column source xs
+
+class Sourced a where
+ getSurface :: a -> Lexer.SurfaceData
+
+instance Sourced Unit where
+ getSurface unit = undefined
+
+instance Sourced (CarryingSource a) where
+ getSurface (CarryingSource surfaceData _) = surfaceData
+
+
+
+
+
+
+
+
 data CarryingSource a =
  CarryingSource Lexer.SurfaceData a
  deriving Show
