@@ -9,6 +9,15 @@ var cardBackTexture = new THREE.Texture(cardBackImage);
 cardFrontTexture.needsUpdate = true;
 cardBackTexture.needsUpdate = true;
 //-----------------------------------------------------------------------
+
+
+document.getElementById("messages").innerHTML = "The Battle has Begun!";
+// should change font size to match the page resizing...
+
+function setFontSize(x){
+  document.getElementById("messages").style["font-size"] = x;
+}
+
 var cardMeshes = [];
 var selectionMeshes = [];
 var selectedField = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -106,8 +115,8 @@ function getSoulIndex(index){
 // (index : Nat /\ [0,8]) -> (cardSlot : Three.Object3D)
 function getCardSlot(index){
   var cardSlot = new THREE.Object3D();
-  var card = getCard(False);
-  var cardSelection = getCardSelection(False);
+  var card = getCard(false);
+  var cardSelection = getCardSelection(false);
   var fieldIndex = getFieldIndex(index);
   cardSlot.add(card);
   cardSlot.add(cardSelection);
@@ -286,6 +295,11 @@ var opponentBoardContainer = getBoard(false);
 opponentBoardContainer.position.set(0,62,98);
 scene.add(opponentBoardContainer);
 
+/*
+var displayCard =
+CODE FOR DISPLAY CARD (in the message area)
+
+*/
 var orbLevel = [0,0,0,0,0,0];
 var orbSpeed = [1/3, 1/3, 1/3, 1/3, 1/3, 1/3];
 var beginFade = [2000,1000,0,2000,2000,0000];
@@ -399,6 +413,12 @@ for(var i = 0; i < 6; ++i){
     new THREE.PlaneGeometry(10,10),
     new THREE.MeshPhongMaterial({color: 0xffffff, map : plusTexture,  blending: THREE.AdditiveBlending})
   );
+/*
+  var upArrowRegion = new THREE.Mesh(
+    new THREE.PlaneGeometry(30,30),
+    new THREE.MeshPhongMaterial({color: 0xffffff, map : plusTexture,  blending: THREE.AdditiveBlending})
+  );
+*/ // might also be able to discount based on the size of the cursor.
   upArrow.position.set(-220 + (i * 30), -30, 120);
   plusButtons.push(upArrow);
   scene.add(upArrow);
@@ -1215,6 +1235,42 @@ var render = function() {
 render();
 //---------------------------------------------------------------------
 // A BIT OF THE FOLLOWING CODE IS NOT MINE
+
+
+
+
+function onDocumentMouseOver(event){
+event.preventDefault();
+console.log("foo");
+var vector = new THREE.Vector3(
+    ( event.clientX / document.getElementById("c").offsetWidth ) * 2 - 1,
+    - ( event.clientY / document.getElementById("c").offsetHeight ) * 2 + 1,
+    0.5
+  );
+  projector.unprojectVector( vector, camera );
+  var ray = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+  for(var i = 0; i < cardMeshes.length; ++i){
+    var intersects = ray.intersectObjects( [cardMeshes[i]] );
+    if ( intersects.length > 0 ) {
+      selectedField[i] = !selectedField[i];
+      if(selectedField[i]){
+        selectionMeshes[i].material.color.setHex(0xff0000 );
+      }
+      else{
+        selectionMeshes[i].material.color.setHex(0x888888 );
+      }
+    }
+  }
+}
+document.addEventListener('mousemove', onDocumentMouseOver, false);
+
+function onWindowResize(event){
+console.log("JIGGERY POKERY");
+}
+document.addEventListener('pageResize', onWindowResize, false);
+// Need to figure out the resize event name, and then have the font size set to make sense for the page size.
+
+
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 var projector = new THREE.Projector();
 function onDocumentMouseDown( event ) {

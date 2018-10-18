@@ -1,0 +1,18 @@
+On the buttons for Banished, Graveyard, Hand, it should indicate how many cards are in each with a little number by the button.
+Should resize the text in the message area to match the size of the window.
+Should stop using Three.js in favor of a mixture of normal HTML, CSS3, and canvas objects.
+I can do whatever effects I want with canvas just fine, and this will make the code much much much MUCH easier to work with.
+
+I need to rewrite my sphere effects (like fire).
+
+I need to work out my click events so that if the upper left of the cursor is on my object then the click is registered.
+This should work out fine if I use html.
+
+Animate victory overlay with continue to next round / return to arena stuff,
+and also show rating update!
+
+
+When I remake my front-end, I want to follow essentially the same format as the version 3,
+although I should also look at the version 2.
+
+I need to make sure I can scroll in the hand/graveyard/banished areas like I could in version 1 (and maybe 2).
