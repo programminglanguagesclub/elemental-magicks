@@ -82,6 +82,28 @@ selectMutator Decrement Permanent = decrementPermanent
 selectMutator Increment Temporary = incrementTemporary
 selectMutator Increment Permanent = incrementPermanent
 -------------------------------------------------------------------------------
+selectMutatorKnowledge :
+ Mutator ->
+ Bounded 0 9 ->
+ Integer ->
+ Bounded 0 9
+
+selectMutatorKnowledge Assign = ?hole
+selectMutatorKnowledge Decrement = ?hole
+selectMutatorKnowledge Increment = ?hole
+-------------------------------------------------------------------------------
+--thoughtsResource : Bounded 0 Preliminaries.absoluteUpperBound
+
+selectMutatorThoughts :
+ Mutator ->
+ Bounded 0 Preliminaries.absoluteUpperBound ->
+ Integer ->
+ Bounded 0 Preliminaries.absoluteUpperBound
+
+selectMutatorThoughts Assign = ?hole
+selectMutatorThoughts Decrement = ?hole
+selectMutatorThoughts Increment = ?hole
+-------------------------------------------------------------------------------
 statTypeLower : Stat -> Integer
 statTypeLower Speed = Preliminaries.absoluteLowerBound
 statTypeLower _ = 0
@@ -249,6 +271,13 @@ mutual
 
 
 {- no requirement that elements be unique yet....; the last string binds the respective units for use in SkillEffect -}
+
+
+  data SkillEffects
+   = SkillEffectList (List SkillEffect)
+   | SkillEffectConditionalBranch Condition SkillEffects SkillEffects SkillEffects 
+
+
 -------------------------------------------------------------------------------
   data RInteger
    = Constant Integer 
@@ -356,8 +385,8 @@ mutual
    = Existential (Vect n (String,Set)) Condition Automatic Automatic
 -------------------------------------------------------------------------------
   data Automatic
-   = MkAutomatic (List SkillEffect) (Maybe Nonautomatic)
-   | Universal (String,Set) Condition (List SkillEffect) (Maybe Nonautomatic)
+   = MkAutomatic SkillEffects (Maybe Nonautomatic)
+   | Universal (String,Set) Condition SkillEffects (Maybe Nonautomatic)
 {-haven't added all of the code for universal yet...-}
 {-universal also should take a vector of strings, not just a single string, at some point-}
 -------------------------------------------------------------------------------

@@ -109,6 +109,13 @@ getSide Enemy _ evokerPlayer = getOpponent evokerPlayer
 getSide (FriendlyVar var) env _ = ?hole
 getSide (EnemyVar var) env _ = ?hole
 -------------------------------------------------------------------------------
+getBoolean :
+ Condition ->
+ Player ->
+ Player ->
+ Env ->
+ Maybe Bool
+-------------------------------------------------------------------------------
 getValue :
  RInteger ->
  Player ->
@@ -341,6 +348,25 @@ removeEvokerSkillsFromQueue (cardId, evokerPlayer) ((skill,queuedId,queuedPlayer
                                                 -}
 
 
+{-
+ selectMutatorKnowledge :
+   Mutator ->
+     Bounded 0 9 ->
+       Integer ->
+         Bounded 0 9
+         -}
+
+getPlayer : WhichPlayer -> Player -> Player -> Player
+
+updatePlayerPair :
+ WhichPlayer ->
+ Player ->
+ Player ->
+ Player ->
+ List (Fin 25, WhichPlayer) ->
+ List (Skill, Fin 25, WhichPlayer, SkillType) ->
+ List ClientUpdate ->
+ (Player,Player,List (Fin 25, WhichPlayer), List (Skill, Fin 25, WhichPlayer, SkillType), List ClientUpdate)
 
 
 -- skillHead : Maybe (Nonautomatic, Fin 25, WhichPlayer, Env) -- evokerId, whichPlayer
@@ -361,20 +387,47 @@ applySkillEffect (EvokerSkillEffectStatEffect statEffect) player opponent contex
  ?hole
 applySkillEffect (SkillEffectStatEffect statEffect string) player opponent context evokerId deathQueue env next skillQueue = ?hole
 applySkillEffect (SkillEffectResourceEffect side (ThoughtEffect mutator rInteger)) player opponent context (evokerId, evokerPlayer) deathQueue env next skillQueue =
- let p = getSide side context evokerPlayer in ?hole
+ let p = getSide side context evokerPlayer in
+ let val = getValue rInteger player opponent context in
+ case val of
+  Nothing => ?hole
+  Just value =>
+   let toUpdate = getPlayer p player opponent in
+   let updated = record {thoughtsResource = selectMutatorThoughts mutator ?hole ?hole} toUpdate in
+   updatePlayerPair p updated player opponent deathQueue skillQueue [UpdateThoughts (thoughtsResource updated) p]
 applySkillEffect (SkillEffectResourceEffect side (SchoolEffect whichSchool mutator rInteger)) player opponent context (evokerId, evokerPlayer) deathQueue env next skillQueue =
  let p = getSide side context evokerPlayer in
  let val = getValue rInteger player opponent context in -- val is a maybe right now.... :/
  case val of
   Nothing => ?hole
-  Just value => asgfsagjdasjdgajklgs
-    
-
+  Just value =>
+   let toUpdate = getPlayer p player opponent in
+   let updated = record {knowledge $= replaceAt whichSchool (selectMutatorKnowledge mutator (index whichSchool $ knowledge toUpdate) value)} toUpdate in
+   updatePlayerPair p updated player opponent deathQueue skillQueue [UpdateSchools (knowledge updated) p]
 applySkillEffect (SkillEffectResourceEffect side (DecrementLP rInteger)) player opponent context (evokerId, evokerPlayer) deathQueue env next skillQueue =
  let p = getSide side context evokerPlayer in ?hole
 
 applySkillEffect (SkillEffectPositionEffect positionEffect) player opponent context evokerId deathQueue env next skillQueue = ?hole
-applySkillEffect (SkillEffectConditional condition skillEffectTrue skillEffectFalse) player opponent context evokerId deathQueue env next skillQueue = ?hole
+
+{-
+applySkillEffect (SkillEffectConditional condition skillEffectTrue skillEffectFalse) player opponent context evokerId deathQueue env next skillQueue =
+  case getBoolean condition player opponent context of
+    Nothing => ?hole
+    Just False => 
+
+-- change to skillEffects and structure as in compiler
+
+                 -}
+      
+
+  {- getBoolean :
+    Condition ->
+      Player ->
+        Player ->
+          Env ->
+            Maybe Bool
+            -}
+
 applySkillEffect (SkillEffectRowEffect side string1 skillEffect string2) player opponent context evokerId deathQueue env next skillQueue = ?hole
 applySkillEffect (SkillEffectColumnEffect side string1 skillEffect string2) player opponent context evokerId deathQueue env next skillQueue = ?hole
 applySkillEffect (SkillEffectBehind side string1 skillEffect string2) player opponent context evokerId deathQueue env next skillQueue = ?hole
@@ -404,7 +457,7 @@ applySkillEffect (SendSpawnToGraveyard side) player opponent context evokerId de
 
 -------------------------------------------------------------------------------
 applySkillEffects :
- List SkillEffect ->
+ SkillEffects ->
  (player : Player) ->
  (opponent : Player) ->
  (evokerId : (Fin 25, WhichPlayer)) ->
@@ -412,9 +465,13 @@ applySkillEffects :
  Env ->
  (Player,Player,List (Fin 25, WhichPlayer), List ClientUpdate)
 
+applySkillEffects = ?hole
+{-
 applySkillEffects [] player opponent evokerId deathQueue env = ?hole --(player, opponent, deathQueue, [])
 
 applySkillEffects (effect::effects) player opponent evokerId deathQueue env = ?hole
+-}
+
 {-
  let (player',opponent',deathQueue', updates) = applySkillEffect effect player opponent evokerId deathQueue env in
  let (player'',opponent'',deathQueue'',updates') = applySkillEffects effects player' opponent' evokerId deathQueue' env in
