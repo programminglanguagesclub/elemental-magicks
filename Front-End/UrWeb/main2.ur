@@ -1522,11 +1522,11 @@ fun main () : transaction page = return <xml><head>
                           <span class={cardStat} style="color:grey;font-size: 7.686px;">Sp: </span><span id="sp" class={cardStat} style="color:green;font-size: 7.686px;"></span><br/>
                           (*
                            <span id = "engagementWrapper">
-                            <font class = "cardStat" color="grey">Engagement:</font>
-                            <font id = "engagement" class={cardStat} color="lightgrey"> Disengaged</font>
+                            <span class = "cardStat" style = "color:grey">Engagement:</span>
+                            <span id = "engagement" class={cardStat} style = "color:lightgrey"> Disengaged</span>
                             <br>
                            </span>
-                           <span id = "statusWrapper"><font class = "cardStat" color="grey">Status:</font><font id = "status" class = "cardStat" color="green"> None</font><br></span>
+                           <span id = "statusWrapper"><span class = "cardStat" style = "color:grey">Status:</span><span id = "status" class = "cardStat" style ="color:green"> None</span><br></span>
                            *)
                          </div>
                         </div>
@@ -1536,29 +1536,29 @@ fun main () : transaction page = return <xml><head>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
                            <div class={col1of3with0forskills}>
-                            <font class={cardSkill} color="green" style="float: left; font-size: 7.686px;" id="cardSkillType0"></font>
+                            <span class={cardSkill} style="color:green;float: left; font-size: 7.686px;" id="cardSkillType0"></span>
                            </div>
                            <div class={col2of3with0forskills}>
-                            <font class={cardSkill} color="yellow" style="float: left; font-size: 7.686px;" id="cardSkillName0"></font>
+                            <span class={cardSkill} style="color:yellow;float: left; font-size: 7.686px;" id="cardSkillName0"></span>
                            </div>
                            <div class={col3of3with0floatright}>
-                            <font class={cardSkill} color="cyan" style="float: right; font-size: 7.686px;" id="cardSkillCost0"></font>
+                            <span class={cardSkill} style="color:cyan;float: right; font-size: 7.686px;" id="cardSkillCost0"></span>
                            </div>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} style="font-size: 7.686px;"><font color="white" id="cardSkillDescription0"></font></div>
+                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span style = "color:white" id="cardSkillDescription0"></span></div>
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
                            <div class={col1of3with0forskills}>
-                            <font class={cardSkill} color="green" style="float: left; font-size: 7.686px;" id="cardSkillType1"></font>
+                            <span class={cardSkill} style="color:green;float: left; font-size: 7.686px;" id="cardSkillType1"></span>
                            </div>
                            <div class={col2of3with0forskills}>
-                            <font class={cardSkill} color="yellow" style="float: left; font-size: 7.686px;" id="cardSkillName1"></font>
+                            <span class={cardSkill} style="color:yellow;float: left; font-size: 7.686px;" id="cardSkillName1"></span>
                            </div>
                            <div class={col3of3with0floatright}>
-                            <font class={cardSkill} color="cyan" style="float: right; font-size: 7.686px;" id="cardSkillCost1"></font>
+                            <span class={cardSkill} style="color:cyan;float: right; font-size: 7.686px;" id="cardSkillCost1"></span>
                            </div>
                           </div>
                          </div>
