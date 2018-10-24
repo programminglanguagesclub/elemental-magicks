@@ -100,7 +100,13 @@ style plus_button (*changed plus-button to plus_button*)
 style minus_button (*changed minus-button to minus_button*)
 style context_box
 style stage_thoughts
+style imagWOWURWEBERRORe (*because can't name class image maybe*)
+style imagWOWURWEBERRORe____graveyardbackground
 
+(*ffi svg : unit -> tag tableAttrs ([Dyn, MakeForm, Body]) ([MakeForm]) [] []*)
+ffi svg : unit -> tag tableAttrs ([Dyn, MakeForm, Body]) ([MakeForm]) [] []
+
+(*bodyTag*)
 
 fun main () : transaction page = return <xml><head>
   (*
@@ -144,23 +150,23 @@ fun main () : transaction page = return <xml><head>
    <br>
    <button class="myButtonSame" (* id="returnToLobby" *) (* style="font-size:35px;width:50%;" *) (* onclick="AttemptToReturnToLobby();" *)>Return to Lobby</button>
   </div>*)
-  <div (* style="position:relative;height:98%;" *)>
-   <div (* style="object-fit: contain; height:100%; width:100%;" *)>
+  <div style="position:relative;height:98%;">
+   <div style="object-fit: contain; height:100%; width:100%;">
     <span class={wrapper}>
-     (* NEED <svg width="11580px" height="9000px" class={image}></svg>*)
-     <div class={positioner} (* style="background-color:#404040;" *)>
-      <div (* style="padding-top:77.7%;" *)>
+    <svg style = "width:11580px;height:9000px" class={imagWOWURWEBERRORe}></svg>
+     <div class={positioner} style="background-color:#404040;">
+      <div style="padding-top:77.7%;">
        <div class={context_box}>
         <div class={content}>
          <div class={container2of3with2}>
           <div class={container1of3with2}>
            <div class={col1of3with2big}>
-            <span (* id="enemyIcons" *) (* style="visibility:hidden;" *)>
+            <span (* id="enemyIcons" *) style="visibility:hidden;">
              <div class={container3of3with0}>
               <div class={container2of3with0}>
                <div class={container1of3with0}>
                 <div class={col1of3with0}>
-                 <div (* id="enemygraveyardbutton" *) title="Displays the cards in your opponent&#39;s graveyard" class={displayAreaUnselected} (* style="width:50%; float:left; border-radius:25%; -webkit-transform:translate(50%,0%);" *) (* onclick="selectEnemyGraveyard();" *)>
+                 <div (* id="enemygraveyardbutton" *) title="Displays the cards in your opponent&#39;s graveyard" class={displayAreaUnselected} (*style="width:50%; float:left; border-radius:25%; -webkit-transform:translate(50%,0%);" *) (* onclick="selectEnemyGraveyard();" *)>
                   <img class={iconImage} src="./battle.jsp_files/grave.png"/>
                  </div>
                 </div>
@@ -180,9 +186,9 @@ fun main () : transaction page = return <xml><head>
             </span>
             <div class={outerGraveyard}>
              <span class={wrapper}>
-              (* NEED <svg width="500px" height="500px" class={image graveyardbackground}></svg> *)
+              <svg style="width:500px;height:500px;" class={imagWOWURWEBERRORe____graveyardbackground}></svg> *)
               <div class={positioner}>
-               <div (* style="padding-top: 100%;" *)>
+               <div style="padding-top: 100%;">
                 <div class={context_box}>
                  <div class={content}>
                   <div>
@@ -192,10 +198,10 @@ fun main () : transaction page = return <xml><head>
                       <div class={container2of5}>
                        <div class={container1of5}>
                         <div (* id="col1" *)>
-                         <div (* id="enemygraveyard0" *) (* style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" *) class={unselected}>
-                          <img (* index="0" *) class={enemyGraveyardImage} (* id="enemygraveyardImage0" *) (* style="width:80%; padding:10%; border-radius:10%;" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
+                         <div (* id="enemygraveyard0" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
+                          <img (* index="0" *) class={enemyGraveyardImage} (* id="enemygraveyardImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
-                         <div (* id="enemygraveyard5" *) (* style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" *) class={unselected}>
+                         <div (* id="enemygraveyard5" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="5" *) class={enemyGraveyardImage} (* id="enemygraveyardImage5" *) (* style="width:80%; padding:10%; border-radius:10%;" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                          <div (* id="enemygraveyard10" *) (* style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" *) class={unselected}>
@@ -291,7 +297,7 @@ fun main () : transaction page = return <xml><head>
 
                         <div (* id="enemy8" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(8)" *) (* style="margin-bottom:28%; width:100%;" *)>
                          <div class={unselected}>
-                          <img src="./battle.jsp_files/8.png" (* style="width:90%; padding:5%; border-radius:20%;" *)/>
+                          <img src="./battle.jsp_files/8.png" style="width:90%; padding:5%; border-radius:20%;"/>
                          </div>
                          <span (* id="enemy8Card" *) (* style="visibility:hidden;" *) class="fieldCard" (* onmouseover="displayDetailsField(1,8);" *)>
                           <div class={face____card____front}>
@@ -612,7 +618,7 @@ fun main () : transaction page = return <xml><head>
             </div>
             <div class={outerGraveyard}>
              <span class={wrapper}>
-          (* NEED    <svg width="500px" height="500px" class="image graveyardbackground"></svg> *)
+             <svg style="width:500px;height:500px;" class={imagWOWURWEBERRORe____graveyardbackground}></svg>
               <div class={positioner}>
                <div (* style="padding-top: 100%;" *)>
                 <div class={context_box}>
@@ -1279,7 +1285,7 @@ fun main () : transaction page = return <xml><head>
             </div>
            </div>
            <span class={wrapper} (* id="cardarea" *)>
-           (* NEED <svg width="1600px" height="2000px" class="image"></svg> *)
+            <svg style="width:1600px;height:2000px;" class={imagWOWURWEBERRORe}></svg>
             <div class={positioner}>
              <div (* style="padding-top: 125%;" *)>
               <div class={context_box}>
@@ -1495,7 +1501,7 @@ fun main () : transaction page = return <xml><head>
                   background-image: -ms-linear-gradient(bottom, #06011F 100%, #06040F 100%);
                   background-image: linear-gradient(to bottom, #06011F 100%, #06040F 100%);z-index:500; position:relative;" *)>
                   <span class={wrapper} (* id="cardimagecard" *)>
-                   (* NEED <svg width="1600px" height="2000px" class="image" (* style="background:#000;" *)></svg> *)
+                   <svg style="width:1600px;height:2000px;background:#000;" class={imagWOWURWEBERRORe} ></svg>
                    <div class={positioner}>
                     <div (* style="padding-top: 125%;" *)>
                      <div class={context_box}>
