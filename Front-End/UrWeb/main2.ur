@@ -90,6 +90,9 @@ style outerGraveyard
 style panel____displayDetails
 style face____card____front
 style animateStatChangeText
+
+
+
 style backside____card____back____backRotate
 style face____front____card____unselected
 style backside____backRotate____back____card____unselected
@@ -100,8 +103,48 @@ style plus_button (*changed plus-button to plus_button*)
 style minus_button (*changed minus-button to minus_button*)
 style context_box
 style stage_thoughts
+
+
 style imagWOWURWEBERRORe (*because can't name class image maybe*)
+
+
 style imagWOWURWEBERRORe____graveyardbackground
+style enemyIcons
+
+
+
+style col26666
+style container1ccc
+style col1ccc
+style container2ccc
+style col2ccc
+style container3ccc
+style col3ccc
+style container4ccc
+style col4ccc
+
+
+style container1
+style col1
+style container2
+style col2
+style container3
+style col3
+style container4
+style col4
+style container5
+style col5
+
+style container17777
+style col17777
+style container27777
+style col27777
+style container37777
+style col37777
+style container47777
+style col47777
+style container57777
+style col57777
 
 (*ffi svg : unit -> tag tableAttrs ([Dyn, MakeForm, Body]) ([MakeForm]) [] []*)
 ffi svg : unit -> tag tableAttrs ([Dyn, MakeForm, Body]) ([MakeForm]) [] []
@@ -109,16 +152,18 @@ ffi svg : unit -> tag tableAttrs ([Dyn, MakeForm, Body]) ([MakeForm]) [] []
 (*bodyTag*)
 
 fun main () : transaction page = return <xml><head>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/earth.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/fire.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/water.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/air.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/spirit.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/void.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/ball.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/plus.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/othercss.css"/>
-  <link rel="stylesheet" type="text/css" href="./battle.jsp_files/clock.css"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropboxusercontent.com/s/76hjjkwhiu9xz0z/earth.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/hv2uzq61xdun91j/ball.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/hadcldzyffvjzcf/water.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/z6pxjn1slszvfqv/air.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/71xwnip1zdo82mx/spirit.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/z82ld92fq1m09z6/void.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/hv2uzq61xdun91j/ball.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/fp8sjyqzhnwxtj0/plus.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/7j9wz3o184cht3t/othercss.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/7mlcwyu8ohtgj6m/clock.css?dl=0"/>
+  <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/0kjeyzn7tb0qmzn/fire.css?dl=0"/>
+
 (*
   <script src="./battle.jsp_files/jquery-latest.js"></script>
   <script src="./battle.jsp_files/jquery-latest(1).js"></script>
@@ -161,13 +206,13 @@ fun main () : transaction page = return <xml><head>
          <div class={container2of3with2}>
           <div class={container1of3with2}>
            <div class={col1of3with2big}>
-            <span (* id="enemyIcons" *) style="visibility:hidden;">
+            <span class={enemyIcons} style="visibility:hidden;">
              <div class={container3of3with0}>
               <div class={container2of3with0}>
                <div class={container1of3with0}>
                 <div class={col1of3with0}>
                  <div (* id="enemygraveyardbutton" *) title="Displays the cards in your opponent&#39;s graveyard" class={displayAreaUnselected} (*style="width:50%; float:left; border-radius:25%; -webkit-transform:translate(50%,0%);" *) (* onclick="selectEnemyGraveyard();" *)>
-                  <img class={iconImage} src="./battle.jsp_files/grave.png"/>
+                  <img class={iconImage} src="https://dl.dropbox.com/s/uh7zvgn0v2f5bex/grave.png?dl=0"/>
                  </div>
                 </div>
                 <div class={col2of3with0}>
@@ -197,7 +242,7 @@ fun main () : transaction page = return <xml><head>
                      <div class={container3of5}>
                       <div class={container2of5}>
                        <div class={container1of5}>
-                        <div (* id="col1" *)>
+                        <div class={col1}>
                          <div (* id="enemygraveyard0" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="0" *) class={enemyGraveyardImage} (* id="enemygraveyardImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -214,7 +259,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="20" *) class={enemyGraveyardImage} (* id="enemygraveyardImage20" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col2" *)>
+                        <div class={col2}>
                          <div (* id="enemygraveyard1" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="1" *) class={enemyGraveyardImage} (* id="enemygraveyardImage1" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -231,7 +276,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="21" *) class={enemyGraveyardImage} (* id="enemygraveyardImage21" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col3" *)>
+                        <div class={col3}>
                          <div (* id="enemygraveyard2" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="2" *) class={enemyGraveyardImage} (* id="enemygraveyardImage2" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -248,7 +293,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="22" *) class={enemyGraveyardImage} (* id="enemygraveyardImage22" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col4" *)>
+                        <div class={col4}>
                          <div (* id="enemygraveyard3" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="3" *) class={enemyGraveyardImage} (* id="enemygraveyardImage3" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -265,7 +310,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="23" *) class={enemyGraveyardImage} (* id="enemygraveyardImage23" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col5" *)>
+                        <div class={col5}>
                          <div (* id="enemygraveyard4" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="4" *) class={enemyGraveyardImage} (* id="enemygraveyardImage4" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -295,14 +340,14 @@ fun main () : transaction page = return <xml><head>
 
 (*____ means that I need to make a new css class that is the union of the two, to satisfy UrWeb's one class policy*)
 
-                        <div (* id="enemy8" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(8)" *) (* style="margin-bottom:28%; width:100%;" *)>
+                        <div (* id="enemy8" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(8)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/8.png" style="width:90%; padding:5%; border-radius:20%;"/>
                          </div>
                          <span (* id="enemy8Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(1,8);" *)>
                           <div class={face____card____front}>
                            <div class={unselected}>
-                            <div class={animateStatChangeText} (* id="statAnimationEnemy8" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                            <div class={animateStatChangeText} (* id="statAnimationEnemy8" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                             <div (* id="enemy8Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                             <img (* id="enemy8Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                            </div>
@@ -335,7 +380,7 @@ fun main () : transaction page = return <xml><head>
                          </span>
                          <figure (* id="enemyNextTarget5" *) class={circle} style="display:none;"></figure>
                         </div>
-                        <div (* id="enemy2" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(2)" *) (* style="margin-bottom:28%; width:100%;" *)>
+                        <div (* id="enemy2" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(2)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/2.png" style="width:90%; padding:5%; border-radius:20%;"/>
                          </div>
@@ -357,7 +402,7 @@ fun main () : transaction page = return <xml><head>
                         </div>
                        </div>
                        <div (* id="col2gggccc" *)>
-                        <div (* id="enemy7" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(7)" *) (* style="margin-bottom:28%; width:100%;" *)>
+                        <div (* id="enemy7" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(7)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/7.png" style="width:90%; padding:5%; border-radius:20%;"/>
                          </div>
@@ -377,14 +422,14 @@ fun main () : transaction page = return <xml><head>
                          </span>
                          <figure (* id="enemyNextTarget7" *) class={circle} style="display:none;" ></figure>
                         </div>
-                        <div (* id="enemy4" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(4)" *) (* style="margin-bottom:28%; width:100%;" *)>
+                        <div (* id="enemy4" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(4)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/4.png" style="width:90%; padding:5%; border-radius:20%;" />
                          </div>
                          <span (* id="enemy4Card" *) style="visibility:hidden;" class={fieldCard} (* onmouseover="displayDetailsField(1,4);" *)>
                           <div class={face____card____front}>
                            <div class={unselected}>
-                            <div class={animateStatChangeText} (* id="statAnimationEnemy4" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                            <div class={animateStatChangeText} (* id="statAnimationEnemy4" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                             <div (* id="enemy4Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                             <img (* id="enemy4Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                            </div>
@@ -397,14 +442,14 @@ fun main () : transaction page = return <xml><head>
                          </span>
                          <figure (* id="enemyNextTarget4" *) class={circle} style="display:none;"></figure>
                         </div>
-                        <div (* id="enemy1" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(1)" *) (* style="margin-bottom:28%; width:100%;" *)>
+                        <div (* id="enemy1" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(1)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/1.png" style="width:90%; padding:5%; border-radius:20%;"/>
                          </div>
                          <span (* id="enemy1Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(1,1);" *)>
                           <div class={face____card____front}>
                            <div class={unselected}>
-                            <div class={animateStatChangeText} (* id="statAnimationEnemy1" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                            <div class={animateStatChangeText} (* id="statAnimationEnemy1" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                             <div (* id="enemy1Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                             <img (* id="enemy1Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                            </div>
@@ -446,7 +491,7 @@ fun main () : transaction page = return <xml><head>
                          <span (* id="enemy3Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(1,3);" *)>
                           <div class={face____card____front}>
                            <div class={unselected}>
-                            <div class={animateStatChangeText} (* id="statAnimationEnemy3" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                            <div class={animateStatChangeText} (* id="statAnimationEnemy3" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                             <div (* id="enemy3Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                             <img (* id="enemy3Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                            </div>
@@ -491,7 +536,7 @@ fun main () : transaction page = return <xml><head>
                           <div class={col2of2with0fieldstuff}>
                            <div (* id="enemySet" *) class={panel____displayDetails}>
                             <div class={unselected}>
-                             <img src="./battle.jsp_files/set.png" style="width:90%; padding:5%; border-radius:20%;"/>
+                             <img src="https://dl.dropbox.com/s/6bd0ni2hpd0uqwy/set.png?dl=0" style="width:90%; padding:5%; border-radius:20%;"/>
                             </div>
                             <span (* id="enemySetCard" *) style="visibility:hidden;" class="setCard" (* onmouseover="displayDetailsSet(1);" *)>
                              <div class={face____card____front}>
@@ -515,11 +560,11 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                    <div (* id="container5enemyhand" *) class="" style="display:block;">
-                    <div (* id="container4" *)>
-                     <div (* id="container3" *)>
-                      <div (* id="container2" *)>
-                       <div (* id="container1" *)>
-                        <div (* id="col1" *)>
+                    <div class={container4}>
+                     <div class={container3}>
+                      <div class={container2}>
+                       <div class={container1}>
+                        <div class={col1}>
                          <div (* id="enemyhand0" *) style="visibility:hidden; border-radius:10%; margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="0" *) class="enemyHandImage" (* id="enemyhandImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -536,7 +581,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="20" *) class="enemyHandImage" (* id="enemyhandImage20" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col2" *)>
+                        <div class={col2}>
                          <div (* id="enemyhand1" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="1" *) class="enemyHandImage" (* id="enemyhandImage1" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -553,7 +598,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="21" *) class="enemyHandImage" (* id="enemyhandImage21" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col3" *)>
+                        <div class={col3}>
                          <div (* id="enemyhand2" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="2" *) class="enemyHandImage" (* id="enemyhandImage2" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -570,7 +615,7 @@ fun main () : transaction page = return <xml><head>
                           <img (* index="22" *) class="enemyHandImage" (* id="enemyhandImage22" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                         </div>
-                        <div (* id="col4" *)>
+                        <div class={col4}>
                          <div (* id="enemyhand3" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="3" *) class="enemyHandImage" (* id="enemyhandImage3" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
@@ -589,7 +634,7 @@ fun main () : transaction page = return <xml><head>
                         </div>
                         <div (* id="col5" *)>
                          <div (* id="enemyhand4" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
-                          <img (* index="4" *) class="enemyHandImage" (* id="enemyhandImage4" *) (* style=" width:80%; padding:10%; border-radius:10%;" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
+                          <img (* index="4" *) class="enemyHandImage" (* id="enemyhandImage4" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                          </div>
                          <div (* id="enemyhand9" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                           <img (* index="9" *) class="enemyHandImage" (* id="enemyhandImage9" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
@@ -620,15 +665,15 @@ fun main () : transaction page = return <xml><head>
              <span class={wrapper}>
              <svg style="width:500px;height:500px;" class={imagWOWURWEBERRORe____graveyardbackground}></svg>
               <div class={positioner}>
-               <div (* style="padding-top: 100%;" *)>
+               <div style="padding-top: 100%;">
                 <div class={context_box}>
                  <div class={content}>
-                  <div (* id="container4ccc" *) style="display:none;">
-                   <div (* id="container3ccc" *)>
-                    <div (* id="container2ccc" *)>
-                     <div (* id="container1ccc" *)>
-                      <div (* id="col1ccc" *)>
-                       <div (* id="player0" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(0);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                  <div class={container4ccc} style="display:none;">
+                   <div class={container3ccc}>
+                    <div class={container2ccc}>
+                     <div class={container1ccc}>
+                      <div class={col1ccc}>
+                       <div (* id="player0" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(0);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/0.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
@@ -655,7 +700,7 @@ fun main () : transaction page = return <xml><head>
                         <span (* id="player3Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,3);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer3" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer3" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player3Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player3Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -668,14 +713,14 @@ fun main () : transaction page = return <xml><head>
                         </span>
                         <figure (* id="playerNextTarget3" *) class={circle}></figure>
                        </div>
-                       <div (* id="player6" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(6);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                       <div (* id="player6" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(6);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/6.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player6Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,6);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer6" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer6" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player6Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player6Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -689,15 +734,15 @@ fun main () : transaction page = return <xml><head>
                         <figure (* id="playerNextTarget6" *) class={circle}></figure>
                        </div>
                       </div>
-                      <div (* id="col2ccc" *)>
-                       <div (* id="player1" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(1);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                      <div class={col2ccc}>
+                       <div (* id="player1" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(1);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/1.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player1Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,1);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer1" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer1" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player1Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player1Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -710,14 +755,14 @@ fun main () : transaction page = return <xml><head>
                         </span>
                         <figure (* id="playerNextTarget1" *) class={circle} style="display:none;"></figure>
                        </div>
-                       <div (* id="player4" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(4);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                       <div (* id="player4" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(4);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/4.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player4Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,4);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer4" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer4" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player4Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player4Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -730,14 +775,14 @@ fun main () : transaction page = return <xml><head>
                         </span>
                         <figure (* id="playerNextTarget4" *) class={circle} style="display:none;"></figure>
                        </div>
-                       <div (* id="player7" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(7);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                       <div (* id="player7" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(7);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/7.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player7Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,7);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer7" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer7" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player7Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player7Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -751,15 +796,15 @@ fun main () : transaction page = return <xml><head>
                         <figure (* id="playerNextTarget7" *) class={circle} style="display:none;"></figure>
                        </div>
                       </div>
-                      <div (* id="col3ccc" *)>
-                       <div (* id="player2" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(2);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                      <div class={col3ccc}>
+                       <div (* id="player2" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(2);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/2.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player2Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,2);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer2" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer2" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player2Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player2Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -772,14 +817,14 @@ fun main () : transaction page = return <xml><head>
                         </span>
                         <figure (* id="playerNextTarget2" *) class={circle} style="display:none;"></figure>
                        </div>
-                       <div (* id="player5" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(5);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                       <div (* id="player5" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(5);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}>
                          <img src="./battle.jsp_files/5.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player5Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,5);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer5" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer5" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player5Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player5Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -792,14 +837,14 @@ fun main () : transaction page = return <xml><head>
                         </span>
                         <figure (* id="playerNextTarget5" *) class={circle} style="display:none;"></figure>
                        </div>
-                       <div (* id="player8" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(8);" *) (* style="margin-bottom:28%; width:100%;" *)>
+                       <div (* id="player8" *) class={panel____displayDetails} (* onclick="phase.clickPlayerField(8);" *) style="margin-bottom:28%; width:100%;">
                         <div class={unselected}> 
                          <img src="./battle.jsp_files/8.png" style="width:90%; padding:5%; border-radius:20%;"/>
                         </div>
                         <span (* id="player8Card" *) style="visibility:hidden;" class="fieldCard" (* onmouseover="displayDetailsField(0,8);" *)>
                          <div class={face____card____front}>
                           <div class={unselected}>
-                           <div class={animateStatChangeText} (* id="statAnimationPlayer8" *) (* style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;" *)></div>
+                           <div class={animateStatChangeText} (* id="statAnimationPlayer8" *) style="visibility: visible; position: absolute; width: 100%; padding-bottom: 125%; z-index: 1000; font-size: 8.235px;"></div>
                            <div (* id="player8Engaged" *) style="visibility:hidden;opacity:.5;background-color:black;position:absolute;z-index:50;width:100%;padding-top:125%;"></div>
                            <img (* id="player8Image" *) src="http://elementalmagickscardgame.appspot.com/battle.jsp" style="width:90%; padding:5%; border-radius:20%;"/>
                           </div>
@@ -824,7 +869,7 @@ fun main () : transaction page = return <xml><head>
                          <div class={col2of2with0fieldstuff}>
                           <div (* id="playerSet" *) class={panel____displayDetails}>
                            <div class={unselected}>
-                            <img src="./battle.jsp_files/set.png" style="width:90%; padding:5%; border-radius:20%;"/>
+                            <img src="https://dl.dropbox.com/s/6bd0ni2hpd0uqwy/set.png?dl=0" style="width:90%; padding:5%; border-radius:20%;"/>
                            </div>
                            <span (* id="playerSetCard" *) style="visibility:hidden;" class={setCard} (* onmouseover="displayDetailsSet(0);" *)>
                             <div class={face____card____front}>
@@ -848,11 +893,11 @@ fun main () : transaction page = return <xml><head>
                    </div>
                   </div>
                   <div (* id="container5player" *) style="display:none;">
-                   <div (* id="container4" *)>
-                    <div (* id="container3" *)>
-                     <div (* id="container2" *)>
-                      <div (* id="container1" *)>
-                       <div (* id="col1" *)>
+                   <div class={container4}>
+                    <div class={container3}>
+                     <div class={container2}>
+                      <div class={container1}>
+                       <div class={col1}>
                         <div (* id="graveyard0" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="0" *) class={graveyardImage} (* id="graveyardImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -869,7 +914,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="20" *) class={graveyardImage} (* id="graveyardImage20" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col2" *)>
+                       <div class={col2}>
                         <div (* id="graveyard1" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="1" *) class={graveyardImage} (* id="graveyardImage1" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -886,7 +931,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="21" *) class={graveyardImage} (* id="graveyardImage21" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col3" *)>
+                       <div class={col3}>
                         <div (* id="graveyard2" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="2" *) class={graveyardImage} (* id="graveyardImage2" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -903,7 +948,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="22" *) class={graveyardImage} (* id="graveyardImage22" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col4" *)>
+                       <div class={col4}>
                         <div (* id="graveyard3" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="3" *) class={graveyardImage} (* id="graveyardImage3" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -942,13 +987,13 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="container5playercardlist" *) (* style="display:block;" *)>
-                   <div (* id="container4" *)>
-                    <div (* id="container3" *)>
-                     <div (* id="container2" *)>
-                      <div (* id="container1" *)>
-                       <div (* id="col1" *)>
-                        <div (* id="cardList0" *) (* style="visibility:hidden; border-radius:10%; margin-top:0%; margin-bottom:4%;" *) class={unselected}>
+                  <div (* id="container5playercardlist" *) style="display:block;">
+                   <div class={container4}>
+                    <div class={container3}>
+                     <div class={container2}>
+                      <div class={container1}>
+                       <div class={col1}>
+                        <div (* id="cardList0" *) style="visibility:hidden; border-radius:10%; margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="0" *) class={cardListImage} (* id="cardListImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                         <div (* id="cardList5" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
@@ -964,7 +1009,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="20" *) class={cardListImage} (* id="cardListImage20" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col2" *)>
+                       <div class={col2}>
                         <div (* id="cardList1" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="1" *) class={cardListImage} (* id="cardListImage1" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -981,7 +1026,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="21" *) class={cardListImage} (* id="cardListImage21" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col3" *)>
+                       <div class={col3}>
                         <div (* id="cardList2" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="2" *) class={cardListImage} (* id="cardListImage2" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -998,7 +1043,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="22" *) class={cardListImage} (* id="cardListImage22" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col4" *)>
+                       <div class={col4}>
                         <div (* id="cardList3" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="3" *) class={cardListImage} (* id="cardListImage3" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -1017,7 +1062,7 @@ fun main () : transaction page = return <xml><head>
                        </div>
                        <div (* id="col5" *)>
                         <div (* id="cardList4" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
-                         <img (* index="4" *) class={cardListImage} (* id="cardListImage4" *) (* style=" width:80%; padding:10%; border-radius:10%;" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
+                         <img (* index="4" *) class={cardListImage} (* id="cardListImage4" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                         <div (* id="cardList9" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="9" *) class={cardListImage} (* id="cardListImage9" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
@@ -1038,12 +1083,12 @@ fun main () : transaction page = return <xml><head>
                    </div>
                   </div>
                   <div (* id="container5playerhand" *) style="display:none;">
-                   <div (* id="container4" *)>
-                    <div (* id="container3" *)>
-                     <div (* id="container2" *)>
-                      <div (* id="container1" *)>
-                       <div (* id="col1" *)>
-                        <div (* id="hand0" *) (* style="visibility:hidden; border-radius:10%; margin-top:0%; margin-bottom:4%;" *) class={unselected}>
+                   <div class={container4}>
+                    <div class={container3}>
+                     <div class={container2}>
+                      <div class={container1}>
+                       <div class={col1}>
+                        <div (* id="hand0" *) style="visibility:hidden; border-radius:10%; margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="0" *) (* player="0" *) class={handImage} (* id="handImage0" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                         <div (* id="hand5" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
@@ -1059,7 +1104,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="20" *) (* player="0" *) class={handImage} (* id="handImage20" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col2" *)>
+                       <div class={col2}>
                         <div (* id="hand1" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="1" *) (* player="0" *) class={handImage} (* id="handImage1" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -1076,7 +1121,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="21" *) (* player="0" *) class={handImage} (* id="handImage21" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col3" *)>
+                       <div class={col3}>
                         <div (* id="hand2" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="2" *) (* player="0" *) class={handImage} (* id="handImage2" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -1093,7 +1138,7 @@ fun main () : transaction page = return <xml><head>
                          <img (* index="22" *) (* player="0" *) class={handImage} (* id="handImage22" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                        </div>
-                       <div (* id="col4" *)>
+                       <div class={col4}>
                         <div (* id="hand3" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="3" *) (* player="0" *) class={handImage} (* id="handImage3" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
@@ -1112,7 +1157,7 @@ fun main () : transaction page = return <xml><head>
                        </div>
                        <div (* id="col5" *)>
                         <div (* id="hand4" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
-                         <img (* index="4" *) (* player="0" *) class={handImage} (* id="handImage4" *) (* style=" width:80%; padding:10%; border-radius:10%;" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
+                         <img (* index="4" *) (* player="0" *) class={handImage} (* id="handImage4" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
                         </div>
                         <div (* id="hand9" *) style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
                          <img (* index="9" *) (* player="0" *) class={handImage} (* id="handImage9" *) style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
@@ -1144,7 +1189,7 @@ fun main () : transaction page = return <xml><head>
                <div class={container1of3with0}>
                 <div class={col1of3with0}>
                  <div (* id="playergraveyardbutton" *) title="Displays the cards in your graveyard" class={displayAreaSelected} (* style="width:50%; float:left; border-radius:25%; -webkit-transform:translate(50%,0%);" *) (* onclick="selectPlayerGraveyard();" *)>
-                  <img class={iconImage} src="./battle.jsp_files/grave.png"/>
+                  <img class={iconImage} src="https://dl.dropbox.com/s/uh7zvgn0v2f5bex/grave.png?dl=0"/>
                  </div>
                 </div>
                 <div class={col2of3with0}>
@@ -1161,29 +1206,29 @@ fun main () : transaction page = return <xml><head>
               </div>
              </div>
             </span>
-            <div (* id="container57777" *)>
-             <div (* id="container47777" *)>
-              <div (* id="container37777" *)>
-               <div (* id="container27777" *)>
-                <div (* id="container17777" *)>
-                 <div (* id="col17777" *)>
+            <div class={container57777}>
+             <div class={container47777}>
+              <div class={container37777}>
+               <div class={container27777}>
+                <div class={container17777}>
+                 <div class={col17777}>
                   <div (* id="cardListLeft" *) class={cardList} (* style="top: 50%; font-size: 32.94px;" *) (* onclick="cardListLeft();" *) title="View previous page">➤</div>
                  </div>
-                 <div (* id="col27777" *)>
-                  <div (* id="playerCardListButton" *) class="displayAreaSelected" (* style=" border-radius:25%;" *) (* onclick="selectCardList();" *) title="View all cards in the game that matched your last card search">
+                 <div class={col27777}>
+                  <div (* id="playerCardListButton" *) class="displayAreaSelected" style=" border-radius:25%;" (* onclick="selectCardList();" *) title="View all cards in the game that matched your last card search">
                    <img class={iconImage} src="./battle.jsp_files/List.png"/>
                   </div>
                  </div>
-                 <div (* id="col37777" *)>
+                 <div class={col37777}>
                   <div (* id="cardListRight" *) class={cardList} (* style="top: 50%; font-size: 32.94px;" *) (* onclick="cardListRight();" *) title="View next page">➤</div>
                  </div>
-                 <div (* id="col47777" *)>
-                  <div (* id="playerhandbutton" *) title="Displays the cards in your hand" class={displayAreaUnselected} (* style=" border-radius:25%;" *) (* onclick="selectPlayerHand();" *)>
+                 <div class={col47777}>
+                  <div (* id="playerhandbutton" *) title="Displays the cards in your hand" class={displayAreaUnselected} style=" border-radius:25%;" (* onclick="selectPlayerHand();" *)>
                    <img class={iconImage} src="./battle.jsp_files/hand.png"/>
                   </div>
                  </div>
-                 <div (* id="col57777" *)>
-                  <div (* id="drawcardbutton" *) title="Draws the currently selected card from the card list to either your hand, or, every six draws, your selected position among your soul cards" class={displayAreaUnselected} (* style=" border-radius:25%;" *) (* onclick="drawCard();" *)>
+                 <div class={col57777}>
+                  <div (* id="drawcardbutton" *) title="Draws the currently selected card from the card list to either your hand, or, every six draws, your selected position among your soul cards" class={displayAreaUnselected} style=" border-radius:25%;" (* onclick="drawCard();" *)>
                    <img class={iconImage} src="./battle.jsp_files/3h69qP1404547095.png"/>
                   </div>
                  </div>
@@ -1196,14 +1241,14 @@ fun main () : transaction page = return <xml><head>
            <div class={col2of3with2big}>
             <span (* id="nhhh" *) (* style="float:left;background: rgba(0, 0, 0, 1.0); width:100%; padding:1%; border-radius:10%;" *)>
              <div (* id="container5" *) (* style="background: rgba(200, 230, 255, 0.4); padding-bottom:1%; border-radius:5%; width:98%;" *)>
-              <div (* id="container4" *)>
-               <div (* id="container3" *)>
-                <div (* id="container2" *)>
-                 <div (* id="container1" *)>
-                  <div (* id="col1" *)>
+              <div class={container4}>
+               <div class={container3}>
+                <div class={container2}>
+                 <div class={container1}>
+                  <div class={col1}>
                    <div (* onclick="phase.clickEnemySoul(4)" *) (* id="enemySoul4" *) title="The fifth and last position in your opponent&#39;s soul cards. The card placed here will be the last to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points. If your opponent loses any soul points beyond this, you will win the round.">
                     <div (* id="enemySoulContainer4" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="enemySoulFace4" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="enemySoulImage4" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1213,10 +1258,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col2" *)>
+                  <div class={col2}>
                    <div (* onclick="phase.clickEnemySoul(3)" *) (* id="enemySoul3" *) title="The fourth position in your opponent&#39;s soul cards. The card placed here will be the fourth to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="enemySoulContainer3" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="enemySoulFace3" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="enemySoulImage3" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1226,10 +1271,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col3" *)>
+                  <div class={col3}>
                    <div (* onclick="phase.clickEnemySoul(2)" *) (* id="enemySoul2" *) title="The third position in your opponent&#39;s soul cards. The card placed here will be the third to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="enemySoulContainer2" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="enemySoulFace2" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="enemySoulImage2" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1239,10 +1284,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col4" *)>
+                  <div class={col4}>
                    <div (* onclick="phase.clickEnemySoul(1)" *) (* id="enemySoul1" *) title="The second position in your opponent&#39;s soul cards. The card placed here will be the second to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="enemySoulContainer1" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="enemySoulFace1" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="enemySoulImage1" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1255,7 +1300,7 @@ fun main () : transaction page = return <xml><head>
                   <div (* id="col5" *)>
                    <div (* onclick="phase.clickEnemySoul(0)" *) (* id="enemySoul0" *) title="The first position in your opponent&#39;s soul cards. The card placed here will be the first to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="enemySoulContainer0" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="enemySoulFace0" *) class={face____front____card____unselected} (* style="border-radius:10%; margin-top:4%; margin-bottom:0%; display:none;" *)>
                      <img (* id="enemySoulImage0" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1271,23 +1316,23 @@ fun main () : transaction page = return <xml><head>
               </div>
              </div>
             </span>
-            <div (* style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;" *)>
-            <div (* style="width:100%; padding:1%; background-color:#222222;" *)>
-             <div (* style="width:100%; background-color:black; padding:0%;" *)>
-              <span (* id="enemylp4-0-wrapper" *) (* style="display:inline;" *)>
+            <div style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;">
+            <div style="width:100%; padding:1%; background-color:#222222;">
+             <div style="width:100%; background-color:black; padding:0%;">
+              <span (* id="enemylp4-0-wrapper" *) style="display:inline;">
               <div class="lp0"></div>
               </span>
               <span (* id="enemylp4-1-wrapper" *) style="display:none;">
                <div class="lp1" (* id="enemylp4-1-1" *)></div>
               </span>
-              <span (* id="enemylp4-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp4-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp4-2-2" *)></div></span><span (* id="enemylp4-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp4-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp4-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp4-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp3-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="enemylp3-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp3-1-1" *)></div></span><span (* id="enemylp3-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp3-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp3-2-2" *)></div></span><span (* id="enemylp3-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp3-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp3-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp3-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp2-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="enemylp2-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp2-1-1" *)></div></span><span (* id="enemylp2-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp2-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp2-2-2" *)></div></span><span (* id="enemylp2-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp2-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp2-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp2-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp1-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="enemylp1-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp1-1-1" *)></div></span><span (* id="enemylp1-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp1-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp1-2-2" *)></div></span><span (* id="enemylp1-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp1-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp1-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp1-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp0-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="enemylp0-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp0-1-1" *)></div></span><span (* id="enemylp0-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp0-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp0-2-2" *)></div></span><span (* id="enemylp0-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp0-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp0-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp0-3-3" *)></div></span>
+              <span (* id="enemylp4-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp4-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp4-2-2" *)></div></span><span (* id="enemylp4-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp4-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp4-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp4-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp3-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="enemylp3-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp3-1-1" *)></div></span><span (* id="enemylp3-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp3-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp3-2-2" *)></div></span><span (* id="enemylp3-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp3-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp3-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp3-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp2-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="enemylp2-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp2-1-1" *)></div></span><span (* id="enemylp2-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp2-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp2-2-2" *)></div></span><span (* id="enemylp2-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp2-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp2-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp2-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp1-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="enemylp1-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp1-1-1" *)></div></span><span (* id="enemylp1-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp1-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp1-2-2" *)></div></span><span (* id="enemylp1-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp1-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp1-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp1-3-3" *)></div></span><div class="spacing"></div><span (* id="enemylp0-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="enemylp0-1-wrapper" *) style="display:none;"><div class="lp1" (* id="enemylp0-1-1" *)></div></span><span (* id="enemylp0-2-wrapper" *) style="display:none;"><div class="lp2" (* id="enemylp0-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="enemylp0-2-2" *)></div></span><span (* id="enemylp0-3-wrapper" *) style="display:none;"><div class="lp3" (* id="enemylp0-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp0-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="enemylp0-3-3" *)></div></span>
              </div>
             </div>
            </div>
            <span class={wrapper} (* id="cardarea" *)>
             <svg style="width:1600px;height:2000px;" class={imagWOWURWEBERRORe}></svg>
             <div class={positioner}>
-             <div (* style="padding-top: 125%;" *)>
+             <div style="padding-top: 125%;">
               <div class={context_box}>
                <div class={content}>
                 <div (* id="nondisplaycard" *)>
@@ -1307,34 +1352,34 @@ fun main () : transaction page = return <xml><head>
                             </figure>
                            </section>
                           </div>
-                          <div class="col3b" (* style="padding-top:4.5%; padding-left:7%; padding-right:1%;" *)>
+                          <div class="col3b" style="padding-top:4.5%; padding-left:7%; padding-right:1%;">
                             <section class={stage}>
-                             <figure (* id="enemyBall1" *) class="ball-earth value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy earth knowledge"></figure>
+                             <figure (* id="enemyBall1" *) class="ball-earth value-0" style="text-align: center; font-size: 16.47px;" title="Enemy earth knowledge"></figure>
                             </section>
                            </div>
                            <div class="col4b" (* style="padding-top:4.5%; padding-left:1%; padding-right:1%;" *)>
                             <section class={stage}>
-                             <figure (* id="enemyBall2" *) class="ball-fire value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy fire knowledge"></figure>
+                             <figure (* id="enemyBall2" *) class="ball-fire value-0" style="text-align: center; font-size: 16.47px;" title="Enemy fire knowledge"></figure>
                             </section>
                            </div>
                            <div class="col5b" (* style="padding-top:4.5%; padding-left:1%; padding-right:1%;" *)>
                             <section class={stage}>
-                             <figure (* id="enemyBall3" *) class="ball-water value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy water knowledge"></figure>
+                             <figure (* id="enemyBall3" *) class="ball-water value-0" style="text-align: center; font-size: 16.47px;" title="Enemy water knowledge"></figure>
                             </section>
                            </div>
                            <div class="col6b" (* style="padding-top:4.5%; padding-left:1%; padding-right:1%;" *)>
                             <section class={stage}>
-                             <figure (* id="enemyBall4" *) class="ball-air value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy air knowledge"></figure>
+                             <figure (* id="enemyBall4" *) class="ball-air value-0" style="text-align: center; font-size: 16.47px;" title="Enemy air knowledge"></figure>
                             </section>
                            </div>
                            <div class="col7b" (* style="padding-top:4.5%; padding-left:1%; padding-right:1%;" *)>
                             <section class={stage}>
-                             <figure (* id="enemyBall5" *) class="ball-spirit value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy spirit knowledge"></figure>
+                             <figure (* id="enemyBall5" *) class="ball-spirit value-0" style="text-align: center; font-size: 16.47px;" title="Enemy spirit knowledge"></figure>
                             </section>
                            </div>
                            <div class="col8b" (* style="padding-top:4.5%; padding-left:1%; padding-right:1%;" *)>
                             <section class={stage}>
-                             <figure (* id="enemyBall6" *) class="ball-void value-0" (* style="text-align: center; font-size: 16.47px;" *) title="Enemy void knowledge"></figure>
+                             <figure (* id="enemyBall6" *) class="ball-void value-0" style="text-align: center; font-size: 16.47px;" title="Enemy void knowledge"></figure>
                             </section>
                            </div>
                           </div>
@@ -1349,21 +1394,21 @@ fun main () : transaction page = return <xml><head>
 
 
 (*
-                  <div (* id="container26666" *) style = "width:100%; padding-top:50%;height:10%;">
-                   <div (* id="container16666" *)>
-                    <div (* id="col16666" *)>
+                  <div class={container26666"} style = "width:100%; padding-top:50%;height:10%;">
+                   <div class={container16666"}>
+                    <div class={col16666"}>
                      <span (* id="cardSearchAreaOther" *) style="display:none;">
-                      <button (* style="visibility: hidden; font-size: 14.47px; width:50%; height:100%;" *) class="myButton"></button> 
-                      <button (* id="confirmReviveButton" *) (* style="display: none; font-size: 14.47px;" *) class="myButton" (* onclick="userInput.confirmRevive();" *)>Revive Selected</button>
-                      <button (* id="setCardButton" *) (* style="display: none; font-size: 14.47px;" *) class="myButton" (* onclick="userInput.setCard();" *)>Set Card</button>
-                      <button (* id="skipButton" *) (* style="display: none; font-size: 14.47px;" *) class="myButton" (* onclick="userInput.skip();" *)>Skip</button>
-                      <button (* id="deployCardButton" *) (* style="display: none; font-size: 14.47px;" *) class="myButton" (* onclick="if(phase.selectedPositions[0].length === 1) userInput.deployCard(phase.selectedPositions[0][0]);" *)>Ok</button>
-                      <button (* id="skillComponentSelectionButton" *) (* style="display: none; font-size: 14.47px;" *) class="myButton" (* onclick="gameInterface.confirmSkillComponentSelection();" *)>Ok</button>
+                      <button style="visibility: hidden; font-size: 14.47px; width:50%; height:100%;" class="myButton"></button> 
+                      <button (* id="confirmReviveButton" *) style="display: none; font-size: 14.47px;" class="myButton" (* onclick="userInput.confirmRevive();" *)>Revive Selected</button>
+                      <button (* id="setCardButton" *) style="display: none; font-size: 14.47px;" class="myButton" (* onclick="userInput.setCard();" *)>Set Card</button>
+                      <button (* id="skipButton" *) style="display: none; font-size: 14.47px;" class="myButton" (* onclick="userInput.skip();" *)>Skip</button>
+                      <button (* id="deployCardButton" *) style="display: none; font-size: 14.47px;" class="myButton" (* onclick="if(phase.selectedPositions[0].length === 1) userInput.deployCard(phase.selectedPositions[0][0]);" *)>Ok</button>
+                      <button (* id="skillComponentSelectionButton" *) style="display: none; font-size: 14.47px;" class="myButton" (* onclick="gameInterface.confirmSkillComponentSelection();" *)>Ok</button>
                       <span (* id="cardSearchAreaOtherMore" *) style="display:none;"></span>
                      </span>
 
                     </div>
-                    <div (* id="col26666" *)>
+                    <div class={col26666}>
 
                      
 
@@ -1376,7 +1421,7 @@ fun main () : transaction page = return <xml><head>
 
 
                   <div (* id="playerResources" *)>
-                   <div class="container8b" (* style="padding-top:5%;" *)>
+                   <div class="container8b" style="padding-top:5%;">
                     <div class="container7b">
                      <div class="container6b">
                       <div class="container5b">
@@ -1394,88 +1439,88 @@ fun main () : transaction page = return <xml><head>
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your earth knowledge" (* onclick="gameData.clickedIncrementKnowledge(0);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball1" *) class="ball-earth" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickEarth();" *) title="Restrict search to earth cards"></figure>
+                            <figure (* id="ball1" *) class="ball-earth" style="text-align: center; font-size: 16.47px;" (* onclick="clickEarth();" *) title="Restrict search to earth cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your earth knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(0);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
                           </div>
-                          <div class="col4b" (* style="padding-top:1%; padding-left:1%; padding-right:1%;" *)>
+                          <div class="col4b" style="padding-top:1%; padding-left:1%; padding-right:1%;">
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your fire knowledge" (* onclick="gameData.clickedIncrementKnowledge(1);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball2" *) class="ball-fire" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickFire();" *) title="Restrict search to fire cards"></figure>
+                            <figure (* id="ball2" *) class="ball-fire" style="text-align: center; font-size: 16.47px;" (* onclick="clickFire();" *) title="Restrict search to fire cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your fire knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(1);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
                           </div>
-                          <div class="col5b" (* style="padding-top:1%; padding-left:1%; padding-right:1%;" *)>
+                          <div class="col5b" style="padding-top:1%; padding-left:1%; padding-right:1%;">
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your water knowledge" (* onclick="gameData.clickedIncrementKnowledge(2);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball3" *) class="ball-water" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickWater();" *) title="Restrict search to water cards"></figure>
+                            <figure (* id="ball3" *) class="ball-water" style="text-align: center; font-size: 16.47px;" (* onclick="clickWater();" *) title="Restrict search to water cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your water knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(2);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
                           </div>
-                          <div class="col6b" (* style="padding-top:1%; padding-left:1%; padding-right:1%;" *)>
+                          <div class="col6b" style="padding-top:1%; padding-left:1%; padding-right:1%;">
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your air knowledge" (* onclick="gameData.clickedIncrementKnowledge(3);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball4" *) class="ball-air" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickAir();" *) title="Restrict search to air cards"></figure>
+                            <figure (* id="ball4" *) class="ball-air" style="text-align: center; font-size: 16.47px;" (* onclick="clickAir();" *) title="Restrict search to air cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your air knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(3);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
                           </div>
-                          <div class="col7b" (* style="padding-top:1%; padding-left:1%; padding-right:1%;" *)>
+                          <div class="col7b" style="padding-top:1%; padding-left:1%; padding-right:1%;">
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your spirit knowledge" (* onclick="gameData.clickedIncrementKnowledge(4);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball5" *) class="ball-spirit" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickSpirit();" *) title="Restrict search to spirit cards"></figure>
+                            <figure (* id="ball5" *) class="ball-spirit" style="text-align: center; font-size: 16.47px;" (* onclick="clickSpirit();" *) title="Restrict search to spirit cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your spirit knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(4);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
                           </div>
-                          <div class="col8b" (* style="padding-top:1%; padding-left:1%; padding-right:1%;" *)>
+                          <div class="col8b" style="padding-top:1%; padding-left:1%; padding-right:1%;">
                            <section class={stage}>
                             <button class={plus_button} title="Allocate one thought to your void knowledge" (* onclick="gameData.clickedIncrementKnowledge(5);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/plus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/plus.png"/>
                              </div>
                             </button>
-                            <figure (* id="ball6" *) class="ball-void" (* style="text-align: center; font-size: 16.47px;" *) (* onclick="clickVoid();" *) title="Restrict search to void cards"></figure>
+                            <figure (* id="ball6" *) class="ball-void" style="text-align: center; font-size: 16.47px;" (* onclick="clickVoid();" *) title="Restrict search to void cards"></figure>
                             <button class={minus_button} title="Cancel allocation of a thought made to your void knowledge this turn" (* onclick="gameData.clickedDecrementKnowledge(5);" *)>
                              <div class={centralizer}>
-                              <img (* style="width:100%; padding-bottom:100%;" *) src="./battle.jsp_files/minus.png"/>
+                              <img style="width:100%; padding-bottom:100%;" src="./battle.jsp_files/minus.png"/>
                              </div>
                             </button>
                            </section>
@@ -1503,7 +1548,7 @@ fun main () : transaction page = return <xml><head>
                   <span class={wrapper} (* id="cardimagecard" *)>
                    <svg style="width:1600px;height:2000px;background:#000;" class={imagWOWURWEBERRORe} ></svg>
                    <div class={positioner}>
-                    <div (* style="padding-top: 125%;" *)>
+                    <div style="padding-top: 125%;">
                      <div class={context_box}>
                       <div class={content}>
                        <div (* id="container211" *)>
@@ -1511,8 +1556,8 @@ fun main () : transaction page = return <xml><head>
                          <div (* id="col111" *)>
                           <img (* id="cardareaimage" *) src="./battle.jsp_files/ViciousSoulReaper.jpg"/> 
                          </div>
-                         <div (* id="col211" *) (* style="font-size:15px;text-align:left;" *)>
-                          <span (* id="cardname" *) (* style="color:white;font-size: 7.137px;" *)></span><br/>
+                         <div (* id="col211" *) style="font-size:15px;text-align:left;">
+                          <span (* id="cardname" *) style="color:white;font-size: 7.137px;"></span><br/>
                           <span class={cardStat} style="color:grey;font-size: 7.686px;">Schools: </span><span (* id="schools" *) class={cardStat} style="color:green;font-size: 7.686px;"></span><br/>
                           <span class={cardStat} style="color:grey;font-size: 7.686px;">Level: </span><span (* id="level" *) class={cardStat} style="color:green;font-size: 7.686px;"></span><br/>
                           <span class={cardStat} style="color:grey;font-size: 7.686px;">Hp: </span><span (* id="hp" *) class={cardStat} style="color:green;font-size: 7.686px;"></span><br/>
@@ -1533,7 +1578,7 @@ fun main () : transaction page = return <xml><head>
                          </div>
                         </div>
                        </div>
-                       <div (* id="skillArea" *) (* style="background:#000;" *)>
+                       <div (* id="skillArea" *) style="background:#000;">
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
@@ -1541,7 +1586,7 @@ fun main () : transaction page = return <xml><head>
                             <span class={cardSkill} (* style="color:green;float: left; font-size: 7.686px;" *) (* id="cardSkillType0" *)></span>
                            </div>
                            <div class={col2of3with0forskills}>
-                            <span class={cardSkill} (* style="color:yellow;float: left; font-size: 7.686px;" *) (* id="cardSkillName0" *)></span>
+                            <span class={cardSkill} style="color:yellow;float: left; font-size: 7.686px;" (* id="cardSkillName0" *)></span>
                            </div>
                            <div class={col3of3with0floatright}>
                             <span class={cardSkill} (* style="color:cyan;float: right; font-size: 7.686px;" *) (* id="cardSkillCost0" *)></span>
@@ -1557,7 +1602,7 @@ fun main () : transaction page = return <xml><head>
                             <span class={cardSkill} (* style="color:green;float: left; font-size: 7.686px;" *) (* id="cardSkillType1" *)></span>
                            </div>
                            <div class={col2of3with0forskills}>
-                            <span class={cardSkill} (* style="color:yellow;float: left; font-size: 7.686px;" *) (* id="cardSkillName1" *)></span>
+                            <span class={cardSkill} style="color:yellow;float: left; font-size: 7.686px;" (* id="cardSkillName1" *)></span>
                            </div>
                            <div class={col3of3with0floatright}>
                             <span class={cardSkill} (* style="color:cyan;float: right; font-size: 7.686px;" *) (* id="cardSkillCost1" *)></span>
@@ -1581,7 +1626,7 @@ fun main () : transaction page = return <xml><head>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span (* style="color:white" *) (* id="cardSkillDescription2" *)></span></div>
+                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span style="color:white" (* id="cardSkillDescription2" *)></span></div>
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
@@ -1589,7 +1634,7 @@ fun main () : transaction page = return <xml><head>
                             <span class={cardSkill} style="color:green; float: left; font-size: 7.686px;" (* id="cardSkillType3" *)></span>
                            </div>
                            <div class={col2of3with0forskills}>
-                            <span class={cardSkill} (* style="color:yellow;float: left; font-size: 7.686px;" *) (* id="cardSkillName3" *)></span>
+                            <span class={cardSkill} style="color:yellow;float: left; font-size: 7.686px;" (* id="cardSkillName3" *)></span>
                            </div>
                            <div class={col3of3with0floatright}>
                             <span class={cardSkill} style="color:cyan; float: right; font-size: 7.686px;" (* id="cardSkillCost3" *)></span>
@@ -1597,7 +1642,7 @@ fun main () : transaction page = return <xml><head>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span (* style="color:white;" *) (* id="cardSkillDescription3" *)></span></div>
+                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span style="color:white;" (* id="cardSkillDescription3" *)></span></div>
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
@@ -1613,7 +1658,7 @@ fun main () : transaction page = return <xml><head>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span (* style="color:white;" *) (* id="cardSkillDescription4" *)></span></div>
+                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span style="color:white;" (* id="cardSkillDescription4" *)></span></div>
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
@@ -1629,7 +1674,7 @@ fun main () : transaction page = return <xml><head>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} (* id="cardSkillDescription5" *) style="font-size: 7.686px;"><span (* style="color:white;" *)></span></div>
+                        <div class={cardSkillDescription} (* id="cardSkillDescription5" *) style="font-size: 7.686px;"><span style="color:white;"></span></div>
                         <div class={container3of3with0}>
                          <div class={container2of3with0}>
                           <div class={container1of3with0}>
@@ -1645,7 +1690,7 @@ fun main () : transaction page = return <xml><head>
                           </div>
                          </div>
                         </div>
-                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span (* style="color:white;" *) (* id="cardSkillDescription6" *)></span></div>
+                        <div class={cardSkillDescription} style="font-size: 7.686px;"><span style="color:white;" (* id="cardSkillDescription6" *)></span></div>
                        </div>
                       </div>
                      </div>
@@ -1658,17 +1703,17 @@ fun main () : transaction page = return <xml><head>
               </div>
              </div>
             </span>
-            <div (* style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;" *)><div (* style="width:100%; padding:1%; background-color:#222222;" *)><div (* style="width:100%; background-color:black; padding:0%;" *)><span (* id="lp4-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="lp4-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp4-1-1" *)></div></span><span (* id="lp4-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp4-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp4-2-2" *)></div></span><span (* id="lp4-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp4-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp4-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp4-3-3" *)></div></span><div class="spacing"></div><span (* id="lp3-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="lp3-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp3-1-1" *)></div></span><span (* id="lp3-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp3-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp3-2-2" *)></div></span><span (* id="lp3-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp3-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp3-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp3-3-3" *)></div></span><div class="spacing"></div><span (* id="lp2-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="lp2-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp2-1-1" *)></div></span><span (* id="lp2-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp2-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp2-2-2" *)></div></span><span (* id="lp2-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp2-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp2-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp2-3-3" *)></div></span><div class="spacing"></div><span (* id="lp1-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="lp1-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp1-1-1" *)></div></span><span (* id="lp1-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp1-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp1-2-2" *)></div></span><span (* id="lp1-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp1-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp1-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp1-3-3" *)></div></span><div class="spacing"></div><span (* id="lp0-0-wrapper" *) (* style="display:inline;" *)><div class="lp0"></div></span><span (* id="lp0-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp0-1-1" *)></div></span><span (* id="lp0-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp0-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp0-2-2" *)></div></span><span (* id="lp0-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp0-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp0-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp0-3-3" *)></div></span></div></div></div>
+            <div style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;"><div style="width:100%; padding:1%; background-color:#222222;"><div style="width:100%; background-color:black; padding:0%;"><span (* id="lp4-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="lp4-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp4-1-1" *)></div></span><span (* id="lp4-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp4-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp4-2-2" *)></div></span><span (* id="lp4-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp4-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp4-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp4-3-3" *)></div></span><div class="spacing"></div><span (* id="lp3-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="lp3-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp3-1-1" *)></div></span><span (* id="lp3-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp3-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp3-2-2" *)></div></span><span (* id="lp3-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp3-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp3-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp3-3-3" *)></div></span><div class="spacing"></div><span (* id="lp2-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="lp2-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp2-1-1" *)></div></span><span (* id="lp2-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp2-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp2-2-2" *)></div></span><span (* id="lp2-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp2-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp2-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp2-3-3" *)></div></span><div class="spacing"></div><span (* id="lp1-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="lp1-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp1-1-1" *)></div></span><span (* id="lp1-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp1-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp1-2-2" *)></div></span><span (* id="lp1-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp1-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp1-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp1-3-3" *)></div></span><div class="spacing"></div><span (* id="lp0-0-wrapper" *) style="display:inline;"><div class="lp0"></div></span><span (* id="lp0-1-wrapper" *) style="display:none;"><div class="lp1" (* id="lp0-1-1" *)></div></span><span (* id="lp0-2-wrapper" *) style="display:none;"><div class="lp2" (* id="lp0-2-1" *)></div><div class="spacing"></div><div class="lp2" (* id="lp0-2-2" *)></div></span><span (* id="lp0-3-wrapper" *) style="display:none;"><div class="lp3" (* id="lp0-3-1" *)></div><div class="spacing"></div><div class="lp3" (* id="lp0-3-2" *)></div><div class="spacing"></div><div class="lp3" (* id="lp0-3-3" *)></div></span></div></div></div>
             <span (* id="nhhh" *) (* style="float:left;background: rgba(0, 0, 0, 1.0); width:100%; padding:1%; border-radius:10%;" *)>
-             <div (* id="container5" *) (* style="background: rgba(200, 230, 255, 0.4); padding-bottom:1%; border-radius:5%; width:98%;" *)>
-              <div (* id="container4" *)>
-               <div (* id="container3" *)>
-                <div (* id="container2" *)>
-                 <div (* id="container1" *)>
-                  <div (* id="col1" *)>
+             <div class={container5} (* style="background: rgba(200, 230, 255, 0.4); padding-bottom:1%; border-radius:5%; width:98%;" *)>
+              <div class={container4}>
+               <div class={container3}>
+                <div class={container2}>
+                 <div class={container1}>
+                  <div class={col1}>
                    <div (* onclick="phase.clickPlayerSoul(4)" *) (* id="playerSoul4" *) title="The fifth and last position in your soul cards. The card placed here will be the last to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points. If lose any soul points beyond this, you will lose the round.">
                     <div (* id="playerSoulContainer4" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="playerSoulFace4" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="playerSoulImage4" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1678,10 +1723,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col2" *)>
+                  <div class={col2}>
                    <div (* onclick="phase.clickPlayerSoul(3)" *) (* id="playerSoul3" *) title="The fourth position in your soul cards. The card placed here will be the fourth to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="playerSoulContainer3" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="playerSoulFace3" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="playerSoulImage3" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1692,11 +1737,11 @@ fun main () : transaction page = return <xml><head>
                    </div>
                    <!-- Column two end -->
                   </div>
-                  <div (* id="col3" *)>
+                  <div class={col3}>
                    <!-- Column three start -->
                    <div (* onclick="phase.clickPlayerSoul(2)" *) (* id="playerSoul2" *) title="The third position in your soul cards. The card placed here will be the third to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="playerSoulContainer2" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="playerSoulFace2" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="playerSoulImage2" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1706,10 +1751,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col4" *)>
+                  <div class={col4}>
                    <div (* onclick="phase.clickPlayerSoul(1)" *) (* id="playerSoul1" *) title="The second position in your soul cards. The card placed here will be the second to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="playerSoulContainer1" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="playerSoulFace1" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
                      <img (* id="playerSoulImage1" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
@@ -1719,10 +1764,10 @@ fun main () : transaction page = return <xml><head>
                     </div>
                    </div>
                   </div>
-                  <div (* id="col5" *)>
+                  <div class={col5}>
                    <div (* onclick="phase.clickPlayerSoul(0)" *) (* id="playerSoul0" *) title="The first position in your soul cards. The card placed here will be the first to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
                     <div (* id="playerSoulContainer0" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="./battle.jsp_files/soul.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                     </div>
                     <div (* id="playerSoulFace0" *) class={face____front____card____unselected} (* style="border-radius:10%; margin-top:4%; margin-bottom:0%; display:none;" *)>
                      <img (* id="playerSoulImage0" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
