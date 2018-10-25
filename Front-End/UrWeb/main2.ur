@@ -1,186 +1,159 @@
-style unselected
-style backside
-style backRotate
+style animateStatChangeText
 style back
+style backRotate
+style backside
+style backside____backRotate____back____card____unselected
+style backside____card____back____backRotate
+style ball
+style ball_air
+style ball_air____value_0
+style ball_earth
+style ball_earth____value_0
+style ball_fire
+style ball_fire____value_0
+style ball_spirit
+style ball_spirit____value_0
+style ball_thoughts
+style ball_thoughts____ball_thoughts_text
+style ball_thoughts_text
+style ball_void
+style ball_void____value_0
+style ball_water
+style ball_water____value_0
+style box
 style card
-style face
-style front
-style col3of3with2big
-style clockDisplay
-style myButtonResign
-style container2of3with0
-style container1of3with0
-style col1of3with0forskills
+style cardList
+style cardListImage
 style cardSkill
-style font
-style col2of3with0forskills
-style col3of3with0floatright
 style cardSkillDescription
+style cardStat
+style centralizer
+style circle
+style clockDisplay
+style col1
+style col111
+style col17777
+style col1b
+style col1ccc
+style col1gggccc
+style col1of2with0fieldstuff
+style col1of3with0
+style col1of3with0forskills
+style col1of3with2big
+style col2
+style col211
+style col26666
+style col27777
+style col2ccc
+style col2gggccc
+style col2of2with0fieldstuff
+style col2of3with0
+style col2of3with0forskills
+style col2of3with2big
+style col3
+style col37777
+style col3b
+style col3ccc
+style col3gggccc
+style col3of3with0
+style col3of3with0floatright
+style col3of3with2big
+style col4
+style col47777
+style col4b
+style col4ccc
+style col4gggccc
+style col5
+style col57777
+style col5b
+style col6b
+style col7b
+style col8b
+style container0b
+style container1
+style container111
+style container17777
+style container1b
+style container1ccc
+style container1gggccc
+style container1of2with0fieldstuff
+style container1of3with0
+style container1of3with2
+style container1of5
+style container2
+style container211
+style container27777
+style container2ccc
+style container2gggccc
+style container2of2with0fieldstuff
+style container2of3with0
+style container2of3with2
+style container2of5
+style container3
+style container37777
+style container3b
+style container3ccc
+style container3gggccc
 style container3of3with0
+style container3of5
+style container4
+style container47777
+style container4b
+style container4ccc
+style container4gggccc
+style container4of5
+style container5
+style container57777
+style container5b
+style container5of5
+style container5player
+style container6b
+style container7b
+style container8b
+style content
+style context_box
+style displayAreaSelected
+style displayAreaUnselected
+style displayDetails
+style enemyGraveyardImage
+style enemyHandImage
+style enemyIcons
+style face
+style face____card____front
+style face____front____card____unselected
+style fieldCard
+style font
+style front
+style graveyardImage
+style graveyardbackground
+style handImage
+style iconImage
+style imagWOWURWEBERRORe (*because can't name class image maybe*)
+style imagWOWURWEBERRORe____graveyardbackground
 style lp0
 style lp1
 style lp2
 style lp3 (*will be removing these from the html*)
-style spacing
-style enemyHandImage
-style handImage
-style graveyardImage
-style cardListImage
-style col1of3with0
-style displayAreaSelected
-style iconImage
-style col2of3with0
-style col3of3with0
-style displayAreaUnselected
-style cardList
-style wrapper
-style enemyGraveyardImage
-style positioner
-style content
-style box
-style container5of5
-style container4of5
-style container3of5
-style container2of5
-style container1of5
-style graveyardbackground
-style panel
-style displayDetails
-style fieldCard
-style cardStat
-style circle
-style container2of2with0fieldstuff
-style container1of2with0fieldstuff
-style col1of2with0fieldstuff
-style moreMyButton
-style col2of2with0fieldstuff
-style container8b
-style container7b
-style container6b
-style container5b
-style container4b
-style container3b
-style container1b
-style container0b
-style stage
-style ball
-style thoughts
-style thought_span
-style col3b
-style ball_earth
-style value_0
-style col4b
-style ball_fire
-style col5b
-style ball_water
-style col6b
-style ball_air
-style col7b
-style ball_spirit
-style col8b
-style ball_void
-style myButtonSmall
-style col1b
-style ball_thoughts
-style ball_thoughts_text
-style container2of3with2
-style container1of3with2
-style col1of3with2big
-style outerGraveyard
-style panel____displayDetails
-style face____card____front
-style animateStatChangeText
-
-
-
-style backside____card____back____backRotate
-style face____front____card____unselected
-style backside____backRotate____back____card____unselected
-style setCard
-style col2of3with2big
-style centralizer
-style plus_button (*changed plus-button to plus_button*)
 style minus_button (*changed minus-button to minus_button*)
-style context_box
-style stage_thoughts
-
-
-
-
-
-style imagWOWURWEBERRORe (*because can't name class image maybe*)
-
-
-style imagWOWURWEBERRORe____graveyardbackground
-style enemyIcons
-
-
-
-style col26666
-style container1ccc
-style col1ccc
-style container2ccc
-style col2ccc
-style container3ccc
-style col3ccc
-style container4ccc
-style col4ccc
-
-
-style container1
-style col1
-style container2
-style col2
-style container3
-style col3
-style container4
-style col4
-style container5
-style col5
-
-style container17777
-style col17777
-style container27777
-style col27777
-style container37777
-style col37777
-style container47777
-style col47777
-style container57777
-style col57777
-
-style col1gggccc
-style container1gggccc
-style col2gggccc
-style container2gggccc
-style col3gggccc
-style container3gggccc
-style col4gggccc
-style container4gggccc
-
-
-
-
-style ball_thoughts____ball_thoughts_text
-style ball_earth____value_0
-style ball_fire____value_0
-style ball_water____value_0
-style ball_air____value_0
-style ball_spirit____value_0
-style ball_void____value_0
-
-
-style container5player
-
-style container111
-style container211
-style col111
-style col211
-
-
-
-
+style moreMyButton
+style myButtonResign
+style myButtonSmall
+style outerGraveyard
+style panel
+style panel____displayDetails
+style plus_button (*changed plus-button to plus_button*)
+style positioner
 style positionerMessages
+style setCard
+style spacing
+style stage
+style stage_thoughts
+style thought_span
+style thoughts
+style unselected
+style value_0
+style wrapper
+
 
 
 
@@ -236,7 +209,7 @@ fun main () : transaction page = return <xml><head>
   <div style="position:relative;height:98%;">
    <div style="object-fit: contain; height:100%; width:100%;">
     <span class={wrapper}>
-    <svg style = "width:11580px;height:9000px" class={imagWOWURWEBERRORe}></svg>
+     <svg style = "width:11580px;height:9000px" class={imagWOWURWEBERRORe}></svg>
      <div class={positioner} style="background-color:#404040;">
       <div style="padding-top:77.7%;">
        <div class={context_box}>
@@ -375,9 +348,7 @@ fun main () : transaction page = return <xml><head>
                      <div class={container2gggccc}>
                       <div class={container1gggccc}>
                        <div class={col1gggccc}>
-
 (*____ means that I need to make a new css class that is the union of the two, to satisfy UrWeb's one class policy*)
-
                         <div (* id="enemy8" *) class={panel____displayDetails} (* onclick="phase.clickEnemyField(8)" *) style="margin-bottom:28%; width:100%;">
                          <div class={unselected}>
                           <img src="./battle.jsp_files/8.png" style="width:90%; padding:5%; border-radius:20%;"/>
@@ -1741,78 +1712,174 @@ fun main () : transaction page = return <xml><head>
               </div>
              </div>
             </span>
-            <div style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;"><div style="width:100%; padding:1%; background-color:#222222;"><div style="width:100%; background-color:black; padding:0%;"><span (* id="lp4-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="lp4-1-wrapper" *) style="display:none;"><div class={lp1} (* id="lp4-1-1" *)></div></span><span (* id="lp4-2-wrapper" *) style="display:none;"><div class={lp2} (* id="lp4-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="lp4-2-2" *)></div></span><span (* id="lp4-3-wrapper" *) style="display:none;"><div class={lp3} (* id="lp4-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="lp4-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="lp4-3-3" *)></div></span><div class={spacing}></div><span (* id="lp3-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="lp3-1-wrapper" *) style="display:none;"><div class={lp1} (* id="lp3-1-1" *)></div></span><span (* id="lp3-2-wrapper" *) style="display:none;"><div class={lp2} (* id="lp3-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="lp3-2-2" *)></div></span><span (* id="lp3-3-wrapper" *) style="display:none;"><div class={lp3} (* id="lp3-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="lp3-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="lp3-3-3" *)></div></span><div class={spacing}></div><span (* id="lp2-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="lp2-1-wrapper" *) style="display:none;"><div class={lp1} (* id="lp2-1-1" *)></div></span><span (* id="lp2-2-wrapper" *) style="display:none;"><div class={lp2} (* id="lp2-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="lp2-2-2" *)></div></span><span (* id="lp2-3-wrapper" *) style="display:none;"><div class={lp3} (* id="lp2-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="lp2-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="lp2-3-3" *)></div></span><div class={spacing}></div><span (* id="lp1-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="lp1-1-wrapper" *) style="display:none;"><div class={lp1} (* id="lp1-1-1" *)></div></span><span (* id="lp1-2-wrapper" *) style="display:none;"><div class={lp2} (* id="lp1-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="lp1-2-2" *)></div></span><span (* id="lp1-3-wrapper" *) style="display:none;"><div class={lp3} (* id="lp1-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="lp1-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="lp1-3-3" *)></div></span><div class={spacing}></div><span (* id="lp0-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="lp0-1-wrapper" *) style="display:none;"><div class={lp1} (* id="lp0-1-1" *)></div></span><span (* id="lp0-2-wrapper" *) style="display:none;"><div class={lp2} (* id="lp0-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="lp0-2-2" *)></div></span><span (* id="lp0-3-wrapper" *) style="display:none;"><div class={lp3} (* id="lp0-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="lp0-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="lp0-3-3" *)></div></span></div></div></div>
-            <span (* id="nhhh" *) (* style="float:left;background: rgba(0, 0, 0, 1.0); width:100%; padding:1%; border-radius:10%;" *)>
-             <div class={container5} (* style="background: rgba(200, 230, 255, 0.4); padding-bottom:1%; border-radius:5%; width:98%;" *)>
-              <div class={container4}>
-               <div class={container3}>
-                <div class={container2}>
-                 <div class={container1}>
-                  <div class={col1}>
-                   <div (* onclick="phase.clickPlayerSoul(4)" *) (* id="playerSoul4" *) title="The fifth and last position in your soul cards. The card placed here will be the last to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points. If lose any soul points beyond this, you will lose the round.">
-                    <div (* id="playerSoulContainer4" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulFace4" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img (* id="playerSoulImage4" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulBack4" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
+            <div style="width:98%; padding-top:.5%; padding-bottom:.5%; padding-left:.5%; padding-right:1.5%; background-color:#444c4f; display:inline-block;">
+             <div style="width:100%; padding:1%; background-color:#222222;">
+              <div style="width:100%; background-color:black; padding:0%;">
+               <span (* id="lp4-0-wrapper" *) style="display:inline;">
+                <div class={lp0}></div>
+               </span>
+               <span (* id="lp4-1-wrapper" *) style="display:none;">
+                <div class={lp1} (* id="lp4-1-1" *)></div>
+               </span>
+               <span (* id="lp4-2-wrapper" *) style="display:none;">
+                <div class={lp2} (* id="lp4-2-1" *)></div>
+                <div class={spacing}></div>
+                <div class={lp2} (* id="lp4-2-2" *)></div>
+               </span>
+               <span (* id="lp4-3-wrapper" *) style="display:none;">
+                <div class={lp3} (* id="lp4-3-1" *)></div>
+                <div class={spacing}></div>
+                <div class={lp3} (* id="lp4-3-2" *)></div>
+                <div class={spacing}></div>
+                <div class={lp3} (* id="lp4-3-3" *)></div>
+               </span>
+               <div class={spacing}></div>
+                <span (* id="lp3-0-wrapper" *) style="display:inline;">
+               <div class={lp0}></div>
+              </span>
+              <span (* id="lp3-1-wrapper" *) style="display:none;">
+               <div class={lp1} (* id="lp3-1-1" *)></div>
+              </span>
+              <span (* id="lp3-2-wrapper" *) style="display:none;">
+               <div class={lp2} (* id="lp3-2-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp2} (* id="lp3-2-2" *)></div>
+              </span>
+              <span (* id="lp3-3-wrapper" *) style="display:none;">
+               <div class={lp3} (* id="lp3-3-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp3-3-2" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp3-3-3" *)></div>
+              </span>
+              <div class={spacing}></div>
+               <span (* id="lp2-0-wrapper" *) style="display:inline;">
+                <div class={lp0}></div>
+               </span>
+               <span (* id="lp2-1-wrapper" *) style="display:none;">
+                <div class={lp1} (* id="lp2-1-1" *)></div>
+               </span>
+              <span (* id="lp2-2-wrapper" *) style="display:none;">
+               <div class={lp2} (* id="lp2-2-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp2} (* id="lp2-2-2" *)></div>
+              </span>
+              <span (* id="lp2-3-wrapper" *) style="display:none;">
+               <div class={lp3} (* id="lp2-3-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp2-3-2" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp2-3-3" *)></div>
+              </span>
+              <div class={spacing}></div>
+              <span (* id="lp1-0-wrapper" *) style="display:inline;">
+               <div class={lp0}></div>
+              </span>
+              <span (* id="lp1-1-wrapper" *) style="display:none;">
+               <div class={lp1} (* id="lp1-1-1" *)></div>
+              </span>
+              <span (* id="lp1-2-wrapper" *) style="display:none;">
+               <div class={lp2} (* id="lp1-2-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp2} (* id="lp1-2-2" *)></div>
+              </span>
+              <span (* id="lp1-3-wrapper" *) style="display:none;">
+               <div class={lp3} (* id="lp1-3-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp1-3-2" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="lp1-3-3" *)></div>
+              </span>
+              <div class={spacing}></div>
+               <span (* id="lp0-0-wrapper" *) style="display:inline;">
+                <div class={lp0}></div>
+               </span>
+               <span (* id="lp0-1-wrapper" *) style="display:none;">
+                <div class={lp1} (* id="lp0-1-1" *)></div>
+               </span>
+               <span (* id="lp0-2-wrapper" *) style="display:none;">
+                <div class={lp2} (* id="lp0-2-1" *)></div>
+                <div class={spacing}></div>
+                <div class={lp2} (* id="lp0-2-2" *)></div>
+               </span>
+               <span (* id="lp0-3-wrapper" *) style="display:none;">
+                <div class={lp3} (* id="lp0-3-1" *)></div>
+                <div class={spacing}></div>
+                <div class={lp3} (* id="lp0-3-2" *)></div>
+                <div class={spacing}></div>
+                <div class={lp3} (* id="lp0-3-3" *)></div>
+               </span>
+              </div>
+             </div>
+           </div>
+           <span (* id="nhhh" *) (* style="float:left;background: rgba(0, 0, 0, 1.0); width:100%; padding:1%; border-radius:10%;" *)>
+            <div class={container5} (* style="background: rgba(200, 230, 255, 0.4); padding-bottom:1%; border-radius:5%; width:98%;" *)>
+             <div class={container4}>
+              <div class={container3}>
+               <div class={container2}>
+                <div class={container1}>
+                 <div class={col1}>
+                  <div (* onclick="phase.clickPlayerSoul(4)" *) (* id="playerSoul4" *) title="The fifth and last position in your soul cards. The card placed here will be the last to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points. If lose any soul points beyond this, you will lose the round.">
+                   <div (* id="playerSoulContainer4" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
+                    <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulFace4" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img (* id="playerSoulImage4" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulBack4" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
                    </div>
                   </div>
-                  <div class={col2}>
-                   <div (* onclick="phase.clickPlayerSoul(3)" *) (* id="playerSoul3" *) title="The fourth position in your soul cards. The card placed here will be the fourth to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
-                    <div (* id="playerSoulContainer3" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulFace3" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img (* id="playerSoulImage3" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulBack3" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
+                 </div>
+                 <div class={col2}>
+                  <div (* onclick="phase.clickPlayerSoul(3)" *) (* id="playerSoul3" *) title="The fourth position in your soul cards. The card placed here will be the fourth to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
+                   <div (* id="playerSoulContainer3" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
+                    <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
                    </div>
-                   <!-- Column two end -->
-                  </div>
-                  <div class={col3}>
-                   <!-- Column three start -->
-                   <div (* onclick="phase.clickPlayerSoul(2)" *) (* id="playerSoul2" *) title="The third position in your soul cards. The card placed here will be the third to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
-                    <div (* id="playerSoulContainer2" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulFace2" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img (* id="playerSoulImage2" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulBack2" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
+                   <div (* id="playerSoulFace3" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img (* id="playerSoulImage3" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulBack3" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
                    </div>
                   </div>
-                  <div class={col4}>
-                   <div (* onclick="phase.clickPlayerSoul(1)" *) (* id="playerSoul1" *) title="The second position in your soul cards. The card placed here will be the second to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
-                    <div (* id="playerSoulContainer1" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulFace1" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img (* id="playerSoulImage1" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulBack1" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
+                 </div>
+                 <div class={col3}>
+                  <div (* onclick="phase.clickPlayerSoul(2)" *) (* id="playerSoul2" *) title="The third position in your soul cards. The card placed here will be the third to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
+                   <div (* id="playerSoulContainer2" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
+                    <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulFace2" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img (* id="playerSoulImage2" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulBack2" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
                    </div>
                   </div>
-                  <div class={col5}>
-                   <div (* onclick="phase.clickPlayerSoul(0)" *) (* id="playerSoul0" *) title="The first position in your soul cards. The card placed here will be the first to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
-                    <div (* id="playerSoulContainer0" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
-                     <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulFace0" *) class={face____front____card____unselected} (* style="border-radius:10%; margin-top:4%; margin-bottom:0%; display:none;" *)>
-                     <img (* id="playerSoulImage0" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
-                    <div (* id="playerSoulBack0" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
-                     <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
-                    </div>
+                 </div>
+                 <div class={col4}>
+                  <div (* onclick="phase.clickPlayerSoul(1)" *) (* id="playerSoul1" *) title="The second position in your soul cards. The card placed here will be the second to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
+                   <div (* id="playerSoulContainer1" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
+                    <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulFace1" *) class={face____front____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img (* id="playerSoulImage1" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulBack1" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                  </div>
+                 </div>
+                 <div class={col5}>
+                  <div (* onclick="phase.clickPlayerSoul(0)" *) (* id="playerSoul0" *) title="The first position in your soul cards. The card placed here will be the first to absorb soul damage, and its soul skill will trigger when it reaches 0 soul points.">
+                   <div (* id="playerSoulContainer0" *) class={unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;">
+                    <img src="https://dl.dropbox.com/s/ic01iftgmkjw9ru/soul.png?dl=0" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulFace0" *) class={face____front____card____unselected} (* style="border-radius:10%; margin-top:4%; margin-bottom:0%; display:none;" *)>
+                    <img (* id="playerSoulImage0" *) src="./battle.jsp_files/ApocalypseDragonDisplay.jpg" style="width:80%; padding:10%; border-radius:10%;"/>
+                   </div>
+                   <div (* id="playerSoulBack0" *) class={backside____backRotate____back____card____unselected} style="border-radius:10%; margin-top:4%; margin-bottom:0%;  display:none;">
+                    <img src="./battle.jsp_files/cardback.png" style="width:80%; padding:10%; border-radius:10%;"/>
                    </div>
                   </div>
                  </div>
@@ -1820,58 +1887,47 @@ fun main () : transaction page = return <xml><head>
                </div>
               </div>
              </div>
-            </span>
-
+            </div>
+           </span>
 (*
-            <div class={container2of2with0}>
-             <div class={container1of2with0}>
-              <div class={col1of2with0}>
-               <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *) (* onclick="userInput.resignRound();" *)>Resign Round</button>
-              </div>
-              <div class={col2of2with0}>
-               <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *) (* onclick="userInput.resignGame();" *)>Resign Game</button>
-              </div>
+           <div class={container2of2with0}>
+            <div class={container1of2with0}>
+             <div class={col1of2with0}>
+              <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *) (* onclick="userInput.resignRound();" *)>Resign Round</button>
+             </div>
+             <div class={col2of2with0}>
+              <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *) (* onclick="userInput.resignGame();" *)>Resign Game</button>
              </div>
             </div>
-
-
-            <div (* style="display:none" *)>
-             <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *)>Return to Lobby</button>
-            </div>
-*)
            </div>
-
-
-
-
-           <div class={col3of3with2big}>
-             <div style =	"position: relative;">
-             <svg style = "width:2000px;height:4700px;" (*class="imageMessages"*)></svg>
-             
-             <div class={positionerMessages} style = "position:absolute;top:0px;width:100%; background-color:red;height:100%;">
-            
-
-               <div style = "width:100%; background-color:blue; height:18%;">
-
-
-<div style = "width:50%; height:100%; background-color:orange;float:left;">
-                <div class={clockDisplay} title="When your opponent runs out of time, they lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="enemyClockDisplay" *) style="font-size: 10px;">
+           <div (* style="display:none" *)>
+            <button class={myButtonResign} (* style="width: 100%; padding-top: 10%; padding-bottom: 10%; font-size: 5.686px;" *)>Return to Lobby</button>
+           </div>
+*)
+          </div>
+          <div class={col3of3with2big}>
+           <div style =	"position: relative;">
+            <svg style = "width:2000px;height:4700px;" (*class="imageMessages"*) class = {imagWOWURWEBERRORe}></svg> 
+            <div class={positionerMessages} style = "position:absolute;top:0px;width:100%; background-color:red;height:100%;">
+             <div style = "width:100%; background-color:blue; height:18%;">
+              <div style = "width:50%; height:100%; background-color:orange;float:left;">
+               <div class={clockDisplay} title="When your opponent runs out of time, they lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="enemyClockDisplay" *) style="font-size: 10px;">
                         15:00
-     </div>
-     <div class={clockDisplay} title="When you run out of time, you lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="playerClockDisplay" *) style="font-size: 10px;">
+               </div>
+               <div class={clockDisplay} title="When you run out of time, you lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="playerClockDisplay" *) style="font-size: 10px;">
                   15:00
-     </div>
-    </div>
-    <div style = "width:50%; height:100%; background-color:yellow;float:left;">
-     <button class={myButtonResign} style="float:left; width:100%; height: 100%; font-size: 5.686px;" (* onclick="userInput.resignRound();" *)>Resign
-     </button>
-     </div>
-    </div>
-    <div style = "width:100%; background-color:pink; height:82%;clear:both;">
-     <div (*readonly=""*) (*name="comments"*) (* id="messageArea" *) style="height:100%; font-family:cursive; font-size:12px; text-align:left;border:groove #AAAAAA; resize:none; background-color:black; color:white; overflow-y:scroll; white-space:pre-wrap;">
-     </div>
-    </div>
-</div>
+               </div>
+              </div>
+              <div style = "width:50%; height:100%; background-color:yellow;float:left;">
+                <button class={myButtonResign} style="float:left; width:100%; height: 100%; font-size: 5.686px;" (* onclick="userInput.resignRound();" *)>Resign
+                </button>
+               </div>
+              </div>
+              <div style = "width:100%; background-color:pink; height:82%;clear:both;">
+               <div (*readonly=""*) (*name="comments"*) (* id="messageArea" *) style="height:100%; font-family:cursive; font-size:12px; text-align:left;border:groove #AAAAAA; resize:none; background-color:black; color:white; overflow-y:scroll; white-space:pre-wrap;">
+               </div>
+              </div>
+             </div>
             </div>
            </div>
           </div>
