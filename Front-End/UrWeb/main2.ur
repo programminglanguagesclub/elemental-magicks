@@ -175,7 +175,7 @@ fun main () : transaction page = return <xml><head>
   <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/7mlcwyu8ohtgj6m/clock.css?dl=0"/>
   <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/0kjeyzn7tb0qmzn/fire.css?dl=0"/>
 
-(*
+
   <script src="./battle.jsp_files/jquery-latest.js"></script>
   <script src="./battle.jsp_files/jquery-latest(1).js"></script>
   <script src="./battle.jsp_files/cardStat.js"></script>
@@ -189,7 +189,8 @@ fun main () : transaction page = return <xml><head>
   <script src="./battle.jsp_files/phase.js" type="text/javascript"></script>
   <script src="./battle.jsp_files/updateFunctions.js" type="text/javascript"></script>
   <script src="./battle.jsp_files/userInput.js" type="text/javascript"></script>
-  <script type="text/javascript" src="./battle.jsp_files/jsapi"></script><style type="text/css"></style>
+  <script type="text/javascript" src="./battle.jsp_files/jsapi"></script>
+(*
   <script language="javascript">  
   
     If I keep a unit up until it is the next unit's turn, it creates the impression that the unit is not engaged immediately after it executes an ability,
