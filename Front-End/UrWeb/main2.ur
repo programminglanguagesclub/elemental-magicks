@@ -1334,15 +1334,107 @@ fun main () : transaction page = return <xml><head>
               <span (* id="enemylp4-1-wrapper" *) style="display:none;">
                <div class={lp1} (* id="enemylp4-1-1" *)></div>
               </span>
-              <span (* id="enemylp4-2-wrapper" *) style="display:none;"><div class={lp2} (* id="enemylp4-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="enemylp4-2-2" *)></div></span><span (* id="enemylp4-3-wrapper" *) style="display:none;"><div class={lp3} (* id="enemylp4-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp4-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp4-3-3" *)></div></span><div class={spacing}></div><span (* id="enemylp3-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="enemylp3-1-wrapper" *) style="display:none;"><div class={lp1} (* id="enemylp3-1-1" *)></div></span><span (* id="enemylp3-2-wrapper" *) style="display:none;"><div class={lp2} (* id="enemylp3-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="enemylp3-2-2" *)></div></span><span (* id="enemylp3-3-wrapper" *) style="display:none;"><div class={lp3} (* id="enemylp3-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp3-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp3-3-3" *)></div></span><div class={spacing}></div><span (* id="enemylp2-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="enemylp2-1-wrapper" *) style="display:none;"><div class={lp1} (* id="enemylp2-1-1" *)></div></span><span (* id="enemylp2-2-wrapper" *) style="display:none;"><div class={lp2} (* id="enemylp2-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="enemylp2-2-2" *)></div></span><span (* id="enemylp2-3-wrapper" *) style="display:none;"><div class={lp3} (* id="enemylp2-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp2-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp2-3-3" *)></div></span><div class={spacing}></div><span (* id="enemylp1-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="enemylp1-1-wrapper" *) style="display:none;"><div class={lp1} (* id="enemylp1-1-1" *)></div></span><span (* id="enemylp1-2-wrapper" *) style="display:none;"><div class={lp2} (* id="enemylp1-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="enemylp1-2-2" *)></div></span><span (* id="enemylp1-3-wrapper" *) style="display:none;"><div class={lp3} (* id="enemylp1-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp1-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp1-3-3" *)></div></span><div class={spacing}></div><span (* id="enemylp0-0-wrapper" *) style="display:inline;"><div class={lp0}></div></span><span (* id="enemylp0-1-wrapper" *) style="display:none;"><div class={lp1} (* id="enemylp0-1-1" *)></div></span><span (* id="enemylp0-2-wrapper" *) style="display:none;"><div class={lp2} (* id="enemylp0-2-1" *)></div><div class={spacing}></div><div class={lp2} (* id="enemylp0-2-2" *)></div></span><span (* id="enemylp0-3-wrapper" *) style="display:none;"><div class={lp3} (* id="enemylp0-3-1" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp0-3-2" *)></div><div class={spacing}></div><div class={lp3} (* id="enemylp0-3-3" *)></div></span>
-             </div>
+              <span (* id="enemylp4-2-wrapper" *) style="display:none;">
+               <div class={lp2} (* id="enemylp4-2-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp2} (* id="enemylp4-2-2" *)></div>
+              </span>
+              <span (* id="enemylp4-3-wrapper" *) style="display:none;">
+               <div class={lp3} (* id="enemylp4-3-1" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="enemylp4-3-2" *)></div>
+               <div class={spacing}></div>
+               <div class={lp3} (* id="enemylp4-3-3" *)></div>
+              </span>
+              <div class={spacing}></div>
+              <span (* id="enemylp3-0-wrapper" *) style="display:inline;">
+               <div class={lp0}></div>
+              </span>
+             <span (* id="enemylp3-1-wrapper" *) style="display:none;">
+              <div class={lp1} (* id="enemylp3-1-1" *)></div>
+             </span>
+             <span (* id="enemylp3-2-wrapper" *) style="display:none;">
+              <div class={lp2} (* id="enemylp3-2-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp2} (* id="enemylp3-2-2" *)></div>
+             </span>
+             <span (* id="enemylp3-3-wrapper" *) style="display:none;">
+              <div class={lp3} (* id="enemylp3-3-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp3-3-2" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp3-3-3" *)></div>
+             </span>
+             <div class={spacing}></div>
+             <span (* id="enemylp2-0-wrapper" *) style="display:inline;">
+              <div class={lp0}></div>
+             </span>
+             <span (* id="enemylp2-1-wrapper" *) style="display:none;">
+              <div class={lp1} (* id="enemylp2-1-1" *)></div>
+             </span>
+             <span (* id="enemylp2-2-wrapper" *) style="display:none;">
+              <div class={lp2} (* id="enemylp2-2-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp2} (* id="enemylp2-2-2" *)></div>
+             </span>
+             <span (* id="enemylp2-3-wrapper" *) style="display:none;">
+              <div class={lp3} (* id="enemylp2-3-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp2-3-2" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp2-3-3" *)></div>
+             </span>
+             <div class={spacing}></div>
+             <span (* id="enemylp1-0-wrapper" *) style="display:inline;">
+              <div class={lp0}></div>
+             </span>
+             <span (* id="enemylp1-1-wrapper" *) style="display:none;">
+              <div class={lp1} (* id="enemylp1-1-1" *)></div>
+             </span>
+             <span (* id="enemylp1-2-wrapper" *) style="display:none;">
+              <div class={lp2} (* id="enemylp1-2-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp2} (* id="enemylp1-2-2" *)></div>
+             </span>
+             <span (* id="enemylp1-3-wrapper" *) style="display:none;">
+              <div class={lp3} (* id="enemylp1-3-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp1-3-2" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp1-3-3" *)></div>
+             </span>
+             <div class={spacing}></div>
+             <span (* id="enemylp0-0-wrapper" *) style="display:inline;">
+              <div class={lp0}></div>
+             </span>
+             <span (* id="enemylp0-1-wrapper" *) style="display:none;">
+              <div class={lp1} (* id="enemylp0-1-1" *)></div>
+             </span>
+             <span (* id="enemylp0-2-wrapper" *) style="display:none;">
+              <div class={lp2} (* id="enemylp0-2-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp2} (* id="enemylp0-2-2" *)></div>
+             </span>
+             <span (* id="enemylp0-3-wrapper" *) style="display:none;">
+              <div class={lp3} (* id="enemylp0-3-1" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp0-3-2" *)></div>
+              <div class={spacing}></div>
+              <div class={lp3} (* id="enemylp0-3-3" *)></div>
+             </span>
             </div>
            </div>
-           <span class={wrapper} (* id="cardarea" *)>
-            <svg style="width:1600px;height:2000px;" class={imagWOWURWEBERRORe}></svg>
-            <div class={positioner}>
-             <div style="padding-top: 125%;">
-              <div class={context_box}>
+          </div>
+          <span class={wrapper} (* id="cardarea" *)>
+           <svg style="width:1600px;height:2000px;" class={imagWOWURWEBERRORe}></svg>
+           <div class={positioner}>
+            <div style="padding-top: 125%;">
+             <div class={context_box}>
+           
+
+
+
+
                <div class={content}>
                 <div (* id="nondisplaycard" *)>
                  <div (* id="enemyResources" *) style="visibility:hidden;">
