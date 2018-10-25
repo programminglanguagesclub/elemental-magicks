@@ -1,6 +1,13 @@
 style unselected
 
 
+fun replicate [a::Type] => (x : int) (y : a) : list a =
+ case x of
+  0 => []
+  | _ => y::(replicate (x-1) y)
+
+
+
 val getBlah : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
 <div></div>
 </xml>
@@ -31,8 +38,11 @@ fun argle (l : list css_class) (x : xml ([Dyn = (), MakeForm = (), Body = ()]) (
  map (wrapWith x) l
 *)
 
+fun battle (x : string) : transaction page = return <xml>
+ <head></head><body><button onclick = {fn _ => alert(x)}>CLICK!</button>{fooBar}{wrapWith getBlah unselected}</body></xml>
 
-fun main () : transaction page = return <xml><head></head><body>{fooBar}{wrapWith getBlah unselected}</body></xml>
+
+fun main () : transaction page = return <xml><head></head><body><button onclick = {fn _ => alert("hello")}>CLICK!</button>{fooBar}{wrapWith getBlah unselected}</body></xml>
 
 
 
