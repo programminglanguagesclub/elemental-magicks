@@ -1,0 +1,276 @@
+/*-------------------------
+	Simple reset
+--------------------------*/
+
+
+*{
+	margin:0;
+	padding:0;
+}
+
+
+/*-------------------------
+	General Styles
+--------------------------*/
+
+
+html{
+	background:/*url('../img/bg.jpg')*/ #dbe4e6;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.face{} .backside{}
+.panel { position: relative; }
+.panellalala { margin: auto; position: relative; }
+.card { width: 100%; height: 100%; -o-transition: all .5s; -ms-transition: all .5s; -moz-transition: all .5s; -webkit-transition: all .5s; transition: all .5s;
+    -webkit-backface-visibility: hidden; -ms-backface-visibility: hidden; -moz-backface-visibility: hidden; backface-visibility: hidden;
+    position: absolute; top: 0px; left: 0px; }
+.front { z-index: 2;  }
+
+.frontflip { -webkit-transform: rotateY(180deg); -ms-transform: rotateY(180deg); -moz-transform: rotateY(180deg); transform: rotateY(180deg); }
+.shiftFront { -webkit-transform: translate(-10px,-10px); -ms-transform: translate(-10px,-10px); -moz-transform: translate(-10px,-10px); transform: translate(-10px,-10px); }
+.shiftFrontStayFlipped { -webkit-transform: translate(-10px,-10px) rotateY(180deg); -ms-transform: translate(-10px,-10px) rotateY(180deg);
+-moz-transform: translate(-10px,-10px) rotateY(180deg); transform: translate(-10px,-10px) rotateY(180deg); }
+.shiftBack { -webkit-transform: translate(10px,-10px); -ms-transform: translate(10px,-10px); -moz-transform: translate(10px,-10px); transform: translate(10px,-10px); }
+.backRotate { -webkit-transform: rotateY(-180deg); -ms-transform: rotateY(-180deg); -moz-transform: rotateY(-180deg);  transform: rotateY(-180deg); }
+.frontflipshift { -webkit-transform: rotateY(180deg) translate(10px,-10px); -ms-transform: rotateY(180deg)
+    translate(10px,-10px); -moz-transform: rotateY(180deg) translate(10px,-10px); transform: rotateY(180deg) translate(10px,-10px); }
+.backflip {  -webkit-transform: rotateY(0deg); -ms-transform: rotateY(0deg); -moz-transform: rotateY(0deg); transform: rotateY(0deg); }
+.back { z-index: 1; }
+.shadow {-webkit-filter: drop-shadow(6px 6px 6px rgba(0,0,0,0.75)); }
+.backflipshift { -webkit-transform: translate(-10px,-10px); -ms-transform: translate(-10px,-10px);
+	-moz-transform: translate(-10px,-10px); transform: translate(-10px,-10px);
+
+}
+
+table {
+	border: none;
+	border-collapse: collapse;
+}
+
+input
+{
+  -moz-border-radius: 15px;
+ border-radius: 15px;
+    border:solid 1px black; 
+    padding-left:4%;
+    width:100%;
+    background-color:#ADC8D6;
+     font: 7px Arial, sans-serif;
+}
+input:focus{
+    outline : none;
+}
+
+.checkbox{
+	
+}
+
+
+
+
+
+
+#cardListLeft{
+-webkit-transform: rotate(-180deg);
+font-size:50px;
+}
+#cardListRight{
+	font-size:50px;
+}
+
+
+
+
+
+
+
+
+
+
+
+.turnNumber{
+	color:white;
+	font-size:46px;
+	text-align:center;
+}
+
+.playerName, .opponentName, .opponentRating, .playerRating{
+	color:black;
+	font-size:30px;
+	text-align:center;
+}
+
+.playerScore, .opponentScore{
+	color:white;
+	font-size:30px;
+	text-align:center;
+}
+
+.playerInformation, .opponentInformation{
+	border:1px solid black;
+	background-color: grey;
+	
+}
+.turnNumber{
+	background-color:#505050;
+	color:black;
+}
+
+/*-------------------------
+	The clocks
+--------------------------*/
+
+
+#clock{
+	padding:2%;
+	margin-top:2%;
+	margin-bottom:2%;
+}
+#clock2{
+	padding:2%;
+	margin-top:2%;
+	margin-bottom:2%;
+}
+
+
+#clock .clockDisplay{
+	text-align:center;
+	border-radius:10%;
+	position:relative;
+}
+
+
+
+
+
+
+
+
+/*-------------------------
+	Dark color theme
+--------------------------*/
+
+#theclock{
+background-color:#171e28;
+padding:2%;
+}
+
+#clock.dark{
+	background-color:#272e38;
+	color:#cacaca;
+}
+
+
+#clock.dark .digits div span{
+	background-color:#cacaca;
+	border-color:#cacaca;	
+}
+
+#clock.dark .alarm{
+	background:url('../img/alarm_dark.jpg');
+}
+
+#clock.dark .clockDisplay{
+	background-color:#0f1620
+}
+
+#clock.dark .digits div.dots:before,
+#clock.dark .digits div.dots:after{
+	background-color:#cacaca;
+}
+
+
+
+#clock .digits div span{
+	opacity:0;
+	position:absolute;
+
+	-webkit-transition:0.25s;
+	-moz-transition:0.25s;
+	transition:0.25s;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#clock2 .clockDisplay{
+	text-align:center;
+	border-radius:10%;
+	position:relative;
+}
+
+
+
+
+
+
+
+
+/*-------------------------
+	Dark color theme
+--------------------------*/
+
+
+#clock2.dark{
+	background-color:#272e38;
+	color:#cacaca;
+}
+
+
+#clock2.dark .digits div span{
+	background-color:#cacaca;
+	border-color:#cacaca;	
+}
+
+#clock2.dark .alarm{
+	background:url('../img/alarm_dark.jpg');
+}
+
+#clock2.dark .clockDisplay{
+	background-color:#0f1620
+}
+
+#clock2.dark .digits div.dots:before,
+#clock2.dark .digits div.dots:after{
+	background-color:#cacaca;
+}
+
+
+
+#clock2 .digits div span{
+	opacity:0;
+	position:absolute;
+
+	-webkit-transition:0.25s;
+	-moz-transition:0.25s;
+	transition:0.25s;
+}
+
+
+
+
