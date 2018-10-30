@@ -20,6 +20,7 @@ style ball_void
 style ball_void____value_0
 style ball_water
 style ball_water____value_0
+style bodyStyle
 style box
 style card
 style cardList
@@ -176,6 +177,7 @@ fun main () : transaction page = return <xml><head>
   <link rel="stylesheet" type="text/css" href="https://dl.dropbox.com/s/0kjeyzn7tb0qmzn/fire.css?dl=0"/>
 
 
+(*
   <script src="./battle.jsp_files/jquery-latest.js"></script>
   <script src="./battle.jsp_files/jquery-latest(1).js"></script>
   <script src="./battle.jsp_files/cardStat.js"></script>
@@ -190,6 +192,8 @@ fun main () : transaction page = return <xml><head>
   <script src="./battle.jsp_files/updateFunctions.js" type="text/javascript"></script>
   <script src="./battle.jsp_files/userInput.js" type="text/javascript"></script>
   <script type="text/javascript" src="./battle.jsp_files/jsapi"></script>
+*)
+
 (*
   <script language="javascript">  
   
@@ -201,7 +205,9 @@ fun main () : transaction page = return <xml><head>
 
 *)
  </head>
- <body (* id="active2" *) (* style="display: block; overflow: hidden;" *)>
+ <body (* id="active2" *) (* style="display: block; overflow: hidden;" *) class={bodyStyle} (*style = "background-color:black;"*)>
+
+
   (*<div (* id="loadingScreen" *) (* style="background-color: #000;width:100%; height:100%; text-align:center; color:white; z-index:6000000; position:fixed;right:0;top:0;display:block;" *)>
    <span (* id="loadingScreenText" *) (* style="textalign:center;font-size:42px;" *)>Opponent Still Connecting.</span>
    <br>
@@ -243,7 +249,7 @@ fun main () : transaction page = return <xml><head>
             </span>
             <div class={outerGraveyard}>
              <span class={wrapper}>
-              <svg style="width:500px;height:500px;" class={imagWOWURWEBERRORe____graveyardbackground}></svg> *)
+              <svg style="width:500px;height:500px;" class={imagWOWURWEBERRORe____graveyardbackground}></svg>
               <div class={positioner}>
                <div style="padding-top: 100%;">
                 <div class={context_box}>
@@ -1239,7 +1245,7 @@ fun main () : transaction page = return <xml><head>
                  </div>
                  <div class={col57777}>
                   <div (* id="drawcardbutton" *) title="Draws the currently selected card from the card list to either your hand, or, every six draws, your selected position among your soul cards" class={displayAreaUnselected} style=" border-radius:25%;" (* onclick="drawCard();" *)>
-                   <img class={iconImage} src="./battle.jsp_files/3h69qP1404547095.png"/>
+                   <img class={iconImage} src="https://dl.dropbox.com/s/mx9p37vucym4f4l/3h69qP1404547095.png?dl=0"/>
                   </div>
                  </div>
                 </div>
@@ -2000,19 +2006,19 @@ fun main () : transaction page = return <xml><head>
           </div>
           <div class={col3of3with2big}>
            <div style =	"position: relative;">
-            <svg style = "width:2000px;height:4700px;" (*class="imageMessages"*) class = {imagWOWURWEBERRORe}></svg> 
+            <svg style = "width:2000px;height:2400px;" (*class="imageMessages"*) class = {imagWOWURWEBERRORe}></svg> 
             <div class={positionerMessages} style = "position:absolute;top:0px;width:100%; background-color:red;height:100%;">
              <div style = "width:100%; background-color:blue; height:18%;">
               <div style = "width:50%; height:100%; background-color:orange;float:left;">
-               <div class={clockDisplay} title="When your opponent runs out of time, they lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="enemyClockDisplay" *) style="font-size: 10px;">
+               <div class={clockDisplay} title="When your opponent runs out of time, they lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="enemyClockDisplay" *) style="font-size: 100px;">
                         15:00
                </div>
-               <div class={clockDisplay} title="When you run out of time, you lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="playerClockDisplay" *) style="font-size: 10px;">
+               <div class={clockDisplay} title="When you run out of time, you lose the round. Time is allocated separately at the beginning of the first and second rounds." (* id="playerClockDisplay" *) style="font-size: 100px;">
                   15:00
                </div>
               </div>
               <div style = "width:50%; height:100%; background-color:yellow;float:left;">
-                <button class={myButtonResign} style="float:left; width:100%; height: 100%; font-size: 5.686px;" (* onclick="userInput.resignRound();" *)>Resign
+                <button class={myButtonResign} style="float:left; width:100%; height: 100%; font-size: 200px;" (* onclick="userInput.resignRound();" *)>Resign
                 </button>
                </div>
               </div>
