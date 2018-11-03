@@ -1,10 +1,12 @@
 style unselected
 
 
-fun replicate [a::Type] => (x : int) (y : a) : list a =
+
+fun wrapList (x : list (xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]))) : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) =
  case x of
-  0 => []
-  | _ => y::(replicate (x-1) y)
+ [] => <xml></xml>
+ | (y::ys) => <xml>{y} {wrapList ys}</xml>
+
 
 
 
