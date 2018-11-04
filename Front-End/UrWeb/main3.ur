@@ -1,7 +1,4 @@
-
 style unselected
-
-
 (*from standard lib*)
 val rev = fn [a] =>
              let
@@ -12,7 +9,6 @@ val rev = fn [a] =>
              in
                  rev' []
              end
-
 (*---------------------------------------------------------------------------*)
 fun replicate
  [a ::: Type]
@@ -54,34 +50,25 @@ val fooBar : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
   <img style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
  </div>
 </xml>
-
+(*---------------------------------------------------------------------------*)
 val manyFoos = wrapList (replicate 10 fooBar)
-
-
-
+(*---------------------------------------------------------------------------*)
 fun wrap (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
  <div class={unselected}> {x} </div>
 </xml>
-
+(*---------------------------------------------------------------------------*)
 fun wrapWith (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) (y : css_class) : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
  <div class={y}> {x} </div>
 </xml>
-
-
-
-val manyClasses : list css_class = unselected::unselected::unselected::unselected::[]
-
-(*
-fun argle (l : list css_class) (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) : list (xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) =
- map (wrapWith x) l
-*)
-
+(*---------------------------------------------------------------------------*)
+val manyClasses : list css_class =
+ unselected::unselected::unselected::unselected::[]
+(*---------------------------------------------------------------------------*)
 fun battle (x : string) : transaction page = return <xml>
  <head></head><body><button onclick = {fn _ => alert(x)}>CLICK!</button></body></xml>
-
-
+(*---------------------------------------------------------------------------*)
 fun main () : transaction page = return <xml><head></head><body><button onclick = {fn _ => alert("hello")}>CLICK!</button></body></xml>
-
+(*---------------------------------------------------------------------------*)
 
 (*
 
