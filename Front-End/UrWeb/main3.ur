@@ -42,29 +42,13 @@ fun wrapList
   [] => <xml></xml>
   | (y::ys) => <xml>{y} {wrapList ys}</xml>
 (*---------------------------------------------------------------------------*)
-
-(*---------------------------------------------------------------------------*)
-fun replicateAndWrapWithDiv
+fun replicateAndWrap
  (i : int)
  (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]))
- (y : css_class)
  : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) =
 
- <xml><div class={y}>{wrapList (replicate i x)}</div></xml>
+ wrapList (replicate i x)
 (*---------------------------------------------------------------------------*)
-fun replicateAndWrapWithSpan
- (i : int)
- (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]))
- (y : css_class)
- : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) =
-
- <xml><span class={y}>{wrapList (replicate i x)}</span></xml>
-(*---------------------------------------------------------------------------*)
-val getBlah : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
-<div></div>
-</xml>
-
-
 val fooBar : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]) = <xml>
  <div style="visibility:hidden; border-radius:10%;margin-top:0%; margin-bottom:4%;" class={unselected}>
   <img style="width:80%; padding:10%; border-radius:10%;" src="./battle.jsp_files/ApocalypseDragonDisplay.jpg"/>
@@ -93,10 +77,10 @@ fun argle (l : list css_class) (x : xml ([Dyn = (), MakeForm = (), Body = ()]) (
 *)
 
 fun battle (x : string) : transaction page = return <xml>
- <head></head><body><button onclick = {fn _ => alert(x)}>CLICK!</button>{fooBar}{wrapWith getBlah unselected}</body></xml>
+ <head></head><body><button onclick = {fn _ => alert(x)}>CLICK!</button></body></xml>
 
 
-fun main () : transaction page = return <xml><head></head><body><button onclick = {fn _ => alert("hello")}>CLICK!</button>{fooBar}{wrapWith getBlah unselected}</body></xml>
+fun main () : transaction page = return <xml><head></head><body><button onclick = {fn _ => alert("hello")}>CLICK!</button></body></xml>
 
 
 (*
