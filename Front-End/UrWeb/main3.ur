@@ -14,9 +14,6 @@ val rev = fn [a] =>
              end
 
 (*---------------------------------------------------------------------------*)
-fun guh [goo ::: Type] (x : goo) = x
-
-(*---------------------------------------------------------------------------*)
 fun replicate
  [a ::: Type]
  (i : int)
@@ -25,10 +22,11 @@ fun replicate
 
  let 
   fun replicate'
+   [a ::: Type]
    (i : int)
-   (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]))
-   (acc : list (xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])))
-   : list (xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) =
+   (x : a)
+   (acc : list a)
+   : list a =
    case i of
     0 => rev acc
     | _ => replicate' (i - 1) x (x::acc)
