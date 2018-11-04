@@ -18,9 +18,10 @@ fun guh [goo ::: Type] (x : goo) = x
 
 (*---------------------------------------------------------------------------*)
 fun replicate
+ [a ::: Type]
  (i : int)
- (x : xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([]))
- : list (xml ([Dyn = (), MakeForm = (), Body = ()]) ([]) ([])) =
+ (x : a)
+ : list a =
 
  let 
   fun replicate'
